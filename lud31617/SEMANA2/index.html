@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tareas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Elemento para la nueva animación de cambio de tema -->
+    <div class="theme-transition" id="theme-transition"></div>
+
+    <div class="bg-animation">
+        <div class="nebula"></div>
+        <div class="stars" id="stars-container"></div>
+        <div id="logo-stars" class="logo-stars"></div>
+        <div id="shooting-stars-container"></div>
+    </div>
+
+    <div class="container">
+        <!-- Solo el theme switcher con íconos externos -->
+        <div class="theme-switch-wrapper">
+            <span class="theme-icon">🌙</span>
+            <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider"></div>
+            </label>
+            <span class="theme-icon">☀️</span>
+        </div>
+        
+        <main>
+            <!-- Animated Logo without container -->
+            <div class="logo-wrapper animate-on-scroll">
+                <div class="logo-orbit">
+                    <div class="logo-planet"></div>
+                </div>
+                <div class="logo-text">TAREAS</div>
+            </div>
+
+            <!-- Tabs Header flotante -->
+            <div class="tabs-header animate-on-scroll">
+                <button class="tab-btn active" data-tab="personal">Personal</button>
+                <button class="tab-btn" data-tab="professional">Professional</button>
+            </div>
+            
+            <!-- Panel Personal - Ahora flotante -->
+            <div id="personal" class="tab-content active animate-on-scroll">
+                <div class="input-bar">
+                    <input type="text" id="input-personal" placeholder="What do you need to do?">
+                    <button class="btn-add" id="add-personal">ADD</button>
+                </div>
+                <ul class="tasks" id="list-personal">
+                    <!-- Tareas personales aquí -->
+                </ul>
+                <button class="clear-completed" id="clear-personal">Clear Completed</button>
+            </div>
+            
+            <!-- Panel Professional - Ahora flotante -->
+            <div id="professional" class="tab-content animate-on-scroll">
+                <div class="input-bar">
+                    <input type="text" id="input-professional" placeholder="What do you need to do?">
+                    <button class="btn-add" id="add-professional">ADD</button>
+                </div>
+                <ul class="tasks" id="list-professional">
+                    <!-- Tareas profesionales aquí -->
+                </ul>
+                <button class="clear-completed" id="clear-professional">Clear Completed</button>
+            </div>
+        </main>
+
+        <footer class="animate-on-scroll">
+            <p>Gestor de Tareas - Desarrollado con ❤️ para la clase. &copy; Noah</p>
+        </footer>
+    </div>
+
+    <script>
+        // ================== THEME SWITCHER ==================
+        const toggleSwitch = document.querySelector('#checkbox');
+        const body = document.querySelector('body');
+        const themeTransition = document.getElementById('theme-transition');
+        
+        // Check for saved theme preference or use system preference
+        const currentTheme = localStorage.getItem('theme') || 
+            (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        
+        if (currentTheme === 'light') {
+            body.classList.add('light-mode');
+            toggleSwitch.checked = true;
+        }
+        
+        // Nueva función para cambio de tema con animación elegante
+        function switchTheme(e) {
+            // Activar la animación de transición
+            themeTransition.classList.add('active');
+            
+            // Cambiar el tema después de un pequeño retraso
+            setTimeout(() => {
+                if (e.target.checked) {
+                    body.classList.add('light-mode');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    body.classList.remove('light-mode');
+                    localStorage.setItem('theme', 'dark');
+                }
+                
+                // Quitar la clase active después de que termine la animación
+                setTimeout(() => {
+                    themeTransition.classList.remove('active');
+                }, 1000);
+            }, 300);
+        }
+        
+        toggleSwitch.addEventListener('change', switchTheme);
+        
+        // ================== BACKGROUND STARS & ANIMATION ==================
+        // Almacenar referencias a las estrellas
+        const starElements = [];
+        
+        function createStars() {
+            const stars = document.getElementById('stars-container');
+            const count = 150; // Reduced count for better performance
+            
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Random position
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                
+                // Random size (slightly larger for better visibility)
+                const size = Math.random() * 3 + 1;
+                
+                // Random animation delay
+                const delay = Math.random() * 5;
+                
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.animationDelay = `${delay}s`;
+                
+                // Store star data for reference
+                starElements.push({
+                    element: star,
+                    x: x,
+                    y: y,
+                    size: size
+                });
+                
+                stars.appendChild(star);
+            }
+        }
+        
+        function createShootingStars() {
+            const container = document.getElementById('shooting-stars-container');
+            const maxStars = 5;
+            
+            function createStar() {
+                if (container.children.length >= maxStars) return;
+                
+                const star = document.createElement('div');
+                star.classList.add('shooting-star');
+                
+                // Random position and angle
+                const startX = Math.random() * 100;
+                const startY = Math.random() * 100;
+                const angle = Math.random() * 45;
+                
+                star.style.left = `${startX}%`;
+                star.style.top = `${startY}%`;
+                star.style.transform = `rotate(${angle}deg)`;
+                
+                // Animation
+                const duration = Math.random() * 3 + 2; // 2-5 seconds
+                star.style.animation = `shootingStar ${duration}s linear`;
+                
+                container.appendChild(star);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    star.remove();
+                    // Create a new one after this one is gone
+                    setTimeout(createStar, Math.random() * 2000);
+                }, duration * 1000);
+            }
+            
+            // Create initial shooting stars with random delays
+            for (let i = 0; i < maxStars; i++) {
+                setTimeout(createStar, Math.random() * 5000);
+            }
+        }
+        
+        // Create stars for the logo background
+        function createLogoStars() {
+            const starsContainer = document.getElementById('logo-stars');
+            const count = 50;
+            
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.classList.add('logo-star');
+                
+                // Random position
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                
+                // Random size
+                const size = Math.random() * 3 + 1;
+                
+                // Random animation delay
+                const delay = Math.random() * 3;
+                
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.animationDelay = `${delay}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        createStars();
+        createShootingStars();
+        createLogoStars();
+        
+        // ================== SCROLL ANIMATION ==================
+        function checkScroll() {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        window.addEventListener('load', () => {
+            checkScroll();
+            
+            // Fuerza que se muestren tras un pequeño delay
+            setTimeout(() => {
+                document.querySelectorAll('.animate-on-scroll').forEach(el => {
+                    el.classList.add('visible');
+                });
+            }, 500);
+        });
+        
+        window.addEventListener('scroll', checkScroll);
+
+        // ================== TABS FUNCTIONALITY ==================
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Desactivar todas las pestañas
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+
+                // Activar la pestaña clicada
+                btn.classList.add('active');
+                const target = btn.getAttribute('data-tab');
+                document.getElementById(target).classList.add('active');
+            });
+        });
+
+        // ================== TASKS FUNCTIONALITY ==================
+        // Reutilizamos la misma lógica para personal y professional
+        const personalInput = document.getElementById('input-personal');
+        const personalList = document.getElementById('list-personal');
+        const personalAddBtn = document.getElementById('add-personal');
+        const personalClearBtn = document.getElementById('clear-personal');
+
+        const professionalInput = document.getElementById('input-professional');
+        const professionalList = document.getElementById('list-professional');
+        const professionalAddBtn = document.getElementById('add-professional');
+        const professionalClearBtn = document.getElementById('clear-professional');
+
+        function addTask(listElement, text) {
+            // Crea un <li> con checkbox, texto y botón de eliminar
+            const li = document.createElement('li');
+            li.classList.add('task-item');
+
+            // Evitar que aparezca "salto" en la animación de la primera tarea
+            // forzamos la animación
+            li.style.animationDelay = '0s';
+
+            // Checkbox + texto
+            const label = document.createElement('label');
+            label.classList.add('task-label');
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+
+            const spanText = document.createElement('span');
+            spanText.classList.add('task-text');
+            spanText.textContent = text;
+
+            label.appendChild(checkbox);
+            label.appendChild(spanText);
+
+            // Botón eliminar
+            const deleteBtn = document.createElement('button');
+            deleteBtn.classList.add('delete-btn');
+            deleteBtn.textContent = '🗑️';
+
+            // Eventos
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    spanText.classList.add('completed');
+                } else {
+                    spanText.classList.remove('completed');
+                }
+            });
+
+            deleteBtn.addEventListener('click', () => {
+                listElement.removeChild(li);
+            });
+
+            // Añadir todo al <li>
+            li.appendChild(label);
+            li.appendChild(deleteBtn);
+
+            // Finalmente añadir a la lista
+            listElement.appendChild(li);
+        }
+
+        // Funciones de agregar tarea
+        personalAddBtn.addEventListener('click', () => {
+            const text = personalInput.value.trim();
+            if (text !== '') {
+                addTask(personalList, text);
+                personalInput.value = '';
+                personalInput.focus();
+            }
+        });
+        professionalAddBtn.addEventListener('click', () => {
+            const text = professionalInput.value.trim();
+            if (text !== '') {
+                addTask(professionalList, text);
+                professionalInput.value = '';
+                professionalInput.focus();
+            }
+        });
+
+        // Permitir Enter para agregar
+        personalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                personalAddBtn.click();
+            }
+        });
+        professionalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                professionalAddBtn.click();
+            }
+        });
+
+        // Botón Clear Completed
+        personalClearBtn.addEventListener('click', () => {
+            const items = personalList.querySelectorAll('.task-item');
+            items.forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                if (checkbox && checkbox.checked) {
+                    personalList.removeChild(item);
+                }
+            });
+        });
+        professionalClearBtn.addEventListener('click', () => {
+            const items = professionalList.querySelectorAll('.task-item');
+            items.forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                if (checkbox && checkbox.checked) {
+                    professionalList.removeChild(item);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
