@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="index.css">
+<head>
+    <meta charset="UTF-8" />
+</head>
+<body>
+    <div class="Add-list"></div>
+    <h2 id="titulo">RECORDATORIOS</h2>
+
+    <form action="/resultado" method="post" id="Add-reminder">
+        <input name="Add" type="text" placeholder="Agregar recordatorio">
+        <button type="submit">Agregar</button>
+    </form>
+  
+    </body>
+
+    <div class="todo-container">
+        <ul class="todo-list">
+            <li>
+                <label for="opcion1">
+                    <input type="checkbox" id="opcion1" value="opcion1"> Pagar la UAP
+                </label>
+                <button class="delete-btn">
+                    <img src="trash.png" alt="Eliminar">
+                </button>
+            </li>
+            <li>
+                <label for="opcion2">
+                    <input type="checkbox" id="opcion2" value="opcion2"> Hacer TP Progra 3
+                </label>
+                <button class="delete-btn">
+                    <img src="trash.png" alt="Eliminar">
+                </button>
+            </li>
+            <li>
+                <label for="opcion3">
+                    <input type="checkbox" id="opcion3" value="opcion3"> Hacer ejercicio
+                </label>
+                <button class="delete-btn">
+                    <img src="trash.png" alt="Eliminar">
+                </button>
+            </li>
+            <li>
+                <label for="opcion4">
+                    <input type="checkbox" id="opcion4" value="opcion4"> Ir a la verdulería
+                </label>
+                <button class="delete-btn">
+                    <img src="trash.png" alt="Eliminar">
+                </button>
+            </li>
+        </ul>
+        <div class="clear-container">
+            <button type="submit" id="Clear-completed"> Eliminar completados</button>
+        </div>
+    </div>
+    
+
+<script>
+    document.querySelector("form").addEventListener ("submit", (e) => {
+        e.preventDefault();
+        alert("Formulario enviado");
+    });
+</script>
+</html>

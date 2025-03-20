@@ -1,0 +1,86 @@
+
+body{
+  
+  background-color: rgb(242, 210, 232);
+    font-family: Arial, sans-serif;
+}
+
+/*El titulo */
+#titulo {
+    text-align: center;
+    background-color: rgb(248, 169, 223);
+    padding: 30px;
+    font-size: 36px; 
+    font-weight: bold; /* Negrita */
+}
+
+/*Formulario que pregunta si queres agregar algo*/
+#Add-reminder {
+    transform: scale(1.5); /* Aumenta el tamaño en un 50%, en todo junto  */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+ 
+
+ /* Contenedor principal de los recordatorios*/
+ .todo-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 400px;
+    margin: 30px auto;
+
+}
+
+/* Lista de tareas */
+.todo-list {
+   padding: 0;
+    margin: 0;
+}
+
+/* Elementos de la lista */
+.todo-list li {
+    display: flex;
+    padding: 15px 10px;
+    border-bottom: 2px solid #d2d2d2;
+    font-size: 20px;
+}
+
+/* Alineación del checkbox con el texto */
+.todo-list label {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+
+/* Agrandar el checkbox */
+.todo-list input[type="checkbox"] {
+    transform: scale(1.5);
+}
+
+
+/* Contenedor del botón que elimina cuando se completa*/
+.clear-container {
+    display: flex;
+    justify-content: flex-end; /* Lo mueve a la derecha */
+    margin-top: 15px;
+}
+
+/* Estilo del botón */
+#Clear-completed {
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 10px;
+    
+}
+
+.delete-btn img {
+    width: 25px; 
+    height: 25px;
+    
+}
+
+
