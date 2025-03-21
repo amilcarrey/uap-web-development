@@ -1,0 +1,103 @@
+body{
+    background-color: rgb(240, 242, 245);
+}
+
+h1 {
+    background-color: rgb(234, 209, 221); 
+    padding: 10px 20px;
+    border: 2px solid #cca0a0; 
+    width: 100%; 
+    text-align: center;
+}
+
+
+
+
+
+.task-form { 
+    background-color: rgb(242, 238, 241);
+    padding: 30px;
+    margin: 3px auto;
+    width: 530px;
+    border: 10px solid #cca0a0;
+    border-radius: 10px; 
+    font-size: 24px; /*tamano letra*/
+}
+
+.task-list { 
+    background-color: rgb(242, 238, 241);
+    padding: 30px;
+    margin: 3px auto;
+    width: 530px;
+    border: 10px solid #cca0a0;
+    border-radius: 10px; 
+    font-size: 24px; /*tamano letra*/
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid #d3cecec7; /* Línea divisoria */
+}
+
+input[type="text"] {
+    width: 96%;
+    padding: 5px;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    border: 1px solid #cca0a0;
+    border-radius: 10px; 
+    /* font-size: 10px; tamano letra */
+
+
+}
+
+button {
+    width: 100%;
+    padding: 5px;
+    background-color: rgb(234, 209, 221);
+    border: 1px solid #cca0a0;
+    cursor: pointer; 
+    /* pointer es p que aparexca la manito */
+    border-radius: 10px; 
+}
+
+
+
+
+
+/* CLASE PASADAAAAA:*/
+/*
+body{
+    margin: 0;
+    padding: 0;
+}
+
+ul{
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+}
+
+li{
+    margin: 10px;
+    border: 5px solid black;
+}
+
+main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    background-color: hotpink;
+}
+
+footer{
+    display: flex;
+    justify-content: center;
+   align-items: center;
+   height: 10hv;
+   background-color: salmon; 
+}  
+*/
