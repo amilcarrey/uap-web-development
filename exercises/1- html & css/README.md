@@ -33,4 +33,4 @@ Implementar el siguiente diseño utilizando los conceptos vistos en clase.
 - [Stats preview card](https://www.frontendmentor.io/challenges/stats-preview-card-component-8JqbgoU62)
 
 
-
+como se ve un cambio
