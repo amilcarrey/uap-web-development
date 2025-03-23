@@ -1,0 +1,148 @@
+body {
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #e9e6cd;
+}
+
+header {
+    background-color: #d2c3af;
+    padding: 5px 0;
+    text-align: center;
+    color: #ffffff;
+}
+
+nav {
+    text-align: center;
+    background-color: #d2c3af;
+    padding: 5px 0;
+}
+
+.menu {
+    list-style-type: none;
+    padding: 0;
+}
+.menu a {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.menu a:hover {
+    color: #ffc400;
+}
+.menu a:active {
+    color: #d2c3af;
+}
+.menu li {
+    background-color: #d2c3af;
+    margin: 0 10px;
+    display: inline;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.TO {
+    color: #ffffff;
+    font-size: 1.5em;
+}
+
+.DO {
+    color: #ffc400;
+    font-size: 1.5em;
+}
+
+.agbot {
+    background-color: #ffffff;
+    color:#d2c3af;
+    border: none;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.agbot:hover {
+    background-color: #d2c3af;
+    color: #ffffff;
+}
+.agbot:active {
+    background-color: #ffc400;
+    color: #ffffff;
+}
+
+.quep {
+    width: 500px;
+    height: 55px;
+    font-size: 22px;
+    padding: 10px;
+    border: none;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.quep:focus {
+    outline: none;
+}
+
+.quep::placeholder {
+    color: #d2c3af;
+}
+
+.agregador {
+    justify-content: center;
+    display: flex;
+    margin: 20px 0;
+}
+
+.tareas {
+    font-family: 'Poppins', sans-serif;
+    padding: 10px;
+    width: 60vw;
+    margin: auto;
+}
+
+li {
+    background: #eee;
+    padding: 10px;
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.borrar {
+    background: #ff0000; 
+    color: white; 
+    border: none; 
+    padding: 12px 20px; 
+    font-size: 16px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    transition: 0.1s; 
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2); 
+}
+
+.borrar:hover {
+    background: #9b0000; 
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+}
+.borrar:active {
+    transform: scale(0.85); 
+}
+
+.agregar {
+    background: #e9e6cd; 
+    color: white; 
+    border: none; 
+    padding: 12px 20px; 
+    font-size: 16px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    transition: 0.1s; 
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2); 
+}
+
+.agregar:hover {
+    background: #e9e6cd; 
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+}
+.agregar:active {
+    transform: scale(0.85); 
+}
