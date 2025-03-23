@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestor de tareas</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <header>
+      <h1><span class="TO">TO</span><span class="DO">DO</span></h1>
+    </header>
+
+    <nav>
+      <ul class="menu">
+        <li><a href="#">Personal</a></li>
+        <li><a href="#trabajo">Trabajo</a></li>
+        <li><button class="mas">+</button></li>
+      </ul>
+
+    </nav>
+
+    <div class="inicio">
+      <h2>Gestor de tareas</h2>
+    </div>
+
+    <div class="agregartareas">
+      <h2>Agregar tareas</h2>
+        <input class="escribir-tarea" type="text" name="tarea" placeholder="Escribe una tarea" />
+        <button type="submit" class="agregar">Agregar</button>
+      </form>
+    </div>
+
+    <div class="tareas-pendientes">
+      <h2>Tareas pendientes</h2>
+      <ul class="lista-tareas">
+        <li>
+          <input type="checkbox" />
+          <span class="tarea">Personal work No.1</span>
+        </li>
+        <li>
+          <input type="checkbox" />
+          <span class="tarea">Personal work No.2</span>
+        </li>
+        <li>
+            <input type="checkbox" />
+            <span class="tarea">Personal work No.3</span>
+          </li>
+      </ul>
+    </div>
+
+  </body>
+</html>
