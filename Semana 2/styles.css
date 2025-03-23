@@ -1,0 +1,108 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4ede6;
+    color: #555;
+    text-align: center;
+    margin: 0;
+}
+
+/* Título */
+header h1 {
+    font-size: 32px;
+    color: #333;
+    margin: 20px 0;
+}
+
+header h1 span {
+    color: #e08e36;
+}
+
+/* Barra de navegación */
+nav {
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    padding: 10px;
+    border-bottom: 2px solid #ddd;
+}
+
+nav button {
+    border: none;
+    background: none;
+    font-size: 18px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+nav .nav-btn {
+    font-weight: bold;
+    border-bottom: 3px solid #e08e36;
+}
+
+.add-btn {
+    background: #b07c7c;
+    color: white;
+    font-size: 20px;
+    padding: 5px 15px;
+    border-radius: 5px;
+}
+
+/* Input de tareas */
+.task-input {
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.task-input input {
+    width: 60%;
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    background: #eadecf;
+}
+
+.add-task {
+    background: #65b8d8;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+/* Lista de tareas */
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    width: 60%;
+    background: #e4dfd9;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.task-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.task-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
