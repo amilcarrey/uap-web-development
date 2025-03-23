@@ -1,0 +1,126 @@
+body {
+  background-color: #f0f0f0;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #333;
+  color: #fff;
+  padding: 5px 0;
+  text-align: center;
+}
+
+nav {
+  background-color: #636363;
+  color: #fff;
+  padding: 2px 0;
+  text-align: center;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu li {
+  margin: 0 10px;
+  display: inline;
+  font-size: 1.2em;
+}
+
+.menu a {
+  color: #f0f0f0;
+  text-decoration: none;
+}
+
+.mas {
+  color: #bebebe;
+  font-size: 1.2em;
+}
+
+.menu a:hover {
+  color: #fff;
+}
+
+.TO {
+  font-size: 1.5em;
+  color: gray;
+}
+
+.DO {
+  color: chocolate;
+}
+
+.bienvenida {
+  font-size: 1em;
+  color: #333;
+  text-align: center;
+}
+
+.agrega-tareas {
+  text-align: center;
+  color: #333;
+  margin-top: 30px;
+}
+
+.agrega-tareas input {
+  padding: 10px;
+  width: 50%;
+  border: 0.5px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+
+.agregar {
+  padding: 10px 5px;
+  background-color: chocolate;
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.agregar:hover {
+  background-color: rgb(248, 129, 43);
+}
+
+.tareas-pendientes {
+  text-align: center;
+  background-color: #e4e2e2;
+  padding: 10px;
+  border-radius: 5px;
+  width: 60vw;
+  height: 60vh;
+  margin: auto;
+}
+
+.tareas-pendientes h2 {
+  color: #333;
+}
+
+.lista-tareas {
+  list-style: none;
+  padding: 0;
+  font-size: 1.2em;
+  font-weight: 500;
+}
+
+.eliminar {
+  background-color: #ac1212;
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.eliminar:hover {
+  background-color: #ff0000;
+}
