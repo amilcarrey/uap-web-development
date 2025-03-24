@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Gestor de Tareas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="task-manager">
+        <div class="header">
+            <img src="android.webp" alt="Logo" class="logo">
+            <h1>ToDo</h1>
+        </div>
+        <form id="task-form">
+            <input type="text" id="task-input" placeholder="¿Qué debería recordar?" required>
+            <button type="submit">ADD</button>
+        </form>
+        <ul id="task-list">
+            <li class="task-item">
+                <input type="checkbox" id="task1" checked>
+                <label for="task1">Task1</label>
+                <button class="delete-button">&#10006;</button>
+            </li>
+            <li class="task-item">
+                <input type="checkbox" id="task2">
+                <label for="task2">Task2</label>
+                <button class="delete-button">&#10006;</button>
+            </li>
+            <li class="task-item">
+                <input type="checkbox" id="task3">
+                <label for="task3">Task3</label>
+                <button class="delete-button">&#10006;</button>
+            </li>
+            <li class="task-item">
+                <input type="checkbox" id="task4" checked>
+                <label for="task4">Task4</label>
+                <button class="delete-button">&#10006;</button>
+            </li>
+            <li class="task-item">
+                <input type="checkbox" id="task5">
+                <label for="task5">Task5</label>
+                <button class="delete-button">&#10006;</button>
+            </li>
+        </ul>
+        <button id="clear-completed">Clear Completed</button>
+    </div>
+</body>
+</html>
+
+
