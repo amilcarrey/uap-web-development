@@ -1,0 +1,71 @@
+<!DOCTYPE html> <!-- Define el tipo de documento HTML5 -->
+<html>
+<head>
+    <!-- Vincula el archivo CSS externo donde está el estilo del sitio -->
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+    <!-- Título principal del sitio con dos colores diferentes -->
+    <h1>
+        <span class="gray">TO</span>
+        <span class="orange">DO</span>
+    </h1>
+
+    <!-- Pestañas para cambiar entre tipos de tareas -->
+    <div class="tabs">
+        <div class="tab active">Personal</div>     <!-- Pestaña activa por defecto -->
+        <div class="tab">Profesional</div>         <!-- Otra pestaña -->
+    </div>    
+
+    <!-- Zona para escribir una nueva tarea y agregarla -->
+    <div class="escriba">
+        <input type="text" placeholder="Escribe aqui..."> <!-- Campo de entrada de texto -->
+        <button>Enviar</button>                             <!-- Botón para agregar la tarea -->
+    </div>      
+
+    <!-- Contenedor que encierra la lista de tareas y el botón de limpiar -->
+    <div class="list-container">
+        <ul class="task-list">
+            <!-- Tarea marcada como completada -->
+            <li class="task-item completed">
+                <span class="icon-completed">✔️</span>  <!-- Icono de completado -->
+                <span class="task-name">Tarea Completada 1</span> <!-- Texto de la tarea -->
+                <span class="icon-trash">🗑️</span>      <!-- Icono de eliminar -->
+            </li>
+
+            <!-- Tarea pendiente -->
+            <li class="task-item">
+                <span class="icon-pending">🔲</span> 
+                <span class="task-name">Tarea Pendiente 1</span>
+                <span class="icon-trash">🗑️</span>
+            </li>
+
+            <!-- Otra tarea completada -->
+            <li class="task-item completed">
+                <span class="icon-completed">✔️</span> 
+                <span class="task-name">Tarea Completada 2</span>
+                <span class="icon-trash">🗑️</span>
+            </li>
+
+            <!-- Otra tarea pendiente -->
+            <li class="task-item">
+                <span class="icon-pending">🔲</span> 
+                <span class="task-name">Tarea Pendiente 2</span>
+                <span class="icon-trash">🗑️</span>
+            </li>
+
+            <!-- Otra tarea pendiente -->
+            <li class="task-item">
+                <span class="icon-pending">🔲</span> 
+                <span class="task-name">Tarea Pendiente 3</span>
+                <span class="icon-trash">🗑️</span>
+            </li>
+        </ul>
+
+        <!-- Botón para limpiar todas las tareas de la lista -->
+        <button class="clear-tasks">Limpiar tareas</button>
+    </div>
+
+</body>
+</html>
