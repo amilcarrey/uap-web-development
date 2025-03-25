@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px auto;
+            max-width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de Tareas</h1>
+    <img src="/uap-web-development/exercises/1- html & css/img/todo.png" alt="Imagen de referencia" width="300">
+    
+    <form id="taskForm">
+        <label for="taskInput">Nueva Tarea:</label>
+        <input type="text" id="taskInput" required>
+        <button type="submit">Agregar</button>
+    </form>
+    
+    <ul id="taskList"></ul>
+    
+    <script>
+        document.getElementById('taskForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const taskText = document.getElementById('taskInput').value;
+            if (taskText.trim() === '') return;
+
+            const li = document.createElement('li');
+            const span = document.createElement('span');
+            span.textContent = taskText;
+            
+            const button = document.createElement('button');
+            button.textContent = 'Completar';
+            button.addEventListener('click', function() {
+                span.classList.toggle('completed');
+            });
+
+            li.appendChild(span);
+            li.appendChild(button);
+            document.getElementById('taskList').appendChild(li);
+            document.getElementById('taskInput').value = '';
+        });
+    </script>
+</body>
+</html>
