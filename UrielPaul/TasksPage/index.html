@@ -31,21 +31,27 @@
     <h2>Lista de Tareas</h2>
     <ul id="task-list">
       <li class="tarea">
+        <input type="checkbox" class="complete-checkbox" title="Completar">
         <span>Tarea de ejemplo 1</span>
         <div class="action-btns">
-          <button type="button" class="complete-btn" title="Completar"><i class="fas fa-check"></i></button>
           <button type="button" class="delete-btn" title="Eliminar"><i class="fas fa-trash"></i></button>
         </div>
       </li>
       <li class="tarea">
+        <input type="checkbox" class="complete-checkbox" title="Completar">
         <span>Tarea de ejemplo 2</span>
         <div class="action-btns">
-          <button type="button" class="complete-btn" title="Completar"><i class="fas fa-check"></i></button>
           <button type="button" class="delete-btn" title="Eliminar"><i class="fas fa-trash"></i></button>
         </div>
       </li>
     </ul>
     <button type="button" class="clear-btn" id="clear-completed">Eliminar Completadas</button>
+
+    <div class="filters">
+      <button id="filter-all" class="filter-btn active">Todas</button>
+      <button id="filter-active" class="filter-btn">Incompletas</button>
+      <button id="filter-completed" class="filter-btn">Completadas</button>
+    </div>
   </div>
 
   <!-- Vincular el archivo JavaScript externo -->
