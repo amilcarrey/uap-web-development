@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Color Picker</title>
+</body>
+<h1>Interactive Color Picker</h1>
+<div class="color-picker">
+<div class="preset-colors">
+    <button style="background-color: red;" onclick="setColor('red')"></button>
+    <button style="background-color: green;" onclick="setColor('green')"></button>
+    <button style="background-color: blue;" onclick="setColor('blue')"></button>
+    <button style="background-color: yellow;" onclick="setColor('yellow')"></button>
+    <button style="background-color: magenta;" onclick="setColor('magenta')"></button>
+    <button style="background-color: cyan;" onclick="setColor('cyan')"></button>
+    <button style="background-color: orange;" onclick="setColor('orange')"></button>
+    <button style="background-color: purple;" onclick="setColor('purple')"></button>
+</div>
+<div class="custom-color">
+    <div class="sliders">
+        <div class="slider">
+            <label for="red">R</label>
+            <input type="range" id="red" min="0" max="255" value="255" oninput="updateCustomColor()">
+        </div>
+        <div class="slider">
+            <label for="green">G</label>
+            <input type="range" id="green" min="0" max="255" value="255" oninput="updateCustomColor()">
+        </div>
+        <div class="slider">
+            <label for="blue">B</label>
+            <input type="range" id="blue" min="0" max="255" value="255" oninput="updateCustomColor()">
+        </div>
+    </div>
+</div>
+<div class="color-display" id="colorDisplay"></div>
+</div>
+
+<script>
+const colorDisplay = document.getElementById('colorDisplay');
+
+function setColor(color) {
+    colorDisplay.style.backgroundColor = color;
+}
+
+function updateCustomColor() {
+    const r = document.getElementById('red').value;
+    const g = document.getElementById('green').value;
+    const b = document.getElementById('blue').value;
+    const customColor = `rgb(${r}, ${g}, ${b})`;
+    colorDisplay.style.backgroundColor = customColor;
+}
+function resetColor() {
+    colorDisplay.style.backgroundColor = 'white';
+    document.getElementById('red').value = 255;
+    document.getElementById('green').value = 255;
+    document.getElementById('blue').value = 255;
+    document.getElementById('colorCode').textContent = 'rgb(255, 255, 255)';
+}
+
+// Update the color code text
+function updateCustomColor() {
+    const r = document.getElementById('red').value;
+    const g = document.getElementById('green').value;
+    const b = document.getElementById('blue').value;
+    const customColor = `rgb(${r}, ${g}, ${b})`;
+    colorDisplay.style.backgroundColor = customColor;
+    document.getElementById('colorCode').textContent = customColor;
+}
+</script>
+<div>
+    <button onclick="resetColor()">Reset</button>
+    <p>Current Color Code: <span id="colorCode">rgb(255, 255, 255)</span></p>
+</div>
+<link rel="stylesheet" href="styles.css">    
+</html>
