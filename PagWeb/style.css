@@ -1,5 +1,5 @@
 body {
-    background-color: #ffffff;
+    background-color: #f0f0f0; /* Fondo general */
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -11,10 +11,10 @@ body {
 }
 
 header {
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: #4CAF50; /* Verde uniforme */
+    color: white;
     text-align: center;
-    padding: 5px;
+    padding: 10px;
     width: 100%;
     height: auto;
     display: flex;
@@ -25,7 +25,7 @@ header {
 .header-container {
     display: flex;
     align-items: center;
-    gap: 10px; /* Espacio entre el icono y el título */
+    gap: 10px;
 }
 
 .header-icon {
@@ -35,47 +35,102 @@ header {
 }
 
 main {
-    background-color: rgb(255, 255, 255);
+    background-color: #f0f0f0;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
     flex: 1;
     gap: 20px;
-    padding-bottom: 20px;
-    flex-wrap: wrap;
+    padding: 20px 0;
 }
 
 .main-container {
-    background-color: #ffffff;
+    background-color: white;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     max-width: 400px;
     padding: 20px;
-    margin-top: 10px;
 }
 
 .main-container ul {
     list-style-type: none;
     padding: 0;
+    margin: 0;
+    width: 100%;
 }
 
 .main-container li {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
 }
 
 footer {
-    background-color: #ffffff;
-    color: #333;
+    background-color: #4CAF50;
+    color: white;
     text-align: center;
-    padding: 5px;
+    padding: 10px;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.completada {
+    text-decoration: line-through;
+    color: #888;
+}
+
+#clearCompleted,
+#deleteSelected {
+    padding: 10px 15px;
+    background-color: #4CAF50; /* Verde uniforme */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+#clearCompleted:hover,
+#deleteSelected:hover {
+    background-color: #45a049; /* Verde más oscuro al pasar el mouse */
+}
+
+.filtros {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.filtros button {
+    padding: 8px 12px;
+    background-color: #4CAF50; /* Verde uniforme */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.filtros button:hover {
+    background-color: #45a049; /* Verde más oscuro al pasar el mouse */
+}
+
+/* Alinear el contenedor de botones y filtros debajo de las listas */
+.botones-y-filtros {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 20px;
+    gap: 10px;
 }
