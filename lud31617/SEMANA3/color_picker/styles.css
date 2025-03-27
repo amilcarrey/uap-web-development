@@ -1,0 +1,391 @@
+
+/* Estilos generales */
+:root {
+    --primary-gradient: linear-gradient(45deg, #ff9a9e, #fad0c4);
+    --border-radius: 15px;
+    --box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+}
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    animation: fadeInUp 1s ease-out;
+    overflow: hidden;
+}
+
+/* Círculos decorativos animados */
+.decorative-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.5;
+    z-index: 0;
+}
+
+.circle-1 {
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: var(--primary-gradient);
+    animation: rotateCircle 20s linear infinite;
+}
+
+.circle-2 {
+    bottom: -30px;
+    left: -30px;
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(45deg, #a1c4fd, #c2e9fb);
+    animation: rotateCircle 15s linear infinite reverse;
+}
+
+/* Contenido principal */
+.content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Animación en los encabezados */
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.2rem;
+    background: linear-gradient(45deg, #ff4b1f, #1fddff, #f7971e, #00c6ff);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientText 8s ease infinite;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    margin-top: 30px;
+    font-size: 1.5rem;
+    animation: fadeIn 1s ease-out;
+}
+
+/* Contenedor de sliders */
+.sliders-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.slider-container {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    transition: var(--transition);
+    border: 1px solid #eee;
+}
+
+.slider-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+label {
+    font-weight: bold;
+    color: #555;
+}
+
+.value-display {
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: #eee;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Estilos de los sliders */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: var(--transition);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+}
+
+/* Colores específicos para cada slider */
+#red::-webkit-slider-thumb {
+    background: linear-gradient(to bottom, #ff5252, #b71c1c);
+}
+
+#green::-webkit-slider-thumb {
+    background: linear-gradient(to bottom, #69f0ae, #00c853);
+}
+
+#blue::-webkit-slider-thumb {
+    background: linear-gradient(to bottom, #448aff, #2962ff);
+}
+
+#alpha::-webkit-slider-thumb {
+    background: linear-gradient(to bottom, #e0e0e0, #757575);
+}
+
+#red::-moz-range-thumb {
+    background: linear-gradient(to bottom, #ff5252, #b71c1c);
+}
+
+#green::-moz-range-thumb {
+    background: linear-gradient(to bottom, #69f0ae, #00c853);
+}
+
+#blue::-moz-range-thumb {
+    background: linear-gradient(to bottom, #448aff, #2962ff);
+}
+
+#alpha::-moz-range-thumb {
+    background: linear-gradient(to bottom, #e0e0e0, #757575);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover,
+input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+/* Visualización del color */
+.color-preview-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 30px 0;
+}
+
+/* Visualización del código hexadecimal */
+.hex-display {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #333;
+    position: relative;
+    padding: 10px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    display: inline-block;
+}
+
+.copy-button {
+    background: #f1f1f1;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.8em;
+}
+
+.copy-button:hover {
+    background: #e0e0e0;
+}
+
+/* Cuadro de visualización del color */
+#color-display {
+    width: 180px;
+    height: 180px;
+    border: 3px solid #333;
+    margin: 20px auto;
+    border-radius: 10px;
+    transition: var(--transition);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.color-display-inner {
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABZ0RVh0Q3JlYXRpb24gVGltZQAxMC8yOS8xMiKqq3kAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzVxteM2AAAAHklEQVQ4jWNgYGBgYHjy5Ml/BioBTBhGDRg1gGEEAQCn/j8x+2b8yQAAAABJRU5ErkJggg==');
+}
+
+.color-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Botones de presets */
+.preset-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.preset-button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #fff;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.preset-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-100%);
+    transition: var(--transition);
+    z-index: -1;
+}
+
+.preset-button:hover::before {
+    transform: translateX(0);
+}
+
+.preset-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.preset-button:active {
+    transform: translateY(0);
+}
+
+/* Notificación de copiado */
+.copy-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transform: translateX(150%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.copy-notification.show {
+    transform: translateX(0);
+}
+
+/* Keyframes de animación */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rotateCircle {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes gradientText {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes flash {
+    0% { opacity: 0.5; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.flash {
+    animation: flash 0.5s ease;
+}
+
+.pulse {
+    animation: pulse 0.5s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+    padding: 20px;
+    margin: 10px;
+    }
+    
+    h1 {
+    font-size: 1.8rem;
+    }
+    
+    .sliders-section {
+    grid-template-columns: 1fr;
+    }
+    
+    #color-display {
+    width: 150px;
+    height: 150px;
+    }
+}
