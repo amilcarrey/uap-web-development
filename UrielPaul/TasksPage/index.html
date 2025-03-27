@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Tareas Pro Plus - Dark/Light Mode</title>
+  <!-- Fuentes e iconos -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Vincular el CSS externo -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Switch para alternar tema -->
+    <div class="theme-switch">
+      <label class="switch">
+        <input type="checkbox" id="theme-toggle">
+        <span class="slider"></span>
+      </label>
+      <span id="theme-label">Modo Oscuro</span>
+    </div>
+
+    <h1>Gestión de Tareas Pro Plus</h1>
+    <div class="img-container">
+      <img src="ward.png" alt="Imagen representativa">
+    </div>
+    <form id="task-form">
+      <input type="text" id="nueva-tarea" name="tarea" placeholder="Agrega una nueva tarea..." required>
+      <button type="submit" title="Agregar tarea"><i class="fas fa-plus"></i></button>
+    </form>
+    <h2>Lista de Tareas</h2>
+    <ul id="task-list">
+      <li class="tarea">
+        <span>Tarea de ejemplo 1</span>
+        <div class="action-btns">
+          <button type="button" class="complete-btn" title="Completar"><i class="fas fa-check"></i></button>
+          <button type="button" class="delete-btn" title="Eliminar"><i class="fas fa-trash"></i></button>
+        </div>
+      </li>
+      <li class="tarea">
+        <span>Tarea de ejemplo 2</span>
+        <div class="action-btns">
+          <button type="button" class="complete-btn" title="Completar"><i class="fas fa-check"></i></button>
+          <button type="button" class="delete-btn" title="Eliminar"><i class="fas fa-trash"></i></button>
+        </div>
+      </li>
+    </ul>
+    <button type="button" class="clear-btn" id="clear-completed">Eliminar Completadas</button>
+  </div>
+
+  <!-- Vincular el archivo JavaScript externo -->
+  <script src="script.js"></script>
+</body>
+</html>
