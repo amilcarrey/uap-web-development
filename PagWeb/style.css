@@ -1,14 +1,17 @@
 body {
-  font-family: "Roboto Serif", serif;
-  background-color: #ffffff;
-  color: #000000;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  min-height: 100vh;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
+    font-family: "Roboto Serif", serif;
+    background-image: url('wallpaper.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    color: #000000;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
@@ -20,15 +23,9 @@ header {
 }
 
 .header-container {
-  display: flex;
+  color: #ffffff;
   align-items: center;
   gap: 10px;
-}
-
-.header-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
 }
 
 main {
@@ -40,6 +37,19 @@ main {
   flex: 1;
   gap: 20px;
   padding: 20px 0;
+}
+
+footer {
+  background-color: #ffffff;
+  color: #ffffff;
+  text-align: center;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+header, main, footer {
+  background-color: transparent;
+  border: none;
 }
 
 .main-container {
@@ -80,6 +90,7 @@ main {
   background-color: #ffffff;
   transition: background-color 0.3s ease-in-out;
   gap: 10px;
+  overflow: hidden; 
 }
 
 .main-container li input[type="checkbox"] {
@@ -90,9 +101,11 @@ main {
 }
 
 .main-container li span {
-  flex: 1;
+  flex: 1; 
   word-wrap: break-word;
+  overflow-wrap: break-word; 
   text-align: left;
+  white-space: normal; 
 }
 
 .main-container li .eliminar-btn {
@@ -138,13 +151,7 @@ main {
   color: #000000;
 }
 
-footer {
-  background-color: #ffffff;
-  color: #000000;
-  text-align: center;
-  padding: 10px;
-  border-top: 1px solid #ddd;
-}
+
 
 .completada {
   text-decoration: line-through;

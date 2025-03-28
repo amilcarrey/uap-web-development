@@ -12,6 +12,14 @@ document.addEventListener("DOMContentLoaded", function () {
       if (tareaTexto !== "") {
         const nuevaTarea = document.createElement("li");
 
+        nuevaTarea.classList.add("animate__animated", "animate__fadeInDown");
+        nuevaTarea.addEventListener("animationend", () => {
+          nuevaTarea.classList.remove(
+            "animate__animated",
+            "animate__fadeInDown"
+          );
+        });
+
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.addEventListener("change", function () {
@@ -40,15 +48,38 @@ document.addEventListener("DOMContentLoaded", function () {
   filtroBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const tipo = btn.dataset.filtro;
+
       document.querySelectorAll("ul").forEach((ul) => {
         ul.querySelectorAll("li").forEach((li) => {
           const esCompleta = li.classList.contains("completada");
-          li.style.display =
+          const mostrar =
             tipo === "todas" ||
             (tipo === "completas" && esCompleta) ||
-            (tipo === "incompletas" && !esCompleta)
-              ? ""
-              : "none";
+            (tipo === "incompletas" && !esCompleta);
+
+          if (mostrar) {
+            if (li.style.display === "none") {
+              li.style.display = "";
+              li.classList.add("animate__animated", "animate__fadeIn");
+              li.addEventListener(
+                "animationend",
+                () => {
+                  li.classList.remove("animate__animated", "animate__fadeIn");
+                },
+                { once: true }
+              );
+            }
+          } else {
+            li.classList.add("animate__animated", "animate__fadeOut");
+            li.addEventListener(
+              "animationend",
+              () => {
+                li.style.display = "none";
+                li.classList.remove("animate__animated", "animate__fadeOut");
+              },
+              { once: true }
+            );
+          }
         });
       });
     });
