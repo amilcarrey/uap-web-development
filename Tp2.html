@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario</title>
+    <link rel="stylesheet" href="Tp2.css">
+</head>
+<body>
+    <h1>Antes de Ameri</h1>
+    <img src="duki.jpg" alt="Imagen de ejemplo">
+    
+    <form>
+        <label for="nueva-tarea"></label>
+        <input type="text" id="nueva-tarea" name="tarea" required placeholder="What do you want to play?">
+        <button type="submit">Buscar</button>
+    </form>
+    
+    <ul id="lista-tareas">
+        <li>
+            <span>Completar álbum</span><button>Completar</button>
+        </li>
+    </ul>
+
+    <ul id="lista-tareas">
+        <li>
+            <label class="checkbox">
+                <input type="checkbox">
+                <span class="checkmark"></span>
+            </label>
+            <span class="task-text">Completar álbum</span>
+            <button class="delete-btn">🗑️</button>
+        </li>
+        <li>
+            <label class="checkbox">
+                <input type="checkbox">
+                <span class="checkmark"></span>
+            </label>
+            <span class="task-text">Escuchar nuevo single</span>
+            <button class="delete-btn">🗑️</button>
+        </li>
+        <li>
+            <label class="checkbox">
+                <input type="checkbox">
+                <span class="checkmark"></span>
+            </label>
+            <span class="task-text">Ver entrevista de Duki</span>
+            <button class="delete-btn">🗑️</button>
+        </li>
+    </ul>
+    <button id="clear-btn">Clear</button>
+
+</body>
+</html>

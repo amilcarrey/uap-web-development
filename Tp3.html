@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="Tp3.css">
+    <title>Sliders de Color RGB</title>
+</head>
+<body>
+    <h2>Control de Colores</h2>
+    
+    <div class="slider-container">
+        <label for="slider1">Rojo:</label>
+        <input type="range" id="slider1" min="0" max="255" value="50" oninput="updateColor()">
+        <span id="value1">50</span>
+    </div>
+    
+    <div class="slider-container">
+        <label for="slider2">Verde:</label>
+        <input type="range" id="slider2" min="0" max="255" value="30" oninput="updateColor()">
+        <span id="value2">30</span>
+    </div>
+    
+    <div class="slider-container">
+        <label for="slider3">Azul:</label>
+        <input type="range" id="slider3" min="0" max="255" value="70" oninput="updateColor()">
+        <span id="value3">70</span>
+    </div>
+    
+    <div id="color-box"></div>
+    
+    <script>
+        function updateColor() {
+            const red = document.getElementById("slider1").value;
+            const green = document.getElementById("slider2").value;
+            const blue = document.getElementById("slider3").value;
+            
+            document.getElementById("value1").textContent = red;
+            document.getElementById("value2").textContent = green;
+            document.getElementById("value3").textContent = blue;
+            
+            document.getElementById("color-box").style.backgroundColor = `rgb(${red}, ${green}, ${blue})`;
+        }
+    </script>
+</body>
+</html>

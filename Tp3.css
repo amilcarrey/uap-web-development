@@ -1,0 +1,16 @@
+    body {
+            background-color: rgb(194, 190, 179);
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        .slider-container {
+            margin-bottom: 20px;
+        }
+        #color-box {
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            border: 1px solid #000;
+            background-color: rgb(50, 30, 70);
+        }
