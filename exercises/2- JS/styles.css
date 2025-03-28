@@ -1,0 +1,166 @@
+/* Está todo comentado porque me sirve para estudiar*/
+body {
+    font-family: Arial, sans-serif; /* Define la fuente del cuerpo del documento como Arial, con un respaldo de sans-serif */
+    background-color: #f5f1eb; /* Establece un color de fondo suave (beige claro) */
+    text-align: center; /* Centra el texto horizontalmente en todo el cuerpo */
+    margin: 0; /* Elimina el margen por defecto del navegador */
+    padding: 0; /* Elimina el padding por defecto del navegador */
+}
+
+/* Estilos para el contenedor principal de la página */
+.container {
+    width: 40%; /* Establece el ancho del contenedor al 40% del ancho de la página */
+    margin: auto; /* Centra el contenedor horizontalmente */
+    background: white; /* Color de fondo blanco */
+    padding: 20px; /* Espaciado interno de 20px en todos los lados */
+    border-radius: 10px; /* Bordes redondeados de 10px */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave en el contenedor para darle un efecto de elevación */
+    margin-top: 50px; /* Establece un margen superior de 50px */
+}
+
+/* Estilos para el título principal (h1) */
+h1 {
+    font-size: 32px; /* Establece el tamaño de la fuente del título */
+    color: #333; /* Define el color del texto como gris oscuro */
+}
+
+/* Estilo para resaltar la palabra 'TO' en el título */
+.highlight {
+    color: #f5bee4; /* Aplica un color rosa suave a la clase highlight */
+}
+
+/* Estilos para la sección de pestañas (tabs) */
+.tabs {
+    display: flex; /* Usamos flexbox para alinear los elementos horizontalmente */
+    justify-content: center; /* Centra las pestañas horizontalmente */
+    border-bottom: 2px solid lightgray; /* Agrega una línea delgada en la parte inferior de las pestañas */
+    padding-bottom: 10px; /* Añade un poco de espacio debajo de las pestañas */
+    margin-bottom: 20px; /* Añade espacio debajo de las pestañas */
+}
+
+/* Estilo para cada pestaña individual */
+.tab {
+    margin: 0 20px; /* Espaciado entre las pestañas (izquierda y derecha) */
+    font-weight: bold; /* Establece un estilo de fuente en negrita */
+    color: gray; /* Color de texto gris */
+    cursor: pointer; /* Cambia el cursor a una mano para indicar que es clickeable */
+}
+
+/* Estilo para la pestaña activa */
+.tab.active {
+    color: black; /* Cambia el color de la pestaña activa a negro */
+    border-bottom: 3px solid rgb(168, 199, 157); /* Resalta la pestaña activa con una línea verde en la parte inferior */
+}
+
+/* Estilos para la sección de entrada de texto (donde se agregan las tareas) */
+.input-section {
+    display: flex; /* Usamos flexbox para alinear los elementos horizontalmente */
+    gap: 10px; /* Espaciado de 10px entre el campo de texto y el botón */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    margin-bottom: 20px; /* Espaciado debajo de la sección de entrada */
+}
+
+/* Estilo para el campo de entrada de texto */
+.input-section input {
+    width: 70%; /* Establece el ancho del campo de entrada al 70% del contenedor */
+    padding: 10px; /* Añade espaciado interno de 10px */
+    border: 1px solid lightgray; /* Aplica un borde gris claro */
+    border-radius: 20px; /* Bordes redondeados de 20px */
+    outline: none; /* Elimina el contorno predeterminado cuando el campo está enfocado */
+    font-size: 16px; /* Tamaño de fuente para el texto del campo de entrada */
+}
+
+/* Estilo para el botón "ADD" */
+.add-btn {
+    background-color: #b7e4f9; /* Color de fondo azul claro */
+    color: white; /* Color de texto blanco */
+    border: none; /* Sin borde */
+    padding: 10px 20px; /* Espaciado interno de 10px vertical y 20px horizontal */
+    border-radius: 20px; /* Bordes redondeados de 20px */
+    cursor: pointer; /* Cambia el cursor a una mano para indicar que es clickeable */
+    font-size: 16px; /* Tamaño de la fuente */
+}
+
+/* Estilo para el botón de verificación de tareas completadas */
+.check-btn {
+    background-color: #f5bee4; /* Color de fondo rosa suave */
+    color: white; /* Color de texto blanco */
+    border: none; /* Sin borde */
+    padding: 10px 20px; /* Espaciado interno de 10px vertical y 20px horizontal */
+    border-radius: 20px; /* Bordes redondeados de 20px */
+    cursor: pointer; /* Cambia el cursor a una mano para indicar que es clickeable */
+    font-size: 16px; /* Tamaño de la fuente */
+}
+
+/* Estilo para el botón "Plus" */
+.plus-btn {
+    background-color: #a5e8a5; /* Color de fondo verde claro */
+    color: white; /* Color de texto blanco */
+    border: none; /* Sin borde */
+    padding: 10px 20px; /* Espaciado interno de 10px vertical y 20px horizontal */
+    border-radius: 20px; /* Bordes redondeados de 20px */
+    cursor: pointer; /* Cambia el cursor a una mano para indicar que es clickeable */
+    font-size: 16px; /* Tamaño de la fuente */
+}
+
+/* Estilo para la lista de tareas */
+.task-list {
+    text-align: center; /* Centra el texto de las tareas */
+}
+
+/* Estilos para cada tarea individual */
+.task {
+    display: flex; /* Usamos flexbox para alinear los elementos horizontalmente */
+    align-items: center; /* Alinea los elementos verticalmente al centro */
+    justify-content: space-between; /* Distribuye los elementos de forma que haya espacio entre ellos */
+    background: #f9f9f9; /* Color de fondo gris claro */
+    padding: 10px; /* Espaciado interno de 10px */
+    margin: 5px 0; /* Espaciado superior e inferior de 5px */
+    border-radius: 10px; /* Bordes redondeados de 10px */
+}
+
+/* Estilo para el texto de la tarea */
+.task-text {
+    flex: 1; /* Hace que el texto ocupe el espacio disponible restante */
+    margin-left: 10px; /* Añade un margen izquierdo de 10px para separar el texto del botón */
+    font-size: 16px; /* Tamaño de la fuente del texto */
+}
+
+/* Estilo para el botón de "Clear Completed" */
+.clear-completed {
+    color: rgb(168, 199, 157); /* Color de texto verde claro */
+    text-align: center; /* Centra el texto */
+    margin-top: 10px; /* Añade un margen superior de 10px */
+    cursor: pointer; /* Cambia el cursor a una mano para indicar que es clickeable */
+}
+
+/* Estilos para los botones de filtro */
+.filter-buttons {
+    display: flex; /* Usamos flexbox para alinear los botones de filtro horizontalmente */
+    justify-content: center; /* Centra los botones horizontalmente */
+    margin: 20px 0; /* Añade un margen de 20px arriba y abajo */
+    gap: 10px; /* Añade un espacio de 10px entre los botones */
+}
+
+/* Estilo para cada botón de filtro */
+.filter-btn {
+    background-color: #faf6f6; /* Color de fondo gris claro */
+    border: none; /* Sin borde */
+    padding: 10px 15px; /* Espaciado interno de 10px vertical y 15px horizontal */
+    border-radius: 20px; /* Bordes redondeados de 20px */
+    cursor: pointer; /* Cambia el cursor a una mano para indicar que es clickeable */
+    font-size: 14px; /* Tamaño de la fuente */
+    font-weight: bold; /* Aplica negrita al texto */
+    transition: background-color 0.3s, color 0.3s; /* Agrega una transición suave para los cambios de fondo y color */
+}
+
+/* Estilo cuando el cursor está sobre un botón de filtro */
+.filter-btn:hover {
+    background-color: #faf6f6; /* Color de fondo no cambia, pero se mantiene el mismo */
+}
+
+/* Estilo para el botón de filtro activo */
+.filter-btn.active {
+    background-color: #a5e8a5; /* Color de fondo verde claro para el filtro activo */
+    color: white; /* Color del texto blanco */
+}
