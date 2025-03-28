@@ -161,7 +161,7 @@
             const taskForm = document.querySelector(".task-form");
             const tabs = document.querySelectorAll(".tab");
 
-            // Cambiar entre tabs
+            // Cambio entre tabs
             tabs.forEach(tab => {
                 tab.addEventListener("click", () => {
                     tabs.forEach(t => t.classList.remove("active"));
@@ -184,13 +184,13 @@
                         <button class="delete-btn">🗑</button>
                     `;
 
-                    // Agregar evento para eliminar tarea
+                    // Agrega evento para eliminar tarea
                     const deleteBtn = taskItem.querySelector(".delete-btn");
                     deleteBtn.addEventListener("click", function () {
                         taskList.removeChild(taskItem);
                     });
 
-                    // Agregar evento para marcar tarea como completada
+                    // Agrega evento para marcar tarea como completada
                     const checkbox = taskItem.querySelector("input[type='checkbox']");
                     checkbox.addEventListener("change", function () {
                         const span = taskItem.querySelector("span");
@@ -204,12 +204,12 @@
                     });
 
                     taskList.appendChild(taskItem);
-                    taskInput.value = "";  // Limpiar el input
-                    addButton.disabled = true;  // Deshabilitar el botón después de agregar
+                    taskInput.value = "";  // Limpia el input
+                    addButton.disabled = true;  // Deshabilita el botón después de agregar
                 }
             });
 
-            // Habilitar el botón cuando haya texto en el input
+            // Habilita el botón cuando haya texto en el input
             taskInput.addEventListener("input", function () {
                 if (taskInput.value.trim() !== "") {
                     addButton.disabled = false;
