@@ -9,14 +9,20 @@
         <h1 class="encabezado">TO-DO</h1>
     </div>
     <div class="container">
-        <h4 class="subencabezado">Personal</h4>
-        <h4 class="subencabezado">Professional</h4>
+        <h4 id="subencabezado">Personal</h4>
+        <h4 id="subencabezado">Professional</h4>
     </div>
     <br>
     <br>
     <div class="buscador">
         <input type="text" placeholder="What do you need to do?" maxlength="8" minlength="1">
         <button class="boton-add">ADD</button>
+    </div>
+    <br>
+    <div class="filtros">
+        <button id="tareas">Tareas</button>
+        <button id="completas">Completas</button>
+        <button id="incompletas">Incompletas</button>
     </div>
     <br>
     <div class="to-do">
@@ -27,5 +33,6 @@
         <div class="tarea"><input type="checkbox"><span>Personal Work No.5</span><span class="basura">🗑</span></div>
         <p class="clear-completed">Clear Completed</p>
     </div>
+    <script src="control.js"></script>
 </body>
 </html>
