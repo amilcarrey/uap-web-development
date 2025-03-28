@@ -18,8 +18,8 @@ body {
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra horizontalmente */
-    justify-content: center; /* Centra verticalmente */
+    align-items: center;
+    justify-content: center;
     border-bottom: 2px solid #e0e0e0;
   }
   
@@ -27,7 +27,7 @@ body {
     font-size: 2rem;
     font-weight: bold;
     color: #333;
-    margin: 0; /* Elimina márgenes */
+    margin: 0;
   }
   
   h1 .highlight {
@@ -37,7 +37,7 @@ body {
   nav {
     display: flex;
     gap: 1rem;
-    margin-top: 1rem; /* Espacio entre el título y los botones */
+    margin-top: 1rem;
   }
   
   .tab {
