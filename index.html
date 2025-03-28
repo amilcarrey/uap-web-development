@@ -132,7 +132,7 @@
         </div>
         <img src="https://images.pexels.com/photos/7845451/pexels-photo-7845451.jpeg" alt=" tareas">
         <div class="task-form">
-            <input type="text" placeholder="¡Escribe tu tarea!" disabled>
+            <input type="text" placeholder="¡Escribe tu tarea!">
             <button disabled>Agregar</button>
         </div>
         <ul class="task-list">
@@ -152,5 +152,72 @@
             </li>
         </ul>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const taskInput = document.querySelector("input[type='text']");
+            const addButton = document.querySelector("button");
+            const taskList = document.querySelector(".task-list");
+            const taskForm = document.querySelector(".task-form");
+            const tabs = document.querySelectorAll(".tab");
+
+            // Cambiar entre tabs
+            tabs.forEach(tab => {
+                tab.addEventListener("click", () => {
+                    tabs.forEach(t => t.classList.remove("active"));
+                    tab.classList.add("active");
+                });
+            });
+
+            // Función para agregar tarea
+            addButton.addEventListener("click", function () {
+                const taskText = taskInput.value.trim();
+                if (taskText) {
+                    const taskItem = document.createElement("li");
+                    taskItem.classList.add("task-item");
+
+                    taskItem.innerHTML = `
+                        <label>
+                            <input type="checkbox">
+                            <span>${taskText}</span>
+                        </label>
+                        <button class="delete-btn">🗑</button>
+                    `;
+
+                    // Agregar evento para eliminar tarea
+                    const deleteBtn = taskItem.querySelector(".delete-btn");
+                    deleteBtn.addEventListener("click", function () {
+                        taskList.removeChild(taskItem);
+                    });
+
+                    // Agregar evento para marcar tarea como completada
+                    const checkbox = taskItem.querySelector("input[type='checkbox']");
+                    checkbox.addEventListener("change", function () {
+                        const span = taskItem.querySelector("span");
+                        if (checkbox.checked) {
+                            span.style.textDecoration = "line-through";
+                            span.style.color = "#aaa";
+                        } else {
+                            span.style.textDecoration = "none";
+                            span.style.color = "#000";
+                        }
+                    });
+
+                    taskList.appendChild(taskItem);
+                    taskInput.value = "";  // Limpiar el input
+                    addButton.disabled = true;  // Deshabilitar el botón después de agregar
+                }
+            });
+
+            // Habilitar el botón cuando haya texto en el input
+            taskInput.addEventListener("input", function () {
+                if (taskInput.value.trim() !== "") {
+                    addButton.disabled = false;
+                } else {
+                    addButton.disabled = true;
+                }
+            });
+        });
+    </script>
 </body>
 </html>
