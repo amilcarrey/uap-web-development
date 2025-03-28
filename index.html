@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Tareas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fce4ec;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            border: 2px solid #FFB6C1;
+        }
+
+        h1 {
+            font-family: "Times New Roman", Times, serif;
+            color: #D5006D;
+            margin-bottom: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #FFB6C1;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            color: #888;
+        }
+
+        .tab.active {
+            color: #D5006D;
+            border-bottom: 3px solid #D5006D;
+        }
+
+        img {
+            width: 100%;
+            max-width: 350px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .task-form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #FFB6C1;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #FF0088;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        button:hover {
+            background-color: #D5006D;
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #fce4ec;
+            border-radius: 8px;
+            border: 1px solid #FFB6C1;
+            margin-bottom: 10px;
+        }
+
+        .task-item input[type="checkbox"] {
+            margin-right: 10px;
+            accent-color: #D5006D;
+        }
+
+        .task-item input:checked + span {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+
+        .delete-btn {
+            background-color: transparent;
+            color: #FF1493;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion de Tareas</h1>
+        <div class="tabs">
+            <div class="tab active">Personal</div>
+            <div class="tab">Profesional</div>
+        </div>
+        <img src="https://images.pexels.com/photos/7845451/pexels-photo-7845451.jpeg" alt=" tareas">
+        <div class="task-form">
+            <input type="text" placeholder="¡Escribe tu tarea!" disabled>
+            <button disabled>Agregar</button>
+        </div>
+        <ul class="task-list">
+            <li class="task-item">
+                <label>
+                    <input type="checkbox">
+                    <span>Trabajo No. 1</span>
+                </label>
+                <button class="delete-btn">🗑</button>
+            </li>
+            <li class="task-item">
+                <label>
+                    <input type="checkbox">
+                    <span>Trabajo No. 2</span>
+                </label>
+                <button class="delete-btn">🗑</button>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
