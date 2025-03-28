@@ -1,9 +1,11 @@
-
+// Selección de elementos
 const formulario = document.getElementById('formulario-tarea');
 const entradaTarea = document.getElementById('entrada-tarea');
 const listaTareas = document.getElementById('lista-tareas');
 const botonesFiltro = document.querySelectorAll('.filter');
+const botonClearCompleted = document.querySelector('.clear-completed');
 
+// Manejar el evento de agregar tareas
 formulario.addEventListener('submit', (evento) => {
   evento.preventDefault();
 
@@ -23,6 +25,7 @@ formulario.addEventListener('submit', (evento) => {
   entradaTarea.value = '';
 });
 
+// Manejar el evento de completar o eliminar tareas
 listaTareas.addEventListener('click', (evento) => {
   if (evento.target.classList.contains('delete-task')) {
     const tarea = evento.target.parentElement;
@@ -42,6 +45,15 @@ listaTareas.addEventListener('click', (evento) => {
   }
 });
 
+// Manejar el evento de limpiar tareas completadas
+botonClearCompleted.addEventListener('click', () => {
+  const tareasCompletadas = listaTareas.querySelectorAll('.tarea[data-status="complete"]');
+  tareasCompletadas.forEach((tarea) => {
+    listaTareas.removeChild(tarea);
+  });
+});
+
+// Manejar los filtros
 botonesFiltro.forEach((boton) => {
   boton.addEventListener('click', () => {
     const filtro = boton.getAttribute('data-filter');
