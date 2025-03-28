@@ -1,136 +1,197 @@
 body {
-    background-color: #f0f0f0; /* Fondo general */
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100vh;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
+  font-family: "Roboto Serif", serif;
+  background-color: #ffffff;
+  color: #000000;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 header {
-    background-color: #4CAF50; /* Verde uniforme */
-    color: white;
-    text-align: center;
-    padding: 10px;
-    width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  background-color: #ffffff;
+  color: #000000;
+  text-align: center;
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
 }
 
 .header-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .header-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
 }
 
 main {
-    background-color: #f0f0f0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    flex: 1;
-    gap: 20px;
-    padding: 20px 0;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  flex: 1;
+  gap: 20px;
+  padding: 20px 0;
 }
 
 .main-container {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  margin: 0 auto;
+}
+
+.main-container form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
 }
 
 .main-container ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    width: 100%;
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0 0 0;
+  width: 100%;
 }
 
 .main-container li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 0;
-    border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  background-color: #ffffff;
+  transition: background-color 0.3s ease-in-out;
+  gap: 10px;
+}
+
+.main-container li input[type="checkbox"] {
+  flex-shrink: 0;
+  margin-right: 10px;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.main-container li span {
+  flex: 1;
+  word-wrap: break-word;
+  text-align: left;
+}
+
+.main-container li .eliminar-btn {
+  flex-shrink: 0;
+  background-color: #e6e6e6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.main-container li .eliminar-btn:hover {
+  background-color: #868686;
+}
+
+.main-container button {
+  padding: 10px 15px;
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.main-container button:hover {
+  background-color: #333333;
+}
+
+.main-container input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 100%;
+  margin: 10px 0;
+  font-size: 16px;
+  background-color: #ffffff;
+  color: #000000;
 }
 
 footer {
-    background-color: #4CAF50;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #ffffff;
+  color: #000000;
+  text-align: center;
+  padding: 10px;
+  border-top: 1px solid #ddd;
 }
 
 .completada {
-    text-decoration: line-through;
-    color: #888;
+  text-decoration: line-through;
+  color: #888888;
+  background-color: #f0f0f0;
 }
 
-#clearCompleted,
-#deleteSelected {
-    padding: 10px 15px;
-    background-color: #4CAF50; /* Verde uniforme */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 5px;
-}
-
-#clearCompleted:hover,
-#deleteSelected:hover {
-    background-color: #45a049; /* Verde más oscuro al pasar el mouse */
+.botones-y-filtros {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 400px;
 }
 
 .filtros {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-}
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 
-.filtros button {
-    padding: 8px 12px;
-    background-color: #4CAF50; /* Verde uniforme */
+  .filtros button {
+    padding: 10px 15px;
+    background-color: #000000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+
+  .filtros button:hover {
+    background-color: #333333;
+  }
+
+  #deleteSelected {
+    padding: 10px 15px;
+    background-color: #ff4d4d;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-}
+    transition: background-color 0.3s ease-in-out;
+  }
 
-.filtros button:hover {
-    background-color: #45a049; /* Verde más oscuro al pasar el mouse */
-}
-
-/* Alinear el contenedor de botones y filtros debajo de las listas */
-.botones-y-filtros {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 800px;
-    margin-top: 20px;
-    gap: 10px;
+  #deleteSelected:hover {
+    background-color: #e60000;
+  }
 }
