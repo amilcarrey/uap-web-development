@@ -13,6 +13,7 @@ h1 {
 .sel {
     display: flex;
     justify-content: center;
+    
     gap: 0;
     margin: 10px;
     width: 100%;
