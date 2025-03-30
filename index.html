@@ -10,13 +10,12 @@
     <header>
       <h1>2.DO</h1>
       <div class="tabs">
-        <button class="tab active">Personal</button>
-        <button class="tab">Professional</button>
+        <button class="tab active" id="filtro-todas">Todas</button>
+        <button class="tab" id="filtro-incompletas">Incompletas</button>
+        <button class="tab" id="filtro-completas">Completas</button>
       </div>
-      
     </header>
     <main>
-
       <div class="tareas">
         <input
           type="text"
@@ -24,34 +23,11 @@
           name="nombre"
           placeholder="¿Qué necesitas hacer?"
         /><button type="submit" id="añadir-boton">Añadir</button><br /><br />
-        <form id="formulario-tareas">
-          <div class="contenedor-tarea">
-            <div class="info-tarea">
-              <button class="finalizar-tarea">⭕</button>
-              <label class="tarea">Tarea 1</label>
-            </div>
-            <button class="borrar-tarea">🗑️</button>
-          </div>
-
-          <div class="contenedor-tarea">
-            <div class="info-tarea">
-              <button class="finalizar-tarea">⭕</button>
-              <label class="tarea">Tarea 2</label>
-            </div>
-            <button class="borrar-tarea">🗑️</button>
-          </div>
-
-          <div class="contenedor-tarea">
-            <div class="info-tarea">
-              <button class="finalizar-tarea">⭕</button>
-              <label class="tarea">Tarea 3</label>
-            </div>
-            <button class="borrar-tarea">🗑️</button>
-          </div>
-
-          <button type="submit" id="clear">Eliminar Tareas Completadas</button>
-        </form>
+        <div id="formulario-tareas">
+          <button type="button" id="clear">Eliminar Tareas Completadas</button>
+        </div>
       </div>
     </main>
+    <script type="text/javascript" src="main.js"></script>
   </body>
 </html>
