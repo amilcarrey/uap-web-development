@@ -1,0 +1,144 @@
+/* Estilo para el título principal */
+h1 {
+    background-color: rgb(93, 207, 169); /* Fondo verde */
+    text-align: center; /* Centra el texto */
+    padding: 20px; /* Espaciado interno */
+}
+
+/* Estilos para las letras del título "TO" y "DO" */
+.gray {
+    color: #06b600; /* Verde oscuro */
+}
+
+.orange {
+    color: #016406; /* Verde aún más oscuro */
+}
+
+/* Contenedor de filtros (Todas, Incompletas, Completadas) */
+.filters {
+    display: flex; /* Distribuye los elementos horizontalmente */
+    justify-content: center; /* Centra los botones */
+    gap: 10px; /* Espacio entre los botones */
+    margin: 10px 0; /* Espaciado arriba y abajo */
+}
+
+/* Estilo general de los botones de filtro */
+.filter {
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Estilo para el filtro activo (seleccionado) */
+.filter.active {
+    background-color: #1eb56c; /* Verde */
+    color: white; /* Texto blanco */
+}
+
+/* Contenedor de entrada de texto y botón de agregar tarea */
+.escriba {
+    display: flex; /* Elementos en una fila */
+    justify-content: center; /* Centra el contenido */
+    margin-bottom: 20px; /* Espacio debajo */
+}
+
+/* Estilo del campo de entrada de texto */
+.escriba input {
+    padding: 10px;
+    width: 200px;
+    border-radius: 20px 0 0 20px; /* Bordes redondeados en los extremos izquierdos */
+}
+
+/* Estilo del botón de agregar tarea */
+.escriba button {
+    padding: 10px;
+    background-color: #1eb56c; /* Verde */
+    color: white;
+    border-radius: 0 20px 20px 0; /* Bordes redondeados en los extremos derechos */
+    cursor: pointer;
+    border: none;
+}
+
+/* Contenedor de las pestañas */
+.tabs {
+    display: flex; /* Organiza las pestañas en fila */
+    background: #adffbe; /* Fondo verde claro */
+    overflow: hidden; /* Oculta el desbordamiento */
+    margin-bottom: 15px; /* Espaciado inferior */
+}
+
+/* Estilo general para cada pestaña */
+.tab {
+    flex: 1; /* Cada pestaña ocupa el mismo ancho */
+    text-align: center; /* Centra el texto */
+    padding: 12px; /* Espaciado interno */
+    font-weight: bold; /* Texto en negrita */
+    color: #8e8e8e; /* Color gris */
+}
+
+/* Pestaña activa (seleccionada) */
+.tab.active {
+    border-bottom: 3px solid #006d12; /* Línea inferior para indicar la pestaña activa */
+    color: #3c3c3c; /* Color más oscuro */
+}
+
+/* Contenedor de la lista de tareas */
+.list-container {
+    width: 80%; /* Ocupa el 80% del ancho de la pantalla */
+    margin: 20px auto; /* Centrado con margen superior/inferior */
+    padding: 20px;
+    background-color: #aaffd0; /* Fondo verde agua */
+    border-radius: 15px; /* Bordes redondeados */
+    display: flex;
+    flex-direction: column; /* Elementos en columna */
+}
+
+/* Lista de tareas */
+#taskList {
+    list-style: none; /* Quita los estilos de lista predeterminados */
+    padding: 0;
+}
+
+/* Estilos para cada tarea */
+.task-item {
+    display: flex; /* Elementos en fila */
+    align-items: center; /* Alinea verticalmente */
+    justify-content: space-between; /* Distribuye los elementos */
+    background-color: #f9f9f9; /* Fondo gris claro */
+    padding: 10px;
+    border-radius: 10px; /* Bordes redondeados */
+    margin-bottom: 10px; /* Espaciado entre tareas */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra para efecto de elevación */
+}
+
+/* Tareas completadas (tachadas y con color gris) */
+.task-item.completed .task-name {
+    text-decoration: line-through; /* Texto tachado */
+    color: #888; /* Color gris */
+}
+
+/* Estilo del nombre de la tarea */
+.task-name {
+    flex-grow: 1; /* Ocupa el espacio restante */
+    padding-left: 10px;
+}
+
+/* Estilo de los iconos de acción (eliminar, marcar como completado) */
+.icon {
+    cursor: pointer;
+    margin-left: 10px; /* Espacio entre iconos */
+}
+
+/* Botón para limpiar tareas completadas */
+#clearCompleted {
+    background-color: #00de5d; /* Verde */
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px; /* Bordes redondeados */
+    cursor: pointer;
+    display: block;
+    margin-left: auto; /* Alinea el botón a la derecha */
+}
