@@ -19,42 +19,32 @@
             <div>
                 <h2>Personal</h2>
             </div>
-            <div c>
+            <div>
                 <h2>Professional</h2>
             </div>
            
-                <i class="fa-solid fa-plus"></i>
+            <i class="fa-solid fa-plus"></i>
             
         </div>
 
-        <form action="" class="addTask">
+        <form action="" class="addTask" id="addTask">
             <input type="text" name="task" id="task" placeholder="Añadir tarea">
             <button type="submit">ADD</button>
         </form>
 
-        <form action="" class="taskList">
+        <form  id="taskList">
+            <div id="classList">
+                <button id="allTasks" type="button">All</button>
+                <button id="incompletedTasks" type="button">Incompleted</button>
+                <button id="completedTasks" type="button">Completed</button>
+            </div>
+                
             <ul>
-                <li>
-                    
-                    <input type="checkbox">
-                    <label for="task">Tarea 1</label>
-                    <button type="submit" class="delete"> <i class="fas fa-trash"></i></button>
-                </li>
-                <li>
-                    
-                    <input type="checkbox" name="" id="">
-                    <label for="task">Tarea 2</label>
-                    <button type="submit" class="delete"> <i class="fas fa-trash"></i></button>
-                </li>
-                <li>
-                   
-                    <input type="checkbox" name="" id="">
-                    <label for="task">Tarea 3</label>
-                    <button type="submit" class="delete"> <i class="fas fa-trash"></i></button>
-                </li>
+                
             </ul>
-            <span>Clear completed</span>
+            <span role="button" id="clear">Clear completed</span>
         </form>
     </main>
+    <script src="script.js"></script>
 </body>
 </html>

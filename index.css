@@ -97,7 +97,7 @@ main{
     color: white;
 }
 
-.taskList{
+#taskList{
     display: flex;
     flex-direction: column;
     background-color: rgb(219, 227, 227);
@@ -120,12 +120,9 @@ input[type="checkbox"]:checked::after{
     top: 10%;
     left: 20%;
     color: rgb(57, 98, 218);
-
-   
-   
 }
 
-.taskList li{
+#taskList li{
     list-style: none;
     padding: 10px;
     margin: 10px 0;
@@ -148,10 +145,37 @@ input[type="checkbox"]:checked::after{
     color: rgb(173, 4, 4);
 }
 
-.taskList span{
+#taskList span{
     cursor: pointer;
     margin-left: auto;
 }
-.taskList span:hover{
+#taskList span:hover{
     color: rgb(57, 98, 218);
 }
+
+#classList{
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    
+}
+
+#classList button{
+    border: none;
+    border-bottom: 2px solid rgb(57, 98, 218);
+    background-color:rgb(219, 227, 227);
+    width: 120px;
+    font-size: 16px;
+    cursor: pointer; 
+    padding: 10px;   
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+
+
+}
+
+
+#classList button:hover{
+    background-color:rgb(176, 185, 185);
+}
+
