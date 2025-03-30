@@ -42,7 +42,6 @@ header h1 {
 .modo.activo {
     border-bottom: 2px solid #4a90e2;
 }
-
 .contenedorinput {
     padding: 20px;
     display: flex;
@@ -86,7 +85,26 @@ header h1 {
     background: #357ab7;
 }
 
+.filtros {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
 
+.filtro {
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #4a90e2;
+    font-size: 14px;
+}
+
+.filtro.activo {
+    font-weight: bold;
+    border-bottom: 2px solid #4a90e2;
+}
 
 .contenedorlista {
     padding: 15px;
@@ -94,8 +112,8 @@ header h1 {
     background-color: #fff;
     border-radius: 10px;
     width: 100%;
-    max-width: 600px; 
-    margin: 0 auto; 
+    max-width: 600px;
+    margin: 0 auto;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -107,50 +125,56 @@ header h1 {
 .lista li {
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* Alinea el contenido a la izquierdas */
+    justify-content: flex-start;
     border-bottom: 1px solid #eee;
     padding: 10px;
 }
 
 .lista li:last-child {
-    margin-bottom: 0; 
-    
+    border-bottom: none;
+}
+
+.lista li.completada .texto-tarea {
+    text-decoration: line-through;
+    color: #888;
 }
 
 .lista li button.check {
-    margin-right: 50px; 
+    margin-right: 10px;
 }
 
 .lista li button.eliminar {
-    margin-left: auto; 
+    margin-left: auto;
 }
 
 .lista li button:hover {
     transform: scale(1.1);
 }
 
-
 .check, .eliminar {
     background: none;
     border: none;
     cursor: pointer;
     font-size: 18px;
+    transition: transform 0.2s ease;
 }
 
 .check {
+    color: #dc3545;
+}
+
+.check.completada {
     color: #28a745;
-    transition: transform 0.2s ease;
 }
 
 .eliminar {
     color: #dc3545;
-    transition: transform 0.2s ease;
 }
 
 .acciones {
-    text-align: right;
-    padding: 20px;
-    transition: color 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0 0;
 }
 
 .acciones button {
@@ -159,8 +183,10 @@ header h1 {
     border: none;
     cursor: pointer;
     font-size: 15px;
+    padding: 5px 10px;
 }
 
 .acciones button:hover {
     color: #357ab7;
+    text-decoration: underline;
 }

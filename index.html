@@ -25,38 +25,22 @@
         </div>
 
         <section class="contenedorlista">
+            <div class="filtros">
+                <button id="filtroTodas" class="filtro activo">Todas</button>
+                <button id="filtroActivas" class="filtro">Activas</button>
+                <button id="filtroCompletadas" class="filtro">Completadas</button>
+            </div>
+
             <ul id="lista" class="lista">
-                <li>
-                    <button type="button" class="check">✔</button> 
-                    Estudiar 
-                    <button type="button" class="eliminar">🗑️</button>
-                </li>
-                <li>
-                    <button type="button" class="check">✔</button> 
-                    Comer 
-                    <button type="button" class="eliminar">🗑️</button>
-                </li>
-                <li>
-                    <button type="button" class="check">✔</button> 
-                    Dormir 
-                    <button type="button" class="eliminar">🗑️</button>
-                </li>
-                <li>
-                    <button type="button" class="check">✔</button> 
-                    Correr 
-                    <button type="button" class="eliminar">🗑️</button>
-                </li>
-                <li>
-                    <button type="button" class="check">✔</button> 
-                    Jugar
-                    <button type="button" class="eliminar">🗑️</button>
-                </li>
             </ul>
 
             <div class="acciones">
-                <button id="borratodo" type="button">Borrar tareas</button>
+                <button id="borrarCompletadas" type="button">Borrar completadas</button>
+                <button id="borrarTodo" type="button">Borrar todo</button>
             </div>
         </section>
     </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
