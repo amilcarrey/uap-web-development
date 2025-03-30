@@ -1,3 +1,5 @@
+let ordenAscendente = true; // Controla el orden de la lista
+
 // Función para colorear el texto de un elemento
 function colorearTexto(elementoId, baseColor, colorOffset) {
     // Obtener el elemento por su ID
@@ -30,95 +32,85 @@ function colorearTexto(elementoId, baseColor, colorOffset) {
 
 // Función para agregar una nueva tarea a la lista
 function agregarTarea() {
-    // Obtener el valor del input de tarea
     const tareaInput = document.getElementById('tareaInput');
     const tareaTexto = tareaInput.value.trim();
-
-    // Si el input está vacío, no hacer nada
     if (tareaTexto === '') return;
 
-    // Crear el elemento <li> para la tarea
     const li = document.createElement('li');
     li.classList.add('tarea-item');
 
-    // Crear el checkbox para marcar la tarea
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.classList.add('tarea-checkbox');
 
-    // Crear el span para el texto de la tarea
     const span = document.createElement('span');
     span.textContent = tareaTexto;
     span.classList.add('tarea-texto');
 
-    // Agregar un evento para tachar el texto cuando se marque el checkbox
     checkbox.addEventListener('change', function () {
         span.classList.toggle('tachado', this.checked);
     });
 
-    // Crear el botón para eliminar la tarea
     const borrarBtn = document.createElement('button');
-    borrarBtn.innerHTML = '❌'; // Ícono de eliminación
+    borrarBtn.innerHTML = '❌';
     borrarBtn.classList.add('btn-borrar');
     borrarBtn.onclick = function () {
-        li.remove(); // Eliminar la tarea
-        mostrarBotone(); // Verificar si el botón de borrar todo debe mostrarse
+        li.remove();
+        mostrarBotones();
     };
 
-    // Agregar los elementos al <li>
     li.appendChild(checkbox);
-    li.appendChild(span);
     li.appendChild(span);
     li.appendChild(borrarBtn);
 
-    // Agregar el <li> a la lista de tareas
-    document.getElementById('listaTareas').appendChild(li);
+    const listaTareas = document.getElementById('listaTareas');
 
-    // Limpiar el input
+    // Si el orden es ascendente, agregar al final; si es descendente, agregar al inicio
+    if (ordenAscendente) {
+        listaTareas.appendChild(li);
+    } else {
+        listaTareas.prepend(li);
+    }
+
     tareaInput.value = '';
+    mostrarBotones();
+}
 
-    // Mostrar el botón para borrar todas las tareas
-    mostrarBotone();
+// Función para cambiar el orden de la lista de tareas
+function cambiarOrdenLista() {
+    const listaTareas = document.getElementById('listaTareas');
+    const tareas = Array.from(listaTareas.children);
+
+    // Invertir el orden de las tareas
+    listaTareas.innerHTML = '';
+    tareas.reverse().forEach(tarea => listaTareas.appendChild(tarea));
+
+    // Cambiar el sentido de la inserción
+    ordenAscendente = !ordenAscendente;
 }
 
 // Función para mostrar el botón de borrar todas las tareas
-function mostrarBotone() {
+function mostrarBotones() {
     const contenedorBotones = document.querySelector('.botones');
-
-    // Si la lista tiene elementos, mostrar el botón
-    if (document.getElementById('listaTareas').children.length > 0) {
-        contenedorBotones.style.display = 'block';
-    } else {
-        contenedorBotones.style.display = 'none';
-    }
+    const contenedorBoton = document.querySelector('.boton');
+    contenedorBotones.style.display = document.getElementById('listaTareas').children.length > 0 ? 'block' : 'none';
+    contenedorBoton.style.display = document.getElementById('listaTareas').children.length > 0 ? 'block' : 'none';
 }
 
 // Función para borrar todas las tareas de la lista
 function borrarTodasLasTareas() {
-    // Obtener la lista de tareas
-    const listaTareas = document.getElementById('listaTareas');
-    // Limpiar todo el contenido de la lista
-    listaTareas.innerHTML = '';
-    // Verificar si el botón de borrar debe seguir visible
-    mostrarBotone();
+    document.getElementById('listaTareas').innerHTML = '';
+    mostrarBotones();
 }
 
 // Función para borrar solo las tareas terminadas
 function borrarTareasTerminadas() {
-    // Obtener todas las tareas de la lista
-    const tareas = document.querySelectorAll('.tarea-item');
-    
-    // Recorrer todas las tareas
-    tareas.forEach(tarea => {
-        // Si la tarea está marcada (checkbox está chequeado), eliminarla
-        const checkbox = tarea.querySelector('.tarea-checkbox');
-        if (checkbox.checked) {
+    document.querySelectorAll('.tarea-item').forEach(tarea => {
+        if (tarea.querySelector('.tarea-checkbox').checked) {
             tarea.remove();
         }
     });
-
-    // Verificar si el botón de borrar debe seguir visible
-    mostrarBotone();
+    mostrarBotones();
 }
 
 // Llamar a la función de colorear texto en el título
