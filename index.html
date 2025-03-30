@@ -1,84 +1,27 @@
 <!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Formulario</title>
+    <title>TO DO LIST</title>
     <link rel="stylesheet" href="index.css"> 
 </head>
 <body>
 
     <h1>TO DO LIST:</h1>
-    <!-- <h2> PERSONAL</h2>
-    <h3> LABORAL</h3> -->
-    <!-- <h2>Yamila Caviglione</h2> -->
-
-    <!-- <img src="foto1.webp" alt="Perro Salchicha"> -->
 
     <form id="taskForm" class="task-form">
         <label for="taskInput">Cosas que faltan hacer:</label>
         <input type="text" id="taskInput" required>
         <button type="submit">Agregar a la lista</button>
     </form>
-
     <br />
 
-    <form action="/resultado" method="post" class="task-list">
-        <label><input type="checkbox" id="cbox1" value="first_checkbox" /> Ir al Ceape </label>
-        <label><input type="checkbox" id="cbox2" value="second_checkbox" /> Entregar tp </label>
-        <label><input type="checkbox" id="cbox3" value="third_checkbox" /> Retirar paquete </label>
-        <label><input type="checkbox" id="cbox4" value="fourth_checkbox" /> Terminar tarea </label>
-        <label><input type="checkbox" id="cbox5" value="fifth_checkbox" /> Lavar ropa </label>
-        <label><input type="checkbox" id="cbox6" value="sixth_checkbox" /> Cocinar almuerzo </label>
+    <div class="task-list">
+        <ul id="taskList"></ul>
+        <button id="borrarCompletados">Borrar las tareas completadas</button>
+    </div>
+    <br />
 
-
-            <!-- <input name="password" type="password" placeholder="Contrasena"/> -->
-        <button type="submit">Borrar los casilleros checkeados</button>
-    </form>
-
+    <script src="script.js"></script> 
 </body>
 </html>
-
-
-
-
-<!-- Entrega 1: -->
-
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8" />
-    <title>Formulario</title> 
-    <h1>Fromulario</h1>
-    <h2>Yamila Caviglione</h2>
-</head>
-<body>
-    
-    <img src="foto1.webp" alt="Perro Salchicha">
-
-    <form id="taskForm">
-        <label for="taskInput">Nombre:</label>
-        <input type="text" id="taskInput" required>
-        <button type="submit">Guardar</button>
-    </form>
-
-    <label><input type="checkbox" id="cbox1" value="first_checkbox" /> Ir al Ceape </label
-    ><br />
-
-    <input type="checkbox" id="cbox2" value="second_checkbox" />
-    <label for="cbox2">Entregar tp antes de las 12 </label>
-
-    <form action="/resultado" method="post">
-        <input name="first" type="text" placeholder="Nombre"/>
-        <input name="last" type="text" placeholder="Apellido"/>
-        <input name="password" type="password" placeholder="Contrasena"/>
-        <button type="submit">Enviar</button>
-    </form>
-</body>
-</html> -->
-
-
-<!-- un titulo
-una imagen
-un formulario con 1 input (con su etiqueta) y 1 boton
-una lista de tareas donde cada elemento de la lista tiene:
-Un texto
-Un boton de completar -->
