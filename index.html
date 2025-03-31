@@ -23,33 +23,57 @@
                     <h3>Profesional</h3>
                 </div>
             </nav>
-    
-        <!-- <img src="rexito.jpg" alt="" width="220" height="400"> -->
-    
+
         <div class="agregar">
-            <input type="text" id="agregar" placeholder="Qué necesitas hacer?">
-            <button class="agg">AGREGAR</button>
+            <form id="taskForm">
+                <input type="text" id="agregar" placeholder="Qué necesitas hacer?">
+                <button type="submit" class="agg">AGREGAR</button>
+            </form>
         </div>
-    
+        
 
             <!-- SECCION DE LAS TAREASssss  -->
         <div class="lista">
     
             <ul id="checklist">
-                <li> <button type="button" class="check-btn">✓</button><p class="delete">Tarea 1</p><button type="button" class="delete-btn"><i class="fa-solid fa-trash"></i></button></li>
-    
-                <li> <button type="button" class="check-btn">✓</button><p class="delete">Tarea 2</p><button type="button" class="delete-btn"><i class="fa-solid fa-trash"></i></button></li>
-    
-                <li> <button type="button" class="check-btn">✓</button><p class="delete">Tarea 3</p><button type="button" class="delete-btn"><i class="fa-solid fa-trash"></i></button></li>
-    
-                <li> <button type="button" class="check-btn">✓</button><p class="delete">Tarea 4</p><button type="button" class="delete-btn"><i class="fa-solid fa-trash"></i></button></li>
-        
+                <li> 
+                    <button type="button" class="check-btn"><i class="fa-regular fa-circle"></i></button>
+                    <p class="delete">Ir al gym</p>
+                    <button type="button" class="delete-btn"><i class="fa-solid fa-trash"></i></button>
+                </li>
+                
+                <li> 
+                    <button type="button" class="check-btn"><i class="fa-regular fa-circle"></i></button>
+                    <p class="delete"> Jugar futbol</p>
+                    <button type="button" class="delete-btn"><i class="fa-solid fa-trash"></i></button>
+                </li>
+
+                <li> 
+                    <button type="button" class="check-btn"><i class="fa-regular fa-circle"></i></button>
+                    <p class="delete">Viajar a Ecuador</p>
+                    <button type="button" class="delete-btn"><i class="fa-solid fa-trash"></i></button>
+                </li>
+
+                
+                <li> 
+                    <button type="button" class="check-btn"><i class="fa-regular fa-circle"></i></button>
+                    <p class="delete">Comprar en el ceape </p>
+                    <button type="button" class="delete-btn"><i class="fa-solid fa-trash"></i></button>
+                </li> 
             </ul>
     
             <div class="clear">
                 <button class="limpiar">Limpiar</button>
             </div>    
+
+            <div class="botones">
+                <button class="todo">Todas</button>
+                <button class="completado">Completas</button>
+                <button class="incompleto">Incompletas</button>
+            </div>
         </div>
     </main>   
+
+<script src="index.js"></script>
 </body>
 </html>
