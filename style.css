@@ -290,3 +290,35 @@ hr {
     display: none;
     /* position: absolute; */
 }
+
+.boton-tooltip {
+    position: relative; /* Necesario para posicionar el tooltip */
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  .boton-tooltip::after {
+    content: attr(data-title); /* Obtiene el contenido del atributo "data-title" */
+    position: absolute;
+    top: 100%; /* Posiciona el tooltip debajo del botón */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 10;
+  }
+  
+  .boton-tooltip:hover::after {
+    opacity: 1;
+    visibility: visible; /* Muestra el tooltip al pasar el mouse */
+  }

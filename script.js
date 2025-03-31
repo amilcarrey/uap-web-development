@@ -156,4 +156,3 @@ function obtenerIconoEstado() {
 
 // Llamar a la función de colorear texto en el título
 colorearTexto('titulo', { r: 255, g: 0, b: 0 }, 10);
-
