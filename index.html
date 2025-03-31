@@ -1,35 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tareneitor</title>
+    <link rel="stylesheet" href="estilo.css">
 </head>
+
 <body>
     <!--Titulo-->
-    <h1>TARENEITOR</h1>
+    <div class="Titulo">
+        <h1>TARENEITOR</h1>
+    </div>
 
     <!--Imagen-->
-    <img src="Imágenes/images.jpeg" alt="Imagen para reflexionar sobre la vida y tus tareas"> 
+    <div class="Imagen">
+        <hr>
+        <img id="logo" src="Imágenes/e.png" alt="Imagen para reflexionar sobre la vida y tus tareas">
+    </div>
+
 
     <!--formulario con 1 input (con su etiqueta) y 1 boton-->
-    <form>
-        <input type="text" placeholder="Que tenemos que hacer hoy?">
-        <button>Agregar</button>
-    </form>
+    <div class="Formulario">
+        <form id="form-tarea">
+            <input id="input-tarea" type="text" placeholder="Que tenemos que hacer hoy?">
+            <button id="btn-agregar" type="submit">Agregar</button>
+        </form>
+    </div>
+
+    <!--Funciones para ver tareas por filtro-->
+    <button id="mostrar-completadas" class="filtro-btn">Mostrar tareas completadas</button>
+    <button id="mostrar-incompletas" class="filtro-btn">Mostrar tareas sin completar</button>
 
     <!--Lista: tarea, texto, boton de completar-->
-    <ul>
-        <li>
-            <input type="radio">
-            Con tareneitor puede agregar tareas, borrarlas, marcar como completadas y borrar todas las completadas
-            <button>Eliminar</button>
-        </li>
-    </ul>
+    <div class="Tareas">
 
-    <!--Funciones-->
-    <button>Elimiar tareas completadas</button>
-    <button>Eliminar todas las tareas</button>
+        <ul class="Lista" id="lista-tareas"></ul>
+        <!-- Eliminar tareas completadas-->
+        <button id="eliminar-completadas" class="eliminar-btn">Eliminar tareas completadas</button>
+    </div>
 
 </body>
+
 </html>
