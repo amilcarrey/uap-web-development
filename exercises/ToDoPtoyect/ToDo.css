@@ -12,8 +12,9 @@ body{
     font-style: normal;
     background-color: rgb(83, 57, 88);
 }
-      
 }
+      
+
 .title h1:first-child {
     color: white;
 }
@@ -43,7 +44,10 @@ body{
 .Category {
     margin: 0 10px; /* Evita que se junten demasiado */
     cursor: POINTER;    
-    padding: 5px 10px;  
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;  
+    background-color: antiquewhite;
 }
 #AddAreaButton{
     font-size: 20px;
@@ -62,16 +66,10 @@ body{
     display: flex;
     justify-content: center;
     margin-top: 20px;
-}
-#formTask{
-    width: 700px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}   
+    gap: 20px;
+} 
 #addtask{
-    width: 1000px;
+    width: 800px;
     height: 40px;
     border-radius: 5px;
     border: 1px solid black;
@@ -98,18 +96,39 @@ body{
     background-color: rgb(124, 1, 118);
 }
 
+.Main{
+    gap: 10px;
+    margin: 20px auto; /* Centra el div horizontalmente */
+    background-color: antiquewhite; 
+    width: 80%; 
+    max-width: 1200px; 
+    padding: 20px;
+    border-radius: 10px; 
+    background-color: antiquewhite;
+}
+
+.Filter {
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Espacio entre los elementos */
+    margin-bottom: 20px; /* Espacio entre el filtro y las tareas */
+    background-color: orange;
+    color: white;
+    border-radius: 6px;
+    border: none;
+    padding: 10px 15px; /* Espacio interno */
+    cursor: pointer;
+}
+.Filter:hover {
+    background-color: rgb(139, 90, 0);
+}
 
 .Tasks {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    margin: 20px auto; /* Centra el div horizontalmente */
-    background-color: antiquewhite;
-    width: 80%; 
-    max-width: 1200px; 
-    padding: 20px;
-    border-radius: 10px; 
 }
 
 .Task{
@@ -123,15 +142,15 @@ body{
     color: white;
 }   
 
-.Task p {
-    font-size: 16px;
-    transition: 0.3s; /* Animación suave */
-}
+    .Task p {
+        font-size: 16px;
+        transition: 0.3s; /* Animación suave */
+    }
 
-.Task input[type="checkbox"]:checked + p {
-    text-decoration: line-through;
-    color: gray; 
-}
+    .Task input[type="checkbox"]:checked + p {
+        text-decoration: line-through;
+        color: gray; 
+    }
 
 #checkTask {
     appearance: none; 
@@ -193,6 +212,7 @@ body{
     justify-content: center;
     border-radius: 5px;
     margin-left: auto; /* Empuja el botón a la derecha */
+    margin-top: 20px; /* Agrega espacio entre las tareas y el botón */
   }
 
   #clearCompleteButton:hover {
