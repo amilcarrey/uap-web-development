@@ -1,0 +1,174 @@
+body
+{
+    background-color: pink;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+h1
+{
+    margin: 20px, auto;
+    text-align: center;
+    color: white;
+    font-size: 50px;
+    font-family: 'Courier New', Courier, monospace;
+    text-shadow: 2px 2px 4px #000000;
+}
+
+.form-container 
+{
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    margin-top: 10px; 
+}
+
+#task 
+{
+    text-align: center;
+    background-color: white;
+    border-radius: 100px;
+    font-size: 16px;
+    width: 300px;
+    padding: 5px;
+    border: 1px solid gray;
+}
+
+#Agregar 
+{
+    text-align: center;
+    background-color: violet;
+    border-radius: 100px;
+    font-size: 16px;
+    width: 70px;
+    padding: 5px;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.categories 
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; 
+}
+
+.categories button:first-child 
+{
+    background-color: #5bc0de; 
+    color: black;
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.categories button:nth-child(2) 
+{
+    background-color: blueviolet; 
+    color: white;
+    font-size: 24px;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    border: none;
+    border-radius: 50%; 
+    cursor: pointer;
+}
+
+.categories button:last-child 
+{
+    background-color: #5bc0de; 
+    color: black;
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.categories button:hover 
+{
+    opacity: 0.8;
+}
+
+.task-list 
+{
+    background-color: violet;
+    padding: 4px;
+    width: 400px;
+    margin: 20px auto;
+}
+
+.task 
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    font-size: 18px;
+}
+
+.task:last-child 
+{
+    border-bottom: none;
+}
+
+.checkmark 
+{
+    font-size: 20px;
+    margin-right: 10px;
+    color: black;
+}
+
+.delete 
+{
+    font-size: 18px;
+    color: #d66;
+    cursor: pointer;
+}
+
+.completed {
+    text-decoration: line-through;
+    color: black;
+}
+
+#clear
+{
+    display: flex;
+    background-color: red;
+    margin-left: auto; 
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+.filtros
+{
+    margin-top: 20px;
+    font-size: 16px;
+    font-family: 'Courier New', Courier, monospace;
+    color: black;
+    font-weight: bold;
+    text-align: center;
+    background-color: skyblue;
+    border-radius: 10px;    
+}
+
+
+#DFiltro 
+{
+    display: flex;  
+    justify-content: center;  /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    gap: 100px; /* Espacio entre los botones */
+}
