@@ -8,12 +8,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+
+
 </head>
+
 <body>
     <div class="tabs">
-        <button class="tab active">Personal</button>
-        <button class="tab">Professional</button>
+        <button class="tab active" id="all-tasks">Tareas</button>
+        <button class="tab" id="completed-tasks">Completas</button>
+        <button class="tab" id="incomplete-tasks">Incompletas</button>
     </div>
+    
     
     <div class="container">
         <h1>TO.DO</h1>
@@ -22,13 +28,35 @@
             <button>Agregar</button>
         </div>
         <ul class="task-list">
-            <li><span class="completed">Hacer tarea de Programación III</span> ✅</li>
-            <li>Ordenar mi ropa</li>
-            <li>Limpiar la pieza</li>
-            <li><span class="completed">Organizar horario</span> ✅</li>
-            <li>Copiar tarea de ANMAT</li>
+            <li>
+                <input type="checkbox" id="tarea1">
+                <label for="tarea1"><span>Hacer tarea de Programación III</span></label>
+                <button class="borrar-tarea">🗑️</button>
+            </li>
+            <li>
+                <input type="checkbox" id="tarea2">
+                <label for="tarea2"><span>Ordenar mi ropa</span></label>
+                <button class="borrar-tarea">🗑️</button>
+            </li>
+            <li>
+                <input type="checkbox" id="tarea3">
+                <label for="tarea3"><span>Limpiar la pieza</span></label>
+                <button class="borrar-tarea">🗑️</button>
+            </li>
+            <li>
+                <input type="checkbox" id="tarea4">
+                <label for="tarea4"><span>Organizar horario</span></label>
+                <button class="borrar-tarea">🗑️</button>
+            </li>
+            <li>
+                <input type="checkbox" id="tarea5">
+                <label for="tarea5"><span>Copiar tarea de ANMAT</span></label>
+                <button class="borrar-tarea">🗑️</button>
+            </li>
         </ul>
-        <button>Clear Completed</button>
+        
+        
+        <button class="clear-completed">Clear Completed</button>
     </div>
 </body>
 </html>

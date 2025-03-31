@@ -1,9 +1,7 @@
-
 body {
     
     font-family: Poppins, sans-serif;
     background-color: #f5f0ea;
-    text-align: center;
     margin: 0;
     padding: 0;
 }
@@ -21,10 +19,28 @@ h1 {
 
 }
 .task-input {
+    align-items: center;
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
 }
+.task-list input[type="checkbox"]:checked + label {
+    text-decoration: line-through;
+    color: gray;
+    
+}
+.task-list label {
+    flex: 1; /* Esto asegura que el texto ocupe el espacio restante */
+    margin-left: 10px;
+}
+
+.task-list input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
 input {
     flex: 1;
     padding: 10px;
@@ -46,15 +62,52 @@ button {
 .task-list {
     list-style: none;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
 }
 .task-list li {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 10px;
     background: white;
     border-radius: 5px;
     margin-bottom: 10px;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+    gap: 10px;
+}
+.task-buttons {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+.task-text {
+    flex-grow: 1;
+    text-align: left;
+    word-break: break-word; /* Asegura que el texto largo no rompa el diseño */
+}
+
+.task-list .delete-icon {
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .task-list li {
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+
+    .task-text {
+        font-size: 14px;
+    }
+}
+
+.task-buttons li {
+    margin-right: 20px;
 }
 .completed {
     text-decoration: line-through;
@@ -84,4 +137,11 @@ button {
 
 .tab:hover {
     color: black;
+}
+.borrar-tarea{
+    background: none;
+    transition: 0.2s;
+}
+.borrar-tarea:hover{
+    transform: scale(1.2);
 }
