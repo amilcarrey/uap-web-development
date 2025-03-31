@@ -6,6 +6,7 @@
     <title>To Do List</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="script.js"></script>
 </head>
 <body>
     <header>
@@ -14,31 +15,17 @@
     <nav>
         <ul class="menu">
             <li class="mn"><a href="#">Personal</a></li>
-            <li class="mn"><a href="#work">Work</a></li>
+            <li class="mn"><a href="#work">Trabajo</a></li>
             <li class="mn"> <button class="agregar">+</button></li>
         </ul>        
     </nav>
 
     <div class="agregador">
-            <input class= "quep" type="text" placeholder="que queres hacer?">
-            <button class="agbot">+</button>
+            <input class= "quep" id="taskInput" type="text" placeholder="que queres hacer?">
+            <button onclick="addTask()" class="agbot">+</button>
         </div>
-        <div class="tareas">
-            <li>
-                <button class="borrar">X</button>
-                <span class="tarea">Tarea 1</span>
-                <input type="checkbox" class="check">
-            </li>
-            <li>
-                <button class="borrar">X</button>
-                <span class="tarea">Tarea 2</span>
-                <input type="checkbox" class="check">
-            </li>
-            <li>
-                <button class="borrar">X</button>
-                <span class="tarea">Tarea 3</span>
-                <input type="checkbox" class="check">
-        </li>
+        <ul class="tareas" id="taskList"></ul>
+        <button id="clearCompleted" class="clear-completed">Limpia Completadas</button>
     </div> 
 </body>
 </html>
