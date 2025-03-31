@@ -1,16 +1,52 @@
-    body {
-            background-color: rgb(194, 190, 179);
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-        }
-        .slider-container {
-            margin-bottom: 20px;
-        }
-        #color-box {
-            width: 100px;
-            height: 100px;
-            margin: 20px auto;
-            border: 1px solid #000;
-            background-color: rgb(50, 30, 70);
-        }
+body {
+    background-color: rgb(194, 190, 179);
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 50px;
+}
+
+.slider-container {
+    margin-bottom: 20px;
+}
+
+#color-box {
+    width: 150px;
+    height: 150px;
+    margin: 20px auto;
+    border-radius: 10px;
+    border: 2px solid #000;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+    background-color: rgb(50, 30, 70);
+}
+
+#hex-value {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.slider {
+    width: 50%;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 5px;
+    outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    background: white;
+    border: 2px solid black;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Colores de los sliders */
+.red { background: linear-gradient(to right, black, red); }
+.green { background: linear-gradient(to right, black, green); }
+.blue { background: linear-gradient(to right, black, blue); }

@@ -11,24 +11,25 @@
     
     <div class="slider-container">
         <label for="slider1">Rojo:</label>
-        <input type="range" id="slider1" min="0" max="255" value="50" oninput="updateColor()">
+        <input type="range" id="slider1" min="0" max="255" value="50" oninput="updateColor()" class="slider red">
         <span id="value1">50</span>
     </div>
     
     <div class="slider-container">
         <label for="slider2">Verde:</label>
-        <input type="range" id="slider2" min="0" max="255" value="30" oninput="updateColor()">
+        <input type="range" id="slider2" min="0" max="255" value="30" oninput="updateColor()" class="slider green">
         <span id="value2">30</span>
     </div>
     
     <div class="slider-container">
         <label for="slider3">Azul:</label>
-        <input type="range" id="slider3" min="0" max="255" value="70" oninput="updateColor()">
+        <input type="range" id="slider3" min="0" max="255" value="70" oninput="updateColor()" class="slider blue">
         <span id="value3">70</span>
     </div>
     
     <div id="color-box"></div>
-    
+    <p id="hex-value">#322046</p>
+
     <script>
         function updateColor() {
             const red = document.getElementById("slider1").value;
@@ -38,8 +39,13 @@
             document.getElementById("value1").textContent = red;
             document.getElementById("value2").textContent = green;
             document.getElementById("value3").textContent = blue;
-            
-            document.getElementById("color-box").style.backgroundColor = `rgb(${red}, ${green}, ${blue})`;
+
+            const rgbColor = `rgb(${red}, ${green}, ${blue})`;
+            document.getElementById("color-box").style.backgroundColor = rgbColor;
+
+            // Convertir RGB a Hexadecimal
+            const hexColor = `#${parseInt(red).toString(16).padStart(2, '0')}${parseInt(green).toString(16).padStart(2, '0')}${parseInt(blue).toString(16).padStart(2, '0')}`;
+            document.getElementById("hex-value").textContent = hexColor.toUpperCase();
         }
     </script>
 </body>

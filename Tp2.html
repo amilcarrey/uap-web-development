@@ -3,52 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario</title>
+    <title>Lista de Tareas</title>
     <link rel="stylesheet" href="Tp2.css">
 </head>
 <body>
     <h1>Antes de Ameri</h1>
     <img src="duki.jpg" alt="Imagen de ejemplo">
     
-    <form>
+    <form id="task-form">
         <label for="nueva-tarea"></label>
-        <input type="text" id="nueva-tarea" name="tarea" required placeholder="What do you want to play?">
-        <button type="submit">Buscar</button>
+        <input type="text" id="nueva-tarea" name="tarea" required placeholder="What do you to add?">
+        <button type="submit">Agregar</button>
     </form>
     
-    <ul id="lista-tareas">
-        <li>
-            <span>Completar álbum</span><button>Completar</button>
-        </li>
-    </ul>
-
-    <ul id="lista-tareas">
-        <li>
-            <label class="checkbox">
-                <input type="checkbox">
-                <span class="checkmark"></span>
-            </label>
-            <span class="task-text">Completar álbum</span>
-            <button class="delete-btn">🗑️</button>
-        </li>
-        <li>
-            <label class="checkbox">
-                <input type="checkbox">
-                <span class="checkmark"></span>
-            </label>
-            <span class="task-text">Escuchar nuevo single</span>
-            <button class="delete-btn">🗑️</button>
-        </li>
-        <li>
-            <label class="checkbox">
-                <input type="checkbox">
-                <span class="checkmark"></span>
-            </label>
-            <span class="task-text">Ver entrevista de Duki</span>
-            <button class="delete-btn">🗑️</button>
-        </li>
-    </ul>
-    <button id="clear-btn">Clear</button>
-
+    <div>
+        <button id="filter-all">Todas</button>
+        <button id="filter-incomplete">Incompletas</button>
+        <button id="filter-complete">Completadas</button>
+    </div>
+    
+    <ul id="lista-tareas"></ul>
+    
+    <button id="clear-btn">Clear Completed</button>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const taskForm = document.getElementById("task-form");
+            const taskInput = document.getElementById("nueva-tarea");
+            const taskList = document.getElementById("lista-tareas");
+            const clearBtn = document.getElementById("clear-btn");
+            const filterAll = document.getElementById("filter-all");
+            const filterIncomplete = document.getElementById("filter-incomplete");
+            const filterComplete = document.getElementById("filter-complete");
+            let tasks = [];
+            
+            function renderTasks(filter = "all") {
+                taskList.innerHTML = "";
+                tasks.forEach(task => {
+                    if (filter === "complete" && !task.completed) return;
+                    if (filter === "incomplete" && task.completed) return;
+                    
+                    const li = document.createElement("li");
+                    
+                    const checkboxLabel = document.createElement("label");
+                    checkboxLabel.classList.add("checkbox");
+                    
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.classList.add("task-checkbox");
+                    checkbox.checked = task.completed;
+                    
+                    const checkmark = document.createElement("span");
+                    checkmark.classList.add("checkmark");
+                    
+                    checkboxLabel.appendChild(checkbox);
+                    checkboxLabel.appendChild(checkmark);
+                    
+                    const span = document.createElement("span");
+                    span.classList.add("task-text");
+                    span.textContent = task.text;
+                    if (task.completed) span.style.textDecoration = "line-through";
+                    
+                    const deleteButton = document.createElement("button");
+                    deleteButton.classList.add("delete-btn");
+                    deleteButton.textContent = "🗑️";
+                    deleteButton.addEventListener("click", () => {
+                        tasks = tasks.filter(t => t !== task);
+                        renderTasks(filter);
+                    });
+                    
+                    checkbox.addEventListener("change", () => {
+                        task.completed = checkbox.checked;
+                        renderTasks(filter);
+                    });
+                    
+                    li.appendChild(checkboxLabel);
+                    li.appendChild(span);
+                    li.appendChild(deleteButton);
+                    taskList.appendChild(li);
+                });
+            }
+            
+            function addTask(text) {
+                if (!text.trim()) return;
+                tasks.push({ text, completed: false });
+                renderTasks();
+                taskInput.value = "";
+            }
+            
+            taskForm.addEventListener("submit", (event) => {
+                event.preventDefault();
+                addTask(taskInput.value);
+            });
+            
+            taskInput.addEventListener("keypress", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    addTask(taskInput.value);
+                }
+            });
+            
+            clearBtn.addEventListener("click", () => {
+                tasks = tasks.filter(task => !task.completed);
+                renderTasks();
+            });
+            
+            filterAll.addEventListener("click", () => renderTasks("all"));
+            filterIncomplete.addEventListener("click", () => renderTasks("incomplete"));
+            filterComplete.addEventListener("click", () => renderTasks("complete"));
+            
+            renderTasks();
+        });
+    </script>
 </body>
 </html>
