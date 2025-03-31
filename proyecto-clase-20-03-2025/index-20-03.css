@@ -22,11 +22,8 @@ main {
     height: 70px;
     gap: 400px;
     padding: 20px;
-    /* Espaciado interno */
     border-radius: 10px;
-    /* Bordes redondeados */
     margin: 20px auto;
-    /* Centra el contenedor en la página */
 }
 
 .tab-button {
@@ -40,16 +37,18 @@ main {
     transition: background 0.3s ease, transform 0.2s ease;
 }
 
+
 .tab-button:hover {
     background-color: #666;
     transform: scale(1.05);
-    /* Efecto de agrandado al pasar el mouse */
 }
+
 
 .tab-button:active {
     transform: scale(0.95);
-    /* Efecto de clic */
 }
+
+
 
 .personal-container {
     background: #f5ece3;
@@ -64,7 +63,7 @@ main {
     display: flex;
     align-items: center;
     width: 100%;
-    gap: 10px; /* Espacio entre input y botón */
+    gap: 10px;
 }
 
 .input-group input {
@@ -74,7 +73,7 @@ main {
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    box-sizing: border-box; /* Evita que el padding afecte el ancho */
+    box-sizing: border-box;
 }
 
 .add-button {
@@ -93,7 +92,7 @@ main {
 }
 
 /* Estilo de la lista */
-.todo-list{
+.todo-list {
     background-color: #e78888;
     padding: 20px;
     margin: 20px;
@@ -102,8 +101,7 @@ main {
     flex-direction: column;
 }
 
-.completed
-{
+.completed {
     background-color: #bd79e4;
     margin: 15px;
     justify-content: center;
@@ -112,12 +110,17 @@ main {
     align-items: center;
 }
 
-li{
+
+.incomplete {
+    background-color: #bd79e4; /* Fondo de las tareas incompletas */
+}
+
+li {
     list-style: none;
     padding: 10px;
 }
 
-.delete-btn{
+.delete-btn {
     height: 50px;
     width: 80px;
     background-color: rgb(253, 253, 253);
@@ -125,17 +128,17 @@ li{
     border-radius: 5px;
 }
 
-.delete-btn:hover{
+.delete-btn:hover {
     background-color: rgb(219, 67, 67);
     color: white;
     transform: scale(1.1);
 }
 
-.checkbox{
+.checkbox {
     appearance: none;
     width: 25px;
     height: 25px;
-    border:  2px solid #000000;
+    border: 2px solid #000000;
     border-radius: 8px;
     cursor: pointer;
     margin-right: 10px;
@@ -143,37 +146,33 @@ li{
     background-color: white;
 }
 
-.checkbox:checked{
+.checkbox:checked {
     background-color: rgb(6, 255, 6);
     transition: all 0.15s ease;
 }
 
-.checkbox:checked + .text-task{
+.checkbox:checked+.text-task {
     text-decoration: line-through;
 }
 
-.text-task
-{
+.text-task {
     font-size: 18px;
     font-weight: bold;
     display: flex;
 }
 
-.clear-button
-{
+.clear-button {
     font: arial;
     font-size: 16px;
     color: rgb(0, 0, 0);
     background-color: rgb(117, 241, 124);
-    border-color: black;
+    border: none;
     border-radius: 10px;
     padding: 10px;
     cursor: pointer;
-} 
+}
 
-.clear-button:hover
-{
+.clear-button:hover {
     background-color: rgb(58, 238, 58);
     transform: scale(1.01);
 }
-
