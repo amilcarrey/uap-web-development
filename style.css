@@ -268,10 +268,24 @@ hr {
     border-radius: 50px;
     cursor: pointer;
     position: absolute;
+    top: 185px;
+    right: -15px;
+}
+
+/* Botón para filtrar la lista */
+.filtrar-lista{
+    border: none;
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    position: absolute;
     top: 160px;
     right: -15px;
 }
 
+/*contnedor de los botones filtrar y ordenar */
 .boton {
     display: none;
     /* position: absolute; */

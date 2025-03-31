@@ -1,36 +1,30 @@
 let ordenAscendente = true; // Controla el orden de la lista
+let estadoFiltro = 0;// 0: todas, 1: completas, 2: incompletas
+let tareasOriginales = []; // Guarda todas las tareas sin modificar
 
 // Función para colorear el texto de un elemento
 function colorearTexto(elementoId, baseColor, colorOffset) {
-    // Obtener el elemento por su ID
     let titulo = document.getElementById(elementoId);
-    // Obtener el texto del elemento
     let texto = titulo.innerText;
     let nuevoTexto = '';
 
-    // Recorrer cada carácter del texto
     for (let i = 0; i < texto.length; i++) {
-        // Calcular los valores RGB modificados para cada letra
         let r = baseColor.r - (colorOffset * i);
         let g = baseColor.g + (colorOffset * i);
         let b = baseColor.b + (colorOffset * i);
 
-        // Asegurar que los valores RGB estén dentro del rango válido (0-255)
         r = Math.max(0, Math.min(255, r));
         g = Math.max(0, Math.min(255, g));
         b = Math.max(0, Math.min(255, b));
 
-        // Crear un color en formato RGB
         let color = `rgb(${r}, ${g}, ${b})`;
-        // Agregar el carácter con el color correspondiente
         nuevoTexto += `<span style="color:${color}">${texto[i]}</span>`;
     }
 
-    // Reemplazar el contenido del elemento con el texto coloreado
     titulo.innerHTML = nuevoTexto;
 }
 
-// Función para agregar una nueva tarea a la lista
+// Función para agregar una nueva tarea
 function agregarTarea() {
     const tareaInput = document.getElementById('tareaInput');
     const tareaTexto = tareaInput.value.trim();
@@ -55,6 +49,8 @@ function agregarTarea() {
     borrarBtn.innerHTML = '❌';
     borrarBtn.classList.add('btn-borrar');
     borrarBtn.onclick = function () {
+        // Remover tarea y actualizar lista original
+        tareasOriginales = tareasOriginales.filter(tarea => tarea !== li);
         li.remove();
         mostrarBotones();
     };
@@ -65,11 +61,12 @@ function agregarTarea() {
 
     const listaTareas = document.getElementById('listaTareas');
 
-    // Si el orden es ascendente, agregar al final; si es descendente, agregar al inicio
     if (ordenAscendente) {
         listaTareas.appendChild(li);
+        tareasOriginales.push(li);
     } else {
         listaTareas.prepend(li);
+        tareasOriginales.unshift(li);
     }
 
     tareaInput.value = '';
@@ -81,12 +78,15 @@ function cambiarOrdenLista() {
     const listaTareas = document.getElementById('listaTareas');
     const tareas = Array.from(listaTareas.children);
 
-    // Invertir el orden de las tareas
-    listaTareas.innerHTML = '';
-    tareas.reverse().forEach(tarea => listaTareas.appendChild(tarea));
+    tareasOriginales.reverse();
 
-    // Cambiar el sentido de la inserción
+    listaTareas.innerHTML = '';
+    tareasOriginales.forEach(tarea => listaTareas.appendChild(tarea));
+
     ordenAscendente = !ordenAscendente;
+
+    const botonOrden = document.getElementById('botonOrden');
+    botonOrden.setAttribute('title', ordenAscendente ? 'Orden Descendente' : 'Orden Ascendente');
 }
 
 // Función para mostrar el botón de borrar todas las tareas
@@ -113,8 +113,47 @@ function borrarTareasTerminadas() {
     mostrarBotones();
 }
 
+// Función para cambiar el filtro sin perder datos
+function cambiarFiltro() {
+    const listaTareas = document.getElementById('listaTareas');
+
+    if (tareasOriginales.length === 0) return;
+
+    let tareasFiltradas;
+    if (estadoFiltro === 0) {
+        tareasFiltradas = tareasOriginales.filter(tarea => tarea.querySelector('.tarea-checkbox').checked);
+        if (tareasFiltradas.length === 0) return;
+        estadoFiltro = 1;
+    } else if (estadoFiltro === 1) {
+        tareasFiltradas = tareasOriginales.filter(tarea => !tarea.querySelector('.tarea-checkbox').checked);
+        estadoFiltro = 2;
+    } else {
+        tareasFiltradas = [...tareasOriginales];
+        estadoFiltro = 0;
+    }
+
+    listaTareas.innerHTML = '';
+    tareasFiltradas.forEach(tarea => listaTareas.appendChild(tarea));
+
+    const botonFiltro = document.getElementById('botonFiltro');
+    botonFiltro.setAttribute('title', obtenerSiguienteEstado());
+    botonFiltro.innerText = obtenerIconoEstado();
+}
+
+// Función para obtener el siguiente estado del filtro
+function obtenerSiguienteEstado() {
+    if (estadoFiltro === 0) return 'Siguiente: Tareas Completas';
+    if (estadoFiltro === 1) return 'Siguiente: Tareas Incompletas';
+    return 'Siguiente: Todas las Tareas';
+}
+
+// Función para obtener el icono del botón según el estado
+function obtenerIconoEstado() {
+    if (estadoFiltro === 0) return '📋'; // Todas las tareas
+    if (estadoFiltro === 1) return '✅'; // Completas
+    return '📄'; // Incompletas
+}
+
 // Llamar a la función de colorear texto en el título
 colorearTexto('titulo', { r: 255, g: 0, b: 0 }, 10);
 
-// Verificar si hay tareas en la lista (esta función no está definida en el código proporcionado)
-verificarLista();
