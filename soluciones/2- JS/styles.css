@@ -38,26 +38,33 @@ h1 {
 
 /* Contenedor de entrada de texto y botón de agregar tarea */
 .escriba {
-    display: flex; /* Elementos en una fila */
-    justify-content: center; /* Centra el contenido */
-    margin-bottom: 20px; /* Espacio debajo */
+    display: flex;                  /* Coloca input y botón en fila */
+    justify-content: space-between;/* Espacio entre input y botón */
+    width: 80%;                     /* Ocupa el 80% del ancho del cuerpo */
+    margin: 0 auto;                 /* Centrado horizontal */
+    margin-bottom: 20px;           /* Margen inferior */
 }
 
 /* Estilo del campo de entrada de texto */
 .escriba input {
-    padding: 10px;
-    width: 200px;
-    border-radius: 20px 0 0 20px; /* Bordes redondeados en los extremos izquierdos */
+    flex: 1;                            /* Ocupa todo el espacio posible */
+    padding: 12px;
+    border: none;
+    border-radius: 20px 0 0 20px;      /* Bordes redondeados en la izquierda */
+    background: #f1ede9;               /* Fondo beige claro */
+    font-size: 14px;
+    width: 100%;                       /* Asegura que use todo el ancho disponible */
 }
 
 /* Estilo del botón de agregar tarea */
 .escriba button {
-    padding: 10px;
-    background-color: #1eb56c; /* Verde */
-    color: white;
-    border-radius: 0 20px 20px 0; /* Bordes redondeados en los extremos derechos */
-    cursor: pointer;
+    padding: 12px 20px;
     border: none;
+    border-radius: 0 20px 20px 0;     /* Bordes redondeados en la derecha */
+    background-color: #1eb56c;        /* Verde oscuro */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;                  /* Cursor de mano al pasar por encima */
 }
 
 /* Contenedor de las pestañas */
@@ -66,6 +73,7 @@ h1 {
     background: #adffbe; /* Fondo verde claro */
     overflow: hidden; /* Oculta el desbordamiento */
     margin-bottom: 15px; /* Espaciado inferior */
+    cursor: pointer;
 }
 
 /* Estilo general para cada pestaña */
