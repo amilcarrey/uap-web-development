@@ -87,6 +87,7 @@ function cambiarOrdenLista() {
 
     const botonOrden = document.getElementById('botonOrden');
     botonOrden.setAttribute('title', ordenAscendente ? 'Orden Descendente' : 'Orden Ascendente');
+    botonOrden.innerText = ordenAscendente ? '⬇️' : '⬆️';
 }
 
 // Función para mostrar el botón de borrar todas las tareas
