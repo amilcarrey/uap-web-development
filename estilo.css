@@ -3,11 +3,8 @@ body {
     background: linear-gradient(180deg, #3d1857, #2b1857, #191857, #183e57, #191857, #2b1857, #3d1857);
     background-size: 5000% 500%;
     animation: fanimado 10s infinite alternate ease-in-out;
-    height: 100vh;
+    height: 100vh; /* Para que ocupe toda la pantalla */
     margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 @keyframes fanimado {
@@ -22,31 +19,27 @@ body {
     }
 }
 
-/* Estilos del título */
 .Titulo {
-    text-align: center;
-    margin-top: 20px;
+    display: flex;
+    justify-content: center;
 }
 
 .Titulo h1 {
-    color: white;
+    color:rgb(255, 255, 255);
     font-size: 250%;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6), -2px -2px 5px rgba(0, 0, 0, 0.6);
 }
 
-/* Imagen con línea */
 .Imagen {
+    position: relative;
     display: flex;
     align-items: center; 
     justify-content: center; 
-    width: 100%;
-    position: relative;
-    margin: 20px 0;
 }
 
 .Imagen img {
-    width: 70px;
-    height: 70px;
+    width: 50px;
+    height: 50px;
     background-color: #FFF;
     border-radius: 50%;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
@@ -58,92 +51,158 @@ body {
     height: 2px;
     background-color: white;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
-    width: 80%;
+    width: 100%;
     position: relative;
 }
 
-/* Formulario */
 .Formulario {
     display: flex;
     align-items: center;
     justify-content: center; 
+    margin-top: 3%; 
     width: 100%;
-    margin: 5%;
 }
 
 .Formulario input {
-    width: 300px;
-    height: 40px; 
-    border-radius: 20px 0px 0px 20px;
+    flex: 1;
+    width: 400px;
+    height: 50px; 
+    margin-right: 0;
+    border-radius: 90px 0px 0px 90px;
     padding: 0 15px; 
     border: 1px solid #ccc; 
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
-    font-size: 16px;
 }
 
 .Formulario button {
-    height: 40px;
-    border-radius: 0px 20px 20px 0px;
+    flex-shrink: 0;
+    height: 50px;
+    width: auto;
+    border-radius: 0px 90px 90px 0px;
     border: none;
     padding: 0 15px; 
-    color: white;
-    background-color: #4A148C;
+    color: #FFF;
+    background-color: #000000;
     cursor: pointer;
-    transition: 0.3s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+    transition: background-color 0.3s ease-in;
 }
 
 .Formulario button:hover {
-    background-color: #7E57C2;
+    background-color: blueviolet;
+    box-shadow: 0 0 10px rgba(133, 69, 176, 0.6);
 }
 
-/* Botones de filtro */
-.filtro-btn {
-    background-color: #1E88E5;
-    color: white;
+.Filtros {
+    display: flex;
+    margin: 2% 23%;
+    justify-content: space-evenly;
+}
+
+.Filtros button {
+    background-color: #4fd8bb;  
+    height: 40px;
+    width: auto;
+    border-radius: 90px;
     border: none;
-    padding: 10px 20px;
-    margin: 10px;
+    color: #FFF;
     cursor: pointer;
-    border-radius: 5px;
-    transition: 0.3s;
+    box-shadow: 0 0 10px rgba(173, 255, 228, 0.6);
+    transition: background-color 0.3s ease-in, box-shadow 0.3s ease-in; /* Asegura que ambas propiedades tengan transición */
 }
 
-.filtro-btn:hover {
-    background-color: #42A5F5;
+.Filtros button.activo {
+    background-color: blueviolet !important;
+    box-shadow: 0 0 10px rgba(133, 69, 176, 0.6);
 }
 
-/* Contenedor de tareas */
+.Filtros button:hover {
+    background-color: blueviolet;
+    box-shadow: 0 0 10px rgba(133, 69, 176, 0.6);
+}
+
 .Tareas {
-    width: 80%;
-    background-color: white;
-    padding: 20px;
-    margin-top: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    margin: 2% auto; /* Centrado automático */
+    align-items: center;
+    background-color: #FFF;
+    border-radius: 25px;
+    width: 40%; /* Define un ancho fijo */
+    padding: 20px; /* Espaciado interno */
+    overflow: hidden;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil */
 }
 
-/* Lista de tareas */
-.Lista {
+.Tareas ul {
     list-style: none;
     padding: 0;
-}
-
-/* Botón para eliminar tareas completadas */
-.eliminar-btn {
-    display: block;
+    margin: 0;
     width: 100%;
-    background-color: #D32F2F;
-    color: white;
-    border: none;
-    padding: 10px;
-    margin-top: 10px;
-    cursor: pointer;
+}
+
+.Tareas li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: rgba(53, 15, 78, 0.6);
+    padding: 10px 15px; /* Más espaciado interno para hacerlo más cómodo */
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 8px; /* Espaciado más uniforme entre tareas */
+    width: 100%;
+    min-height: 50px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05); /* Sombra ligera para cada tarea */
+}
+
+.Tareas .tarea-texto {
+    flex-grow: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal; /* Ajusta texto largo */
+    padding-right: 10px; /* Espaciado entre texto y botón */
+}
+
+.Tareas .btn-eliminar {
+    background-color: #FFF;
+    color: #b73333;
+    border: 1px solid #b73333; /* Línea visible para un diseño más limpio */
     border-radius: 5px;
-    transition: 0.3s;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
 }
 
-.eliminar-btn:hover {
-    background-color: #F44336;
+.Tareas .btn-eliminar:hover {
+    background-color: #b73333;
+    color: #FFF;
 }
 
+.Borrar-completadas {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px; /* Espaciado superior para separar del listado */
+}
 
+.Borrar-completadas button {
+    background-color: #b73333;
+    height: 40px;
+    width: auto;
+    border-radius: 90px;
+    border: none;
+    color: #FFF;
+    cursor: pointer;
+    box-shadow: 0px 4px 10px rgba(255, 173, 173, 0.6); /* Sombra más pronunciada */
+    transition: background-color 0.3s ease-in, box-shadow 0.3s ease-in;
+}
+
+.Borrar-completadas button:hover {
+    background-color: #992626;
+    box-shadow: 0px 6px 12px rgba(255, 173, 173, 0.8); /* Efecto hover más marcado */
+}
+
+.Borrar-completadas button:hover {
+    background-color: #ffffff;  
+    color: #b73333;  
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tareneitor</title>
     <link rel="stylesheet" href="estilo.css">
+    <link rel="icon" type="image/png" href="Imágenes/e.png">
 </head>
 
 <body>
@@ -30,17 +31,22 @@
     </div>
 
     <!--Funciones para ver tareas por filtro-->
-    <button id="mostrar-completadas" class="filtro-btn">Mostrar tareas completadas</button>
-    <button id="mostrar-incompletas" class="filtro-btn">Mostrar tareas sin completar</button>
+    <div class="Filtros">
+        <button id="mostrar-completadas" class="filtro-btn">Mostrar tareas completadas</button>
+        <button id="mostrar-incompletas" class="filtro-btn">Mostrar tareas sin completar</button>
+    </div>
 
     <!--Lista: tarea, texto, boton de completar-->
     <div class="Tareas">
-
         <ul class="Lista" id="lista-tareas"></ul>
-        <!-- Eliminar tareas completadas-->
-        <button id="eliminar-completadas" class="eliminar-btn">Eliminar tareas completadas</button>
     </div>
 
+    <!-- Eliminar tareas completadas-->
+     <div class="Borrar-completadas">
+        <button id="eliminar-completadas" class="eliminar-btn">Eliminar tareas completadas</button>
+     </div>
+
+    <script src="script.js"></script>
 </body>
 
 </html>

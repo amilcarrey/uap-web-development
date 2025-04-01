@@ -6,81 +6,125 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnMostrarCompletadas = document.getElementById("mostrar-completadas");
     const btnMostrarIncompletas = document.getElementById("mostrar-incompletas");
 
-    let filtroActivo = ""; // Variable para rastrear el filtro activo (completadas o incompletas)
+    let filtroActivo = null;
 
-    const agregarTarea = () => {
-        const textoTarea = inputTarea.value.trim();
-        if (textoTarea === "") {
-            alert("Por favor, ingresa una tarea.");
-            return;
-        }
+    // Obtener tareas de localStorage
+    const obtenerTareas = () => JSON.parse(localStorage.getItem("tareas")) || [];
 
-        const nuevaTarea = document.createElement("li");
-        nuevaTarea.classList.add("tarea-item");
-        nuevaTarea.innerHTML = `
-            <input type="checkbox" class="tarea-checkbox">
-            <span class="tarea-texto">${textoTarea}</span>
-            <button class="btn-eliminar">Eliminar</button>
-        `;
+    // Guardar tareas en localStorage
+    const guardarTareas = (tareas) => localStorage.setItem("tareas", JSON.stringify(tareas));
 
-        listaTareas.appendChild(nuevaTarea);
+    // Crear y retornar el elemento HTML de una tarea
+    const crearElementoTarea = ({ id, texto, completada }) => {
+        const tarea = document.createElement("li");
+        tarea.classList.add("tarea-item");
+        tarea.dataset.id = id;
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("tarea-checkbox");
+        checkbox.checked = completada;
+        checkbox.addEventListener("change", () => actualizarEstadoTarea(id, checkbox.checked));
+
+        const span = document.createElement("span");
+        span.classList.add("tarea-texto");
+        span.textContent = texto;
+
+        const btnEliminar = document.createElement("button");
+        btnEliminar.classList.add("btn-eliminar");
+        btnEliminar.textContent = "X";
+        btnEliminar.setAttribute("aria-label", "Eliminar tarea");
+        btnEliminar.addEventListener("click", () => eliminarTarea(id));
+
+        tarea.append(checkbox, span, btnEliminar);
+        return tarea;
+    };
+
+    // Agregar una tarea al DOM y guardarla en localStorage
+    const agregarTarea = (texto, completada = false, id = Date.now()) => {
+        if (!texto.trim()) return alert("Por favor, ingresa una tarea.");
+
+        const nuevaTarea = { id, texto, completada };
+        listaTareas.appendChild(crearElementoTarea(nuevaTarea));
+
+        const tareas = obtenerTareas();
+        tareas.push(nuevaTarea);
+        guardarTareas(tareas);
+
         inputTarea.value = "";
     };
 
+    // Eliminar una tarea
+    const eliminarTarea = (id) => {
+        const tareas = obtenerTareas().filter(tarea => tarea.id !== id);
+        guardarTareas(tareas);
+        document.querySelector(`[data-id='${id}']`).remove();
+    };
+
+    // Actualizar el estado de una tarea
+    const actualizarEstadoTarea = (id, completada) => {
+        const tareas = obtenerTareas().map(tarea => 
+            tarea.id === id ? { ...tarea, completada } : tarea
+        );
+        guardarTareas(tareas);
+
+        if (filtroActivo !== null) aplicarFiltro(filtroActivo);
+    };
+
+    // Cargar todas las tareas al iniciar
+    const cargarTareas = () => {
+        listaTareas.innerHTML = "";
+        obtenerTareas().forEach(tarea => listaTareas.appendChild(crearElementoTarea(tarea)));
+    };
+
+    // Evento para agregar tarea
     formTarea.addEventListener("submit", (event) => {
         event.preventDefault();
-        agregarTarea();
+        agregarTarea(inputTarea.value);
     });
 
-    listaTareas.addEventListener("click", (event) => {
-        const target = event.target;
-        if (target.classList.contains("btn-eliminar")) {
-            target.closest("li").remove();
-        }
-    });
-
+    // Eliminar todas las tareas completadas
     btnEliminarCompletadas.addEventListener("click", () => {
-        const tareasCompletadas = listaTareas.querySelectorAll(".tarea-checkbox:checked");
-        tareasCompletadas.forEach(tarea => {
-            tarea.closest("li").remove();
-        });
+        const tareas = obtenerTareas().filter(tarea => !tarea.completada);
+        guardarTareas(tareas);
+        cargarTareas();
     });
 
-    // Mostrar solo tareas completadas
-    btnMostrarCompletadas.addEventListener("click", () => {
-        if (filtroActivo === "completadas") {
-            restaurarListaCompleta();
-        } else {
-            aplicarFiltro(true); // Mostrar solo completadas
-            filtroActivo = "completadas";
-        }
-    });
-
-    // Mostrar solo tareas incompletas
-    btnMostrarIncompletas.addEventListener("click", () => {
-        if (filtroActivo === "incompletas") {
-            restaurarListaCompleta();
-        } else {
-            aplicarFiltro(false); // Mostrar solo incompletas
-            filtroActivo = "incompletas";
-        }
-    });
-
-    // Función para aplicar el filtro
-    const aplicarFiltro = (completadas) => {
-        const tareas = listaTareas.querySelectorAll(".tarea-item");
-        tareas.forEach(tarea => {
-            const checkbox = tarea.querySelector(".tarea-checkbox");
-            tarea.style.display = checkbox.checked === completadas ? "block" : "none";
-        });
+    // Aplicar filtro
+    const aplicarFiltro = (mostrarCompletadas) => {
+        listaTareas.innerHTML = "";
+        obtenerTareas()
+            .filter(tarea => tarea.completada === mostrarCompletadas)
+            .forEach(tarea => listaTareas.appendChild(crearElementoTarea(tarea)));
+        filtroActivo = mostrarCompletadas;
     };
 
-    // Función para restaurar la lista completa
+    // Restaurar la lista completa
     const restaurarListaCompleta = () => {
-        const tareas = listaTareas.querySelectorAll(".tarea-item");
-        tareas.forEach(tarea => {
-            tarea.style.display = "block"; // Mostrar todas las tareas
-        });
-        filtroActivo = ""; // Reiniciar el filtro activo
+        filtroActivo = null;
+        cargarTareas();
     };
+
+    // Alternar filtro y actualizar botones
+    const alternarFiltro = (mostrarCompletadas, boton) => {
+        if (filtroActivo === mostrarCompletadas) {
+            restaurarListaCompleta();
+        } else {
+            aplicarFiltro(mostrarCompletadas);
+        }
+        actualizarBotonActivo(boton);
+    };
+
+    // Actualizar el estado del botón activo
+    const actualizarBotonActivo = (boton) => {
+        document.querySelectorAll(".Filtros button").forEach(btn => btn.classList.remove("activo"));
+        if (filtroActivo !== null) boton.classList.add("activo");
+    };
+
+    // Eventos de filtro
+    btnMostrarCompletadas.addEventListener("click", () => alternarFiltro(true, btnMostrarCompletadas));
+    btnMostrarIncompletas.addEventListener("click", () => alternarFiltro(false, btnMostrarIncompletas));
+
+    // Cargar tareas al iniciar
+    cargarTareas();
 });
