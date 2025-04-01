@@ -1,59 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
+<<<<<<< HEAD
     <link rel="stylesheet" href="style.css">
     <script src="./java.js" defer></script> <!-- Usa `defer` para asegurar que el DOM se cargue primero -->
 
+=======
+>>>>>>> 06f4f62 (Correcion Archivos)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coloreador Interactivo - Ladines Harryson</title>
+    <title>Harryson Ladines - Programación III</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="Pagina">
-        <h1>Interactive Color Picker</h1>
 
-        <div class="color" id="Cambiame"></div>
+    <!-- #Encabezado -->
+    <header class="header">
+        <h1 class="title">Buscador de Messis</h1>
+    </header>
 
-        <div class="hex">
-            <h2>HEX: </h2>
-            <h2 id="colorCode"></h2>
-        </div>
-        
-        <div class="Selectores">
-            <div class="Selector">
-                <label for="sliderR">R</label>
-                <input type="range" id="sliderR" min="0" max="255" value="128" oninput="updateRed(this.value)"> 
-                <span id="valueR">128</span>
-            </div>
-        
-            <div class="Selector">
-                <label for="sliderG">G</label>
-                <input type="range" id="sliderG" min="0" max="255" value="128" oninput="updateGreen(this.value)">
-                <span id="valueG">128</span>
-            </div>
-        
-            <div class="Selector">
-                <label for="sliderB">B</label>
-                <input type="range" id="sliderB" min="0" max="255" value="128" oninput="updateBlue(this.value)">
-                <span id="valueB">128</span>
-            </div>
-        </div>
-        
-
-        <button onclick="reset()" class="Reset">Reset</button>
-        
-        <div class="Presets">
-            <h2>Preset colors</h2>
-            <button class="Red" onclick="setColor(255, 0, 0)">Red</button>
-            <button class="Green" onclick="setColor(0, 255, 0)">Green</button>
-            <button class="Blue" onclick="setColor(0, 0, 255)">Blue</button>
-            <button class="Yellow" onclick="setColor(255, 255, 0)">Yellow</button>
-            <button class="Magenta" onclick="setColor(255, 0, 255)">Magenta</button>
-            <button class="Cyan" onclick="setColor(0, 255, 255)">Cyan</button>
-            <button class="Orange" onclick="setColor(255, 165, 0)">Orange</button>
-            <button class="Purple" onclick="setColor(128, 0, 128)">Purple</button>
-        </div>
-
+    <!-- Sección de imagen -->
+    <div class="perfil">
+        <img src="https://www.fifpro.org/media/ovzgbezo/messi_w11_2024.jpg" 
+             alt="Lionel Messi" 
+             class="messi">
     </div>
+
+    <div class="opciones">
+        <button>Personal</button>
+        <button>Profesional</button>
+        <button class="boton_+">+</button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="contenedor-formulario">
+        <form action="" id="formulario-principal">
+            <!-- 1 -->
+            <div class="mensaje-formulario">
+                <label for="nombre"></label>
+                <input type="text" id="Quenecesitas" name="nombre" placeholder="¿Que necesitas hacer?" required>
+                <button type="submit">Añadir</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Lista -->
+    <div class="LISTA">
+        <div class="lista-tarea">
+            <ul>
+            </ul>
+
+            <button class="boton-completado">Borrar completadas</button>
+            <div class="filtros">
+                <button id="mostrar-todas">Todas</button>
+                <button id="mostrar-incompletas">Incompletas</button>
+                <button id="mostrar-completadas">Completadas</button>
+            </div>            
+
+        </div>
+        
+    </div>
+
+
+
+
+    <script src="script.js"></script>
+
 </body>
 </html>
