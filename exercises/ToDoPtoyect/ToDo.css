@@ -147,7 +147,7 @@ body{
         transition: 0.3s; /* Animación suave */
     }
 
-    .Task input[type="checkbox"]:checked + p {
+    .Task input:checked + p {
         text-decoration: line-through;
         color: gray; 
     }
