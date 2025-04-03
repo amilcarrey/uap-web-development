@@ -1,0 +1,47 @@
+<!-- Esta todo comentado porque me sirve para estudiar -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO List</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Vincula el archivo de estilo CSS -->
+</head>
+<body>
+    <div class="container"> <!-- Contenedor principal que agrupa todos los elementos de la página -->
+        <h1><span class="highlight">TO</span>DO</h1> <!-- Título principal, con la palabra 'TO' resaltada -->
+        
+        <!-- Sección de pestañas para filtrar las tareas -->
+        <div class="tabs">
+            <span class="tab active">Personal</span> <!-- Pestaña activa que muestra las tareas personales -->
+            <span class="tab">Professional</span> <!-- Pestaña para tareas profesionales -->
+            <button class="plus-btn">+</button> <!-- Botón para agregar una nueva categoría de tareas -->
+        </div>
+
+        <!-- Sección para agregar nuevas tareas -->
+        <div class="input-section">
+            <input type="text" placeholder="What do you need to do?"> <!-- Campo de texto donde se escribe la nueva tarea -->
+            <button class="add-btn">ADD</button> <!-- Botón para agregar la tarea a la lista -->
+        </div>
+
+        <!-- Contenedor donde se mostrarán las tareas -->
+        <div class="task-list">
+            <!-- Las tareas serán agregadas dinámicamente aquí a través de JS -->
+        </div>
+
+        <!-- Sección de filtros para mostrar las tareas de acuerdo a su estado -->
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">All</button> <!-- Botón para mostrar todas las tareas -->
+            <button class="filter-btn" data-filter="incomplete">Incomplete</button> <!-- Botón para mostrar solo las tareas incompletas -->
+            <button class="filter-btn" data-filter="completed">Completed</button> <!-- Botón para mostrar solo las tareas completadas -->
+        </div>
+
+        <!-- Botón para eliminar todas las tareas completadas -->
+        <div class="clear-completed">Clear Completed</div>
+    </div>
+
+    <!-- Incluye el archivo JS para la lógica de la aplicación -->
+    <script src="script.js"></script>
+</body>
+</html>
