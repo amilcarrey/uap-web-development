@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>TO DO</title>
+</head>
+
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Gestor de tareas</h1>
+        </div>
+    </header>
+
+    <main>
+        <div id="personal" class="main-container">
+            <h2>Tareas Personales</h2>
+            <form action="/crear" method="POST">
+                <input type="text" name="titulo" placeholder="Nueva tarea">
+                <input type="hidden" name="categoria" value="personal">
+                <button type="submit"><i class="fas fa-plus"></i></button>
+            </form>
+            <ul>
+
+                <% tareas.filter(tarea=> tarea.categoria === 'personal').forEach((tarea, index) => { %>
+                    <li class="<%= tarea.completada ? 'completada' : '' %>">
+                        <span>
+                            <%= tarea.titulo %>
+                        </span>
+                        <form action="/completar" method="POST" style="display: inline;">
+                            <input type="hidden" name="index" value="<%= tareas.indexOf(tarea) %>">
+                            <button type="submit"><i class="fas fa-check"></i></button>
+                        </form>
+                        <form action="/eliminar" method="POST" style="display: inline;">
+                            <input type="hidden" name="index" value="<%= index %>">
+                            <button type="submit" class="eliminar-btn"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </li>
+                    <% }) %>
+            </ul>
+        </div>
+
+        <div id="universidad" class="main-container">
+            <h2>Tareas Universidad</h2>
+            <form action="/crear" method="POST">
+                <input type="text" name="titulo" placeholder="Nueva tarea">
+                <input type="hidden" name="categoria" value="universidad">
+                <button type="submit"><i class="fas fa-plus"></i></button>
+            </form>
+            <ul>
+                <% tareas.filter(tarea=> tarea.categoria === 'universidad').forEach((tarea, index) => { %>
+                    <li class="<%= tarea.completada ? 'completada' : '' %>">
+                        <span>
+                            <%= tarea.titulo %>
+                        </span>
+                        <form action="/completar" method="POST" style="display: inline;">
+                            <input type="hidden" name="index" value="<%= tareas.indexOf(tarea) %>">
+                            <button type="submit"><i class="fas fa-check"></i></button>
+                        </form>
+                        <form action="/eliminar" method="POST" style="display: inline;">
+                            <input type="hidden" name="index" value="<%= tareas.indexOf(tarea) %>">
+                            <button type="submit" class="eliminar-btn"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </li>
+                    <% }) %>
+            </ul>
+        </div>
+
+        <div class="main-container">
+            <div class="botones-y-filtros">
+                <form action="/eliminarCompletadas" method="POST">
+                    <button type="submit" id="deleteSelected"><i class="fas fa-trash"></i> Eliminar completadas</button>
+                </form>
+                <div class="filtros">
+                    <form action="/filtrar" method="GET">
+                        <input type="hidden" name="estado" value="todas">
+                        <button type="submit"><i class="fas fa-list"></i> Todas</button>
+                    </form>
+                    <form action="/filtrar" method="GET">
+                        <input type="hidden" name="estado" value="incompletas">
+                        <button type="submit"><i class="far fa-circle"></i> Incompletas</button>
+                    </form>
+                    <form action="/filtrar" method="GET">
+                        <input type="hidden" name="estado" value="completas">
+                        <button type="submit"><i class="fas fa-check-circle"></i> Completas</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Hecho por Luca C. 2025</p>
+    </footer>
+</body>
+
+</html>
