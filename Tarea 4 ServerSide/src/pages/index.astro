@@ -1,0 +1,291 @@
+---
+export const prerender = false;
+
+globalThis.tareas = globalThis.tareas || [];
+
+let filtro = Astro.url.searchParams.get('filter') || 'all';
+
+/**  
+ * Alternar el estado de una tarea  
+ */
+function alternarEstado(idTarea) {
+  const item = globalThis.tareas.find((t) => t.id === idTarea);
+  if (item) {
+    item.completada = !item.completada;
+  }
+}
+
+/**  
+ * Agregar una tarea  
+ */
+function agregarTarea(datosFormulario) {
+  const descripcion = datosFormulario.get('description');
+  if (descripcion) {
+    globalThis.tareas.push({
+      id: Date.now().toString(),
+      description: descripcion.toString(),
+      completada: false
+    });
+  }
+}
+
+/**  
+ * Eliminar una tarea por su id  
+ */
+function quitarTarea(idTarea) {
+  globalThis.tareas = globalThis.tareas.filter((t) => t.id !== idTarea);
+}
+
+/**  
+ * Borrar todas las tareas que ya están completadas  
+ */
+function limpiarCompletadas() {
+  globalThis.tareas = globalThis.tareas.filter((t) => !t.completada);
+}
+
+/**  
+ * Obtener la lista de tareas según el estado  
+ */
+function obtenerFiltradoTareas() {
+  if (filtro === 'complete') {
+    return globalThis.tareas.filter((t) => t.completada);
+  } else if (filtro === 'incomplete') {
+    return globalThis.tareas.filter((t) => !t.completada);
+  }
+  return globalThis.tareas;
+}
+
+// Manejo de solicitudes POST 
+if (Astro.request.method === 'POST') {
+  const datos = await Astro.request.formData();
+  const accion = datos.get('_action');
+  if (accion === 'add') {
+    agregarTarea(datos);
+  }
+  if (accion === 'toggle') {
+    alternarEstado(datos.get('id'));
+  }
+  if (accion === 'delete') {
+    quitarTarea(datos.get('id'));
+  }
+  if (accion === 'clearCompleted') {
+    limpiarCompletadas();
+  }
+  // Redirigir para evitar reenvío del formulario
+  return Astro.redirect(Astro.url.pathname + '?filter=' + filtro);
+}
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buscador de Messis - Tareas Server</title>
+    <style>
+      /* Estilos globales */
+      * {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        align-items: center;
+      }
+      body {
+        background-color: white;
+        color: black;
+        margin: 20px auto;
+        max-width: 800px;
+      }
+      .header {
+        background-color: antiquewhite;
+        padding: 20px;
+        text-align: center;
+      }
+      .header h1 {
+        font-size: 36px;
+      }
+      .perfil {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+      }
+      .perfil img {
+        height: 150px;
+        border-radius: 10px;
+      }
+      .opciones {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+      .opciones button {
+        font-size: 20px;
+        padding: 15px 40px;
+        background-color: antiquewhite;
+        border: 2px solid antiquewhite;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .contenedor-formulario {
+        background-color: antiquewhite;
+        padding: 20px;
+        margin: 0 20px;
+        border-radius: 10px;
+      }
+      .mensaje-formulario {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+      .mensaje-formulario input[type="text"] {
+        font-size: 18px;
+        padding: 10px;
+        width: 70%;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+      .mensaje-formulario button {
+        background-color: lightblue;
+        color: black;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .mensaje-formulario button:hover {
+        background-color: rgb(119, 201, 228);
+      }
+
+      
+      .filters {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 10px 0;
+      }
+      .filters a {
+        text-decoration: none;
+        font-size: 16px;
+        color: rgb(0, 0, 0);
+      }
+      .filters a.active {
+        font-weight: bold;
+        text-decoration: underline;
+      }
+      .task-list {
+        background-color: antiquewhite;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px;
+      }
+      .task-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #f5e6d9;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+      .task-item button {
+        background-color: transparent;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+      }
+      .task-item span {
+        flex: 1;
+        margin: 0 10px;
+      }
+      .completed {
+        text-decoration: line-through;
+        color: gray;
+      }
+      .clear-completed {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .clear-completed button{
+        background-color: lightblue;
+        border-radius: 15px;
+        width: 200px;
+        height: 30px;
+        border: lightblue;
+        cursor: pointer;
+      }
+
+      .clear-completed button:hover{
+        background-color: rgb(119, 201, 228);
+      }
+
+      
+      
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <h1>Buscador de Messis - Tareas Server</h1>
+    </header>
+    
+    <!-- Imagen de Messi -->
+    <div class="perfil">
+      <img src="https://www.fifpro.org/media/ovzgbezo/messi_w11_2024.jpg" alt="Lionel Messi" />
+    </div>
+    
+    <!-- Opciones (botones de categoría, solo visual) -->
+    <div class="opciones">
+      <button>Personal</button>
+      <button>Profesional</button>
+      <button class="boton_+">+</button>
+    </div>
+    
+    <!-- Formulario para agregar una nueva tarea -->
+    <div class="contenedor-formulario">
+      <form method="POST">
+        <div class="mensaje-formulario">
+          <input type="text" name="description" placeholder="¿Qué tarea necesitas hacer?" required />
+          <button class="añadirboton" type="submit" name="_action" value="add">Añadir</button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Filtros por estado -->
+    <div class="filters">
+      <a href="/?filter=all" class={filtro === 'all' ? 'active' : ''}>Todas</a>
+      <a href="/?filter=incomplete" class={filtro === 'incomplete' ? 'active' : ''}>Pendientes</a>
+      <a href="/?filter=complete" class={filtro === 'complete' ? 'active' : ''}>Completadas</a>
+    </div>
+    
+    <!-- Lista de tareas -->
+    <div class="task-list">
+      {obtenerFiltradoTareas().length === 0 ? <p>Sin tareas.</p> : null}
+      {obtenerFiltradoTareas().map((tarea) => (
+        <div class={`task-item ${tarea.completada ? 'completed' : ''}`}>
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="id" value={tarea.id} />
+            <button type="submit" name="_action" value="toggle">
+              {tarea.completada ? '🔄' : '✔️'}
+            </button>
+          </form>
+          <span>{tarea.description}</span>
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="id" value={tarea.id} />
+            <button type="submit" name="_action" value="delete">🗑️</button>
+          </form>
+        </div>
+      ))}
+    </div>
+    
+    <!-- Botón para eliminar todas las tareas completadas -->
+    <div class="clear-completed">
+      <form method="POST">
+        <button type="submit" name="_action" value="clearCompleted">Eliminar Completadas</button>
+      </form>
+    </div>
+  </body>
+</html>
