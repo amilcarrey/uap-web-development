@@ -1,0 +1,392 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+// Estado tareas
+// Se usa un arreglo global para almacenar las tareas
+declare global {
+
+    interface Tarea {
+    id: string;
+    text: string;
+    completada: boolean;
+    mode: string;
+    }
+
+    var tareas: Tarea[];
+    }
+
+globalThis.tareas = globalThis.tareas || [];
+let filtro = Astro.url.searchParams.get('filter') || 'all';
+let modo = 'personal'; 
+
+//estados tareas
+function alternarEstado(idTarea: string) {
+  const item = globalThis.tareas.find((t) => t.id === idTarea);
+  if (item) {
+    item.completada = !item.completada;
+  }
+}
+
+//aAgregar tarea
+function agregarTarea(datosFormulario: FormData) {
+  const descripcion = datosFormulario.get('task');
+  if (descripcion) {
+    globalThis.tareas.push({
+      id: Date.now().toString(),
+      text: descripcion.toString(),
+      completada: false,
+      mode: modo, 
+    });
+  }
+}
+
+//Eliminar tarea
+function quitarTarea(idTarea: string) {
+  globalThis.tareas = globalThis.tareas.filter((t) => t.id !== idTarea);
+}
+
+//Eliminar tareas completadas
+function limpiarCompletadas() {
+  globalThis.tareas = globalThis.tareas.filter((t) => !t.completada);
+}
+
+//Elminar todas las tareas
+function limpiarTodas() {
+  globalThis.tareas = [];
+}
+
+// Filtrar tareas
+function obtenerFiltradoTareas() {
+  let tareasFiltradas = globalThis.tareas;
+  
+  // Filtrar por estado
+  if (filtro === 'active') {
+    tareasFiltradas = tareasFiltradas.filter((t) => !t.completada);
+  } else if (filtro === 'completed') {
+    tareasFiltradas = tareasFiltradas.filter((t) => t.completada);
+  }
+  
+  // Filtrar por modo
+//   tareasFiltradas = tareasFiltradas.filter((t) => t.mode === modo);
+  
+  return tareasFiltradas;
+}
+
+// Manejo de solicitudes POST 
+if (Astro.request.method === 'POST') {
+  const datos = await Astro.request.formData();
+  const accion = datos.get('action');
+  
+  if (accion === 'add') {
+    agregarTarea(datos);
+  }
+  else if (accion === 'toggle') {
+    const id = datos.get('id')?.toString() || '';
+    alternarEstado(id);
+  }
+  else if (accion === 'delete') {
+    quitarTarea(datos.get('id')?.toString() || '');
+  }
+  else if (accion === 'clear-completed') {
+    limpiarCompletadas();
+  }
+  else if (accion === 'clear-all') {
+    limpiarTodas();
+  }
+  else if (accion === 'change-filter') {
+    filtro = datos.get('filter-type')?.toString() || 'all';
+  }
+
+  // Redirigir para evitar reenvío del formulario
+  return Astro.redirect(Astro.url.pathname + `?filter=${filtro}&mode=${modo}`);
+}
+---
+
+<Layout>
+  <body>
+    <header>
+      <h1>APP TAREAS :]</h1>
+    </header>
+
+    <div class="contenedor">
+      <div class="modos">
+        <button class="modo activo" disabled>Personal</button>
+        <button class="modo" disabled>Profesional</button>
+      </div>
+
+      <div class="contenedorinput">
+        <form method="POST" class="formulario">
+          <input type="hidden" name="action" value="add" />
+          <input type="text" name="task" placeholder="Nueva tarea" required>
+          <button type="submit">Agregar</button>
+        </form>
+      </div>
+
+      <section class="contenedorlista">
+        <div class="filtros">
+          <form method="POST">
+            <input type="hidden" name="action" value="change-filter" />
+            <button 
+              type="submit" 
+              name="filter-type" 
+              value="all" 
+              class={`filtro ${filtro === 'all' ? 'activo' : ''}`}
+            >
+              Todas
+            </button>
+            <button 
+              type="submit" 
+              name="filter-type" 
+              value="active" 
+              class={`filtro ${filtro === 'active' ? 'activo' : ''}`}
+            >
+              Activas
+            </button>
+            <button 
+              type="submit" 
+              name="filter-type" 
+              value="completed" 
+              class={`filtro ${filtro === 'completed' ? 'activo' : ''}`}
+            >
+              Completadas
+            </button>
+          </form>
+        </div>
+
+        <ul id="lista" class="lista">
+          {obtenerFiltradoTareas().length === 0 ? <p class="sin-tareas">No hay tareas</p> : null}
+          {obtenerFiltradoTareas().map((tarea) => (
+            <li class={tarea.completada ? 'completada' : ''}>
+              <form method="POST" style="display: contents;">
+                <input type="hidden" name="action" value="toggle" />
+                <input type="hidden" name="id" value={tarea.id} />
+                <button type="submit" class="check">
+                  {tarea.completada ? '✓' : '◯'}
+                </button>
+              </form>
+              <span class="texto-tarea">{tarea.text}</span>
+              <form method="POST" style="display: contents;">
+                <input type="hidden" name="action" value="delete" />
+                <input type="hidden" name="id" value={tarea.id} />
+                <button type="submit" class="eliminar">🗑️</button>
+              </form>
+            </li>
+          ))}
+        </ul>
+
+        <div class="acciones">
+          <form method="POST">
+            <input type="hidden" name="action" value="clear-completed" />
+            <button type="submit">Borrar completadas</button>
+          </form>
+          <form method="POST">
+            <input type="hidden" name="action" value="clear-all" />
+            <button type="submit">Borrar todo</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </body>
+</Layout>
+
+<style>
+  body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  header {
+    background-color: #4a90e2;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+  }
+
+  header h1 {
+    font-size: 28px;
+  }
+
+  .modos {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    gap: 20px;
+  }
+
+  .modo {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: default;
+    font-weight: bold;
+    color: #4a90e2;
+    padding: 5px 15px;
+  }
+
+  .modo.activo {
+    border-bottom: 2px solid #4a90e2;
+  }
+  .contenedorinput {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .sin-tareas {
+    color: #888;
+    font-size: 16px;
+    margin: 20px 0;
+  }
+
+  .formulario {
+    background-color: #fff;
+    color: #333;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .formulario input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    padding: 5px;
+    flex: 1;
+  }
+
+  .formulario button {
+    background: #4a90e2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+
+  .formulario button:hover {
+    background: #357ab7;
+  }
+
+  .filtros {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .filtro {
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #4a90e2;
+    font-size: 14px;
+  }
+
+  .filtro.activo {
+    font-weight: bold;
+    border-bottom: 2px solid #4a90e2;
+  }
+
+  .contenedorlista {
+    padding: 15px;
+    text-align: center;
+    background-color: #fff;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .lista {
+    padding: 0px;
+    list-style: none;
+  }
+
+  .lista li {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border-bottom: 1px solid #eee;
+    padding: 10px;
+  }
+
+  .lista li:last-child {
+    border-bottom: none;
+  }
+
+  .lista li.completada .texto-tarea {
+    text-decoration: line-through;
+    color: #888;
+  }
+
+  .lista li button.check {
+    margin-right: 10px;
+  }
+
+  .lista li button.eliminar {
+    margin-left: auto;
+  }
+
+  .lista li button:hover {
+    transform: scale(1.1);
+  }
+
+  .check, .eliminar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    transition: transform 0.2s ease;
+  }
+
+  .check {
+    color: #888;
+  }
+
+  .lista li.completada .check {
+    color: #28a745;
+  }
+
+  .eliminar {
+    color: #dc3545;
+  }
+
+  .acciones {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0 0;
+  }
+
+  .acciones button {
+    background: none;
+    color: #4a90e2;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 5px 10px;
+  }
+
+  .acciones button:hover {
+    color: #357ab7;
+    text-decoration: underline;
+  }
+</style>
