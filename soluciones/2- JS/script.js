@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Función para agregar una nueva tarea
     function addTask() {
-        const text = taskInput.value.trim(); // Obtiene el texto de la entrada y elimina espacios extra
+        const text = taskInput.value.trim(); // Obtiene el texto de l   a entrada y elimina espacios extra
         if (text === "") return; // Si el campo está vacío, no hace nada
 
         // Crea un nuevo elemento de lista (tarea)
