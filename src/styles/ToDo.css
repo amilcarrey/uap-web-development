@@ -172,3 +172,13 @@ h1
     align-items: center; /* Centra verticalmente */
     gap: 100px; /* Espacio entre los botones */
 }
+
+#Terminadas, #Pendientes, #Todas {
+    display: auto;
+    background-color: red;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    margin-top: 15px;
+}
