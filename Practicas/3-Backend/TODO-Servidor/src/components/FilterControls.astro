@@ -1,0 +1,72 @@
+---
+export interface Props {
+  tabId: string;
+  currentFilter: string;
+  tasksState: string;
+}
+
+const { tabId, currentFilter, tasksState } = Astro.props;
+const filters = [
+  { id: 'all', label: 'All' },
+  { id: 'active', label: 'Active' },
+  { id: 'completed', label: 'Completed' }
+];
+---
+<div class="filter-buttons-container">
+  <!-- Botones de filtro -->
+  {filters.map(filter => (
+    <a
+      href={`?tab=${tabId}&filter=${filter.id}`}
+      class={`filter-button ${filter.id === currentFilter ? 'active' : ''}`}
+    >
+      {filter.label}
+    </a>
+  ))}
+
+  <!-- Botón Limpiar (¡ahora usa la misma clase!) -->
+  <form method="POST">
+    <input type="hidden" name="tasksState" value={tasksState} />
+    <input type="hidden" name="action" value="clear-completed" />
+    <input type="hidden" name="tabId" value={tabId} />
+    <button type="submit" class="filter-button">Limpiar completadas</button>
+  </form>
+</div>
+
+<style>
+  .filter-buttons-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 15px 0;
+  }
+
+  /* Estilos compartidos por TODOS los botones */
+  .filter-button {
+    padding: 5px 10px;
+    background-color: antiquewhite;
+    border: 1px solid burlywood;
+    border-radius: 4px;
+    cursor: pointer;
+    color: chocolate;
+    text-decoration: none; /* Necesario para los <a> */
+    transition: all 0.3s;
+    font-family: inherit; /* Para consistencia */
+    font-size: inherit;
+  }
+
+  /* Estilos para etiquetas <a> y <button> */
+  a.filter-button, button.filter-button {
+    display: inline-block; /* Alinea correctamente ambos elementos */
+  }
+
+  /* Estados interactivos */
+  .filter-button:hover {
+    background-color: #e6d5c3;
+  }
+
+  /* Estado "active" para filtros seleccionados */
+  .filter-button.active {
+    background-color: burlywood;
+    color: white;
+  }
+</style>

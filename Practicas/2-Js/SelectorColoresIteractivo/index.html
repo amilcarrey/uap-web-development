@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Picker Interactivo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .color-picker {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 70vh;
+        }
+        
+        .color-display {
+            width: 100%;
+            height: 150px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 15px;
+            border-radius: 10px;
+            outline: none;
+            margin-bottom: 10px;
+        }
+        
+        /* Fondo degradado para el slider Rojo */
+        #redSlider {
+            background: linear-gradient(to right, #000000, #ff0000);
+        }
+        
+        /* Fondo degradado para el slider Verde */
+        #greenSlider {
+            background: linear-gradient(to right, #000000, #00ff00);
+        }
+        
+        /* Fondo degradado para el slider Azul */
+        #blueSlider {
+            background: linear-gradient(to right, #000000, #0000ff);
+        }
+
+        /* Estilo del 'thumb' (control deslizante) */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #555;
+            cursor: pointer;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .hex-value {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 18px;
+        }
+        
+        .preset-colors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+            
+        }
+        
+        .preset-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #989898;
+            transition: transform 0.2s;
+        }
+        
+        .preset-color:hover {
+            transform: scale(1.1);
+        }
+        
+        .preset-color.selected {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Color Picker</h1>
+    
+    <div class="color-picker">
+        <div class="color-display" id="colorDisplay"></div>
+        
+        <div class="slider-container">
+            <label for="redSlider">Rojo (R):</label>
+            <input type="range" id="redSlider" min="0" max="255" value="128">
+            <div class="value-display">
+                <span>0</span>
+                <span id="redValue">128</span>
+                <span>255</span>
+            </div>
+        </div>
+        
+        <div class="slider-container">
+            <label for="greenSlider">Verde (G):</label>
+            <input type="range" id="greenSlider" min="0" max="255" value="128">
+            <div class="value-display">
+                <span>0</span>
+                <span id="greenValue">128</span>
+                <span>255</span>
+            </div>
+        </div>
+        
+        <div class="slider-container">
+            <label for="blueSlider">Azul (B):</label>
+            <input type="range" id="blueSlider" min="0" max="255" value="128">
+            <div class="value-display">
+                <span>0</span>
+                <span id="blueValue">128</span>
+                <span>255</span>
+            </div>
+        </div>
+        
+        <div class="hex-value" id="hexValue">#808080</div>
+        
+        <h3>Colores predefinidos:</h3>
+        <div class="preset-colors" id="presetColors">
+            <!-- Los colores se agregarán con JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Obtener elementos del DOM
+        const redSlider = document.getElementById('redSlider');
+        const greenSlider = document.getElementById('greenSlider');
+        const blueSlider = document.getElementById('blueSlider');
+        
+        const redValue = document.getElementById('redValue');
+        const greenValue = document.getElementById('greenValue');
+        const blueValue = document.getElementById('blueValue');
+        
+        const colorDisplay = document.getElementById('colorDisplay');
+        const hexValue = document.getElementById('hexValue');
+        const presetColors = document.getElementById('presetColors');
+        
+        // Colores predefinidos
+        const defaultColors = [
+            { name: 'Rojo', value: '#FF0000' },
+            { name: 'Verde', value: '#00FF00' },
+            { name: 'Azul', value: '#0000FF' },
+            { name: 'Amarillo', value: '#FFFF00' },
+            { name: 'Cian', value: '#00FFFF' },
+            { name: 'Magenta', value: '#FF00FF' },
+            { name: 'Blanco', value: '#FFFFFF' },
+            { name: 'Negro', value: '#000000' },
+            { name: 'Gris', value: '#808080' },
+            { name: 'Naranja', value: '#FFA500' },
+            { name: 'Rosa', value: '#FFC0CB' },
+            { name: 'Morado', value: '#800080' }
+        ];
+        
+        // Crear colores predefinidos
+        defaultColors.forEach(color => {
+            const colorElement = document.createElement('div');
+            colorElement.className = 'preset-color';
+            colorElement.style.backgroundColor = color.value;
+            colorElement.title = color.name;
+            
+            colorElement.addEventListener('click', () => {
+                // Remover selección previa
+                document.querySelectorAll('.preset-color').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                // Añadir selección actual
+                colorElement.classList.add('selected');
+                
+                // Convertir HEX a RGB
+                const rgb = hexToRgb(color.value);
+                
+                // Actualizar sliders
+                redSlider.value = rgb.r;
+                greenSlider.value = rgb.g;
+                blueSlider.value = rgb.b;
+                
+                // Actualizar visualización
+                updateColor();
+            });
+            
+            presetColors.appendChild(colorElement);
+        });
+        
+        // Función para actualizar el color
+        function updateColor() {
+            // Obtener valores RGB
+            const red = redSlider.value;
+            const green = greenSlider.value;
+            const blue = blueSlider.value;
+            
+            // Actualizar los valores mostrados
+            redValue.textContent = red;
+            greenValue.textContent = green;
+            blueValue.textContent = blue;
+            
+            // Crear el color RGB
+            const rgbColor = `rgb(${red}, ${green}, ${blue})`;
+            colorDisplay.style.backgroundColor = rgbColor;
+            
+            // Convertir a HEX
+            const hexColor = rgbToHex(parseInt(red), parseInt(green), parseInt(blue));
+            hexValue.textContent = hexColor;
+            
+            // Deseleccionar cualquier color predefinido
+            document.querySelectorAll('.preset-color').forEach(el => {
+                el.classList.remove('selected');
+            });
+        }
+        
+        // Función para convertir RGB a HEX
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        }
+        
+        // Función para convertir HEX a RGB
+        function hexToRgb(hex) {
+            // Eliminar el # si está presente
+            hex = hex.replace('#', '');
+            
+            // Convertir a valores r, g, b
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            
+            return { r, g, b };
+        }
+        
+        // Escuchar cambios en los sliders
+        redSlider.addEventListener('input', updateColor);
+        greenSlider.addEventListener('input', updateColor);
+        blueSlider.addEventListener('input', updateColor);
+        
+        // Inicializar
+        updateColor();
+    </script>
+</body>
+</html>
