@@ -6,25 +6,26 @@ export let tasks = [
     { id: 5, text: "Hacer la cama", completed: false },
   ];
   
-  // Función para agregar tareas
+  // agregar tareas
   export function addTask(text: string) {
     tasks.push({ id: Date.now(), text, completed: false });
     }
-  // Función para eliminar tareas
+  // eliminar
   export function deleteTask(id: number) {
     tasks = tasks.filter(task => task.id !== id);
     }
-  // Función cambiar estado completas o no
+  // cambiar estado completas o no
   export function toggleTaskCompletion(id: number) {
         tasks = tasks.map(task =>
           task.id === id ? { ...task, completed: !task.completed } : task
         );
     }
+  // eliminar tareas completadas
   export function deleteCompletedTasks() {
   tasks = tasks.filter(task => !task.completed);
     }
+    //logica filtros
     export function listarTareas(filtro?: "completadas" | "pendientes") {
-        console.log("Tareas actuales:", tasks);
         if (filtro === "completadas") return tasks.filter(t => t.completed);
         if (filtro === "pendientes") return tasks.filter(t => !t.completed);
         return tasks;

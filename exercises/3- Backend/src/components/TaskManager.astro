@@ -1,32 +1,17 @@
 ---
-export const prerender = false;
-import Title from "../components/Title.astro";
-import CategoryButtons from "../components/CategoryButtons.astro";
-import TaskInput from "../components/TaskInput.astro";
-import TaskList from "../components/TaskList.astro";
-import Filters from "../components/Filters.astro";
 import { listarTareas } from "../lib/tasks";
-// 👇 Recibimos el filtro desde la prop que viene de index.astro
+import Title from "./Title.astro";
+import CategoryButtons from "./CategoryButtons.astro";
+import TaskInput from "./TaskInput.astro";
+import Filters from "./Filters.astro";
+import TaskList from "./TaskList.astro";
+
 const { filtro } = Astro.props;
-
-console.log("Filtro recibido:", filtro);
-
 const filteredTasks = listarTareas(filtro ?? undefined);
 ---
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToDoPractia</title>
-    <link rel="stylesheet" href="/styles/ToDo.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-</head>
-<body>
-    <Title title1="TO" title2="DO" />
-    <CategoryButtons />
-    <TaskInput />
-    <Filters />
-    <!-- 📌 Ahora `TaskList` recibe las tareas directamente -->
-    <TaskList tasks={filteredTasks} />
-</body>
-</html>
+
+<Title title1="TO" title2="DO" />
+<CategoryButtons />
+<TaskInput />
+<Filters />
+<TaskList tasks={filteredTasks} />
