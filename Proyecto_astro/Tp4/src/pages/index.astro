@@ -1,0 +1,73 @@
+---
+import { getTasks } from '../lib/TaskStore';
+
+const filter = Astro.url.searchParams.get('filter') ?? 'all';
+const tasks = getTasks(filter);
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Tareas</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        max-width: 600px;
+        margin: 2rem auto;
+      }
+      ul {
+        padding: 0;
+        list-style: none;
+      }
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+      }
+      form.inline {
+        display: inline;
+      }
+      .completed {
+        text-decoration: line-through;
+        color: #888;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Lista de Tareas</h1>
+
+    <form action="/add-task" method="POST">
+      <input type="text" name="text" required placeholder="Nueva tarea" />
+      <button type="submit">Agregar</button>
+    </form>
+
+    <form action="/clear-completed" method="POST" style="margin-top: 1rem;">
+      <button type="submit">Eliminar completadas</button>
+    </form>
+
+    <div style="margin: 1rem 0;">
+      <a href="/">Todas</a> |
+      <a href="/?filter=incomplete">Incompletas</a> |
+      <a href="/?filter=complete">Completadas</a>
+    </div>
+
+    <ul>
+      {tasks.map(task => (
+        <li>
+          <form action="/update-task" method="POST" class="inline">
+            <input type="hidden" name="id" value={task.id} />
+            <button type="submit">{task.completed ? '✅' : '⬜'}</button>
+          </form>
+          <span class={task.completed ? 'completed' : ''}>{task.text}</span>
+          <form action="/delete-task" method="POST" class="inline">
+            <input type="hidden" name="id" value={task.id} />
+            <button type="submit">🗑️</button>
+          </form>
+        </li>
+      ))}
+    </ul>
+  </body>
+</html>
