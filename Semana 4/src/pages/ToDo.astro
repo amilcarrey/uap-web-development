@@ -1,0 +1,312 @@
+---
+// Importa el layout principal de la aplicación que envuelve el contenido de la página
+import Layout from "../layouts/Layout.astro";
+// Importa el estado global de la app (donde se almacenan las tareas)
+// y una función para generar IDs únicos para las nuevas tareas
+import { state, generateId } from "../state";
+
+// Por defecto, se muestran todas las tareas almacenadas en el estado
+let filteredTasks = state.tasks;
+
+// Si la solicitud HTTP es de tipo POST, se procesa el formulario enviado
+if (Astro.request.method === "POST") {
+	try {
+		// Se obtiene el formulario enviado por el usuario
+    	const formdata = await Astro.request.formData();
+
+		// Se extraen y limpian los valores de los campos del formulario:
+    	const taskText = formdata.get("task")?.toString().trim(); // texto de nueva tarea (si se ingresó)
+		const taskId = formdata.get("task-id")?.toString(); // ID de la tarea seleccionada (para completar o borrar)
+		const taskButton = formdata.get("task-btn")?.toString(); // Botón de marcado (check) de tarea
+		const deleteButton = formdata.get("delete-btn")?.toString(); // Botón para eliminar una tarea específica
+		const clearCompleted = formdata.get("clear-completed")?.toString(); // Botón para borrar todas las completadas
+		const filter = formdata.get("filter")?.toString(); // Filtro seleccionado (all, completed, incomplete)
+
+		// Si se ingresó un texto de tarea, se agrega una nueva tarea al estado global
+		if (taskText) {
+			// Genera un ID unico, asigna el texto de la tarea y por defecto marca la tarea como incompleta
+			state.tasks.push({id: generateId(), text: taskText, done: false});
+		}
+
+		// Si se presionó el botón para marcar una tarea como completa/incompleta
+		if (taskButton) {
+			const task = state.tasks.find(t => t.id === taskId);
+			if (task) {
+				// Cambia el estado de completada a incompleta, o viceversa
+				task.done = !task.done;
+			}
+		}
+
+		// Si se presionó el botón de eliminar una tarea
+		if (deleteButton) {
+			// Filtra todas las tareas excepto la que tiene el ID especificado
+			state.tasks = state.tasks.filter(t => t.id !== taskId);
+		}
+
+		// Si se presionó el botón para eliminar todas las tareas completadas
+		if (clearCompleted) {
+			// Filtra solo las tareas que están incompletas (descarta las completadas)
+			state.tasks = state.tasks.filter(task => !task.done);
+		}
+
+		// Si el usuario eligió ver solo tareas completadas
+		if (filter === "completed") {
+			filteredTasks = state.tasks.filter(task => task.done);
+		} 
+		// Si el usuario eligió ver solo tareas incompletas
+		if (filter === "incomplete") {
+			filteredTasks = state.tasks.filter(task => !task.done);
+		}
+	}
+	catch (error) {
+		// Captura y muestra cualquier error que ocurra al procesar los datos del formulario
+		console.error("Error processing form data:", error);
+	}
+}
+---
+
+<Layout>
+    <body>
+        <!-- Encabezado de la página que contiene el título de la aplicación -->
+        <header>
+            <!-- Título principal con un diseño simple donde "TO" y "DO" están separados para dar énfasis -->
+            <h1><span>TO</span>DO</h1>
+        </header>
+
+        <!-- Barra de navegación con botones para diferentes categorías o acciones -->
+        <nav>
+            <!-- Botón para la categoría "Personal" -->
+            <button class="nav-btn">Personal</button>
+            <!-- Botón para la categoría "Professional" (sin clase) -->
+            <button>Professional</button>
+            <!-- Botón para añadir nuevas tareas -->
+            <button class="add-btn">+</button>
+        </nav>
+
+        <!-- Filtros de tareas, para filtrar entre todas, incompletas y completadas -->
+        <div class="filters">
+			<form method="POST">
+				<!-- Botón para mostrar todas las tareas -->
+				<button type="submit" class="filter-btn" name="filter" value="all">All</button>
+				<!-- Botón para mostrar solo las tareas incompletas -->
+				<button type="submit" class="filter-btn" name="filter" value="incomplete">Incomplete</button>
+				<!-- Botón para mostrar solo las tareas completadas -->
+				<button type="submit" class="filter-btn" name="filter" value="completed">Completed</button>
+			</form>
+        </div>
+
+        <!-- Contenido principal de la página -->
+        <main>
+            <!-- Sección para añadir nuevas tareas -->
+            <div class="task-input">
+                <form method="POST">
+                    <!-- Campo de entrada de texto para escribir nuevas tareas -->
+                    <input type="text" name="task" placeholder="What do you need to do?">
+                    <!-- Botón para añadir la tarea -->
+                    <button type="submit" class="add-task">ADD</button>
+                </form>
+            </div>
+
+            <!-- Lista de tareas -->
+            <ul class="task-list">
+                 <!-- Iteramos sobre el array de tareas filtradas -->
+				{filteredTasks.map(task => (
+					//Cada elemento de la lista representa una tarea
+					<li>
+						{/* Cada tarea tiene su propio formulario para poder marcar como completa o eliminar */}
+                    	<form method="POST" class="task-form">
+							<div class="task-content">
+								{/* ID oculto de la tarea, necesario para identificarla en el servidor */}
+								<input type="hidden" name="task-id" value={task.id} />
+								<label>
+									{/* Botón para marcar como hecha o deshacer */}
+									<button type="submit" class="task-btn" name="task-btn" value="true">{task.done ? "✅" : "⬜"}</button>
+									{/* Texto de la tarea */}
+									<span>{ task.text }</span>
+								</label>
+							</div>
+							{/* Botón para eliminar la tarea */}
+							<button type="submit" class="delete-btn" name="delete-btn" value="true">🗑️</button>
+						</form>
+                	</li>
+				  ))}
+            </ul>
+
+            <!-- Botón para eliminar todas las tareas completadas -->
+            <form method="POST">
+				<button type="submit" class="clear-completed" name="clear-completed" value="true">Clear Completed</button>
+			</form>			
+        </main>
+    </body>
+</Layout>
+
+
+<style>
+	/* Estilos generales */
+	body {
+		font-family: Arial, sans-serif; /* Se usa Arial o una fuente sans-serif como fallback */
+		background-color: #f4ede6; /* Color de fondo del cuerpo */
+		color: #555; /* Color del texto general */
+		text-align: center; /* Alineación del texto al centro */
+		margin: 0; /* Se elimina el margen predeterminado */
+	}
+
+	/* Título */
+	header h1 {
+		font-size: 32px; /* Tamaño del texto del título */
+		color: #333; /* Color del texto */
+		margin: 20px 0; /* Espaciado superior e inferior */
+	}
+
+	header h1 span {
+		color: #e08e36; /* Se cambia el color de una parte del texto */
+	}
+
+	/* Barra de navegación */
+	nav {
+		display: flex; /* Se usa flexbox para distribuir los elementos */
+		justify-content: space-between; /* Los elementos se distribuyen uniformemente en la barra */
+		background-color: #fff; /* Fondo blanco */
+		padding: 10px; /* Espaciado interno */
+		border-bottom: 2px solid #ddd; /* Borde inferior para separar visualmente la barra */
+	}
+
+	nav button {
+		border: none; /* Se elimina el borde */
+		background: none; /* Se deja el fondo transparente */
+		font-size: 18px; /* Tamaño del texto */
+		padding: 10px 20px; /* Espaciado interno */
+		cursor: pointer; /* Se cambia el cursor a puntero al pasar sobre el botón */
+	}
+
+	nav .nav-btn {
+		font-weight: bold; /* Texto en negrita */
+		border-bottom: 3px solid #e08e36; /* Línea inferior para destacar el botón activo */
+	}
+
+	.add-btn {
+		background-color: #b07c7c; /* Color de fondo */
+		color: white; /* Texto en color blanco */
+		font-size: 20px; /* Tamaño del texto */
+		padding: 5px 15px; /* Espaciado interno */
+		border-radius: 5px; /* Bordes redondeados */
+	}
+
+	/* Input de tareas */
+	.task-input {
+		margin: 20px auto; /* Espaciado superior e inferior, centrado horizontalmente */
+		display: flex; /* Se usa flexbox para alinear elementos */
+		justify-content: center; /* Centramos el contenido */
+		align-items: center; /* Alineación vertical */
+	}
+
+	.task-input input {
+		width: 60%; /* Ocupa el 60% del ancho disponible */
+		padding: 10px; /* Espaciado interno */
+		border: none; /* Se elimina el borde */
+		border-radius: 20px; /* Bordes redondeados */
+		background-color: #eadecf; /* Color de fondo */
+	}
+
+
+	.add-task {
+		background-color: #65b8d8; /* Color de fondo */
+		color: white; /* Color del texto */
+		border: none; /* Se elimina el borde */
+		padding: 10px 20px; /* Espaciado interno */
+		margin-left: 10px; /* Margen a la izquierda para separación */
+		border-radius: 20px; /* Bordes redondeados */
+		cursor: pointer; /* Se cambia el cursor a puntero */
+	}
+
+	.add-task:hover {
+		background-color: #4a9cbd; /* Color más oscuro al pasar el cursor */
+	}
+	
+	/* Formulario de cada tarea */
+	.task-form {
+		display: flex; /* Se usa flexbox para alinear elementos */
+		justify-content: space-between; /* Los elementos se distribuyen uniformemente */
+		align-items: center; /* Alineación vertical */
+		width: 100%; /* Ancho completo del contenedor */
+	}
+
+	.task-content {
+		display: flex; /* Se usa flexbox para alinear elementos */
+		align-items: center; /* Alineación vertical */
+		gap: 10px; /* Espacio entre el botón y el texto */
+	}
+
+
+	/* Lista de tareas */
+	.task-list {
+		list-style: none; /* Se eliminan los estilos de lista predeterminados */
+		padding: 0; /* Se elimina el padding */
+		margin: 0 auto; /* Centrado horizontalmente */
+		width: 60%; /* Ancho de la lista */
+		background-color: #e4dfd9; /* Color de fondo */
+		border-radius: 10px; /* Bordes redondeados */
+		padding: 20px; /* Espaciado interno */
+	}
+
+	.task-list li {
+		display: flex; /* Se usa flexbox */
+		align-items: center; /* Alineación vertical */
+		justify-content: space-between; /* Espaciado uniforme */
+		padding: 10px; /* Espaciado interno */
+		border-bottom: 1px solid #ccc; /* Línea divisoria entre tareas */
+	}
+
+	.task-btn {
+		background: none; /* Sin fondo */
+		border: none; /* Sin borde */
+		font-size: 18px; /* Tamaño del texto */
+		cursor: pointer; /* Se cambia el cursor a puntero */
+	}
+
+	.delete-btn {
+		background: none; /* Sin fondo */
+		border: none; /* Sin borde */
+		font-size: 18px; /* Tamaño del texto */
+		cursor: pointer; /* Se cambia el cursor a puntero */
+	}
+
+	/* Asegurar que la barra de navegación y filtros están separados */
+	.filters {
+		display: flex; /* Se usa flexbox */
+		justify-content: center; /* Centrado horizontal */
+		gap: 10px; /* Espaciado entre los botones */
+		margin-top: 10px; /* Espaciado superior */
+		padding: 10px; /* Espaciado interno */
+	}
+
+	.filter-btn {
+		padding: 10px 15px; /* Espaciado interno */
+		border: none; /* Sin borde */
+		border-radius: 5px; /* Bordes redondeados */
+		cursor: pointer; /* Se cambia el cursor a puntero */
+		background-color: #b07c7c; /* Color de fondo */
+		color: white;
+		font-size: 16px;
+	}
+
+	.filter-btn:hover {
+		background-color: #916666; /* Color más oscuro al pasar el cursor */
+	}
+
+
+	.clear-completed {
+		display: block; /* Se muestra como un bloque */
+		margin: 20px auto; /* Centrado horizontalmente */
+		padding: 10px 15px; /* Espaciado interno */
+		background-color: #d9534f; /* Color de fondo */
+		color: white; /* Color del texto */
+		border: none; /* Sin borde */
+		border-radius: 5px; /* Bordes redondeados */
+		cursor: pointer; /* Se cambia el cursor a puntero */
+	}
+
+	.clear-completed:hover {
+		background-color: #c9302c; /* Color más oscuro al pasar el cursor */
+	}
+</style>
