@@ -10,38 +10,19 @@
  */
 
 /** 
+ * Estado global que contiene la lista de tareas
  * @type {{ tasks: Task[] }} 
  */
 export const state = {
-  tasks: [],
+  tasks: [], // Lista de tareas (cada tarea tiene id, texto y estado done)
 };
 
+// Contador interno que se usa para generar IDs únicos
 let nextId = 1;
 
+// Funcion que genera un ID único para cada tarea
+// Cada vez que se llama, incrementa el contador y devuelve el nuevo ID como string
+// Esto asegura que cada tarea tenga un ID único
 export function generateId() {
-  return String(nextId++);
+  return String(nextId++); // Convierte el numero a string y luego incrementa el contador
 }
-
-
-// export function addTask(text, generateId) {
-//   state.tasks.push({
-//     id: generateId(),
-//     text,
-//     done: false,
-//   });
-// }
-
-// export function toggleTask(id) {
-//   const task = state.tasks.find(t => t.id === id);
-//   if (task) {
-//     task.done = !task.done;
-//   }
-// }
-
-// export function deleteTask(id) {
-//   state.tasks = state.tasks.filter(t => t.id !== id);
-// }
-
-// export function clearCompleted() {
-//   state.tasks = state.tasks.filter(t => !t.done);
-// }

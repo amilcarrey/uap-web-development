@@ -1,41 +1,70 @@
 ---
+// Importa el layout principal de la aplicación que envuelve el contenido de la página
 import Layout from "../layouts/Layout.astro";
+// Importa el estado global de la app (donde se almacenan las tareas)
+// y una función para generar IDs únicos para las nuevas tareas
 import { state, generateId } from "../state";
 
+// Por defecto, se muestran todas las tareas almacenadas en el estado
+let filteredTasks = state.tasks;
 
+// Si la solicitud HTTP es de tipo POST, se procesa el formulario enviado
 if (Astro.request.method === "POST") {
 	try {
+		// Se obtiene el formulario enviado por el usuario
     	const formdata = await Astro.request.formData();
-    	const taskText = formdata.get("task")?.toString().trim();
-		const taskId = formdata.get("task-id")?.toString();
-		const taskButton = formdata.get("task-btn")?.toString();
-		const deleteButton = formdata.get("delete-btn")?.toString();
-		const clearCompleted = formdata.get("clear-completed")?.toString();
-    
+
+		// Se extraen y limpian los valores de los campos del formulario:
+    	const taskText = formdata.get("task")?.toString().trim(); // texto de nueva tarea (si se ingresó)
+		const taskId = formdata.get("task-id")?.toString(); // ID de la tarea seleccionada (para completar o borrar)
+		const taskButton = formdata.get("task-btn")?.toString(); // Botón de marcado (check) de tarea
+		const deleteButton = formdata.get("delete-btn")?.toString(); // Botón para eliminar una tarea específica
+		const clearCompleted = formdata.get("clear-completed")?.toString(); // Botón para borrar todas las completadas
+		const filter = formdata.get("filter")?.toString(); // Filtro seleccionado (all, completed, incomplete)
+
+		// Si se ingresó un texto de tarea, se agrega una nueva tarea al estado global
 		if (taskText) {
+			// Genera un ID unico, asigna el texto de la tarea y por defecto marca la tarea como incompleta
 			state.tasks.push({id: generateId(), text: taskText, done: false});
 		}
 
+		// Si se presionó el botón para marcar una tarea como completa/incompleta
 		if (taskButton) {
 			const task = state.tasks.find(t => t.id === taskId);
 			if (task) {
+				// Cambia el estado de completada a incompleta, o viceversa
 				task.done = !task.done;
 			}
 		}
 
+		// Si se presionó el botón de eliminar una tarea
 		if (deleteButton) {
+			// Filtra todas las tareas excepto la que tiene el ID especificado
 			state.tasks = state.tasks.filter(t => t.id !== taskId);
 		}
 
+		// Si se presionó el botón para eliminar todas las tareas completadas
 		if (clearCompleted) {
+			// Filtra solo las tareas que están incompletas (descarta las completadas)
 			state.tasks = state.tasks.filter(task => !task.done);
+		}
+
+		// Si el usuario eligió ver solo tareas completadas
+		if (filter === "completed") {
+			filteredTasks = state.tasks.filter(task => task.done);
+		} 
+		// Si el usuario eligió ver solo tareas incompletas
+		if (filter === "incomplete") {
+			filteredTasks = state.tasks.filter(task => !task.done);
 		}
 	}
 	catch (error) {
+		// Captura y muestra cualquier error que ocurra al procesar los datos del formulario
 		console.error("Error processing form data:", error);
 	}
 }
 ---
+
 <Layout>
     <body>
         <!-- Encabezado de la página que contiene el título de la aplicación -->
@@ -56,12 +85,14 @@ if (Astro.request.method === "POST") {
 
         <!-- Filtros de tareas, para filtrar entre todas, incompletas y completadas -->
         <div class="filters">
-            <!-- Botón para mostrar todas las tareas -->
-            <button class="filter-btn" data-filter="all">All</button>
-            <!-- Botón para mostrar solo las tareas incompletas -->
-            <button class="filter-btn" data-filter="incomplete">Incomplete</button>
-            <!-- Botón para mostrar solo las tareas completadas -->
-            <button class="filter-btn" data-filter="completed">Completed</button>
+			<form method="POST">
+				<!-- Botón para mostrar todas las tareas -->
+				<button type="submit" class="filter-btn" name="filter" value="all">All</button>
+				<!-- Botón para mostrar solo las tareas incompletas -->
+				<button type="submit" class="filter-btn" name="filter" value="incomplete">Incomplete</button>
+				<!-- Botón para mostrar solo las tareas completadas -->
+				<button type="submit" class="filter-btn" name="filter" value="completed">Completed</button>
+			</form>
         </div>
 
         <!-- Contenido principal de la página -->
@@ -78,16 +109,24 @@ if (Astro.request.method === "POST") {
 
             <!-- Lista de tareas -->
             <ul class="task-list">
-                <!-- Cada elemento de la lista representa una tarea -->
-				{state.tasks.map(task => (
+                 <!-- Iteramos sobre el array de tareas filtradas -->
+				{filteredTasks.map(task => (
+					//Cada elemento de la lista representa una tarea
 					<li>
-                    	<form method="POST">
-							<input type="hidden" name="task-id" value={task.id} />
-							<label>
-								<button type="submit" class="task-btn" name="task-btn">{task.done ? "✅" : "⬜"}</button>
-								<span>{ task.text }</span>
-							</label>
-							<button type="submit" class="delete-btn" name="delete-btn">🗑️</button>
+						{/* Cada tarea tiene su propio formulario para poder marcar como completa o eliminar */}
+                    	<form method="POST" class="task-form">
+							<div class="task-content">
+								{/* ID oculto de la tarea, necesario para identificarla en el servidor */}
+								<input type="hidden" name="task-id" value={task.id} />
+								<label>
+									{/* Botón para marcar como hecha o deshacer */}
+									<button type="submit" class="task-btn" name="task-btn" value="true">{task.done ? "✅" : "⬜"}</button>
+									{/* Texto de la tarea */}
+									<span>{ task.text }</span>
+								</label>
+							</div>
+							{/* Botón para eliminar la tarea */}
+							<button type="submit" class="delete-btn" name="delete-btn" value="true">🗑️</button>
 						</form>
                 	</li>
 				  ))}
@@ -95,14 +134,14 @@ if (Astro.request.method === "POST") {
 
             <!-- Botón para eliminar todas las tareas completadas -->
             <form method="POST">
-				<button type="submit" class="clear-completed" name="clear-completed">Clear Completed</button>
+				<button type="submit" class="clear-completed" name="clear-completed" value="true">Clear Completed</button>
 			</form>			
         </main>
     </body>
 </Layout>
 
 
-<style is:global>
+<style>
 	/* Estilos generales */
 	body {
 		font-family: Arial, sans-serif; /* Se usa Arial o una fuente sans-serif como fallback */
@@ -183,6 +222,21 @@ if (Astro.request.method === "POST") {
 	.add-task:hover {
 		background-color: #4a9cbd; /* Color más oscuro al pasar el cursor */
 	}
+	
+	/* Formulario de cada tarea */
+	.task-form {
+		display: flex; /* Se usa flexbox para alinear elementos */
+		justify-content: space-between; /* Los elementos se distribuyen uniformemente */
+		align-items: center; /* Alineación vertical */
+		width: 100%; /* Ancho completo del contenedor */
+	}
+
+	.task-content {
+		display: flex; /* Se usa flexbox para alinear elementos */
+		align-items: center; /* Alineación vertical */
+		gap: 10px; /* Espacio entre el botón y el texto */
+	}
+
 
 	/* Lista de tareas */
 	.task-list {
