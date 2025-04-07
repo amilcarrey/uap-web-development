@@ -1,0 +1,25 @@
+{
+  "reminders": [
+    {
+      "id": "bca23b7f-046d-430c-ae5e-8de6e2f3398a",
+      "text": "holaa",
+      "completed": false
+    },
+    {
+      "id": "8f6c6219-a105-45d2-a364-5d42954ef129",
+      "text": "chauu",
+      "completed": false
+    },
+    {
+      "id": "946e3d73-ae18-4121-9d94-ef9dc76e02de",
+      "text": "hola",
+      "completed": false
+    },
+    {
+      "id": "567c60f7-f9ec-4458-a160-0a4cdd6c91bd",
+      "text": "hacer ejercicio",
+      "completed": false
+    }
+  ],
+  "filter": "incomplete"
+}

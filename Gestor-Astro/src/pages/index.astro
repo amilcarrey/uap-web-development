@@ -1,0 +1,341 @@
+---
+// src/pages/reminders.astro
+import Layout from "../layouts/Layout.astro";
+import { remindersState } from "../state";
+
+// Cargamos los recordatorios existentes
+let { reminders, filter = 'all' } = await remindersState.loadState();
+
+// Manejo de las acciones del usuario
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const accion = formData.get("action");
+  const id = formData.get("id")?.toString();
+
+  //  Evitamos guardar el estado si no hay cambios
+  let necesitaGuardar = false;
+  
+  
+  switch(accion) {
+    //Para agregar un nuevo recordatorio, uso la UUID para generar un id 
+    case 'add':
+      const texto = formData.get("text")?.toString()?.trim();
+      if (texto) {
+        reminders.push({
+          id: crypto.randomUUID(),
+          text: texto,
+          completed: false
+        });
+        necesitaGuardar = true;
+      }
+      break;
+
+      //Marcar recprdatorio 
+    case 'toggle':
+      const recordatorio = reminders.find(r => r.id === id);
+      if (recordatorio) {
+        recordatorio.completed = !recordatorio.completed;
+        necesitaGuardar = true;
+      }
+      break;
+
+      //eliminar recordatorio
+    case 'delete':
+      const nuevaLongitud = reminders.filter(r => r.id !== id).length;
+      if (nuevaLongitud !== reminders.length) { //si la longitud cambia, significa que se eliminó un recordatorio
+        reminders = reminders.filter(r => r.id !== id);
+        necesitaGuardar = true;
+      }
+      break;
+//eliminar todos los recordatorios completados
+    case 'clear-completed':
+      const incompletos = reminders.filter(r => !r.completed);
+      if (incompletos.length !== reminders.length) {
+        reminders = incompletos;
+        necesitaGuardar = true;
+      }
+      break;
+// filtrar segun estado
+    case 'filter':
+      const nuevoFiltro = formData.get("filter");
+      if (['all', 'completed', 'incomplete'].includes(nuevoFiltro?.toString() || '') && filter !== nuevoFiltro) {
+        filter = nuevoFiltro as "all" | "completed" | "incomplete";
+        necesitaGuardar = true;
+      }
+      break;
+  }
+
+  if (necesitaGuardar) {
+    await remindersState.saveState({ reminders, filter });
+  }
+}
+
+// Filtramos según la vista seleccionada
+const recordatoriosVisibles = filter === 'all' 
+  ? reminders 
+  : filter === 'completed' 
+    ? reminders.filter(r => r.completed) 
+    : reminders.filter(r => !r.completed);
+---
+
+<Layout>
+  <main class="contenedor-principal">
+    <h1 class="titulo-principal">Mis Recordatorios</h1>
+    
+    <!-- Formulario para agregar recordatorios -->
+    <form method="POST" class="form-agregar">
+      <input type="hidden" name="action" value="add">
+      <input 
+        name="text" 
+        type="text" 
+        placeholder="¿Qué necesitas recordar?"
+        class="input-agregar"
+        required
+      >
+      <button type="submit" class="boton-agregar">x</button>
+    </form>
+    
+    <!-- Lista recordatorios -->
+    {recordatoriosVisibles.length > 0 ? (
+      <ul class="lista-recordatorios">
+        {recordatoriosVisibles.map(item => (
+          <li class={`item-recordatorio ${item.completed ? 'completado' : ''}`}>
+            <form method="POST" class="form-toggle">
+              <input type="hidden" name="action" value="toggle">
+              <input type="hidden" name="id" value={item.id}>
+              <label class="etiqueta-checkbox">
+                <input 
+                  type="checkbox" 
+                  checked={item.completed}
+                  onchange="this.closest('form').submit()"
+                  class="checkbox-real"
+                />
+                <span class="texto-recordatorio">{item.text}</span>
+              </label>
+            </form>
+            
+            <!-- Eliminar recordatorio-->  
+            <form method="POST" class="form-eliminar">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="id" value={item.id}>
+              <button type="submit" class="boton-eliminar" aria-label="Eliminar">
+                ×
+              </button>
+            </form>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="mensaje-vacio">No hay recordatorios {filter !== 'all' ? `en esta categoría` : ''}</p>
+    )}
+    
+
+    <div class="controles-adicionales">
+      {reminders.some(r => r.completed) && (
+        <form method="POST" class="form-limpiar">
+          <input type="hidden" name="action" value="clear-completed">
+          <button type="submit" class="boton-secundario">
+            Limpiar completados
+          </button>
+        </form>
+      )}
+      
+      <div class="filtros">
+        <form method="POST">
+          <input type="hidden" name="action" value="filter">
+          <input type="hidden" name="filter" value="all">
+          <button type="submit" class={`filtro ${filter === 'all' ? 'activo' : ''}`}>
+            Todas
+          </button>
+        </form>
+        
+        <form method="POST">
+          <input type="hidden" name="action" value="filter">
+          <input type="hidden" name="filter" value="incomplete">
+          <button type="submit" class={`filtro ${filter === 'incomplete' ? 'activo' : ''}`}>
+            Pendientes
+          </button>
+        </form>
+        
+        <form method="POST">
+          <input type="hidden" name="action" value="filter">
+          <input type="hidden" name="filter" value="completed">
+          <button type="submit" class={`filtro ${filter === 'completed' ? 'activo' : ''}`}>
+            Hechas
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+
+  .contenedor-principal {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #fff9f9;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  
+  .titulo-principal {
+    color: #d34c4c;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2.2rem;
+  }
+  
+  /* Formulario de agregar */
+  .form-agregar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .input-agregar {
+    flex-grow: 1;
+    padding: 0.8rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  
+  .input-agregar:focus {
+    border-color: #d34c4c;
+    outline: none;
+  }
+  
+  .boton-agregar {
+    width: 3rem;
+    background: #d34c4c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .boton-agregar:hover {
+    background: #b53c3c;
+  }
+  
+  /* Lista de recordatorios */
+  .lista-recordatorios {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+  }
+  
+  .item-recordatorio {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .item-recordatorio:last-child {
+    border-bottom: none;
+  }
+  
+  .form-toggle {
+    flex-grow: 1;
+    margin-right: 0.5rem;
+  }
+  
+  .etiqueta-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+  }
+  
+  .checkbox-real {
+    width: 1.3rem;
+    height: 1.3rem;
+    accent-color: #d34c4c;
+  }
+  
+  .texto-recordatorio {
+    font-size: 1.1rem;
+  }
+  
+  .completado .texto-recordatorio {
+    text-decoration: line-through;
+    color: #888;
+  }
+  
+  /* Botón eliminar */
+  .boton-eliminar {
+    background: none;
+    border: none;
+    color: #d34c4c;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    line-height: 1;
+  }
+  
+  .boton-eliminar:hover {
+    color: #b53c3c;
+  }
+  
+  /* Mensaje cuando no hay items */
+  .mensaje-vacio {
+    text-align: center;
+    color: #888;
+    margin: 2rem 0;
+    font-style: italic;
+  }
+  
+  /* Controles adicionales */
+  .controles-adicionales {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  .boton-secundario {
+    background: #f0f0f0;
+    color: #d34c4c;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .boton-secundario:hover {
+    background: #e0e0e0;
+  }
+  
+  /* Filtros */
+  .filtros {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  
+  .filtro {
+    background: none;
+    border: 1px solid #e0e0e0;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    color: #666;
+  }
+  
+  .filtro.activo {
+    background: #d34c4c;
+    color: white;
+    border-color: #d34c4c;
+  }
+  
+  .filtro:hover:not(.activo) {
+    background: #f8f8f8;
+  }
+</style>
