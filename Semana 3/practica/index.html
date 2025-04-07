@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Define el conjunto de caracteres a UTF-8 -->
+    <meta charset="UTF-8">
+    
+    <!-- Configura el viewport para hacerlo responsivo en dispositivos móviles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Título de la página -->
+    <title>Interactive Color Picker</title>
+    
+    <!-- Vincula la hoja de estilos externa -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Título principal de la aplicación -->
+        <h1>Interactive Color Picker</h1>
+
+        <!-- Caja que mostrará el color seleccionado -->
+        <div class="color-box" id="colorBox"></div>
+
+        <!-- Muestra el código hexadecimal del color actual -->
+        <p class="hex-code">HEX: <span id="hexValue">#808080</span></p>
+
+        <!-- Controles deslizantes (sliders) para modificar los valores RGB -->
+        <div class="sliders">
+            <!-- Slider para el color rojo -->
+            <label>R <input type="range" id="red" min="0" max="255" value="128"></label>
+            <span id="redValue">128</span>
+            
+            <!-- Slider para el color verde -->
+            <label>G <input type="range" id="green" min="0" max="255" value="128"></label>
+            <span id="greenValue">128</span>
+            
+            <!-- Slider para el color azul -->
+            <label>B <input type="range" id="blue" min="0" max="255" value="128"></label>
+            <span id="blueValue">128</span>
+        </div>
+
+        <!-- Botón para restablecer los sliders al color blanco -->
+        <button id="reset">Reset</button>
+
+        <!-- Sección de colores predefinidos -->
+        <h2>Preset Colors</h2>
+        <div class="preset-colors">
+            <!-- Botones de colores predefinidos con sus valores HEX -->
+            <button class="preset" style="background: red;" data-color="#FF0000">Red</button>
+            <button class="preset" style="background: green;" data-color="#00FF00">Green</button>
+            <button class="preset" style="background: blue;" data-color="#0000FF">Blue</button>
+            <button class="preset" style="background: yellow;" data-color="#FFFF00">Yellow</button>
+            <button class="preset" style="background: magenta;" data-color="#FF00FF">Magenta</button>
+            <button class="preset" style="background: cyan;" data-color="#00FFFF">Cyan</button>
+            <button class="preset" style="background: orange;" data-color="#FFA500">Orange</button>
+            <button class="preset" style="background: purple;" data-color="#800080">Purple</button>
+        </div>
+    </div>
+
+    <script>
+        // Obtiene referencias a los elementos del DOM
+        const redSlider = document.getElementById("red");
+        const greenSlider = document.getElementById("green");
+        const blueSlider = document.getElementById("blue");
+        const colorBox = document.getElementById("colorBox");
+        const hexValue = document.getElementById("hexValue");
+        const redValue = document.getElementById("redValue");
+        const greenValue = document.getElementById("greenValue");
+        const blueValue = document.getElementById("blueValue");
+        const resetButton = document.getElementById("reset");
+        const presetButtons = document.querySelectorAll(".preset");
+
+        // Función para actualizar el color de la caja basado en los sliders
+        function updateColor() {
+            const r = redSlider.value;
+            const g = greenSlider.value;
+            const b = blueSlider.value;
+
+            // Convierte los valores RGB a formato HEX
+            const hex = `#${parseInt(r).toString(16).padStart(2, '0')}${parseInt(g).toString(16).padStart(2, '0')}${parseInt(b).toString(16).padStart(2, '0')}`.toUpperCase();
+            
+            // Aplica el color al cuadro y actualiza el valor HEX
+            colorBox.style.backgroundColor = hex;
+            hexValue.textContent = hex;
+
+            // Actualiza los valores de los sliders en pantalla
+            redValue.textContent = r;
+            greenValue.textContent = g;
+            blueValue.textContent = b;
+        }
+
+        // Agrega eventos a los sliders para actualizar el color en tiempo real
+        redSlider.addEventListener("input", updateColor);
+        greenSlider.addEventListener("input", updateColor);
+        blueSlider.addEventListener("input", updateColor);
+
+        // Evento para restablecer los sliders al color blanco (#FFFFFF)
+        resetButton.addEventListener("click", () => {
+            redSlider.value = 255;
+            greenSlider.value = 255;
+            blueSlider.value = 255;
+            updateColor();
+        });
+
+        // Agrega eventos a los botones de colores predefinidos
+        presetButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                // Obtiene el color HEX del botón presionado
+                const color = button.getAttribute("data-color");
+                
+                // Aplica el color a la caja y actualiza el texto HEX
+                colorBox.style.backgroundColor = color;
+                hexValue.textContent = color.toUpperCase();
+
+                // Extrae los valores RGB desde el HEX
+                const r = parseInt(color.substr(1, 2), 16);
+                const g = parseInt(color.substr(3, 2), 16);
+                const b = parseInt(color.substr(5, 2), 16);
+
+                // Actualiza los sliders y los valores visibles
+                redSlider.value = r;
+                greenSlider.value = g;
+                blueSlider.value = b;
+                redValue.textContent = r;
+                greenValue.textContent = g;
+                blueValue.textContent = b;
+            });
+        });
+
+        // Llama a la función de actualización al cargar la página para reflejar el color inicial
+        updateColor();
+    </script>
+</body>
+</html>
