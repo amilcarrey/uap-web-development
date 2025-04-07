@@ -1,9 +1,11 @@
 ---
 import TaskManager from "../components/TaskManager.astro";
+export const prerender = false;
 import "../styles/global.css";
 // Acá se obtiene bien el parámetro de la URL
-const url = new URL(Astro.request.url);
-const filtro = url.searchParams.get('filtro')|| 'all';//si cambio aca el paramentro por defecto es lo que muestra el servidor nose porque
-console.log('Filtro recibido:', filtro);
+const url = new URL(Astro.url);
+console.log('URL:', url);
+const filtro = url.searchParams.get('filtro')|| "all" ;//si cambio aca el paramentro por defecto es lo que muestra el servidor
+
 ---
 <TaskManager filtro={filtro} />
