@@ -7,7 +7,7 @@
   resolved "https://registry.npmjs.org/@astrojs/compiler/-/compiler-2.11.0.tgz"
   integrity sha512-zZOO7i+JhojO8qmlyR/URui6LyfHJY6m+L9nwyX5GiKD78YoRaZ5tzz6X0fkl+5bD3uwlDHayf6Oe8Fu36RKNg==
 
-"@astrojs/internal-helpers@0.6.1":
+"@astrojs/internal-helpers@0.6.1": 
   version "0.6.1"
   resolved "https://registry.npmjs.org/@astrojs/internal-helpers/-/internal-helpers-0.6.1.tgz"
   integrity sha512-l5Pqf6uZu31aG+3Lv8nl/3s4DbUzdlxTWDof4pEpto6GUJNhhCbelVi9dEyurOVyqaelwmS9oSyOWOENSfgo9A==

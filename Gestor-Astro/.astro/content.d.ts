@@ -4,7 +4,7 @@ declare module 'astro:content' {
 		headings: import('astro').MarkdownHeading[];
 		remarkPluginFrontmatter: Record<string, any>;
 	}
-	interface Render {
+	interface Render { 
 		'.md': Promise<RenderResult>;
 	}
 
