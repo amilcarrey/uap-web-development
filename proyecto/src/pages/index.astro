@@ -1,0 +1,275 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+
+declare global {
+  var tareas: { id: string; texto: string; completada: boolean }[] | undefined;
+}
+
+if (!globalThis.tareas) {
+  globalThis.tareas = [];
+}
+let tareas = globalThis.tareas as { id: string; texto: string; completada: boolean }[];
+
+function obtenerTareas(filtro = 'all') {
+  if (filtro === 'completed') return tareas.filter(t => t.completada);
+  if (filtro === 'incomplete') return tareas.filter(t => !t.completada);
+  return tareas;
+}
+
+function agregarTarea(texto: string) {
+  tareas.push({ id: crypto.randomUUID(), texto, completada: false });
+}
+
+function eliminarTarea(id: string) {
+  tareas = tareas.filter(t => t.id !== id);
+  globalThis.tareas = tareas;
+}
+
+function toggleTarea(id: string) {
+  const tarea = tareas.find(t => t.id === id);
+  if (tarea) tarea.completada = !tarea.completada;
+}
+
+function limpiarCompletadas() {
+  tareas = tareas.filter(t => !t.completada);
+  globalThis.tareas = tareas;
+}
+
+// Procesar filtros y formularios
+const url = new URL(Astro.request.url);
+const filtro = url.searchParams.get('filtro') || 'all';
+
+if (Astro.request.method === 'POST') {
+  const contentType = Astro.request.headers.get('content-type') || '';
+
+  let accion = '';
+  let texto = '';
+  let id = '';
+
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    const formData = await Astro.request.formData();
+    accion = formData.get('accion')?.toString() || '';
+    texto = formData.get('texto')?.toString() || '';
+    id = formData.get('id')?.toString() || '';
+  } else if (contentType.includes('application/json')) {
+    const body = await Astro.request.json();
+    accion = body.accion || '';
+    texto = body.texto || '';
+    id = body.id || '';
+  }
+
+  switch (accion) {
+    case 'agregar':
+      if (texto.trim()) agregarTarea(texto.trim());
+      break;
+    case 'eliminar':
+      if (id) eliminarTarea(id);
+      break;
+    case 'toggle':
+      if (id) toggleTarea(id);
+      break;
+    case 'limpiar':
+      limpiarCompletadas();
+      break;
+  }
+
+  return Astro.redirect(url.pathname + url.search);
+}
+
+const tareasFiltradas = obtenerTareas(filtro);
+---
+
+<Layout title="Tareneitor">
+  <div class="Titulo">
+    <h1>TARENEITOR</h1>
+  </div>
+
+  <div class="Formulario">
+    <form method="POST" action="/">
+      <input type="hidden" name="accion" value="agregar" />
+      <input name="texto" required placeholder="¿Qué tenemos que hacer hoy?" />
+      <button type="submit">Agregar</button>
+    </form>
+  </div>
+
+  <div class="Filtros">
+    <a href="?filtro=all"><button class={filtro === 'all' ? 'activo' : ''}>Todas</button></a>
+    <a href="?filtro=completed"><button class={filtro === 'completed' ? 'activo' : ''}>Completadas</button></a>
+    <a href="?filtro=incomplete"><button class={filtro === 'incomplete' ? 'activo' : ''}>Incompletas</button></a>
+  </div>
+
+  <div class="Tareas">
+    <ul>
+      {tareasFiltradas.map(tarea => (
+        <li>
+          <form method="POST" action="/">
+            <input type="hidden" name="accion" value="toggle" />
+            <input type="hidden" name="id" value={tarea.id} />
+            <button type="submit" title="Marcar como completada">
+              {tarea.completada ? '✅' : '⬜'}
+            </button>
+          </form>
+
+          <span class="tarea-texto">{tarea.texto}</span>
+
+          <form method="POST" action="/">
+            <input type="hidden" name="accion" value="eliminar" />
+            <input type="hidden" name="id" value={tarea.id} />
+            <button class="btn-eliminar" type="submit"> X </button>
+          </form>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="Borrar-completadas">
+    <form method="POST" action="/">
+      <input type="hidden" name="accion" value="limpiar" />
+      <button type="submit">Eliminar tareas completadas</button>
+    </form>
+  </div>
+</Layout>
+
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, #3d1857, #2b1857, #191857, #183e57, #191857, #2b1857, #3d1857);
+    background-size: 5000% 500%;
+    animation: fanimado 10s infinite alternate ease-in-out;
+    height: 100vh;
+    margin: 0;
+  }
+
+  @keyframes fanimado {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 100%; }
+  }
+
+  .Titulo {
+    display: flex;
+    justify-content: center;
+  }
+
+  .Titulo h1 {
+    color: white;
+    font-size: 250%;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6), -2px -2px 5px rgba(0, 0, 0, 0.6);
+  }
+
+  .Formulario {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .Formulario form {
+    display: flex;
+  }
+
+  .Formulario input {
+    width: 300px;
+    height: 40px;
+    padding: 0 1rem;
+    border-radius: 90px 0 0 90px;
+    border: none;
+    outline: none;
+  }
+
+  .Formulario button {
+    border-radius: 0 90px 90px 0;
+    border: none;
+    padding: 0 1rem;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease-in;
+  }
+
+  .Formulario button:hover {
+    background-color: blueviolet;
+  }
+
+  .Filtros {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .Filtros button {
+    background-color: #4fd8bb;
+    border: none;
+    border-radius: 90px;
+    padding: 0.5rem 1rem;
+    color: white;
+    cursor: pointer;
+  }
+
+  .Filtros button.activo {
+    background-color: blueviolet;
+  }
+
+  .Tareas {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .Tareas ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 50%;
+  }
+
+  .Tareas li {
+    background: white;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .Tareas .tarea-texto {
+    flex-grow: 1;
+  }
+
+  .btn-eliminar {
+    background-color: white;
+    color: #b73333;
+    border: 1px solid #b73333;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .btn-eliminar:hover {
+    background-color: #b73333;
+    color: white;
+  }
+
+  .Borrar-completadas {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .Borrar-completadas button {
+    background-color: #b73333;
+    color: white;
+    border: none;
+    border-radius: 90px;
+    padding: 0.5rem 1.5rem;
+    cursor: pointer;
+  }
+
+  .Borrar-completadas button:hover {
+    background-color: #992626;
+  }
+</style>
