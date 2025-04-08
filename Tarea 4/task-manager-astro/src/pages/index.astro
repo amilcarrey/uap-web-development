@@ -17,8 +17,7 @@ function getFilteredTasks() {
 }
 
 // Agregar una nueva tarea
-function addTask(formData) {
-  const description = formData.get('description');
+function addTask(description) {
   if (description) {
     globalThis.tasks.push({ id: Date.now().toString(), description, completed: false });
   }
@@ -42,15 +41,31 @@ function deleteCompletedTasks() {
   globalThis.tasks = globalThis.tasks.filter((task) => !task.completed);
 }
 
-// Manejar solicitudes POST desde formularios
+// Manejar solicitudes según el tipo de contenido
 if (Astro.request.method === 'POST') {
-  const formData = await Astro.request.formData();
-  const action = formData.get('_action');
+  const contentType = Astro.request.headers.get('content-type') || '';
 
-  if (action === 'add') addTask(formData);
-  if (action === 'toggle') toggleTask(formData.get('id'));
-  if (action === 'delete') deleteTask(formData.get('id'));
-  if (action === 'clearCompleted') deleteCompletedTasks();
+  if (contentType.includes('application/json')) {
+    const body = await Astro.request.json();
+    const action = body.action;
+    const filterAction = body.filter;
+
+    if (action === 'add') addTask(body.description);
+    if (action === 'toggle') toggleTask(body.id);
+    if (action === 'delete') deleteTask(body.id);
+    if (action === 'clearCompleted') deleteCompletedTasks();
+    if (filterAction) filter = filterAction;
+  } else if (contentType.includes('application/x-www-form-urlencoded')) {
+    const formData = await Astro.request.formData();
+    const action = formData.get('_action');
+    const filterAction = formData.get('filter');
+
+    if (action === 'add') addTask(formData.get('description'));
+    if (action === 'toggle') toggleTask(formData.get('id'));
+    if (action === 'delete') deleteTask(formData.get('id'));
+    if (action === 'clearCompleted') deleteCompletedTasks();
+    if (filterAction) filter = filterAction;
+  }
 }
 ---
 
@@ -60,76 +75,40 @@ if (Astro.request.method === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 20px auto;
-        max-width: 600px;
-        text-align: center;
-      }
-      ul {
-        list-style: none;
-        padding: 0;
-      }
-      li {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 10px 0;
-      }
-      .completed span {
-        text-decoration: line-through;
-        color: gray;
-      }
-      .filters a {
-        margin: 0 10px;
-        text-decoration: none;
-        color: blue;
-      }
-      .filters a.active {
-        font-weight: bold;
-        text-decoration: underline;
-      }
-    </style>
+    <link rel="stylesheet" href="/styles.css"> <!-- Enlace al archivo CSS -->
+    <script src="/tasks.js" defer></script> <!-- Vincula el archivo tasks.js -->
   </head>
   <body>
     <h1>Task Manager</h1>
 
+    <!-- Imagen centrada -->
+    <img src="/your-image.jpg" alt="Task Manager Image" class="centered-image" />
+
     <!-- Formulario para agregar una nueva tarea -->
-    <form method="POST">
-      <input type="text" name="description" placeholder="Add a new task" required />
-      <button type="submit" name="_action" value="add">Add Task</button>
+    <form id="add-task-form">
+      <input type="text" id="taskDescription" placeholder="Add a new task" required />
+      <button type="submit">Add Task</button>
     </form>
 
     <!-- Filtros -->
     <div class="filters">
-      <a href="/?filter=all" class={filter === 'all' ? 'active' : ''}>All</a>
-      <a href="/?filter=complete" class={filter === 'complete' ? 'active' : ''}>Completed</a>
-      <a href="/?filter=incomplete" class={filter === 'incomplete' ? 'active' : ''}>Incomplete</a>
+      <button class="filter-btn" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="complete">Completed</button>
+      <button class="filter-btn" data-filter="incomplete">Incomplete</button>
     </div>
 
     <!-- Lista de tareas filtradas -->
-    <ul>
+    <ul id="taskList">
       {getFilteredTasks().map((task) => (
-        <li class={task.completed ? 'completed' : ''}>
+        <li data-id={task.id} class={task.completed ? 'completed' : ''}>
           <span>{task.description}</span>
-          <form method="POST" style="display:inline;">
-            <input type="hidden" name="id" value={task.id} />
-            <button type="submit" name="_action" value="toggle">
-              {task.completed ? 'Undo' : 'Complete'}
-            </button>
-          </form>
-          <form method="POST" style="display:inline;">
-            <input type="hidden" name="id" value={task.id} />
-            <button type="submit" name="_action" value="delete">Delete</button>
-          </form>
+          <button class="toggle-task-btn">{task.completed ? 'Undo' : 'Complete'}</button>
+          <button class="delete-task-btn">Delete</button>
         </li>
       ))}
     </ul>
 
     <!-- Botón para eliminar tareas completadas -->
-    <form method="POST">
-      <button type="submit" name="_action" value="clearCompleted">Clear Completed</button>
-    </form>
+    <button id="clear-completed-btn">Clear Completed</button>
   </body>
 </html>
