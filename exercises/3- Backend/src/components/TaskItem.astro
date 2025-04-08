@@ -1,0 +1,27 @@
+---
+const { task } = Astro.props;
+---
+
+<div class="Task">
+  <form action="/api/tasks" method="post">
+    <input type="hidden" name="_method" value="TOGGLE" />
+    <input type="hidden" name="id" value={task.id} />
+    <input
+      type="checkbox"
+      class="checkTask"
+      checked={task.completed}
+      onclick="this.form.submit()"
+    />
+  </form>
+
+  <p>{task.text}</p>
+
+  <form action="/api/tasks" method="post">
+    <input type="hidden" name="_method" value="DELETE" />
+    <input type="hidden" name="id" value={task.id} />
+    <button class="deleteTask" type="submit">
+      <i class="fas fa-trash"></i> Eliminar
+    </button>
+  </form>
+</div>
+
