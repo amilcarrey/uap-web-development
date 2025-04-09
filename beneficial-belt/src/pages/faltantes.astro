@@ -1,0 +1,222 @@
+---
+import Layout from "../layouts/Layout.astro"; 
+import TaskComponent from "../components/Task.astro";
+import { TaskList } from "../state";
+import agregar from "../assets/añadir.png";
+import checked from "../assets/task.png";
+
+if (Astro.request.method === "POST") {
+    const formData = await Astro.request.formData();
+    const tareaAdd = formData.get("tarea")?.toString();
+    const tareaComplete = formData.get("tareaC")?.toString();
+    const tareaDelete = formData.get("tareaD")?.toString();
+    const completedDlt = formData.get("completedDlt")?.toString();
+    //marcar tarea como completa
+    if (tareaComplete) {
+        let indice = TaskList.findIndex((t) => t.id == parseInt(tareaComplete));
+        TaskList[indice].completed =
+            TaskList[indice].completed === false
+                ? true
+                : false;
+    }
+    //eliminar tareas
+    if (tareaDelete) {
+        let indice = TaskList.findIndex((t) => t.id == parseInt(tareaDelete));
+        TaskList.splice(indice, 1);
+    }
+
+    if(completedDlt)
+    {
+        var tareasCompletas = TaskList.filter((t)=>t.completed == true);
+    }
+    // agregar una tarea nueva
+    if (tareaAdd) {
+        TaskList.push({
+            id: TaskList.length + 1,
+            content: tareaAdd,
+            completed: false,
+        });
+    }
+}
+
+var tareasCompletas = TaskList.filter((t)=>t.completed == false);
+
+---
+
+<Layout>
+    <header id="title">
+        <h1>
+            tasking.com
+            <img src={checked.src} alt="imagen de tareas" height="30px" />
+        </h1>
+    </header>
+    <div class="windows">
+        <div class="window">
+            <div>
+                <p>Personal</p>
+            </div>
+            <div>
+                <p>Profesional</p>
+            </div>
+        </div>
+        <img src={agregar.src} height="30px" />
+    </div>
+    <div>
+        <form method="POST" id="entrada">
+            <label>Tarea a ingresar: </label>
+            <input type="text" name="tarea" required />
+            <button type="submit"> Add </button>
+        </form>
+    </div>
+    <div class="contenedor_tasklist">
+        <ul id="tasklist">
+            {
+                tareasCompletas.map((t) => (
+                    <TaskComponent
+                        id={t.id}
+                        content={t.content}
+                        completed={t.completed}
+                    />
+                ))
+            }
+        </ul>
+    </div>
+
+    <div id="tasklist-fondo">
+        <form method="post">
+            <button type="submit" name="completedDlt" value= "todo"> Borrar completadas
+            </button>
+        </form>
+        <button> <a href="/completas" class="">Completadas </a> </button>
+        <button> <a href="/faltantes" class="">Faltantes </a> </button>
+        <button> <a href="/" class="">Todas </a> </button>
+    </div>
+</Layout>
+
+<style>
+    body {
+        background-color: aliceblue;
+        font-family: Arial, sans-serif;
+        min-height: 100vh;
+    }
+
+    header {
+        background-color: rgb(177, 228, 228);
+    }
+
+    h1 {
+        display: flex;
+        align-items: center;
+    }
+
+    #title {
+        display: flex;
+        justify-content: center;
+        height: 10vh;
+        align-items: center;
+    }
+
+    .windows {
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    .windows img {
+        display: flex;
+        align-self: center;
+        justify-self: end;
+    }
+
+    .window {
+        width: 80vw;
+        display: flex;
+        justify-content: space-around;
+        background-color: aliceblue;
+        border: aquamarine;
+        border-bottom: 2px solid rgb(177, 228, 228);
+        margin: 10px;
+    }
+
+    .contenedor_tasklist {
+        display: flex;
+        padding: 10px;
+        background-color: antiquewhite;
+        border-radius: 20px;
+        border-bottom-right-radius: 0px;
+        border-bottom-left-radius: 0px;
+        margin: auto;
+        width: 60vw;
+    }
+
+    .contenedor_tasklist li {
+        display: flex;
+        align-items: center;
+        margin: auto;
+        width: 50vw;
+        gap: 10px;
+        border-width: 10px;
+        border-bottom: 1px solid rgb(177, 228, 228);
+    }
+
+    .task {
+        display: flex;
+        align-items: center;
+    }
+
+    form {
+        padding: 10px;
+    }
+
+    #entrada {
+        display: flex;
+        width: 60%;
+        justify-content: center;
+        background-color: antiquewhite;
+        border-radius: 20px;
+        margin: auto;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    #tasklist-fondo {
+        display: flex;
+        background-color: antiquewhite;
+        padding: 10px;
+        justify-content: center;
+        border-width: 0;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        width: 60%;
+        margin: auto;
+        gap: 5px;
+        text-decoration: none;
+        align-items: center;
+    }
+
+    .classlist input:checked {
+        content: "yalota";
+        color: aliceblue;
+        font-style: oblique;
+    }
+
+    .completada {
+        color: rgb(99, 98, 98);
+        text-decoration: line-through;
+        display: flex;
+        align-items: center;
+    }
+
+    .oculto {
+        display: none;
+    }
+
+    .ocultoc {
+        display: none;
+    }
+
+    #tasklist-fondo button a 
+    {
+        text-decoration: none;
+        color: black
+    }
+</style>

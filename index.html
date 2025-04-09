@@ -1,0 +1,65 @@
+<html lang="en">
+    <head>
+        <meta name="viewport">
+        <title>tasking.com</title>
+        <link rel="stylesheet" href="intex.css">
+    </head>
+    <body>
+        <header id="title">
+            <h1>
+                tasking.com
+                <img src="task.png" alt="imagen de tareas" height="30px">
+            </h1> 
+        </header>
+        <div class="windows">
+            <div class="window">
+                <div>
+                    <p>Personal</p>
+                </div>
+                <div>
+                    <p>Profesional</p>
+                </div>
+            </div>
+            <img src="añadir.png" height="30px">
+        </div>
+        <div>
+                <form id = "entrada">
+                    <label for="tarea">Tarea a ingresar </label>
+                    <input type="text" id="tarea">
+                    <button onclick=agregarTarea()> Add </button>
+                </form>
+        </div>
+        <div class="contenedor_tasklist">
+                <ul id="tasklist">
+                    <div class="task">
+                        <li>
+                            <button onclick=completarTarea() class = "cmplt-btn">check</button>
+                            <p>Estudiar redes </p>
+                         </li>
+                         <button onclick=eliminarTarea() class = "dlt-btn"> <img src="tacho.png" height="15px" class="ej"></button>
+                    </div>
+                    <div class="task">
+                        <li>
+                            <button onclick=completarTarea() class = "cmplt-btn">check</button>
+                            <p>Hacer recuperacion de whatsapp </p>
+                         </li>
+                         <button onclick=eliminarTarea() class = "dlt-btn"> <img src="tacho.png" height="15px" class="ej"></button>
+                    </div>
+                    <div class="task">
+                        <li>
+                            <button onclick=completarTarea() class = "cmplt-btn">check</button>
+                            <p>Pagarle a Harryson </p>
+                         </li>
+                         <button onclick=eliminarTarea() class = "dlt-btn"> <img src="tacho.png" height="15px" class="ej"></button>
+                    </div>
+                </ul>
+        </div>
+        <div id = "tasklist-fondo">
+            <button onclick=eliminarCompletadas() > Borrar completadas </button>
+            <button onclick=mostrarCompletadas() > Completadas </button>
+            <button onclick=mostrarFaltantes() > Faltantes </button>
+            <button onclick=mostrarTodas() > Todas </button>
+        </div>
+        <script src="main.js"></script>
+    </body>
+</html>      

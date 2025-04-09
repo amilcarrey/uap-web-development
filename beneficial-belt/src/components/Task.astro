@@ -1,0 +1,56 @@
+---
+import { type Task } from "../state";
+import bin from "../assets/tacho.png";
+
+const { id, content, completed } = Astro.props as Task;
+/*
+if (Astro.request.method === "POST") {
+    const formData = await Astro.request.formData();
+    const task = formData.get("tareaE");
+    console.log(task);
+    
+}
+*/
+---
+
+<div class="task">
+    <li>
+        <form method="post">
+            <button type="submit" name="tareaC" value={id}>check</button>
+        </form>
+        <p class={completed}>{content}</p>
+        <form method="post">
+            <button type="submit" name="tareaD" value={id}>
+                <img src={bin.src} height="15px" class="ej" />
+            </button>
+        </form>
+    </li>
+</div>
+
+<style>
+    .task {
+        display: flex;
+        align-items: center;
+    }
+
+    .task li {
+        display: flex;
+        align-items: center;
+        margin: auto;
+        width: 50vw;
+        gap: 10px;
+        border-width: 10px;
+        border-bottom: 1px solid rgb(177, 228, 228);
+    }
+    .task li form:last-of-type{
+        margin-left: auto;
+    }
+
+    .true {
+        color: rgb(99, 98, 98);
+        text-decoration: line-through;
+        display: flex;
+        align-items: center;
+    }
+
+</style>
