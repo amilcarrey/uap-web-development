@@ -54,7 +54,7 @@
                 <button type="submit"><i class="fas fa-plus"></i></button>
             </form>
             <ul>
-                <% tareas.filter(tarea=> tarea.categoria === 'universidad').forEach((tarea, index) => { %>
+                <% tareas.filter(tarea => tarea.categoria === 'universidad').forEach((tarea, index) => { %>
                     <li class="<%= tarea.completada ? 'completada' : '' %>">
                         <span>
                             <%= tarea.titulo %>
@@ -68,7 +68,7 @@
                             <button type="submit" class="eliminar-btn"><i class="fas fa-trash"></i></button>
                         </form>
                     </li>
-                    <% }) %>
+                <% }) %>
             </ul>
         </div>
 
