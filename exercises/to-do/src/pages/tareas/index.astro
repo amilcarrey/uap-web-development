@@ -1,0 +1,74 @@
+---
+export const prerender = false;
+
+import db from '../../db';
+
+type Tarea = {
+  id: number;
+  texto: string;
+  completada: number;
+};
+
+const estado = Astro.url.searchParams.get('estado');
+let tareas: Tarea[] = [];
+
+
+if (estado === 'completadas') {
+  tareas = db.prepare('SELECT * FROM tareas WHERE completada = 1').all();
+} else if (estado === 'incompletas') {
+  tareas = db.prepare('SELECT * FROM tareas WHERE completada = 0').all();
+} else {
+  tareas = db.prepare('SELECT * FROM tareas').all();
+}
+
+---
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TODO List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="tabs">
+      <a class={"tab " + (estado === null ? "active" : "")} href="/tareas">Tareas</a>
+      <a class={"tab " + (estado === "completadas" ? "active" : "")} href="/tareas?estado=completadas">Completas</a>
+      <a class={"tab " + (estado === "incompletas" ? "active" : "")} href="/tareas?estado=incompletas">Incompletas</a>
+      
+    </div>
+
+    <div class="container">
+      <h1>TO.DO</h1>
+
+      <form method="POST" action="/tareas/agregar">
+        <input type="text" name="texto" placeholder="Nueva tarea" required />
+        <button type="submit">Agregar</button>
+      </form>
+      
+      
+
+      <ul class="task-list">
+        {tareas.map(t => (
+          <li class={t.completada ? "completed" : ""}>
+            <form method="POST" action="/tareas/completar">
+              <input type="hidden" name="id" value={t.id} />
+              <button type="submit">{t.completada ? "✅" : "⬜"}</button>
+            </form>
+            <label><span class="task-text">{t.texto}</span></label>
+            <form method="POST" action="/tareas/eliminar">
+              <input type="hidden" name="id" value={t.id} />
+              <button class="borrar-tarea" type="submit">🗑️</button>
+            </form>
+          </li>
+        ))}
+      </ul>
+      
+
+      <form method="POST" action="/tareas/eliminar-todo">
+        <button class="clear-completed" type="submit">Clear Completed</button>
+      </form>
+    </div>
+  </body>
+</html>

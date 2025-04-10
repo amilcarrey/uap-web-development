@@ -1,0 +1,14 @@
+{
+  "name": "todo-server-side",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.1.3",
+    "astro": "^5.0.0",
+    "better-sqlite3": "^11.0.0"
+  }
+}
