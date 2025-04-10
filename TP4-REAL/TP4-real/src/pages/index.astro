@@ -1,0 +1,59 @@
+---
+export const prerender = false;
+
+import { getTasks } from '../data/tasks.js';
+
+const url = new URL(Astro.request.url);
+const filter = url.searchParams.get('filter') || 'all';
+const tasks = getTasks(filter);
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gestor de Tareas - Club Atlético Patronato</title>
+    <link rel="stylesheet" href="/src/styles/styles.css" />
+  </head>
+  <body>
+    <h1>⚽ Vamos Patrón ⚫🔴</h1>
+    <div style="margin: 20px 0;">
+  <img src="/Patron.png" alt="Escudo de Patronato" width="150" />
+</div>
+
+    <form action="/api/add-task" method="POST">
+      <label for="tarea">Jugador favorito:</label>
+      <input type="text" name="tarea" id="tarea" required />
+      <button type="submit">Agregar</button>
+    </form>
+
+    <ul>
+      {tasks.map((task, i) => (
+        <li>
+          <span class={task.completed ? "completed" : ""}>{task.text}</span>
+          <form action="/api/toggle-task" method="POST" style="display:inline">
+            <input type="hidden" name="index" value={i} />
+            <button type="submit">{task.completed ? "Actual" : "Jubilado"}</button>
+          </form>
+          <form action="/api/delete-task" method="POST" style="display:inline">
+            <input type="hidden" name="index" value={i} />
+            <button type="submit">Eliminar</button>
+          </form>
+        </li>
+      ))}
+    </ul>
+
+    <div class="filters">
+      <a href="/?filter=all"><button class={filter === "all" ? "active" : ""}>Todos</button></a>
+      <a href="/?filter=active"><button class={filter === "active" ? "active" : ""}>Actuales</button></a>
+      <a href="/?filter=completed"><button class={filter === "completed" ? "active" : ""}>Jubilados</button></a>
+    </div>
+
+    <form action="/api/clear-completed" method="POST" style="text-align: center; margin-top: 1rem;">
+      <button type="submit">Borrar jubilados</button>
+    </form>
+
+    <footer>
+      Sitio homenaje a Patronato – ¡Campeones copa Argentina 2022!
+    </footer>
+  </body>
+</html>

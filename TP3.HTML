@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="TP3.CSS">
+    <title>Gestor de Tareas</title>
+</head>
+<body>
+
+    <h1>Aguante patron</h1>
+    <img src="Patron.jpg" alt="Diseño del gestor de tareas">
+
+    <form id="task-form">
+        <label for="nueva-tarea">Ingrese jugador favorito:</label>
+        <input type="text" id="nueva-tarea" name="tarea" required>
+        <button type="submit">Agregar</button>
+    </form>
+
+    <ul id="lista-tareas">
+        <!-- Las tareas se agregarán aquí dinámicamente -->
+    </ul>
+
+    <div class="filters">
+        <button id="filter-all" class="active">Todos</button>
+        <button id="filter-active">Actuales</button>
+        <button id="filter-completed">Jubilados</button>
+        <button id="clear-completed">Borrar jubilados</button>
+    </div>
+
+    <footer>
+        <p>Diseñado por <a href="https://www.frontendmentor.io/challenges/results-summary-component-CE_K6s0maV">Frontend Mentor</a></p>
+    </footer>
+
+    <script>
+        // Variables globales
+        const form = document.getElementById("task-form");
+        const taskInput = document.getElementById("nueva-tarea");
+        const taskList = document.getElementById("lista-tareas");
+        const filterAllButton = document.getElementById("filter-all");
+        const filterActiveButton = document.getElementById("filter-active");
+        const filterCompletedButton = document.getElementById("filter-completed");
+        const clearCompletedButton = document.getElementById("clear-completed");
+        let tasks = [];
+
+        // Función para renderizar las tareas
+        function renderTasks(filter = 'all') {
+            taskList.innerHTML = '';
+
+            const filteredTasks = tasks.filter(task => {
+                if (filter === 'active') return !task.completed;
+                if (filter === 'completed') return task.completed;
+                return true;
+            });
+
+            filteredTasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.classList.toggle('completed', task.completed);
+
+                const taskText = document.createElement('span');
+                taskText.textContent = task.text;
+
+                const completeButton = document.createElement('button');
+                completeButton.textContent = task.completed ? "Actuales" : "Jubilados";
+                completeButton.onclick = () => toggleComplete(index);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = "Eliminar";
+                deleteButton.onclick = () => deleteTask(index);
+
+                li.appendChild(taskText);
+                li.appendChild(completeButton);
+                li.appendChild(deleteButton);
+                taskList.appendChild(li);
+            });
+        }
+
+        // Función para agregar una tarea
+        function addTask(text) {
+            if (text.trim()) {
+                tasks.push({ text, completed: false });
+                taskInput.value = ''; // Borrar el input
+                renderTasks();
+            }
+        }
+
+        // Función para marcar una tarea como completada o descompletada
+        function toggleComplete(index) {
+            tasks[index].completed = !tasks[index].completed;
+            renderTasks();
+        }
+
+        // Función para eliminar una tarea
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            renderTasks();
+        }
+
+        // Función para eliminar todas las tareas completadas
+        function clearCompleted() {
+            tasks = tasks.filter(task => !task.completed);
+            renderTasks();
+        }
+
+        // Función para aplicar filtros
+        function applyFilter(filter) {
+            renderTasks(filter);
+            filterAllButton.classList.remove('active');
+            filterActiveButton.classList.remove('active');
+            filterCompletedButton.classList.remove('active');
+
+            if (filter === 'all') {
+                filterAllButton.classList.add('active');
+            } else if (filter === 'active') {
+                filterActiveButton.classList.add('active');
+            } else if (filter === 'completed') {
+                filterCompletedButton.classList.add('active');
+            }
+        }
+
+        // Eventos
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            addTask(taskInput.value);
+        });
+
+        taskInput.addEventListener("keypress", function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTask(taskInput.value);
+            }
+        });
+
+        filterAllButton.addEventListener("click", () => applyFilter('all'));
+        filterActiveButton.addEventListener("click", () => applyFilter('active'));
+        filterCompletedButton.addEventListener("click", () => applyFilter('completed'));
+        clearCompletedButton.addEventListener("click", clearCompleted);
+
+    </script>
+
+</body>
+</html>
