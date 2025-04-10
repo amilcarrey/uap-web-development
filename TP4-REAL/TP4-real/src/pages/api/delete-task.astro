@@ -1,0 +1,13 @@
+---
+export const prerender = false;
+
+import { deleteTask } from '../../data/tasks.js';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const index = parseInt(form.get("index"));
+  if (!isNaN(index)) deleteTask(index);
+}
+
+return Astro.redirect("/");
+---

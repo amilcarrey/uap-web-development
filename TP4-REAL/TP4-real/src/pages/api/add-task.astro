@@ -1,0 +1,16 @@
+---
+export const prerender = false;
+
+import { addTask } from '../../data/tasks.js';
+
+if (
+  Astro.request.method === 'POST' &&
+  Astro.request.headers.get("content-type")?.includes("application/x-www-form-urlencoded")
+) {
+  const form = await Astro.request.formData();
+  const text = form.get("tarea");
+  if (text) addTask(text);
+}
+
+return Astro.redirect("/");
+---

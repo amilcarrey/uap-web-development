@@ -1,0 +1,18 @@
+[
+  {
+    "text": "Walter Andrade",
+    "completed": true
+  },
+  {
+    "text": "Alan Bonansea",
+    "completed": false
+  },
+  {
+    "text": "Jonas Acevedo",
+    "completed": false
+  },
+  {
+    "text": "Sebastian Bertoli",
+    "completed": true
+  }
+]

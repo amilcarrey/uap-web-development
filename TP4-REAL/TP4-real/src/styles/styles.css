@@ -1,0 +1,96 @@
+body {
+    font-family: sans-serif;
+    padding: 2rem;
+    background-color: black;
+    text-align: center;
+    color: white;
+  }
+  
+  h1 {
+    color: #d40000;
+  }
+  
+  form {
+    margin-bottom: 1rem;
+  }
+  
+  input[type="text"] {
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    margin-left: 0.5rem;
+    cursor: pointer;
+    border: 2px solid red; /* Línea roja */
+    border-radius: 4px;
+    background-color: #d40000;
+    color: white;
+  }
+  
+  button:hover {
+    opacity: 0.9;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  li {
+    margin: 0.5rem 0;
+  }
+  
+  .completed {
+    color: gray;
+    text-decoration: none;
+  }
+  
+  .filters {
+    margin-top: 1rem;
+  }
+  
+  .filters button {
+    background-color: #666;
+    color: white;
+    border: 2px solid red;
+  }
+  
+  .filters button.active {
+    background-color: #d40000;
+  }
+  
+  /* Botón "Actuales" */
+  .filters a:nth-child(2) button {
+    background-color: black;
+    color: white;
+  }
+  
+  /* Botón "Jubilados" */
+  .filters a:nth-child(3) button {
+    background-color: red;
+    color: white;
+  }
+  
+  /* Botón "Borrar jubilados" */
+  form[action="/api/clear-completed"] button {
+    background-color: black;
+    color: white;
+    border: 2px solid red;
+  }
+  
+  /* Botón "Eliminar" */
+  form[action="/api/delete-task"] button {
+    background-color: black;
+    color: white;
+    border: 2px solid red;
+  }
+  
+  /* Escudo */
+  .logo {
+    margin-top: 20px;
+    width: 100px;
+  }
+  
