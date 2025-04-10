@@ -1,9 +1,38 @@
 ---
-import Welcome from '../components/GestorTareas.astro';
-import Layout from '../layouts/Layout.astro';
+import { getTareas } from "../pages/lib/tareas";
+import TaskForm from "../components/formAgregar.astro";
+import TaskList from "../components/listaCompleta.astro";
+import FilterBar from "../components/botonesFiltro.astro";
+import "../styles/global.css";
 
+const filtro = Astro.url.searchParams.get("filtro") ?? "todas";
+const tareas = getTareas();
+
+const tareasFiltradas = tareas.filter((t) => {
+  if (filtro === "completas") return t.completada;
+  if (filtro === "incompletas") return !t.completada;
+  return true;
+});
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html>
+  <meta charset="UTF-8" />
+  <body class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-2xl bg-white shadow-md rounded-4xl p-6">
+      <header class="text-center mb-6">
+        <h1 class="text-3xl font-bold">TO-DO</h1>
+      </header>
+
+      <TaskForm />
+      <main>
+        <FilterBar />
+        <TaskList tareas={tareasFiltradas} />
+
+        <form method="POST" action="/api/tareas" class="mt-4">
+          <input type="hidden" name="accion" value="limpiar" />
+          <button class="w-full bg-gray-400 hover:bg-gray-600 text-white py-2 px-4 rounded" type="submit">Clear completed</button>
+        </form>
+      </main>
+    </div>
+  </body>
+</html>

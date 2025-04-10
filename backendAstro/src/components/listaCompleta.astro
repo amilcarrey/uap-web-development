@@ -1,0 +1,17 @@
+---
+import TaskItem from "./tareaIndividual.astro";
+export interface Props {
+  tareas: {
+    id: number;
+    texto: string;
+    completada: boolean;
+  }[];
+}
+const { tareas } = Astro.props;
+---
+
+<div class="space-y-4">
+  {tareas.map((tarea) => (
+    <TaskItem tarea={tarea} />
+  ))}
+</div>
