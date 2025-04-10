@@ -1,0 +1,47 @@
+---
+const { tarea } = Astro.props;
+---
+<div class="task">
+  {/* redirijo para invocar la función actualizarEstado */}
+  <form method="post" action="/api/toggle">
+    {/* hidden guarda el id de la tarea */}
+    <input type="hidden" name="id" value={tarea.id} />
+    {/* onchange es un evento que se dispara cuando el valor del checkbox cambia
+        checked sincroniza el estado del checkbox con el estado de la tarea */}
+    <input type="checkbox" class="checkmark" 
+           checked={tarea.completada} 
+           onchange="this.form.submit()" />
+  </form>
+
+  <span class="task-text">{tarea.descripcion}</span>
+
+  <button type="button" class="deletemark eliminar-tarea">🗑️</button>
+</div>
+
+<script type="module">
+  document.addEventListener("DOMContentLoaded", () => {
+    // Encontramos la tarea usando un selector que recorra todas
+    document.querySelectorAll(".task").forEach((task) => {
+      const botonEliminar = task.querySelector(".eliminar-tarea");
+
+      botonEliminar?.addEventListener("click", async () => {
+        const id = Number(task.dataset.id);
+        if (!id) return;
+
+        const respuesta = await fetch("/api/eliminar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ id })
+        });
+
+        if (respuesta.ok) {
+          task.remove(); // Quitamos la tarea del DOM
+        } else {
+          alert("Error al eliminar la tarea");
+        }
+      });
+    });
+  });
+</script>

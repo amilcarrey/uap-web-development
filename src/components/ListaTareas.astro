@@ -1,0 +1,10 @@
+---
+import Tarea from "./Tarea.astro";
+const { tareas } = Astro.props;
+---
+
+<div class="task-list">
+  {tareas.map((tarea) => (
+    <Tarea tarea={tarea} />
+  ))}
+</div>

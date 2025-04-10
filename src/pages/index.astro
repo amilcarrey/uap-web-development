@@ -1,6 +1,10 @@
 ---
 import { listarTareas } from "../lib/tareas"; 
 import '../styles/ToDo.css';
+import FormularioAgregar from "../components/FormularioAgregar.astro";
+import Filtro from "../components/Filtro.astro";
+import ListaTareas from "../components/ListaTareas.astro";
+import EliminarCompletadas from "../components/EliminarCompletadas.astro";
 
 //el string de la url lo convierte en url | ahora tengo acceso directo al valor del filtro
 const { searchParams } = new URL(Astro.request.url);
@@ -21,47 +25,19 @@ const tareas = listarTareas(filtro ?? undefined);
 <body>
   <div>
     <h1>ToDo</h1>
+
     <div class="categories">
       <button type="button">Personal</button>
       <button type="button">+</button>
       <button type="button">Profesional</button>  
-    </div>    
-
-    <div class="form-container">
-        <form method="post" action="/api/agregar">
-        <input type="text" id="task" name="descripcion" placeholder="Enter Task" required>
-        <button type="submit" id="Agregar">Add</button>
-      </form>
     </div>
 
-    <div id="DFiltro">
-      <a href="/" id="Todas">Todas</a>
-      <a href="/?filtro=completadas" id="Terminadas">Terminadas</a>
-      <a href="/?filtro=pendientes" id="Pendientes">Pendientes</a>      
-    </div>
+    <FormularioAgregar />
+    <Filtro />
+    <ListaTareas tareas={tareas} />
 
-    <div class="task-list">
-      {tareas.map((tarea) => (//recorro todo el array de tareas
-        <div class="task">
-          <form method="post" action="/api/toggle">{/*redirreciono para invocar la funcion actualizarEstado*/}
-            <input type="hidden" name="id" value={tarea.id} />{/*hidden guarda el id de la tarea*/}
-            <input type="checkbox" class="checkmark" 
-                   checked={tarea.completada} 
-                   onchange="this.form.submit()">{/*onchange es un evento que se dispara cuando el valor de X elemento cambia
-                    checked sincroniza el estado del checkbox con el estado de la tarea*/}
-          </form>
-          <span class="task-text">{tarea.descripcion}</span>
-          <form method="post" action="/api/eliminar">
-            <input type="hidden" name="id" value={tarea.id} />
-            <button type="submit" class="deletemark">🗑️</button>
-          </form>
-        </div>
-      ))}
-    </div>
+    <EliminarCompletadas />
 
-    <form method="post" action="/api/eliminarCompletadas">
-      <button type="submit" id="clear">Eliminar todas las tareas completadas</button>
-    </form>
   </div>
 </body>
 </html>

@@ -1,0 +1,30 @@
+<button type="submit" id="clear">Eliminar todas las tareas completadas</button>
+
+<script>
+  const boton = document.querySelector("#clear");
+
+  if (boton) {
+    boton.addEventListener("click", async (e) => {
+      e.preventDefault(); // Prevenir el envío tradicional del formulario
+
+      try {
+        const respuesta = await fetch("/api/eliminarCompletadas", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (respuesta.ok) {
+          const resultado = await respuesta.json();
+          console.log(resultado.mensaje);
+          location.reload(); // Refrescar la página para actualizar la lista
+        } else {
+          alert("Error al eliminar tareas completadas");
+        }
+      } catch (error) {
+        console.error("Error en la solicitud:", error);
+      }
+    });
+  }
+</script>

@@ -23,7 +23,7 @@ type Tarea = {
       descripcion,
       completada: false
     };
-  
+    
     const yaExiste = tareas.some(t => t.descripcion === nuevaTarea.descripcion);
     if (yaExiste) return;
   
