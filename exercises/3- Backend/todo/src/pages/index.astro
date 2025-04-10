@@ -1,0 +1,306 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { state, generateId } from '../state';
+
+let todos = state.todos; // Se obtiene el array de tareas del estado
+let filter = "all"; // Cada vez que se recarga la página, el filtro se inicializa en "all"
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("action")?.toString();
+    const text = formData.get("text")?.toString();
+    const id = formData.get("id")?.toString();
+    const newFilter = formData.get("filter")?.toString();
+
+    if (action === "add" && text) {
+      const newTask = { id: generateId(), text, completed: false }; // Crea una nueva tarea
+      todos.push(newTask); // La agrega al array de tareas
+    } else if (action === "toggle" && id) {
+      const todo = state.todos.find((t) => t.id === parseInt(id));
+      if (todo) todo.completed = !todo.completed; // Cambia el estado de la tarea (completada o no)
+    } else if (action === "delete" && id) {
+      state.todos = todos.filter((t) => t.id !== parseInt(id)); // Elimina la tarea con el id correspondiente
+    } else if (action === "clearCompleted") {
+      state.todos = todos.filter((t) => !t.completed); // Elimina las tareas completadas
+    } else if (newFilter) {
+      filter = newFilter; // Actualiza el filtro
+    }
+  } catch (error) {
+    console.error("Error processing form data:", error);
+  }
+}
+
+const filteredTodos = state.todos.filter((todo) => { // Eliga las tareas según el filtro
+  if (filter === "completed") return todo.completed;
+  if (filter === "uncompleted") return !todo.completed;
+  return true;
+});
+---
+
+<Layout>
+  <header>
+    <h1 class="title"><span style="color: grey">TO</span><span style="color: orange;">DO</span></h1>
+        <div class="select-category">
+            <h3 class="category selected" id="personal">Personal</h3>
+            <h3 class="category">Professional</h3>
+            <button id="add-category">+</button>
+        </div>
+  </header>
+
+  <main>
+    <form action="/" method="POST" class="add-todo">
+      <input type="text"  name="text" id="input-todo" placeholder="What do you need to do?" required />
+      <button type="submit" id="add-todo-btn" name="action" value="add">ADD</button>
+    </form>
+
+    <div class="todo-container">
+      
+        <form method="POST" class="filter-tasks">
+          <button type="submit" name="filter" value="all" class={`filter-btn ${filter === "all" ? "selected" : ""}`}>Show all</button>
+          <button type="submit" name="filter" value="completed" class={`filter-btn ${filter === "completed" ? "selected" : ""}`}>Completed</button>
+          <button type="submit" name="filter" value="uncompleted" class={`filter-btn ${filter === "uncompleted" ? "selected" : ""}`}>Uncompleted</button>
+        </form>
+      
+
+      <ul class="todo-list">
+        {filteredTodos.map((todo) => (
+          <li class="todo-item">
+            <form method="POST" class="inline-form">
+              <button type="submit" name="action" value="toggle" class={`check-btn ${todo.completed ? "active" : ""}`} title="Toggle">
+                ✓
+              </button>
+              <input type="hidden" name="id" value={todo.id} />
+            </form>
+            
+            <p class={`todo-text ${todo.completed ? "completed" : ""}`}>{todo.text}</p>
+
+            <form method="POST" class="inline-form"> 
+              <button type="submit" name="action" value="delete" class="delete-btn" title="Delete">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+              <input type="hidden" name="id" value={todo.id} />
+            </form>
+          </li>
+        ))}
+      </ul>
+
+      <form method="POST">
+        <button type="submit" name="action" value="clearCompleted" id="clear-completed">Clear Completed</button>
+      </form>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  body {
+    padding: 0%;
+    margin: 0;
+  }
+
+  h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: 3em;
+    background-color: rgba(241,236,230,255);
+    margin: 0;
+    text-align: center;
+    padding: 5px;
+  }
+
+  .select-category {
+    display: flex;
+    align-items: center;
+    background-color: rgba(243,243,243,255);
+  }
+
+  .category {
+    position: relative;
+    flex-grow: 1;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    font-size: 1.5em;
+    letter-spacing: 2px;
+    padding: 10px;
+    margin: 0;
+    height: 100%;
+    opacity: 0.35;
+    cursor: pointer;
+    transition: 0.5s;
+  }
+
+  .category:hover {
+    opacity: 1;
+  }
+
+  .category.selected {
+    opacity: 1;
+    border-bottom: 4px solid orange;
+  }
+
+  #add-category {
+    flex-shrink: 0;
+    padding: 8px ;
+    background-color: rgba(173,131,131,255);
+    cursor: pointer;
+    color: rgba(243,243,243,255);
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size:2.5em;
+    border: 0;
+    padding: 0 10px;
+  }
+
+  #add-category:hover {
+    background-color: rgb(202, 68, 68);
+    transition: 0.5s;
+    color: white;
+  }
+
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white
+  }
+
+  .add-todo {
+    display: flex;
+    align-items: center;
+    background-color: rgba(241,236,230,255);
+    margin: 20px;
+    border-radius: 25px;
+    width: 50%;
+    padding: 0;
+  }
+
+  #input-todo {
+    flex: 1;
+    background-color: transparent;
+    border: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3em;
+    padding: 10px;
+    margin-left: 10px;
+  }
+
+  #add-todo-btn {
+    flex-shrink: 0; 
+    background-color: rgb(116,178,202);
+    border: 0;
+    color: white;
+    font-size: 1.5em;
+    box-sizing: border-box; 
+    border-radius: 0 25px 25px 0;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+
+  .todo-container {
+    width: 50%;
+    margin: 20px;
+    margin-top: 10px;
+    padding: 10px; 
+    background-color: rgba(241,236,230,255);
+    border-radius: 25px;
+  }
+
+  .todo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .todo-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .check-btn {
+    flex-shrink: 0;
+    background-color: transparent;
+    color: transparent;
+    font-size: 1em;   
+    border: 3px solid gray;
+    border-radius: 50%;
+    padding: 5px 8px 5px 8px;
+    margin-right: 20px;
+    margin-top: 20px;
+    transition: 0.5s;
+    cursor: pointer;
+  }
+
+  .check-btn.active {
+    border: orange 3px solid;
+    color: orange;
+    font-weight: bolder;
+  }
+
+  .todo-text {
+    flex: 1;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3em;
+    padding-bottom: 10px;
+    margin-bottom: 0;
+    border-bottom: 1px solid rgb(116,178,202);
+    transition: 0.5s;
+  }
+
+  .todo-text.completed {
+    text-decoration: line-through;
+    opacity: 0.5;
+    color: rgb(158, 151, 151);
+  }
+
+  .delete-btn {
+    flex-shrink: 0;
+    background-color: transparent;
+    border: 0;
+    color: orange;
+    font-size: 1em;
+    padding: 0 10px;
+    cursor: pointer;
+  }
+
+  #clear-completed {
+    color: orange;
+    margin: 100px 30px 10px 30px;
+    text-align: right;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+  }
+
+  .filter-tasks {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 20px 0px
+  }
+
+  .filter-btn {
+    background-color: rgb(116,178,202);
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5em;
+    font-weight: 400;
+    padding: 10px 20px;
+    border: 0;
+    border-radius: 25px;
+    border-bottom: 5px solid orange;
+    opacity: 0.5;
+    cursor: pointer;
+    transition: 0.5s;
+  }
+
+  .filter-btn:hover {
+    opacity: 1;
+  }
+
+  .filter-btn.selected {
+    opacity: 1;
+    box-shadow: 0px 4px 6px rgb(0, 0, 0);
+  }
+</style>
