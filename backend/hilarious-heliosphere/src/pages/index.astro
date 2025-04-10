@@ -1,0 +1,295 @@
+---
+import { astroCalledServerError } from "astro:actions";
+import Layout from "../layouts/Layout.astro";
+
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+
+import { state } from "./state";
+
+if (Astro.request.method === "POST") {
+	console.log("POST recibido");
+	try {
+		const formData = await Astro.request.formData();
+		const action = formData.get("action")?.toString();
+
+		if (action === "add") {
+			const taskText = formData.get("task")?.toString().trim();
+			if (taskText) {
+				state.tasks.push({
+					id: state.nextId++,
+					task_content: taskText,
+					completed: false,
+				});
+				console.log("Tarea añadida:", state.tasks);
+			}
+		}
+
+		if (action === "delete") {
+			const id = Number(formData.get("id"));
+			state.tasks = state.tasks.filter((t) => t.id !== id);
+			console.log("Tarea eliminada:", state.tasks);
+		}
+
+		if (action === "toggle") {
+			const id = Number(formData.get("id"));
+			const task = state.tasks.find((t) => t.id === id);
+			if (task) {
+				task.completed = !task.completed;
+			}
+		}
+
+		if (action === "filter") {
+			const filter = formData.get("filter")?.toString();
+			if (["all", "active", "completed"].includes(filter!)) {
+				state.filter = filter!;
+			}
+		}
+
+		if (action === "clearCompleted") {
+			state.tasks = state.tasks.filter((t) => !t.completed);
+		}
+	} catch (error) {
+		console.log("Error al procesar el POST");
+	}
+}
+
+let filteredTasks = state.tasks;
+if (state.filter === "active") {
+	filteredTasks = state.tasks.filter((task) => !task.completed);
+	console.log("Tareas incompletas:", filteredTasks);
+} else if (state.filter === "completed") {
+	filteredTasks = state.tasks.filter((task) => task.completed);
+	console.log("Tareas completadas:", filteredTasks);
+}
+---
+
+<Layout>
+	<div class="container-grl">
+		<h1 class="title">TODO</h1>
+		<div class="task-imput">
+			<form method="POST">
+				<input
+					type="text"
+					name="task"
+					id="task-input"
+					placeholder="¿Qué necesitas hacer?"
+					required
+				/>
+				<button
+					type="submit"
+					name="action"
+					class="add-button"
+					value="add">ADD</button
+				>
+			</form>
+		</div>
+
+		<div class="filter-buttons">
+			<form method="POST">
+				<input type="hidden" name="action" value="filter" />
+				<input type="hidden" name="filter" value="all" />
+				<button
+					type="submit"
+					class={state.filter === "all" ? "active-filter" : ""}
+					>Todas</button
+				>
+			</form>
+
+			<form method="POST">
+				<input type="hidden" name="action" value="filter" />
+				<input type="hidden" name="filter" value="active" />
+				<button
+					type="submit"
+					class={state.filter === "active" ? "active-filter" : ""}
+					>No Completadas</button
+				>
+			</form>
+
+			<form method="POST">
+				<input type="hidden" name="action" value="filter" />
+				<input type="hidden" name="filter" value="completed" />
+				<button
+					type="submit"
+					class={state.filter === "completed" ? "active-filter" : ""}
+					>Completadas</button
+				>
+			</form>
+		</div>
+
+		<ul>
+			{
+				filteredTasks.map((task) => (
+					<li>
+						<form method="POST" style="display: inline;">
+							<input type="hidden" name="id" value={task.id} />
+							<button type="submit" name="action" value="toggle">
+								{task.completed ? "✅" : "⬜"}
+							</button>
+						</form>
+
+						<span class={task.completed ? "completed" : ""}>
+							{task.task_content}
+						</span>
+
+						<form method="POST" style="display: inline;">
+							<input type="hidden" name="id" value={task.id} />
+							<button type="submit" name="action" value="delete">
+								🗑
+							</button>
+						</form>
+					</li>
+				))
+			}
+		</ul>
+
+		<div class="containerDelAllCompleted">
+			<form method="POST">
+				<button type="submit" name="action" value="clearCompleted"
+					>Borrar las tareas completadas</button
+				>
+			</form>
+		</div>
+	</div>
+</Layout>
+
+<style>
+	body {
+		font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+		background: #f7c89c;
+		color: #333;
+	}
+
+	.container-grl {
+		max-width: 600px;
+		margin: auto;
+		margin-top: 10%;
+		padding: 5%;
+		background: rgb(188, 124, 240);
+		border-radius: 16px;
+		box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+	}
+
+	.title {
+		text-align: center;
+		font-size: 40px;
+		color: #2c3e50;
+	}
+
+	.task-imput {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 15px;
+	}
+
+	#task-input {
+		flex: 1;
+		padding: 13px;
+		border: 2px solid #ccc;
+		border-radius: 8px;
+		font-size: large;
+		transition: border 0.1s;
+	}
+
+	#task-input:focus {
+		outline: none;
+		border-color: #4a90e2;
+	}
+
+	.add-button {
+		padding: 18px;
+		background-color: #4a90e2;
+		color: white;
+		font-size: 16px;
+		border: none;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: background 0.3s;
+	}
+
+	.add-button:hover {
+		background-color: #357ab8;
+	}
+
+	.filter-buttons {
+		display: flex;
+		justify-content: center;
+		gap: 10px;
+		margin-bottom: 15px;
+		flex-wrap: wrap;
+	}
+
+	.filter-buttons button {
+		border: 2px solid #ccc;
+		padding: 10px 20px;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.active-filter {
+		background-color: #4a90e2;
+		color: white;
+		border-color: #4a90e2;
+	}
+
+	ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	li {
+		background: #f9f9f9;
+		margin-bottom: 10px;	
+		padding: 20px;
+		border-radius: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	li form {
+		margin: 0;
+	}
+
+	li button {
+		background: none;
+		border: none;
+		font-size: 1.2rem;
+		cursor: pointer;
+		transition: transform 0.2s;
+	}
+
+	li button:hover {
+		transform: scale(1.2);
+	}
+
+	.completed {
+		text-align: center;
+		text-decoration: line-through;
+		color: #888;
+		flex: 1;
+		margin: 0 0.75rem;
+	}
+
+	.containerDelAllCompleted {
+		margin-top: 2rem;
+		text-align: center;
+	}
+
+	.containerDelAllCompleted button {
+		background-color: #e74c3c;
+		color: white;
+		font-weight: bold;
+		padding: 0.75rem 1.5rem;
+		border: none;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: background 0.3s;
+	}
+
+	.containerDelAllCompleted button:hover {
+		background-color: #c0392b;
+	}
+</style>
