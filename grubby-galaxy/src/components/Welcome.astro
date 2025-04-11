@@ -1,0 +1,316 @@
+---
+import astroLogo from "../assets/astro.svg";
+import background from "../assets/background.svg";
+
+let board: (string | null)[] = [
+	null,
+	null,
+	null,
+	null,
+	null,
+	null,
+	null,
+	null,
+	null,
+];
+let currentPlayer = "X";
+let winner = null;
+
+const winningCombinations = [
+	[0, 1, 2], // Filas
+	[3, 4, 5],
+	[6, 7, 8],
+	[0, 3, 6], // Columnas
+	[1, 4, 7],
+	[2, 5, 8],
+	[0, 4, 8], // Diagonal principal
+	[2, 4, 6], // Diagonal secundaria
+];
+
+if (Astro.request.method === "POST") {
+	const data = await Astro.request.formData();
+	
+	if (data.get("reset")) {
+		board = [null, null, null, null, null, null, null, null, null];
+		currentPlayer="X";
+		winner = null;
+	} else {
+		const index = Number(data.get("index"));
+		if (board[index] === null && !winner) {
+			board[index] = currentPlayer;
+			
+			currentPlayer = currentPlayer === "X" ? "O" : "X";
+			
+			checkWinner();
+		}
+	}
+}
+
+
+function checkWinner() {
+	for (const combination of winningCombinations) {
+		const [a, b, c] = combination;
+		if (board[a] && board[a] === board[b] && board[a] === board[c])
+			winner = board[a];
+			return board[a];
+	}
+	return null;
+}
+
+
+
+---
+
+<main>
+	{winner ? <h2>{winner} gana el juego!</h2> : <h2>Turno de: {currentPlayer}</h2>}
+	
+	<div id="container">
+		<div class="fila1">
+			<form method="post">
+				<input type="hidden" name="index" value="0" />
+				<button type="submit" class="cuadrado">{board[0]}</button>
+			</form>
+			<form method="post">
+				<input type="hidden" name="index" value="1" />
+				<button type="submit" class="cuadrado">{board[1]}</button>
+			</form>
+			<form method="post">
+				<input type="hidden" name="index" value="2" />
+				<button type="submit" class="cuadrado">{board[2]}</button>
+			</form>
+		</div>
+		<div class="fila2">
+			<form method="post">
+				<input type="hidden" name="index" value="3" />
+				<button type="submit" class="cuadrado">{board[3]}</button>
+			</form>
+			<form method="post">
+				<input type="hidden" name="index" value="4" />
+				<button type="submit" class="cuadrado">{board[4]}</button>
+			</form>
+			<form method="post">
+				<input type="hidden" name="index" value="5" />
+				<button type="submit" class="cuadrado">{board[5]}</button>
+			</form>
+		</div>
+		<div class="fila3">
+			<form method="post">
+				<input type="hidden" name="index" value="6" />
+				<button type="submit" class="cuadrado">{board[6]}</button>
+			</form>
+			<form method="post">
+				<input type="hidden" name="index" value="7" />
+				<button type="submit" class="cuadrado">{board[7]}</button>
+			</form>
+			<form method="post">
+				<input type="hidden" name="index" value="8" />
+				<button type="submit" class="cuadrado">{board[8]}</button>
+			</form>
+		</div>
+	</div>
+</main>
+<form method="post">
+	<input type="hidden" name="reset" value="true" />
+	<button type="submit" id="reset-button">Reiniciar juego</button>
+</form>
+
+<style>
+	#background {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+		filter: blur(100px);
+	}
+
+	#container {
+		font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova",
+			"Nimbus Sans", Arial, sans-serif;
+		height: 500px;
+		width: 500px;
+		background-color: #3245ff;
+		margin-top: 100px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+	.fila1,
+	.fila2,
+	.fila3 {
+		display: flex;
+	}
+
+	.cuadrado {
+		appearance: none;
+		width: 166px;
+		height: 166px;
+		cursor: pointer;
+		background-color: aliceblue;
+	}
+
+	.cuadrado:hover {
+		background-color: rgb(174, 178, 182);
+	}
+	.cuadrado:active {
+		content: currentPlayer;
+		font-size: 40px;
+		position: relative;
+		top: 40%;
+		left: 40%;
+		color: rgb(57, 98, 218);
+	}
+
+	main {
+		height: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	#hero {
+		display: flex;
+		align-items: start;
+		flex-direction: column;
+		justify-content: center;
+		padding: 16px;
+	}
+
+	h1 {
+		font-size: 22px;
+		margin-top: 0.25em;
+	}
+
+	#links {
+		display: flex;
+		gap: 16px;
+	}
+
+	#links a {
+		display: flex;
+		align-items: center;
+		padding: 10px 12px;
+		color: #111827;
+		text-decoration: none;
+		transition: color 0.2s;
+	}
+
+	#links a:hover {
+		color: rgb(78, 80, 86);
+	}
+
+	#links a svg {
+		height: 1em;
+		margin-left: 8px;
+	}
+
+	#links a.button {
+		color: white;
+		background: linear-gradient(83.21deg, #3245ff 0%, #bc52ee 100%);
+		box-shadow:
+			inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+			inset 0 -2px 0 rgba(0, 0, 0, 0.24);
+		border-radius: 10px;
+	}
+
+	#links a.button:hover {
+		color: rgb(230, 230, 230);
+		box-shadow: none;
+	}
+
+	pre {
+		font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo,
+			Consolas, "DejaVu Sans Mono", monospace;
+		font-weight: normal;
+		background: linear-gradient(14deg, #d83333 0%, #f041ff 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+		margin: 0;
+	}
+
+	h2 {
+		margin: 0 0 1em;
+		font-weight: normal;
+		color: #111827;
+		font-size: 20px;
+	}
+
+	p {
+		color: #4b5563;
+		font-size: 16px;
+		line-height: 24px;
+		letter-spacing: -0.006em;
+		margin: 0;
+	}
+
+	code {
+		display: inline-block;
+		background:
+			linear-gradient(66.77deg, #f3cddd 0%, #f5cee7 100%) padding-box,
+			linear-gradient(155deg, #d83333 0%, #f041ff 18%, #f5cee7 45%)
+				border-box;
+		border-radius: 8px;
+		border: 1px solid transparent;
+		padding: 6px 8px;
+	}
+
+	.box {
+		padding: 16px;
+		background: rgba(255, 255, 255, 1);
+		border-radius: 16px;
+		border: 1px solid white;
+	}
+
+	#news {
+		position: absolute;
+		bottom: 16px;
+		right: 16px;
+		max-width: 300px;
+		text-decoration: none;
+		transition: background 0.2s;
+		backdrop-filter: blur(50px);
+	}
+
+	#news:hover {
+		background: rgba(255, 255, 255, 0.55);
+	}
+
+	@media screen and (max-height: 368px) {
+		#news {
+			display: none;
+		}
+	}
+
+	@media screen and (max-width: 768px) {
+		#container {
+			display: flex;
+			flex-direction: column;
+		}
+
+		#hero {
+			display: block;
+			padding-top: 10%;
+		}
+
+		#links {
+			flex-wrap: wrap;
+		}
+
+		#links a.button {
+			padding: 14px 18px;
+		}
+
+		#news {
+			right: 16px;
+			left: 16px;
+			bottom: 2.5rem;
+			max-width: 100%;
+		}
+
+		h1 {
+			line-height: 1.5;
+		}
+	}
+</style>
