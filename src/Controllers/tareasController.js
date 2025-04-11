@@ -1,45 +1,64 @@
-let tareas = []; // Array de tareas
+let tareas = []; 
 
-// Mostrar tareas
+
 const mostrarTareas = (req, res) => {
     res.render('index', { tareas });
 };
 
-// Crear tarea
+
 const crearTarea = (req, res) => {
     const { titulo, categoria } = req.body;
     if (!titulo || !categoria) {
         return res.status(400).send('Faltan datos para crear la tarea');
     }
-    tareas.push({ titulo, categoria, completada: false });
+    const nuevaTarea = { titulo, categoria, completada: false };
+    tareas.push(nuevaTarea);
+
+    if (req.xhr) { 
+        return res.status(201).json(nuevaTarea);
+    }
     res.redirect('/');
 };
 
-// Marcar tarea como completada
+
 const completarTarea = (req, res) => {
     const index = req.body.index;
-    tareas[index].completada = true;
+    if (index >= 0 && index < tareas.length) {
+        tareas[index].completada = true;
+    }
+
+    if (req.xhr) { 
+        return res.status(200).json({ index, completada: true });
+    }
     res.redirect('/');
 };
 
-// Eliminar tareas completadas
+
 const eliminarCompletadas = (req, res) => {
     tareas = tareas.filter(t => !t.completada);
+
+    if (req.xhr) { 
+        return res.status(200).json({ mensaje: 'Tareas completadas eliminadas' });
+    }
     res.redirect('/');
 };
 
-// Eliminar tarea específica
+
 const eliminarTarea = (req, res) => {
     const index = parseInt(req.body.index, 10);
     if (!isNaN(index) && index >= 0 && index < tareas.length) {
         tareas.splice(index, 1);
     }
+
+    if (req.xhr) { 
+        return res.status(200).json({ index });
+    }
     res.redirect('/');
 };
 
-// Filtrar tareas
+
 const filtrarTareas = (req, res) => {
-    const filtro = req.query.estado; // "todas", "completas", "incompletas"
+    const filtro = req.query.estado; 
     let tareasFiltradas = tareas;
 
     if (filtro === 'completas') {
@@ -48,6 +67,9 @@ const filtrarTareas = (req, res) => {
         tareasFiltradas = tareas.filter(t => !t.completada);
     }
 
+    if (req.xhr) { 
+        return res.status(200).json(tareasFiltradas);
+    }
     res.render('index', { tareas: tareasFiltradas });
 };
 
