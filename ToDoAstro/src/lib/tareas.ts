@@ -1,8 +1,6 @@
-//export const tareas: { texto: string; completada: boolean }[] = [];
-export type Tarea = {
-    texto: string;
-    completada: boolean;
-  };
-  
-  export let tareas: Tarea[] = [];
-  
+type Tarea = {
+  texto: string;
+  completada: boolean;
+};
+
+export const tareas: Tarea[] = [];
