@@ -4,30 +4,42 @@ import {
   borrarTarea,
   toggleTarea,
   limpiarCompletadas,
-} from "../../pages/lib/tareas";
+} from "../lib/tareas"; // Asegurate que este path esté bien
 
 export const POST: APIRoute = async ({ request, redirect }) => {
-  const data = await request.formData();
-  const accion = data.get("accion");
+  const contentType = request.headers.get("content-type") || "";
 
-  if (accion === "agregar") {
-    const texto = data.get("texto")?.toString();
-    if (texto) agregarTarea(texto);
+  let accion = "";
+  let texto = "";
+  let id: number | null = null;
+
+  if (contentType.includes("application/json")) {
+    // 📦 Viene de fetch con JSON
+    const data = await request.json();
+    accion = data.accion;
+    texto = data.texto;
+    id = data.id ?? null;
+  } else {
+    // 📦 Viene de un formulario HTML (formData)
+    const data = await request.formData();
+    accion = data.get("accion")?.toString() ?? "";
+    texto = data.get("texto")?.toString() ?? "";
+    id = data.get("id") ? Number(data.get("id")) : null;
   }
 
-  if (accion === "borrar") {
-    const id = Number(data.get("id"));
-    borrarTarea(id);
+  // 🧠 Lógica de tareas
+  if (accion === "agregar" && texto) agregarTarea(texto);
+  if (accion === "borrar" && id !== null) borrarTarea(id);
+  if (accion === "toggle" && id !== null) toggleTarea(id);
+  if (accion === "limpiar") limpiarCompletadas();
+
+  // 🔁 Si vino desde un formulario clásico, redirigimos
+  if (!contentType.includes("application/json")) {
+    return redirect("/", 303);
   }
 
-  if (accion === "toggle") {
-    const id = Number(data.get("id"));
-    toggleTarea(id);
-  }
-
-  if (accion === "limpiar") {
-    limpiarCompletadas();
-  }
-
-  return redirect("/", 303);
+  // ⚡ Si vino desde fetch con JSON, devolvemos respuesta directa
+  return new Response(JSON.stringify({ ok: true }), {
+    headers: { "Content-Type": "application/json" },
+  });
 };

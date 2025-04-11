@@ -36,3 +36,35 @@ const tareasFiltradas = tareas.filter((t) => {
     </div>
   </body>
 </html>
+
+<script is:client="load">
+	const form = document.querySelector("form#form-agregar");
+	if (form) {
+	  console.log("Interceptando el form con JS");
+  
+	  form.addEventListener("submit", async (e) => {
+		e.preventDefault();
+  
+		const formData = new FormData(form);
+		const texto = formData.get("texto");
+  
+		const res = await fetch("/api/tareas", {
+		  method: "POST",
+		  headers: { "Content-Type": "application/json" },
+		  body: JSON.stringify({
+			accion: "agregar",
+			texto,
+		  }),
+		});
+  
+		if (res.ok) {
+		  console.log("Tarea agregada vía fetch");
+		  form.reset();
+		  location.reload(); // o actualizar la lista sin reload
+		}
+	  });
+	}
+  </script>
+  
+  
+  
