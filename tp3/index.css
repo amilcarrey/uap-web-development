@@ -1,0 +1,166 @@
+
+
+body{
+  
+  background-color: rgb(241, 215, 215);
+    font-family: Arial, sans-serif;
+}
+
+/*El titulo */
+#title {
+    text-align: center;
+    background-color: #d34c4c;
+    padding: 30px;
+    font-size: 36px; 
+    font-weight: bold; /* Negrita */
+    font-family: "Fira Sans", sans-serif;
+}
+
+/* Div de entrada de texto y botón */
+.Add-list {
+    display: flex; 
+    align-items: center; /* Asegura alineación vertical */
+    justify-content: center; /* Centra los elementos horizontalmente */
+    gap: 10px; /* Espaciado entre el input y el botón */
+}
+
+/* form de entrada de texto */
+#Add-reminder {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    font-size: 8px;
+}
+
+/* Ajustes para el botón de agregar nuevos recordarios */
+#add-btn {
+    height: 40px; /* Igualar altura con el input */
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    background-color: #d34c4c;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+ /* Contenedor principal de los recordatorios*/
+ .todo-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 400px;
+    margin: 30px auto;
+
+}
+
+/* Lista de tareas */
+.todo-list {
+   padding: 0;
+    margin: 0;
+}
+
+/* Elementos de la lista */
+.todo-list li {
+    display: flex;
+    padding: 15px 10px;
+    border-bottom: 2px solid #d2d2d2;
+    font-size: 20px;
+}
+
+/* Alineación del checkbox con el texto */
+.todo-list label {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    align-items: center;}
+
+
+/* Agrandar el checkbox */
+.todo-list input[type="checkbox"] {
+    transform: scale(1.5);
+}
+
+/* boton que elimina recordario */
+.delete-btn img {
+    width: 25px; 
+    height: 25px;    
+}
+
+/* Contenedor del botón que elimina cuando se completa*/
+.clear-container {
+    display: flex;
+    justify-content: flex-end; /* Lo mueve a la derecha */
+    margin-top: 15px;
+}
+
+/* Estilo del botón que elimina cuando estan completos */
+#Clear-completed {
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    
+}
+
+
+button:hover {
+    background-color: #d34c4c;
+}
+
+/* Estilos para los botones de filtro */
+.filter-buttons {
+    margin-top: 10px;
+}
+
+.filter-buttons button {
+    background-color: white;
+    color: #d34c4c;
+    border: 2px solid  #d34c4c;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    
+
+}
+
+.filter-buttons button:hover {
+    background-color: #d34c4c;
+    color: white;
+}
+.filter-buttons{
+    display: flex;
+    justify-content: center; /* Lo mueve a la derecha */
+}
+
+#Holaaaa {
+    width: 300px; /* Ajusta el ancho */
+    height: 40px; /* Ajusta la altura */
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #d34c4c; /* Color del borde en rojo */
+    border-radius: 10px; /* Bordes redondeados */
+    outline: none; /* Elimina el borde azul por defecto */
+    transition: 0.3s; /* Transición suave */
+}
+
+#Holaaaa:focus {
+    border-color: #a83232; /* Color más oscuro al seleccionar */
+    box-shadow: 0 0 10px rgba(211, 76, 76, 0.5); /* Brillo sutil */
+    font-size: 20px;
+}
+
+
+#add-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+
+
+
