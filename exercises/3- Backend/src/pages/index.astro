@@ -4,6 +4,7 @@ export const prerender = false;
 import "../styles/global.css";
 const url = new URL(Astro.url);
 const filtro = url.searchParams.get('filtro')|| "all" ;//si cambio aca el paramentro por defecto es lo que muestra el servidor
+
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -11,10 +12,10 @@ const filtro = url.searchParams.get('filtro')|| "all" ;//si cambio aca el parame
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ToDoPractia</title>
-    <link rel="stylesheet" href="/styles/ToDo.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
   </head>
   <body>
     <TaskManager filtro={filtro} />
+    <script type="module" src="/src/scripts/enhanced-form.ts"></script>
   </body>
 </html>
