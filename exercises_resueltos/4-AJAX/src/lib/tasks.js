@@ -1,4 +1,3 @@
-
 let tasks = [];
 let idCounter = 1;
 
@@ -21,7 +20,7 @@ export function addTask(description) {
 
 export function updateTask(id, status) {
   const task = tasks.find(t => t.id === id);
-  if (task && (status === 'complete' || status === 'incomplete')) {
+  if (task) {
     task.status = status;
     return task;
   }
