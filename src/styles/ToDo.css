@@ -1,4 +1,21 @@
-body
+@import "tailwindcss";
+
+
+.boton-estilo {
+    @apply bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition;
+  }
+  
+.boton-filtro
+{
+    @apply bg-orange-400 text-white px-3 py-1 rounded hover:bg-blue-600 transition;
+}
+
+.eliminar
+{
+    @apply bg-red-500 rounded mt-3 hover:bg-blue-600 transition;
+}
+
+/* body
 {
     background-color: pink;
     display: flex;
@@ -168,9 +185,9 @@ h1
 #DFiltro 
 {
     display: flex;  
-    justify-content: center;  /* Centra horizontalmente */
-    align-items: center; /* Centra verticalmente */
-    gap: 100px; /* Espacio entre los botones */
+    justify-content: center;   Centra horizontalmente 
+    align-items: center;  Centra verticalmente 
+    gap: 100px;  Espacio entre los botones 
 }
 
 #Terminadas, #Pendientes, #Todas {
@@ -181,4 +198,4 @@ h1
     font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
     margin-top: 15px;
-}
+} */

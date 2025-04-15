@@ -22,22 +22,19 @@ const tareas = listarTareas(filtro ?? undefined);
   <title>ToDo</title>
   <link rel="stylesheet" href="/src/styles/ToDo.css">
 </head>
-<body>
+<body class="flex flex-col items-center justify-center min-h-screen bg-pink-300">
   <div>
-    <h1>ToDo</h1>
+    <h1 class="my-5 mx-auto text-center text-white text-7xl font-bold">ToDo</h1>
 
-    <div class="categories">
-      <button type="button">Personal</button>
-      <button type="button">+</button>
-      <button type="button">Profesional</button>  
+    <div class="categories flex justify-center mb-5 space-x-8">
+      <button type="button" class="boton-estilo">Personal</button>
+      <button type="button" class="boton-estilo">+</button>
+      <button type="button" class="boton-estilo">Profesional</button>  
     </div>
-
     <FormularioAgregar />
     <Filtro />
     <ListaTareas tareas={tareas} />
-
     <EliminarCompletadas />
-
   </div>
 </body>
 </html>

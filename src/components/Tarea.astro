@@ -1,7 +1,8 @@
 ---
 const { tarea } = Astro.props;
 ---
-<div class="task">
+<div class="task bg-a-lpha-50 border-2 bg-pink-400  rounded-lg p-4 my-2 flex items-center justify-between" 
+     data-id={tarea.id}>
   {/* redirijo para invocar la función actualizarEstado */}
   <form method="post" action="/api/toggle">
     {/* hidden guarda el id de la tarea */}
