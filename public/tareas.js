@@ -1,109 +1,166 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Crear tarea
-    document.querySelectorAll('form[action="/crear"]').forEach(form => {
-        form.addEventListener('submit', async (event) => {
+
+    // --- Funciones Auxiliares ---
+    function crearElementoTarea(tarea) {
+        const li = document.createElement('li');
+        li.dataset.id = tarea.id; // Usar data-id
+        li.className = tarea.completada ? 'completada' : '';
+        li.innerHTML = `
+            <span>${escapeHTML(tarea.titulo)}</span> <!-- Escapar HTML -->
+            <form action="/completar" method="POST" style="display: inline;" class="completar-form">
+                <input type="hidden" name="id" value="${tarea.id}">
+                <button type="submit"><i class="fas ${tarea.completada ? 'fa-undo' : 'fa-check'}"></i></button>
+            </form>
+            <form action="/eliminar" method="POST" style="display: inline;" class="eliminar-form">
+                <input type="hidden" name="id" value="${tarea.id}">
+                <button type="submit" class="eliminar-btn"><i class="fas fa-trash"></i></button>
+            </form>
+        `;
+        return li;
+    }
+
+    function escapeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function actualizarListas(tareas) {
+        const listaPersonal = document.querySelector('#personal .tareas-list');
+        const listaUniversidad = document.querySelector('#universidad .tareas-list');
+
+        if (!listaPersonal || !listaUniversidad) return; // Salir si no se encuentran las listas
+
+        // Limpiar listas
+        listaPersonal.innerHTML = '';
+        listaUniversidad.innerHTML = '';
+
+        // Poblar listas
+        tareas.forEach(tarea => {
+            const elementoTarea = crearElementoTarea(tarea);
+            if (tarea.categoria === 'personal') {
+                listaPersonal.appendChild(elementoTarea);
+            } else if (tarea.categoria === 'universidad') {
+                listaUniversidad.appendChild(elementoTarea);
+            }
+        });
+    }
+
+
+    // --- Delegación de Eventos para Formularios ---
+    document.body.addEventListener('submit', async (event) => {
+        const form = event.target;
+
+        // Crear tarea
+        if (form.matches('.crear-form')) {
             event.preventDefault();
             const formData = new FormData(form);
+            // Añadir cabecera para indicar que es una solicitud AJAX
             const response = await fetch('/crear', {
                 method: 'POST',
-                body: formData,
+                body: new URLSearchParams(formData), // Enviar como x-www-form-urlencoded
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest' // Cabecera común para AJAX
+                }
             });
 
             if (response.ok) {
                 const nuevaTarea = await response.json();
-                const ul = form.nextElementSibling; // Lista de tareas
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${nuevaTarea.titulo}</span>
-                    <form action="/completar" method="POST" style="display: inline;">
-                        <input type="hidden" name="index" value="${ul.children.length}">
-                        <button type="submit"><i class="fas fa-check"></i></button>
-                    </form>
-                    <form action="/eliminar" method="POST" style="display: inline;">
-                        <input type="hidden" name="index" value="${ul.children.length}">
-                        <button type="submit" class="eliminar-btn"><i class="fas fa-trash"></i></button>
-                    </form>
-                `;
-                ul.appendChild(li);
+                const ul = form.closest('.main-container').querySelector('.tareas-list');
+                if (ul) {
+                    ul.appendChild(crearElementoTarea(nuevaTarea));
+                }
                 form.reset();
-            }
-        });
-    });
-
-    // Completar tarea
-    document.addEventListener('submit', async (event) => {
-        if (event.target.action.includes('/completar')) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const response = await fetch('/completar', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (response.ok) {
-                const { index } = await response.json();
-                const li = event.target.closest('li');
-                li.classList.add('completada');
+            } else {
+                console.error('Error al crear tarea:', response.statusText);
+                // Mostrar mensaje de error al usuario
             }
         }
-    });
 
-    // Eliminar tarea
-    document.addEventListener('submit', async (event) => {
-        if (event.target.action.includes('/eliminar')) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const response = await fetch('/eliminar', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (response.ok) {
-                const { index } = await response.json();
-                const li = event.target.closest('li');
-                li.remove();
-            }
-        }
-    });
-
-    // Eliminar tareas completadas
-    document.querySelector('form[action="/eliminarCompletadas"]').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const response = await fetch('/eliminarCompletadas', { method: 'POST' });
-
-        if (response.ok) {
-            document.querySelectorAll('.completada').forEach(li => li.remove());
-        }
-    });
-
-    // Filtrar tareas
-    document.querySelectorAll('form[action="/filtrar"]').forEach(form => {
-        form.addEventListener('submit', async (event) => {
+        // Completar tarea
+        else if (form.matches('.completar-form')) {
             event.preventDefault();
             const formData = new FormData(form);
-            const query = new URLSearchParams(formData).toString();
-            const response = await fetch(`/filtrar?${query}`);
+            const id = formData.get('id');
+            const response = await fetch('/completar', {
+                method: 'POST',
+                body: new URLSearchParams(formData),
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (response.ok) {
+                const { completada } = await response.json(); // Obtener el nuevo estado
+                const li = form.closest('li[data-id="' + id + '"]');
+                if (li) {
+                    li.classList.toggle('completada', completada); // Usar el estado devuelto
+                    const icon = li.querySelector('.completar-form button i');
+                    if (icon) {
+                        icon.className = `fas ${completada ? 'fa-undo' : 'fa-check'}`;
+                    }
+                }
+            } else {
+                 console.error('Error al completar tarea:', response.statusText);
+            }
+        }
+
+        // Eliminar tarea
+        else if (form.matches('.eliminar-form')) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const id = formData.get('id');
+             const response = await fetch('/eliminar', {
+                method: 'POST',
+                body: new URLSearchParams(formData),
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (response.ok) {
+                const li = form.closest('li[data-id="' + id + '"]');
+                if (li) {
+                    li.remove();
+                }
+            } else {
+                 console.error('Error al eliminar tarea:', response.statusText);
+            }
+        }
+
+        // Eliminar tareas completadas
+        else if (form.matches('#eliminar-completadas-form')) {
+             event.preventDefault();
+             const response = await fetch('/eliminarCompletadas', {
+                 method: 'POST',
+                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+             if (response.ok) {
+                const { idsEliminadas } = await response.json();
+                idsEliminadas.forEach(id => {
+                    const li = document.querySelector('li[data-id="' + id + '"]');
+                    if (li) {
+                        li.remove();
+                    }
+                });
+             } else {
+                 console.error('Error al eliminar tareas completadas:', response.statusText);
+             }
+        }
+    });
+
+    // --- Filtrar Tareas (usando botones) ---
+    document.querySelectorAll('.filtro-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+            const estado = button.dataset.estado;
+            // Realizar petición GET para obtener las tareas filtradas
+            const response = await fetch(`/filtrar?estado=${estado}`, {
+                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
 
             if (response.ok) {
                 const tareasFiltradas = await response.json();
-                const ul = document.querySelector('ul'); // Actualiza la lista
-                ul.innerHTML = '';
-                tareasFiltradas.forEach((tarea, index) => {
-                    const li = document.createElement('li');
-                    li.className = tarea.completada ? 'completada' : '';
-                    li.innerHTML = `
-                        <span>${tarea.titulo}</span>
-                        <form action="/completar" method="POST" style="display: inline;">
-                            <input type="hidden" name="index" value="${index}">
-                            <button type="submit"><i class="fas fa-check"></i></button>
-                        </form>
-                        <form action="/eliminar" method="POST" style="display: inline;">
-                            <input type="hidden" name="index" value="${index}">
-                            <button type="submit" class="eliminar-btn"><i class="fas fa-trash"></i></button>
-                        </form>
-                    `;
-                    ul.appendChild(li);
-                });
+                actualizarListas(tareasFiltradas); // Usar la función para repoblar ambas listas
+            } else {
+                console.error('Error al filtrar tareas:', response.statusText);
             }
         });
     });

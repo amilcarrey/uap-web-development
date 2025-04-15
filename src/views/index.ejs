@@ -22,50 +22,49 @@
     <main>
         <div id="personal" class="main-container">
             <h2>Tareas Personales</h2>
-            <form action="/crear" method="POST">
+            <form action="/crear" method="POST" class="crear-form">
                 <input type="text" name="titulo" placeholder="Nueva tarea">
                 <input type="hidden" name="categoria" value="personal">
                 <button type="submit"><i class="fas fa-plus"></i></button>
             </form>
-            <ul>
-
-                <% tareas.filter(tarea=> tarea.categoria === 'personal').forEach((tarea, index) => { %>
-                    <li class="<%= tarea.completada ? 'completada' : '' %>">
-                        <span>
-                            <%= tarea.titulo %>
-                        </span>
-                        <form action="/completar" method="POST" style="display: inline;">
-                            <input type="hidden" name="index" value="<%= tareas.indexOf(tarea) %>">
-                            <button type="submit"><i class="fas fa-check"></i></button>
+            <ul class="tareas-list">
+                <% tareas.filter(tarea => tarea.categoria === 'personal').forEach(tarea => { %>
+                    <!-- Añadir data-id y usar tarea.id en los formularios -->
+                    <li class="<%= tarea.completada ? 'completada' : '' %>" data-id="<%= tarea.id %>">
+                        <span><%= tarea.titulo %></span>
+                        <form action="/completar" method="POST" style="display: inline;" class="completar-form">
+                            <input type="hidden" name="id" value="<%= tarea.id %>">
+                            <!-- Cambiar icono según estado -->
+                            <button type="submit"><i class="fas <%= tarea.completada ? 'fa-undo' : 'fa-check' %>"></i></button>
                         </form>
-                        <form action="/eliminar" method="POST" style="display: inline;">
-                            <input type="hidden" name="index" value="<%= index %>">
+                        <form action="/eliminar" method="POST" style="display: inline;" class="eliminar-form">
+                            <input type="hidden" name="id" value="<%= tarea.id %>">
                             <button type="submit" class="eliminar-btn"><i class="fas fa-trash"></i></button>
                         </form>
                     </li>
-                    <% }) %>
+                <% }) %>
             </ul>
         </div>
 
         <div id="universidad" class="main-container">
             <h2>Tareas Universidad</h2>
-            <form action="/crear" method="POST">
+            <form action="/crear" method="POST" class="crear-form">
                 <input type="text" name="titulo" placeholder="Nueva tarea">
                 <input type="hidden" name="categoria" value="universidad">
                 <button type="submit"><i class="fas fa-plus"></i></button>
             </form>
-            <ul>
-                <% tareas.filter(tarea => tarea.categoria === 'universidad').forEach((tarea, index) => { %>
-                    <li class="<%= tarea.completada ? 'completada' : '' %>">
-                        <span>
-                            <%= tarea.titulo %>
-                        </span>
-                        <form action="/completar" method="POST" style="display: inline;">
-                            <input type="hidden" name="index" value="<%= tareas.indexOf(tarea) %>">
-                            <button type="submit"><i class="fas fa-check"></i></button>
+            <ul class="tareas-list">
+                <% tareas.filter(tarea => tarea.categoria === 'universidad').forEach(tarea => { %>
+                     <!-- Añadir data-id y usar tarea.id en los formularios -->
+                    <li class="<%= tarea.completada ? 'completada' : '' %>" data-id="<%= tarea.id %>">
+                        <span><%= tarea.titulo %></span>
+                        <form action="/completar" method="POST" style="display: inline;" class="completar-form">
+                            <input type="hidden" name="id" value="<%= tarea.id %>">
+                             <!-- Cambiar icono según estado -->
+                            <button type="submit"><i class="fas <%= tarea.completada ? 'fa-undo' : 'fa-check' %>"></i></button>
                         </form>
-                        <form action="/eliminar" method="POST" style="display: inline;">
-                            <input type="hidden" name="index" value="<%= tareas.indexOf(tarea) %>">
+                        <form action="/eliminar" method="POST" style="display: inline;" class="eliminar-form">
+                            <input type="hidden" name="id" value="<%= tarea.id %>">
                             <button type="submit" class="eliminar-btn"><i class="fas fa-trash"></i></button>
                         </form>
                     </li>
@@ -75,22 +74,14 @@
 
         <div class="main-container">
             <div class="botones-y-filtros">
-                <form action="/eliminarCompletadas" method="POST">
+                <form action="/eliminarCompletadas" method="POST" id="eliminar-completadas-form">
                     <button type="submit" id="deleteSelected"><i class="fas fa-trash"></i> Eliminar completadas</button>
                 </form>
                 <div class="filtros">
-                    <form action="/filtrar" method="GET">
-                        <input type="hidden" name="estado" value="todas">
-                        <button type="submit"><i class="fas fa-list"></i> Todas</button>
-                    </form>
-                    <form action="/filtrar" method="GET">
-                        <input type="hidden" name="estado" value="incompletas">
-                        <button type="submit"><i class="far fa-circle"></i> Incompletas</button>
-                    </form>
-                    <form action="/filtrar" method="GET">
-                        <input type="hidden" name="estado" value="completas">
-                        <button type="submit"><i class="fas fa-check-circle"></i> Completas</button>
-                    </form>
+                    <!-- Simplificar formularios de filtro, usar botones o enlaces y JS -->
+                    <button class="filtro-btn" data-estado="todas"><i class="fas fa-list"></i> Todas</button>
+                    <button class="filtro-btn" data-estado="incompletas"><i class="far fa-circle"></i> Incompletas</button>
+                    <button class="filtro-btn" data-estado="completas"><i class="fas fa-check-circle"></i> Completas</button>
                 </div>
             </div>
         </div>
@@ -99,7 +90,8 @@
     <footer>
         <p>Hecho por Luca C. 2025</p>
     </footer>
-    <script src="tareas.js"></script>\
+    <!-- Asegúrate que tareas.js se carga al final -->
+    <script src="tareas.js"></script>
 </body>
 
 </html>
