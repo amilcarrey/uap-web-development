@@ -1,0 +1,135 @@
+---
+export const prerender = false; // Asegura que la página sea renderizada en el servidor
+
+// Variable global para persistir las tareas mientras el servidor esté activo
+globalThis.tasks = globalThis.tasks || [];
+let filter = Astro.url.searchParams.get('filter') || 'all';
+
+// Filtrar las tareas según el estado
+function getFilteredTasks() {
+  if (filter === 'complete') {
+    return globalThis.tasks.filter((task) => task.completed);
+  }
+  if (filter === 'incomplete') {
+    return globalThis.tasks.filter((task) => !task.completed);
+  }
+  return globalThis.tasks; // 'all'
+}
+
+// Agregar una nueva tarea
+function addTask(formData) {
+  const description = formData.get('description');
+  if (description) {
+    globalThis.tasks.push({ id: Date.now().toString(), description, completed: false });
+  }
+}
+
+// Actualizar el estado de una tarea
+function toggleTask(id) {
+  const task = globalThis.tasks.find((t) => t.id === id);
+  if (task) {
+    task.completed = !task.completed;
+  }
+}
+
+// Eliminar una tarea
+function deleteTask(id) {
+  globalThis.tasks = globalThis.tasks.filter((t) => t.id !== id);
+}
+
+// Eliminar todas las tareas completadas
+function deleteCompletedTasks() {
+  globalThis.tasks = globalThis.tasks.filter((task) => !task.completed);
+}
+
+// Manejar solicitudes POST desde formularios
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const action = formData.get('_action');
+
+  if (action === 'add') addTask(formData);
+  if (action === 'toggle') toggleTask(formData.get('id'));
+  if (action === 'delete') deleteTask(formData.get('id'));
+  if (action === 'clearCompleted') deleteCompletedTasks();
+}
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px auto;
+        max-width: 600px;
+        text-align: center;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+      }
+      .completed span {
+        text-decoration: line-through;
+        color: gray;
+      }
+      .filters a {
+        margin: 0 10px;
+        text-decoration: none;
+        color: blue;
+      }
+      .filters a.active {
+        font-weight: bold;
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Task Manager</h1>
+
+    <!-- Formulario para agregar una nueva tarea -->
+    <form method="POST">
+      <input type="text" name="description" placeholder="Add a new task" required />
+      <button type="submit" name="_action" value="add">Add Task</button>
+    </form>
+
+    <!-- Filtros -->
+    <div class="filters">
+      <a href="/?filter=all" class={filter === 'all' ? 'active' : ''}>All</a>
+      <a href="/?filter=complete" class={filter === 'complete' ? 'active' : ''}>Completed</a>
+      <a href="/?filter=incomplete" class={filter === 'incomplete' ? 'active' : ''}>Incomplete</a>
+    </div>
+
+    <!-- Lista de tareas filtradas -->
+    <ul>
+      {getFilteredTasks().map((task) => (
+        <li class={task.completed ? 'completed' : ''}>
+          <span>{task.description}</span>
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="id" value={task.id} />
+            <button type="submit" name="_action" value="toggle">
+              {task.completed ? 'Undo' : 'Complete'}
+            </button>
+          </form>
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="id" value={task.id} />
+            <button type="submit" name="_action" value="delete">Delete</button>
+          </form>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Botón para eliminar tareas completadas -->
+    <form method="POST">
+      <button type="submit" name="_action" value="clearCompleted">Clear Completed</button>
+    </form>
+  </body>
+</html>
