@@ -1,14 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🟢 Enhancement activo: interceptando submit");
-
   const taskList = document.querySelector("#task-list");
 
-  const renderTasks = (tareas: any[]) => {
+  const renderTasks = (tareas: any[]) => { //Reenderizamos toda la lista de treas cada vez que se hace una peticion al backend.
     if (!taskList) return;
-    taskList.innerHTML = "";
+    taskList.innerHTML = ""; // Limpiamos la lista antes de agregar las tareas
     tareas.forEach((t) => {
-      const taskDiv = createTaskItem(t);
-      taskList.appendChild(taskDiv);
+      const taskDiv = createTaskItem(t); 
+      taskList.appendChild(taskDiv); 
     });
   };
 
@@ -50,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       await sendAction({ _method: "DELETE_COMPLETED" });
     });
-  }
+  } 
 
   // 📌 Delegación de eventos en taskList
   const OnetaskList = document.querySelector("#task-list");
