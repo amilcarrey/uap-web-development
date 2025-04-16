@@ -60,16 +60,15 @@ if (filter === "completed") { // Filtra las tareas completadas
           <li>
             <form method="POST" class="task-form" action={`/api/toggle/${task.id}`}>
               <div class="task-content">
-                
                 <label>
                   <button type="submit" class="task-btn" name="task-btn">{task.done ? "✅" : "⬜"}</button>
                   <span>{ task.text }</span>
                 </label>
               </div>
-			      </form>
-			      <form method="POST" action="/api/eliminar/">
-				      <input type="hidden" name="task-id" value={task.id} />
-              <button type="submit" class="delete-btn" name="delete-btn">🗑️</button>
+						</form>
+						<form method="POST" action="/api/eliminar/">
+							<input type="hidden" name="task-id" value={task.id} />
+        			<button type="submit" class="delete-btn" name="delete-btn">🗑️</button>
             </form>
           </li>
         ))}
@@ -82,6 +81,111 @@ if (filter === "completed") { // Filtra las tareas completadas
     </main>
   </body>
 </Layout>
+
+<script>
+  // Agregar tarea
+  const form = document.querySelector(".task-input form");
+//   const form = document.getElementById("add-task-form");
+	const taskList = document.querySelector(".task-list");
+  console.log(form);
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault(); // Previene el envío por defecto
+
+    const input: HTMLInputElement | null = form.querySelector('input[name="task"]');
+    if (!input) return; // Verifica si el input existe
+
+    const taskText = input?.value?.trim();
+    if (!taskText) return;
+
+
+    try {
+      const response = await fetch(`/api/agregar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: taskText, done: false })
+      });
+
+      if (!response.ok) throw new Error("Error al agregar tarea");
+
+			const task = await response.json(); // Espera la respuesta del servidor
+
+			const li = document.createElement("li");
+			li.innerHTML = `
+				<form method="POST" class="task-form" action="/api/toggle/${task.id}">
+					<div class="task-content">
+						<label>
+							<button type="submit" class="task-btn" name="task-btn">⬜</button>
+							<span>${ task.text }</span>
+						</label>
+					</div>
+				</form>
+				<form method="POST" action="/api/eliminar/">
+					<input type="hidden" name="task-id" value=${task.id} />
+					<button type="submit" class="delete-btn" name="delete-btn">🗑️</button>
+				</form>
+			`;
+
+			taskList?.appendChild(li);
+
+      input.value = ""; // Limpiamos el input
+
+    } catch (error) {
+      console.error("Error al agregar tarea:", error);
+    }
+  });
+
+  // Completar tarea
+  document.querySelectorAll(".task-form").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault(); // Previene el envío por defecto
+
+			const button = form.querySelector(".task-btn");
+			const task: HTMLInputElement | null = form.querySelector("input[name='task']");
+			const id = task?.value?.trim();
+
+			if (button?.textContent === "⬜") button.textContent = "✅";
+			else if (button?.textContent === "✅") button.textContent = "⬜";
+
+      try {
+        const response = await fetch(`api/toggle/${id}`, {
+          method: "POST",
+        });
+
+        if (!response.ok) throw new Error("Error al completar tarea");
+
+      } catch (error) {
+        console.error("Error al marcar tarea:", error);
+      }
+    });
+  });
+
+  // Eliminar tarea
+  document.querySelectorAll("form[action='/api/eliminar']").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault(); // Previene el envío por defecto
+
+      const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
+      if (!input) return; // Verifica si el input existe
+
+      const id = input?.value?.trim();
+      if (!id) return;
+
+      try {
+        const response = await fetch(`/api/eliminar`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id })
+        });
+
+        if (!response.ok) throw new Error("Error al eliminar tarea");
+
+      } catch (error) {
+        console.error("Error al eliminar tarea:", error);
+      }
+    });
+  });
+</script>
 
 <style is:global>
   /* Estilos generales */

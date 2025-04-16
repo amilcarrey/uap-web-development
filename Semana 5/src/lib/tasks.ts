@@ -4,4 +4,3 @@ export type Task = {
   };
   
   export let tasks: Task[] = [];
-  
