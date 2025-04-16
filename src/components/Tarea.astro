@@ -4,14 +4,13 @@ const { tarea } = Astro.props;
 <div class="task bg-a-lpha-50 border-2 bg-pink-400  rounded-lg p-4 my-2 flex items-center justify-between" 
      data-id={tarea.id}>
   {/* redirijo para invocar la función actualizarEstado */}
-  <form method="post" action="/api/toggle">
+  <form method="post" action="/api/toggle" class="toggle-form">
     {/* hidden guarda el id de la tarea */}
     <input type="hidden" name="id" value={tarea.id} />
     {/* onchange es un evento que se dispara cuando el valor del checkbox cambia
         checked sincroniza el estado del checkbox con el estado de la tarea */}
     <input type="checkbox" class="checkmark" 
-           checked={tarea.completada} 
-           onchange="this.form.submit()" />
+           checked={tarea.completada} />
   </form>
 
   <span class="task-text">{tarea.descripcion}</span>
@@ -20,29 +19,53 @@ const { tarea } = Astro.props;
 </div>
 
 <script type="module">
-  document.addEventListener("DOMContentLoaded", () => {
-    // Encontramos la tarea usando un selector que recorra todas
-    document.querySelectorAll(".task").forEach((task) => {
-      const botonEliminar = task.querySelector(".eliminar-tarea");
+ document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".task").forEach((task) => {
+    const botonEliminar = task.querySelector(".eliminar-tarea");
+    const toggleForm = task.querySelector(".toggle-form");
+    const checkbox = toggleForm.querySelector(".checkmark");
 
-      botonEliminar?.addEventListener("click", async () => {
-        const id = Number(task.dataset.id);
-        if (!id) return;
+    // Eliminar tarea
+    botonEliminar?.addEventListener("click", async () => {
+      const id = Number(task.dataset.id);
+      if (!id) return;
 
-        const respuesta = await fetch("/api/eliminar", {
+      const respuesta = await fetch("/api/eliminar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+
+      if (respuesta.ok) {
+        task.remove();
+      } else {
+        alert("Error al eliminar la tarea");
+      }
+    });
+
+    // Toggle de completado
+    checkbox?.addEventListener("change", async () => {
+      const id = Number(task.dataset.id);
+      if (!id) return;
+
+      const formData = new FormData();
+      formData.append("id", id);
+
+      try {
+        const respuesta = await fetch("/api/toggle", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ id })
+          body: formData,
         });
 
-        if (respuesta.ok) {
-          task.remove(); // Quitamos la tarea del DOM
-        } else {
-          alert("Error al eliminar la tarea");
+        if (!respuesta.ok) {
+          alert("Error al actualizar estado");
+          checkbox.checked = !checkbox.checked; // revertir visual si falló
         }
-      });
+      } catch (e) {
+        console.error("Error al actualizar estado:", e);
+        checkbox.checked = !checkbox.checked;
+      }
     });
   });
+});
 </script>
