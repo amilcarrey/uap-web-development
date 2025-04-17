@@ -2,10 +2,9 @@
 export interface Props {
   tabId: string;
   currentFilter: string;
-  tasksState: string;
 }
 
-const { tabId, currentFilter, tasksState } = Astro.props;
+const { tabId, currentFilter } = Astro.props;
 const filters = [
   { id: 'all', label: 'All' },
   { id: 'active', label: 'Active' },
@@ -24,8 +23,7 @@ const filters = [
   ))}
 
   <!-- Botón Limpiar (¡ahora usa la misma clase!) -->
-  <form method="POST">
-    <input type="hidden" name="tasksState" value={tasksState} />
+  <form method="POST" action="/api/tasks">
     <input type="hidden" name="action" value="clear-completed" />
     <input type="hidden" name="tabId" value={tabId} />
     <button type="submit" class="filter-button">Limpiar completadas</button>

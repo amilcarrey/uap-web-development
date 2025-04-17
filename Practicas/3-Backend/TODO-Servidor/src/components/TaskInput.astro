@@ -1,13 +1,12 @@
 ---
+//src\components\TaskInput.astro
 export interface Props {
   tabId: string;
-  tasksState: string;
 }
 
-const { tabId, tasksState } = Astro.props;
+const { tabId } = Astro.props;
 ---
-<form method="POST" class="input-container">
-  <input type="hidden" name="tasksState" value={tasksState} />
+<form method="POST" action="/api/tasks" class="input-container" id="taskForm">
   <input type="hidden" name="action" value="add" />
   <input type="hidden" name="tabId" value={tabId} />
   <input
@@ -17,8 +16,67 @@ const { tabId, tasksState } = Astro.props;
     required
     class="task-input"
   />
-  <button type="submit" class="add-button">Add</button>
+  <button type="submit" class="add-button" >Add</button>
 </form>
+
+<script>
+  // 1. Seleccion segura con verificación de null
+  const form = document.querySelector('form.input-container') as HTMLFormElement | null;
+
+  if(form){ //Verifica que el formulario existe
+
+    window.addEventListener('taskAdded', () => { // <- Este listener espera a que se agrege la tarea para recargar la pagina
+      window.location.reload();
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault(); //Corta el flujo normal de las peticiones al servidor <<Evita que la pagina se recargue>>
+        
+        //Busco el botin y el campo de texto dentro del formulario
+        const target = e.target as HTMLFormElement;
+        const button = target.querySelector('button.add-button') as HTMLInputElement | null;
+        const input = target.querySelector('input.task-input') as HTMLInputElement | null;
+
+        if(!button || !input){  //Verificación de los elementos
+          console.error('Required elements not found');
+          return;
+        }  
+
+        //Desabilitar boton durante la petición, cambio el texto para ver que se esta procesando la tarea
+        button.disabled = true;
+        button.textContent = 'Adding...';
+
+        try{
+          //Con el fetch envio la información del formulario al backend
+          const response = await fetch('/api/tasks', {
+            method: 'POST',
+            body: new FormData(form)
+          });
+
+          //si el envio sale bien, se lanza un aviso (taskAdded) para que otras partes de la appp sepan que hay una nueva tarea
+          if(response.ok){
+            input.value = '';
+            window.dispatchEvent(new CustomEvent('taskAdded')); // <- Se dispara el evento de que se agrego una nueva tarea
+
+          } else {
+            throw new Error('Server response not OK');
+          }
+        
+          //Si algo sale mal, se muestra un error en la consola y un mensaje en la pantalla
+        }catch (error){
+          console.error('Error: ', error);
+          alert('Failed to add task');
+
+          //Vuelvo a activar el boton 
+        }finally{
+          button.disabled = false;
+          button.textContent = 'Add';
+        }
+      });
+  }
+
+  
+</script>
 
 <style>
     /* Contenedor de entrada y botón ADD */
@@ -48,6 +106,6 @@ const { tabId, tasksState } = Astro.props;
     }
 
     .add-button:hover {
-    background-color: #a57a5a; /* Un tono más oscuro de burlywood */
+    background-color: #a57a5a;
 }
 </style>

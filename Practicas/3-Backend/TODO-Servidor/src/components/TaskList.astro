@@ -1,38 +1,139 @@
 ---
+//src\components\TaskList.astro
 export interface Props {
   tasks: Array<{id: string, text: string, completed: boolean}>;
   tabId: string;
-  tasksState: string;
 }
 
-const { tasks, tabId, tasksState } = Astro.props;
+const { tasks, tabId } = Astro.props;
 ---
 <ul class="task-list">
   {tasks.map(task => (
     <li class={`task-item ${task.completed ? 'completed' : ''}`}>
-      <form method="POST" class="task-form">
-        <input type="hidden" name="tasksState" value={tasksState} />
+
+      <!-- Formulario para marcar como copletada una tarea -->
+      <form method="POST" action="/api/tasks" class="task-form">
         <input type="hidden" name="action" value="toggle" />
         <input type="hidden" name="taskId" value={task.id} />
+        <input type="hidden" name="tabId" value={tabId}>
+        <input type="hidden" name="completed" value={task.completed ? 'true' : 'false'}/>
         <label>
-          <input 
-            type="checkbox" 
-            checked={task.completed}
-            onchange="this.form.submit()"
-          />
+          <button type="submit" class="form-input">
+          </button>
           <span>{task.text}</span>
         </label>
       </form>
       
-      <form method="POST" class="delete-form">
-        <input type="hidden" name="tasksState" value={tasksState} />
+      <!-- Formulario para eliminar tarea -->
+      <form method="POST" action="/api/tasks" class="delete-form">
         <input type="hidden" name="action" value="delete" />
         <input type="hidden" name="taskId" value={task.id} />
+        <input type="hidden" name="tabId" value={tabId}>
         <button type="submit" class="delete-button">🗑️</button>
       </form>
     </li>
   ))}
 </ul>
+
+<script>
+  //Selecciono los formularios
+  const taskForms = document.querySelectorAll('form.task-form') as NodeListOf<HTMLFormElement>; //Fuerzo el tipo de los elementos
+  const deleteForms = document.querySelectorAll('form.delete-form') as NodeListOf<HTMLFormElement>;
+
+  //Fuerzar la recarga de la pagina al agregar o eliminar tareas
+  //Listener que espera a qeu se dispare el evento de que se completo una tarea para forzar la recarga de la pagina
+  window.addEventListener('taskCompleted', (e) => { 
+    window.location.reload(); // Recarga la pagina para volver a pedir los datos actualizados
+  });
+
+  //Listener que espera a que se dispare el evento de que se elimino una tarea
+  window.addEventListener('taskDeleted', (e) => {
+      window.location.reload(); // Recarga la pagina para volver a pedir los datos actualizados
+    });
+
+  //Formulario para completar tareas
+  taskForms.forEach(taskForm => {
+    const input = taskForm.querySelector('input.form-input') as HTMLInputElement | null;
+    //const hiddenCompleted = taskForm.querySelector('input[name="completed"]') as HTMLInputElement;
+
+    if (!input /*|| !hiddenCompleted*/) {
+      console.error('Required elements not found');
+      return;
+    }
+
+    input.addEventListener('submit', async () => {
+      //hiddenCompleted.value = input.checked ? 'true' : 'false';
+      //input.disabled = true;
+
+      try {
+        const response = await fetch('/api/tasks', {
+          method: 'POST',
+          //headers: {'Accept' : 'application/json'},
+          body: new FormData(taskForm)
+        });
+
+        if (response.ok) {
+          window.dispatchEvent(new CustomEvent('taskCompleted'));
+        } else {
+          console.error('Error en el servidor', response);
+          alert('Error al completar la tarea');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to update task');
+      } finally {
+        //input.disabled = false;
+      }
+    });
+  });
+
+  //Formulario para eliminar tareas
+  deleteForms.forEach(deleteForm => {
+      deleteForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+  
+        //Busco el elemento que funciona como boton
+        const target = e.target as HTMLFormElement;
+        const button = target.querySelector('button.delete-button') as HTMLInputElement | null;
+        
+        const formData = new FormData(deleteForm);
+        for(const [key, value] of formData.entries()){
+          console.log(`${key}: ${value}`);
+        }
+
+
+        if(!button){
+          console.error('Required elements not found');
+          return;
+        }
+  
+        //Desabilitar el boton durante la peticion
+        button.disabled = true;
+  
+        try{
+          //Capturo l apeticion y envio la informacion a la API
+          const response = await fetch('/api/tasks', {
+            method: 'POST',
+            headers: {'Accept' : 'application/json'},
+            body: new FormData(deleteForm)
+          });
+
+          if(response.ok){//Aviso de que se realizo el envio
+            window.dispatchEvent(new CustomEvent('taskDeleted'));
+          }
+  
+        }catch(error){
+          console.error('Error: ', error);
+          alert('Failed to add task');
+  
+        }finally{
+          button.disabled = false;
+        }
+      });
+  });
+
+
+</script>
 
 <style>
   .task-list {

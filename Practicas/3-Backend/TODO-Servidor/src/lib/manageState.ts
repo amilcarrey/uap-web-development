@@ -1,4 +1,5 @@
 // src/lib/manageState.ts
+/*
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -25,4 +26,5 @@ interface Task {
   text: string;
   completed: boolean;
   tabId: string;
-}
+}}
+*/

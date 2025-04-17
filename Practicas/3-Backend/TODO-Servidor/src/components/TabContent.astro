@@ -9,26 +9,25 @@ export interface Props {
   isActive?: boolean;
   tasks: Array<{id: string, text: string, completed: boolean}>;
   currentFilter: string;
-  tasksState: string;
+  //tasksState: any;
 }
 
-const { tabId, title, isActive, tasks, currentFilter, tasksState } = Astro.props;
+const { tabId, title, isActive, tasks, currentFilter/*, tasksState*/ } = Astro.props;
 ---
 <section id={tabId} class={`tab-content ${isActive ? 'active' : ''}`}>
   <h3>{title}</h3>
   
-  <TaskInput tabId={tabId} tasksState={tasksState} />
+  <TaskInput tabId={tabId} />
   
   <TaskList 
     tasks={tasks} 
     tabId={tabId} 
-    tasksState={tasksState} 
+    
   />
   
   <FilterControls 
     tabId={tabId} 
     currentFilter={currentFilter} 
-    tasksState={tasksState} 
   />
 </section>
 
