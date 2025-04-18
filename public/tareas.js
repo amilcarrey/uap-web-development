@@ -3,17 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Funciones Auxiliares ---
     function crearElementoTarea(tarea) {
         const li = document.createElement('li');
-        li.dataset.id = tarea.id; // Usar data-id
-        li.className = tarea.completada ? 'completada' : '';
+        li.dataset.id = tarea.id;
+        li.className = `flex items-center justify-between p-2.5 border-b border-gray-200 bg-white transition-colors gap-2.5 overflow-hidden ${tarea.completada ? 'completada line-through text-gray-500 bg-gray-100' : ''}`;
         li.innerHTML = `
-            <span>${escapeHTML(tarea.titulo)}</span> <!-- Escapar HTML -->
-            <form action="/completar" method="POST" style="display: inline;" class="completar-form">
+            <form action="/completar" method="POST" class="inline-block completar-form">
                 <input type="hidden" name="id" value="${tarea.id}">
-                <button type="submit"><i class="fas ${tarea.completada ? 'fa-undo' : 'fa-check'}"></i></button>
+                <button type="submit" class="p-2 bg-black text-white border-none rounded cursor-pointer hover:bg-gray-800 transition-colors"><i class="fas ${tarea.completada ? 'fa-undo' : 'fa-check'}"></i></button>
             </form>
-            <form action="/eliminar" method="POST" style="display: inline;" class="eliminar-form">
+            <span class="flex-1 text-center break-words whitespace-normal">${escapeHTML(tarea.titulo)}</span>
+            <form action="/eliminar" method="POST" class="inline-block eliminar-form">
                 <input type="hidden" name="id" value="${tarea.id}">
-                <button type="submit" class="eliminar-btn"><i class="fas fa-trash"></i></button>
+                <button type="submit" class="p-2 bg-gray-200 text-white border-none rounded cursor-pointer hover:bg-gray-600 transition-colors eliminar-btn"><i class="fas fa-trash"></i></button>
             </form>
         `;
         return li;
