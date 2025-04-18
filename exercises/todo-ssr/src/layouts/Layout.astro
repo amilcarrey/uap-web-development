@@ -1,0 +1,18 @@
+---
+import "../styles/global.css";
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="generator" content={Astro.generator} />
+        <title>The Old Stand | TO DO</title>
+    </head>
+    <body class="bg-[url('/img/wood-pattern.png')]">
+        <slot />
+        <script is:inline src="/scripts/enhance.js"></script>
+    </body>
+</html>
