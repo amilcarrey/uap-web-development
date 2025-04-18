@@ -13,16 +13,16 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
         ? await parseFormData(request)
         : await parseJson(request);
     
-    if (typeof id === "number" && tasks[id]) tasks[id].done = !tasks[id].done
+    if (typeof id === "number" && tasks[id]) tasks[id].done = !tasks[id].done;
 
+    locals.tasks = tasks;
+    
     if (contentType === "application/json") {
       return new Response(JSON.stringify(tasks), {
         status: 200,
         headers: { "Content-Type": "application/json"},
       });
     }
-
-    locals.tasks = tasks;
 
     return redirect("/");
   } catch (error) {

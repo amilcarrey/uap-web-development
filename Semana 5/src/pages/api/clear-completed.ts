@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { generateId, tasks } from "../../lib/tasks.ts";
+import { tasks } from "../../lib/tasks.ts";
 import { parseFormData, parseJson } from "../../lib/requestParse.ts";
 
 export const POST: APIRoute = async ({ request, redirect }) => {
@@ -11,9 +11,15 @@ export const POST: APIRoute = async ({ request, redirect }) => {
         ? await parseFormData(request)
         : await parseJson(request);
     
-    if (typeof text === "string" && text.trim() !== "") {
-      const newTask = { id: generateId(), text: text.trim(), done: false };
-      tasks.push(newTask);
+    const filter = Astro.url.searchParams.get("filter") ?? "all";
+    let filteredTasks = tasks
+    if (filter === "completed") {
+      filteredTasks = tasks.filter((task) => task.done);
+
+        if (typeof id === "number" && !isNaN(id) && id >= 0 && id < tasks.length) {
+      tasks.splice(id, 1); // elimina la tarea por índice
+    }
+      
     
       if (contentType === "application/json") {
         return new Response(JSON.stringify(newTask), {

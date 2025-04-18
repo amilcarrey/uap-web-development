@@ -58,21 +58,22 @@ if (filter === "completed") { // Filtra las tareas completadas
        <ul class="task-list">
         {filteredTasks.map((task) => (
           <li>
-            <form method="POST" class="task-form" action={`/api/toggle/${task.id}`}>
+            <form method="POST" class="task-form" action={"/api/completar"}>
               <div class="task-content">
                 <label>
+									<input type="hidden" name="task-id" value={task.id} />
                   <button type="submit" class="task-btn" name="task-btn">{task.done ? "✅" : "⬜"}</button>
                   <span>{ task.text }</span>
                 </label>
               </div>
 						</form>
-						<form method="POST" action="/api/eliminar/">
+						<form method="POST" class="delete-form" action="/api/eliminar/">
 							<input type="hidden" name="task-id" value={task.id} />
         			<button type="submit" class="delete-btn" name="delete-btn">🗑️</button>
             </form>
           </li>
         ))}
-       </ul>
+      </ul>
 
       <!-- Botón para limpiar completadas -->
       <form method="POST" action="/api/limpiar">
@@ -85,7 +86,6 @@ if (filter === "completed") { // Filtra las tareas completadas
 <script>
   // Agregar tarea
   const form = document.querySelector(".task-input form");
-//   const form = document.getElementById("add-task-form");
 	const taskList = document.querySelector(".task-list");
   console.log(form);
 
@@ -97,7 +97,6 @@ if (filter === "completed") { // Filtra las tareas completadas
 
     const taskText = input?.value?.trim();
     if (!taskText) return;
-
 
     try {
       const response = await fetch(`/api/agregar`, {
@@ -112,15 +111,16 @@ if (filter === "completed") { // Filtra las tareas completadas
 
 			const li = document.createElement("li");
 			li.innerHTML = `
-				<form method="POST" class="task-form" action="/api/toggle/${task.id}">
+				<form method="POST" class="task-form" action="/api/completar">
 					<div class="task-content">
 						<label>
+							<input type="hidden" name="task-id" value=${task.id} />
 							<button type="submit" class="task-btn" name="task-btn">⬜</button>
 							<span>${ task.text }</span>
 						</label>
 					</div>
 				</form>
-				<form method="POST" action="/api/eliminar/">
+				<form method="POST"  action="/api/eliminar/">
 					<input type="hidden" name="task-id" value=${task.id} />
 					<button type="submit" class="delete-btn" name="delete-btn">🗑️</button>
 				</form>
@@ -136,55 +136,222 @@ if (filter === "completed") { // Filtra las tareas completadas
   });
 
   // Completar tarea
-  document.querySelectorAll(".task-form").forEach((form) => {
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault(); // Previene el envío por defecto
+  // document.querySelectorAll(".task-list form").forEach((form) => {
+	// 	form.addEventListener("submit", async (event) => {
+	// 		event.preventDefault(); // Previene el envío por defecto
 
-			const button = form.querySelector(".task-btn");
-			const task: HTMLInputElement | null = form.querySelector("input[name='task']");
-			const id = task?.value?.trim();
+	// 		const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
+	// 		const id = input?.value?.trim();
 
-			if (button?.textContent === "⬜") button.textContent = "✅";
-			else if (button?.textContent === "✅") button.textContent = "⬜";
+  //     try {
+  //       const response = await fetch("api/completar", {
+  //         method: "POST",
+	// 				headers: { "Content-Type": "application/json" },
+	// 				body: JSON.stringify({ id })
+  //       });
 
-      try {
-        const response = await fetch(`api/toggle/${id}`, {
-          method: "POST",
-        });
+  //       if (!response.ok) throw new Error("Error al completar tarea");
 
-        if (!response.ok) throw new Error("Error al completar tarea");
+	// 			const button = form.querySelector(".task-btn");
+	// 			if (button) {
+	// 				button.textContent = button.textContent === "⬜" ? "✅" : "⬜";
+	// 			}
 
-      } catch (error) {
-        console.error("Error al marcar tarea:", error);
-      }
-    });
-  });
+  //     } catch (error) {
+  //       console.error("Error al marcar tarea:", error);
+  //     }
+  //   });
+  // });
+
+	// SEGUNDO INTENTO
+	// document.addEventListener("submit", async (event) => {
+	// 	const form = event.target as HTMLFormElement;
+
+	// 	// Verificamos si es un formulario de la lista de tareas
+	// 	if (form.classList.contains("task-form")) {
+	// 		event.preventDefault();
+
+	// 		const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
+	// 		const id = input?.value?.trim();
+
+	// 		try {
+	// 			const response = await fetch("api/completar", {
+	// 				method: "POST",
+	// 				headers: { "Content-Type": "application/json" },
+	// 				body: JSON.stringify({ id })
+	// 			});
+
+	// 			if (!response.ok) throw new Error("Error al completar tarea");
+
+	// 			const button = form.querySelector(".task-btn");
+	// 			if (button) {
+	// 				button.textContent = button.textContent === "⬜" ? "✅" : "⬜";
+	// 			}
+	// 		} catch (error) {
+	// 			console.error("Error al marcar tarea:", error);
+	// 		}
+	// 	}
+	// });
 
   // Eliminar tarea
-  document.querySelectorAll("form[action='/api/eliminar']").forEach((form) => {
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault(); // Previene el envío por defecto
+  // document.querySelectorAll(".delete-form").forEach((form) => {
+  //   form.addEventListener("submit", async (event) => {
+  //     event.preventDefault(); // Previene el envío por defecto
 
-      const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
-      if (!input) return; // Verifica si el input existe
+  //     const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
+  //     if (!input) return; // Verifica si el input existe
 
-      const id = input?.value?.trim();
-      if (!id) return;
+  //     const id = Number(input.value?.trim());
+  //     if (isNaN(id)) return;
 
-      try {
-        const response = await fetch(`/api/eliminar`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id })
-        });
+  //     try {
+  //       const response = await fetch(`/api/eliminar`, {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ id })
+  //       });
 
-        if (!response.ok) throw new Error("Error al eliminar tarea");
+  //       if (!response.ok) throw new Error("Error al eliminar tarea");
 
-      } catch (error) {
-        console.error("Error al eliminar tarea:", error);
-      }
-    });
-  });
+	// 			const taskElement = form.closest("li");
+	// 			if (taskElement) taskElement.remove();
+
+	// 			// Aquí podrías actualizar la lista de tareas si es necesario
+
+  //     } catch (error) {
+  //       console.error("Error al eliminar tarea:", error);
+  //     }
+  //   });
+  // });
+
+	// SEGUNDO INTENTO
+	// document.addEventListener("submit", async (event) => {
+	// 	const form = event.target as HTMLFormElement;
+
+	// 	// Verificamos si es un formulario de eliminación
+	// 	if (form.classList.contains("delete-form")) {
+	// 		event.preventDefault();
+
+	// 		const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
+	// 		if (!input) return;
+
+	// 		const id = Number(input.value?.trim());
+	// 		if (isNaN(id)) return;
+
+	// 		try {
+	// 			const response = await fetch(`/api/eliminar`, {
+	// 				method: "POST",
+	// 				headers: { "Content-Type": "application/json" },
+	// 				body: JSON.stringify({ id })
+	// 			});
+
+	// 			if (!response.ok) throw new Error("Error al eliminar tarea");
+
+	// 			const taskElement = form.closest("li");
+	// 			if (taskElement) taskElement.remove();
+	// 		} catch (error) {
+	// 			console.error("Error al eliminar tarea:", error);
+	// 		}
+	// 	}
+	// });
+
+
+	document.addEventListener("submit", async (event) => {
+		const form = event.target as HTMLFormElement;
+
+		//if (!(form instanceof HTMLFormElement)) return; // Verifica si es un formulario
+
+		// Completar tarea
+		if (form.classList.contains("task-form")) {
+			event.preventDefault();
+
+			const input = form.querySelector("input[name='task-id']") as HTMLInputElement | null;
+			const id = input?.value?.trim();
+
+			try {
+				const response = await fetch("/api/completar", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ id }),
+				});
+
+				if (!response.ok) throw new Error("Error al completar tarea");
+
+				const button = form.querySelector(".task-btn");
+				if (button) {
+					button.textContent = button.textContent === "⬜" ? "✅" : "⬜";
+				}
+			} catch (error) {
+				console.error("Error al completar tarea:", error);
+			}
+
+			return; // Importante para que no pase al código de eliminar
+		}
+	});
+
+	// Eliminar tarea
+	document.addEventListener("submit", async (event) => {
+		const form = event.target as HTMLFormElement;
+
+		if (!(form instanceof HTMLFormElement)) return; // Verifica si es un formulario
+		
+		event.preventDefault(); // Previene el envío por defecto
+
+		if (form.matches(".delete-form")) {
+			const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
+			if (!input) return; // Verifica si el input existe
+
+			const id = Number(input.value?.trim());
+			if (isNaN(id)) return;
+
+			try {
+				const response = await fetch(`/api/eliminar`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ id }),
+				});
+
+				if (!response.ok) throw new Error("Error al eliminar tarea");
+
+				const taskElement = form.closest("li");
+				if (taskElement) taskElement.remove();
+			} catch (error) {
+				console.error("Error al eliminar tarea:", error);
+			}
+		}
+	})
+
+
+	// Clear completed tasks
+	// document.querySelectorAll(".task-btn").forEach(button => {
+	// 	button.addEventListener("submit", async (event) => {
+	// 		event.preventDefault(); // Previene el envío por defecto
+
+	// 		const form = button.closest("form");
+	// 		if (!form) return; // Verifica si el formulario existe
+
+	// 		const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
+	// 		if (!input) return; // Verifica si el input existe
+
+	// 		const id = Number(input.value?.trim());
+	// 		if (isNaN(id)) return;
+
+	// 		try {
+	// 			const response = await fetch(`/api/eliminar`, {
+	// 				method: "POST",
+	// 				headers: { "Content-Type": "application/json" },
+	// 				body: JSON.stringify({ id }),
+	// 			});
+
+	// 			if (!response.ok) throw new Error("Error al eliminar tarea");
+
+	// 			const taskElement = form.closest("li");
+	// 			if (taskElement) taskElement.remove();
+	// 		} catch (error) {
+	// 			console.error("Error al eliminar tarea:", error);
+	// 		}
+	// 	});
+	// });
 </script>
 
 <style is:global>

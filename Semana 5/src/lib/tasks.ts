@@ -1,6 +1,13 @@
 export type Task = {
-    text: string;
-    done: boolean;
-  };
+  id: string;
+  text: string;
+  done: boolean;
+};
   
-  export let tasks: Task[] = [];
+export let tasks: Task[] = [];
+
+let nextId = 1;
+
+export function generateId() {
+  return String(nextId++);
+}
