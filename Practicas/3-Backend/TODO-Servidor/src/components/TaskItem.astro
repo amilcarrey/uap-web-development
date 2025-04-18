@@ -1,0 +1,62 @@
+---
+export interface Props {
+  task: {
+    id: string;
+    text: string;
+    completed: boolean;
+  };
+  tabId: string;
+}
+
+const { task, tabId } = Astro.props;
+---
+
+<li class={`task-item ${task.completed ? 'completed' : ''}`}>
+  <form method="POST">
+    <input type="hidden" name="tabId" value={tabId} />
+    <input 
+      type="checkbox"
+      name="taskId"
+      value={task.id}
+      checked={task.completed}
+      onchange="this.form.submit()"
+    />
+    <span>{task.text}</span>
+  </form>
+</li>
+
+<style>
+
+  /* Elementos de tarea */
+  .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* Alinea el contenido a los extremos */
+      margin-bottom: 10px;
+      padding: 10px;
+      border-bottom: 1px solid #adacac;
+  }
+
+  .task-item.completed {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  .task-item label {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el checkbox y el texto */
+    flex-grow: 1; /* Ocupa todo el espacio disponible */
+  }
+
+  .task-item input[type="checkbox"] {
+      margin: 0; /* Elimina márgenes inconsistentes */
+  }
+
+  .task-item input[type="checkbox"]:checked + label {
+      text-decoration: line-through;
+      color: #888;
+  }
+
+  
+</style>
