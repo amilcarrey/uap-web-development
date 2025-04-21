@@ -2,11 +2,8 @@
 import { getTasks } from '../lib/tasks.js';
 import "../styles/global.css";
 
-// Se obtiene la URL de la solicitud actual
 const url = new URL(Astro.request.url);
 const statusFilter = url.searchParams.get('status') || 'all';
-
-// Se obtienen las tareas según el filtro de estado
 const tasks = getTasks(statusFilter);
 ---
 
@@ -45,9 +42,30 @@ const tasks = getTasks(statusFilter);
 
       <!-- Botones de filtrado por estado -->
       <div class="filters flex justify-center gap-4 my-6">
-        <a href="/?status=all" class={`filter px-4 py-2 text-base rounded border ${statusFilter === 'all' ? 'bg-green-500 text-white border-green-500' : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'}`}>All</a>
-        <a href="/?status=incomplete" class={`filter px-4 py-2 text-base rounded border ${statusFilter === 'incomplete' ? 'bg-green-500 text-white border-green-500' : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'}`}>Incomplete</a>
-        <a href="/?status=complete" class={`filter px-4 py-2 text-base rounded border ${statusFilter === 'complete' ? 'bg-green-500 text-white border-green-500' : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'}`}>Complete</a>
+        <a href="/?status=all"
+          class={`filter px-4 py-2 text-base rounded border ${
+            statusFilter === 'all'
+              ? 'bg-green-500 text-white border-green-500'
+              : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'
+          }`}>
+          All
+        </a>
+        <a href="/?status=incomplete"
+          class={`filter px-4 py-2 text-base rounded border ${
+            statusFilter === 'incomplete'
+              ? 'bg-green-500 text-white border-green-500'
+              : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'
+          }`}>
+          Incomplete
+        </a>
+        <a href="/?status=complete"
+          class={`filter px-4 py-2 text-base rounded border ${
+            statusFilter === 'complete'
+              ? 'bg-green-500 text-white border-green-500'
+              : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'
+          }`}>
+          Complete
+        </a>
       </div>
 
       <!-- Lista de Tareas -->
@@ -57,7 +75,13 @@ const tasks = getTasks(statusFilter);
             <form action="/api/update-task" method="post" class="inline">
               <input type="hidden" name="id" value={task.id} />
               <input type="hidden" name="status" value={task.status === 'complete' ? 'incomplete' : 'complete'} />
-              <input type="checkbox" checked={task.status === 'complete'} name="status-toggle"aria-label="Marcar como completa o incompleta"class="scale-125 cursor-pointer mr-2"/>
+              <input
+                type="checkbox"
+                checked={task.status === 'complete'}
+                name="status-toggle"
+                aria-label="Marcar como completa o incompleta"
+                class="scale-125 cursor-pointer mr-2"
+              />
             </form>
             <label class={`flex-1 text-base text-left ${task.status === 'complete' ? 'line-through text-gray-400' : ''}`}>
               {task.description}
@@ -75,6 +99,7 @@ const tasks = getTasks(statusFilter);
         <button type="submit" class="text-orange-500 text-base hover:underline border-none bg-transparent">Clear Completed</button>
       </form>
     </main>
+    
     <script type="module" src="/src/scripts/main.js"></script>
   </body>
 </html>
