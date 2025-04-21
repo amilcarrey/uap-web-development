@@ -1,4 +1,4 @@
-let tasks = [];
+let tasks = []; 
 let idCounter = 1;
 
 export function getTasks(filter = 'all') {

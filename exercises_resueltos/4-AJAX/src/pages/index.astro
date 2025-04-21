@@ -2,20 +2,16 @@
 import { getTasks } from '../lib/tasks.js';
 import "../styles/global.css";
 
-// Se obtiene la URL de la solicitud actual
-const url = new URL(Astro.request.url);
-const statusFilter = url.searchParams.get('status') || 'all';
-
-// Se obtienen las tareas según el filtro de estado
+const statusFilter = Astro.url.searchParams.get('status') || 'all';
 const tasks = getTasks(statusFilter);
 ---
 
+<!DOCTYPE html>
 <html lang="es" class="min-h-screen bg-[#f9f6f2] text-[#333]">
   <head>
     <meta charset="UTF-8" />
     <title>Gestor de Tareas</title>
   </head>
-
   <body class="font-sans bg-[#f9f6f2] text-[#333] flex flex-col items-center justify-start min-h-screen text-center">
     
     <header class="w-full bg-[#f4f4f9] p-4 md:p-8 flex flex-col items-center justify-center border-b-2 border-[#e0e0e0] mb-4">
@@ -25,56 +21,106 @@ const tasks = getTasks(statusFilter);
       <nav class="flex gap-10 items-center">
         <a href="#" class="tab text-[#666] font-bold text-2xl py-2 border-b-2 border-transparent hover:border-[#666]">Personal</a>
         <a href="#" class="tab text-[#666] font-bold text-2xl py-2 border-b-2 border-transparent hover:border-[#666]">Professional</a>
-        <a href="#" class="add-task ml-auto bg-[#b56576] text-white text-2xl w-9 h-9 rounded-full flex items-center justify-center leading-none">+</a>  
+        <a href="#" class="add-task ml-auto bg-[#b56576] text-white text-2xl w-9 h-9 rounded-full flex items-center justify-center leading-none">+</a>
       </nav>
     </header>
 
     <main class="w-full max-w-xl bg-white p-8 rounded-xl shadow-md flex flex-col items-center">
-      <!-- Formulario para agregar tareas -->
+      <!-- Formulario de alta -->
       <form action="/api/add-task" method="post" id="formulario-tarea" class="flex mb-4 gap-2 w-full justify-center">
         <input
           type="text"
           name="description"
           placeholder="¿Qué tarea necesitas hacer?"
           required
-          id="entrada-tarea"
           class="flex-1 px-4 py-3 text-base border border-gray-300 rounded"
         />
-        <button type="submit" class="px-6 py-3 text-base bg-[#ff8c00] text-white rounded hover:bg-[#e67a00]">ADD</button>
+        <button type="submit" class="px-6 py-3 text-base bg-[#ff8c00] text-white rounded hover:bg-[#e67a00]">
+          ADD
+        </button>
       </form>
 
-      <!-- Botones de filtrado por estado -->
+      <!-- Filtros -->
       <div class="filters flex justify-center gap-4 my-6">
-        <a href="/?status=all" class={`filter px-4 py-2 text-base rounded border ${statusFilter === 'all' ? 'bg-green-500 text-white border-green-500' : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'}`}>All</a>
-        <a href="/?status=incomplete" class={`filter px-4 py-2 text-base rounded border ${statusFilter === 'incomplete' ? 'bg-green-500 text-white border-green-500' : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'}`}>Incomplete</a>
-        <a href="/?status=complete" class={`filter px-4 py-2 text-base rounded border ${statusFilter === 'complete' ? 'bg-green-500 text-white border-green-500' : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'}`}>Complete</a>
+        <a
+          href="/?status=all"
+          class={`filter px-4 py-2 text-base rounded border ${
+            statusFilter === 'all'
+              ? 'bg-green-500 text-white border-green-500'
+              : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'
+          }`}
+        >All</a>
+        <a
+          href="/?status=incomplete"
+          class={`filter px-4 py-2 text-base rounded border ${
+            statusFilter === 'incomplete'
+              ? 'bg-green-500 text-white border-green-500'
+              : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'
+          }`}
+        >Incomplete</a>
+        <a
+          href="/?status=complete"
+          class={`filter px-4 py-2 text-base rounded border ${
+            statusFilter === 'complete'
+              ? 'bg-green-500 text-white border-green-500'
+              : 'bg-[#f4f4f9] text-[#333] border-gray-300 hover:bg-gray-200'
+          }`}
+        >Complete</a>
       </div>
 
-      <!-- Lista de Tareas -->
+      <!-- Lista de tareas -->
       <ul id="lista-tareas" class="list-none p-0 w-full">
         {tasks.map((task) => (
           <li class="tarea flex items-center py-3 border-b border-[#e0e0e0] gap-2 justify-center">
-            <form action="/api/update-task" method="post" class="inline">
+            
+            <!-- Form para actualizar estado -->
+            <form action="/api/update-task" method="post" class="flex-1 flex items-center gap-2">
               <input type="hidden" name="id" value={task.id} />
-              <input type="hidden" name="status" value={task.status === 'complete' ? 'incomplete' : 'complete'} />
-              <input type="checkbox" checked={task.status === 'complete'} name="status-toggle"aria-label="Marcar como completa o incompleta"class="scale-125 cursor-pointer mr-2"/>
+              <input
+                type="hidden"
+                name="status"
+                value={task.status === 'complete' ? 'incomplete' : 'complete'}
+              />
+  
+              <button type="submit" class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={task.status === 'complete'}
+                  readonly
+                  class="scale-125 pointer-events-none"
+                />
+                <label
+                  class={`flex-1 text-base text-left cursor-pointer ${
+                    task.status === 'complete' ? 'line-through text-gray-400' : ''
+                  }`}
+                >
+                  {task.description}
+                </label>
+              </button>
             </form>
-            <label class={`flex-1 text-base text-left ${task.status === 'complete' ? 'line-through text-gray-400' : ''}`}>
-              {task.description}
-            </label>
-            <form action="/api/delete-task" method="post" class="inline">
+
+            <!-- Form para eliminar tarea -->
+            <form action="/api/delete-task" method="post">
               <input type="hidden" name="id" value={task.id} />
-              <button type="submit" class="delete-task bg-none border-none text-red-600 text-xl cursor-pointer hover:text-red-700">🗑</button>
+              <button
+                type="submit"
+                class="delete-task bg-none border-none text-red-600 text-xl cursor-pointer hover:text-red-700"
+              >
+                🗑
+              </button>
             </form>
           </li>
         ))}
       </ul>
-      
-      <!-- Botón para eliminar tareas completadas -->
+
+      <!-- Limpiar completadas -->
       <form action="/api/clear-completed" method="post" class="text-right mt-4 w-full">
-        <button type="submit" class="text-orange-500 text-base hover:underline border-none bg-transparent">Clear Completed</button>
+        <button type="submit" class="text-orange-500 text-base hover:underline border-none bg-transparent">
+          Clear Completed
+        </button>
       </form>
     </main>
+
     <script type="module" src="/src/scripts/main.js"></script>
   </body>
 </html>
