@@ -12,29 +12,162 @@ const { task, tabId } = Astro.props;
 ---
 
 <li class={`task-item ${task.completed ? 'completed' : ''}`}>
-  <form method="POST">
-    <input type="hidden" name="tabId" value={tabId} />
-    <input 
-      type="checkbox"
-      name="taskId"
-      value={task.id}
-      checked={task.completed}
-      onchange="this.form.submit()"
-    />
-    <span>{task.text}</span>
+
+  <!-- Formulario para marcar como copletada una tarea -->
+  <form method="POST" action="/api/tasks" class="task-form">
+    <input type="hidden" name="action" value="toggle" />
+    <input type="hidden" name="taskId" value={task.id} />
+    <input type="hidden" name="tabId" value={tabId}>
+    <input type="hidden" name="completed" value={task.completed ? 'true' : 'false'}/>
+    <label class="form-label">
+      <button type="submit" class="form-button"></button>
+      <span>{task.text}</span>
+    </label>
+  </form>
+  
+  <!-- Formulario para eliminar tarea -->
+  <form method="POST" action="/api/tasks" class="delete-form">
+    <input type="hidden" name="action" value="delete" />
+    <input type="hidden" name="taskId" value={task.id} />
+    <input type="hidden" name="tabId" value={tabId}>
+    <button type="submit" class="delete-button">🗑️</button>
   </form>
 </li>
 
-<style>
+<script>
+  //Selecciono los formularios
+  const taskForm = document.querySelector('form.task-form') as HTMLFormElement | null; //Fuerzo el tipo de los elementos
+  const deleteForm = document.querySelector('form.delete-form') as HTMLFormElement | null;
 
+  //Fuerzar la recarga de la pagina al agregar o eliminar tareas
+  //Listener que espera a qeu se dispare el evento de que se completo una tarea para forzar la recarga de la pagina
+  window.addEventListener('taskCompleted', (e) => { 
+    window.location.reload(); // Recarga la pagina para volver a pedir los datos actualizados
+  });
+
+  //Listener que espera a que se dispare el evento de que se elimino una tarea
+  window.addEventListener('taskDeleted', (e) => {
+      window.location.reload(); // Recarga la pagina para volver a pedir los datos actualizados
+    });
+
+  //Formulario para completar tareas
+  if(taskForm){
+    taskForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const label = taskForm.querySelector('label.form-label') as HTMLInputElement | null;
+      if(!label){
+        console.error('Required elements not found');
+        return;
+      }
+
+      const button = label.querySelector('button.form-button') as HTMLInputElement | null;
+      //const hiddenCompleted = taskForm.querySelector('input[name="completed"]') as HTMLInputElement;
+
+      if (!button /*|| !hiddenCompleted*/) {
+        console.error('Required elements not found');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/tasks', {
+          method: 'POST',
+          //headers: {'Accept' : 'application/json'},
+          body: new FormData(taskForm)
+        });
+
+        if (response.ok) {
+          window.dispatchEvent(new CustomEvent('taskCompleted'));
+        } else {
+          console.error('Error en el servidor', response);
+          alert('Error al completar la tarea');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to update task');
+      } finally {
+        //input.disabled = false;
+      }
+    });
+  }
+
+  //Formulario para eliminar tareas
+    if(deleteForm){
+      deleteForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+  
+        //Busco el elemento que funciona como boton
+        const target = e.target as HTMLFormElement;
+        const button = target.querySelector('button.delete-button') as HTMLInputElement | null;
+        
+        const formData = new FormData(deleteForm);
+        for(const [key, value] of formData.entries()){
+          console.log(`${key}: ${value}`);
+        }
+
+
+        if(!button){
+          console.error('Required elements not found');
+          return;
+        }
+  
+        //Desabilitar el boton durante la peticion
+        button.disabled = true;
+  
+        try{
+          //Capturo l apeticion y envio la informacion a la API
+          const response = await fetch('/api/tasks', {
+            method: 'POST',
+            headers: {'Accept' : 'application/json'},
+            body: new FormData(deleteForm)
+          });
+
+          if(response.ok){//Aviso de que se realizo el envio
+            window.dispatchEvent(new CustomEvent('taskDeleted'));
+          }
+  
+        }catch(error){
+          console.error('Error: ', error);
+          alert('Failed to add task');
+  
+        }finally{
+          button.disabled = false;
+        }
+      });
+    }
+</script>
+
+
+<style>
+  .task-item{
+    @apply
+      flex
+      items-center
+      justify-between
+      py-[10px]
+      border-b
+      border-[#d3d3d3];
+  }
+  .task-item.completed{
+    @apply
+      line-through
+      opacity-70;
+  }
+
+  .task-form{
+    @apply
+  }
+
+</style>
+
+<!--
+<style>
   /* Elementos de tarea */
   .task-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between; /* Alinea el contenido a los extremos */
-      margin-bottom: 10px;
-      padding: 10px;
-      border-bottom: 1px solid #adacac;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #d3d3d3;
   }
 
   .task-item.completed {
@@ -42,21 +175,39 @@ const { task, tabId } = Astro.props;
     opacity: 0.7;
   }
 
-  .task-item label {
+  .task-form {
     display: flex;
     align-items: center;
-    gap: 10px; /* Espacio entre el checkbox y el texto */
-    flex-grow: 1; /* Ocupa todo el espacio disponible */
+    flex-grow: 1;
   }
 
-  .task-item input[type="checkbox"] {
-      margin: 0; /* Elimina márgenes inconsistentes */
+  .task-form label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    flex-grow: 1;
   }
 
-  .task-item input[type="checkbox"]:checked + label {
-      text-decoration: line-through;
-      color: #888;
+  .delete-form {
+    margin-left: 10px;
+  }
+
+  .delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ff4d4d;
+    font-size: 16px;
+    padding: 5px 8px;
+    transition: color 0.2s;
+  }
+
+  .delete-button:hover {
+    color: #cc0000;
   }
 
   
 </style>
+
+-->

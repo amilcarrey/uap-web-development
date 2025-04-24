@@ -6,7 +6,7 @@ export interface Props {
 
 const { tabId } = Astro.props;
 ---
-<form method="POST" action="/api/tasks" class="input-container" id="taskForm">
+<form method="POST" action="/api/tasks" class="input-container flex mb-[20px] w-full" id="taskForm">
   <input type="hidden" name="action" value="add" />
   <input type="hidden" name="tabId" value={tabId} />
   <input
@@ -79,6 +79,30 @@ const { tabId } = Astro.props;
 </script>
 
 <style>
+  .task-input{
+    @apply
+      bg-[antiquewhite]
+      p-[10px]
+      border border-[#ccc]
+      rounded-l-[2vh]
+      flex-grow
+      border-r-0;
+  }
+
+  .add-button{
+    @apply
+      bg-[burlywood]
+      border-none
+      cursor-pointer
+      rounded-r-[2vh]
+      p-[10px_20px]
+      text-[16px]
+      hover:bg-[#a57a5a]
+  }
+</style>
+
+<!-- 
+<style>
     /* Contenedor de entrada y botón ADD */
     .input-container {
         display: flex;
@@ -109,3 +133,4 @@ const { tabId } = Astro.props;
     background-color: #a57a5a;
 }
 </style>
+-->

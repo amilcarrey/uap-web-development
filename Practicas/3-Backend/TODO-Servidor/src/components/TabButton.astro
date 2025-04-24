@@ -11,6 +11,11 @@ export interface Props{
 const {tabId, label, isActive = false, isAddButton = false} = Astro.props;
 ---
 
+<!--
+    A LOS ESTILOS DE ESTE COMPONENTE SE ENCUENTRAN EN EL ARCHIVO "global.css" 
+    los puse en ese archivo porque si lo pongo directamente en el htmml no se aplican
+-->
+
 <button
     class = {`tab-button ${isActive ? 'active' : ''} ${isAddButton ? 'add-tab-button' : ''}`}
     data-tab = {tabId} 
@@ -24,6 +29,7 @@ const {tabId, label, isActive = false, isAddButton = false} = Astro.props;
 -->
 
 <style>
+    /*
     .tab-button {
         flex: 1;
         padding: 10px 20px;
@@ -44,4 +50,5 @@ const {tabId, label, isActive = false, isAddButton = false} = Astro.props;
     .tab-button:hover {
         background-color: #ccc;
     }
+    */
 </style>

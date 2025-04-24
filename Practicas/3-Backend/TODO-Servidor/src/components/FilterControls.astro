@@ -11,12 +11,18 @@ const filters = [
   { id: 'completed', label: 'Completed' }
 ];
 ---
-<div class="filter-buttons-container">
+
+<!--
+  LOS ESTILOS DE LOS BOTONES DE FILTRO SE ENCUENTRAN EN EL ARCHIVO "global.css"
+
+-->
+
+<div class="filter-buttons-container flex gap-[10px] justify-center my-4 mx-0">
   <!-- Botones de filtro -->
   {filters.map(filter => (
     <a
       href={`?tab=${tabId}&filter=${filter.id}`}
-      class={`filter-button ${filter.id === currentFilter ? 'active' : ''}`}
+      class=  {`filter-button ${filter.id === currentFilter ? 'active' : ''}`}
     >
       {filter.label}
     </a>
@@ -31,14 +37,19 @@ const filters = [
 </div>
 
 <style>
+
+  /*
   .filter-buttons-container {
     display: flex;
     gap: 10px;
     justify-content: center;
     margin: 15px 0;
   }
+  */
 
   /* Estilos compartidos por TODOS los botones */
+  /*Creo una clase personalizada en  src/styles/global.css para que los botones compartan los estilos*/
+  /*
   .filter-button {
     padding: 5px 10px;
     background-color: antiquewhite;
@@ -46,25 +57,32 @@ const filters = [
     border-radius: 4px;
     cursor: pointer;
     color: chocolate;
-    text-decoration: none; /* Necesario para los <a> */
+    text-decoration: none;
     transition: all 0.3s;
-    font-family: inherit; /* Para consistencia */
+    font-family: inherit;
     font-size: inherit;
   }
+  */
 
   /* Estilos para etiquetas <a> y <button> */
+  /*
   a.filter-button, button.filter-button {
-    display: inline-block; /* Alinea correctamente ambos elementos */
+    display: inline-block; Alinea correctamente ambos elementos 
   }
+  */
 
   /* Estados interactivos */
+  /*
   .filter-button:hover {
     background-color: #e6d5c3;
   }
+  */
 
   /* Estado "active" para filtros seleccionados */
+  /*
   .filter-button.active {
     background-color: burlywood;
     color: white;
   }
+  */
 </style>

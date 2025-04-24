@@ -1,22 +1,10 @@
 {
   "tasks": [
     {
-      "text": "Tarea 2",
+      "text": "Tarea 1",
       "completed": false,
       "tabId": "personal",
-      "id": "1744484830633"
-    },
-    {
-      "text": "Tarea 6",
-      "completed": false,
-      "tabId": "personal",
-      "id": "1744751986061"
-    },
-    {
-      "text": "ndejknd",
-      "completed": false,
-      "tabId": "personal",
-      "id": "1744752233735"
+      "id": "1745026031633"
     }
   ]
 }

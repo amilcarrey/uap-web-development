@@ -43,9 +43,23 @@ const {tabs, activeTab} = Astro.props; // <-- Recibe los datos del componente pa
     <TabButton isAddButton label="+"/>
 </div>
     
+<style>
+    .tabs{
+        @apply
+            flex
+            mb-[20px]
+            items-center
+            gap-[5px]
+            overflow-x-auto
+            whitespace-nowrap
+            pb-[10px]
+    }
+</style>
 
+<!-- 
 <style>
     /* Pestañas */
+
     .tabs {
         display: flex;
         margin-bottom: 20px;
@@ -58,3 +72,4 @@ const {tabs, activeTab} = Astro.props; // <-- Recibe los datos del componente pa
         padding-bottom: 10px; /* Espacio para la barra de desplazamiento */
     }
 </style>
+-->

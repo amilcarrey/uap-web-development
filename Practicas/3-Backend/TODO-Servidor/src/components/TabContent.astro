@@ -14,7 +14,7 @@ export interface Props {
 
 const { tabId, title, isActive, tasks, currentFilter/*, tasksState*/ } = Astro.props;
 ---
-<section id={tabId} class={`tab-content ${isActive ? 'active' : ''}`}>
+<section id={tabId} class={`tab-content ${isActive ? 'active block' : 'hidden'}`}>
   <h3>{title}</h3>
   
   <TaskInput tabId={tabId} />
@@ -32,10 +32,12 @@ const { tabId, title, isActive, tasks, currentFilter/*, tasksState*/ } = Astro.p
 </section>
 
 <style>
+  /*
   .tab-content {
     display: none;
   }
   .tab-content.active {
     display: block;
   }
+  */
 </style>
