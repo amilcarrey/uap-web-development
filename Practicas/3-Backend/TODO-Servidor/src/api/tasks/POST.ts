@@ -13,24 +13,25 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     switch (action) {
       case 'add':
-        const text = formData.get('text');
+        const text = formData.get('text') as string;
         if (!text || typeof text !== 'string') {
           return new Response(JSON.stringify({ error: 'Missing or invalid text' }), {
             status: 400,
           });
         }
         
-        await addTask({
-          text: formData.get('text') as string,
+        const newTask = await addTask({
+          text,
           completed: false,
           tabId
         });
 
-        return isJson ? new Response(JSON.stringify({ success: true }), { status: 201 }) : Response.redirect(new URL('/', request.url), 303);
+        //return isJson ? new Response(JSON.stringify({ success: true }), { status: 201 }) : Response.redirect(new URL('/', request.url), 303);
+        return isJson ? new Response(JSON.stringify(newTask), { status: 201 }) : Response.redirect(new URL('/', request.url), 303);
         /*Si la peticion viene del navegador entonces se redirige automaticamente a la pagina principal, y 
           Astro la vuelve a renderizar con las tareas actualizadas
         */
-      
+       
       case 'toggle':
         await toggleTask(formData.get('taskId') as string);
 

@@ -17,19 +17,18 @@ const {tabId, label, isActive = false, isAddButton = false} = Astro.props;
 -->
 
 <button
-    class = {`tab-button ${isActive ? 'active' : ''} ${isAddButton ? 'add-tab-button' : ''}`}
+    class = {`tab-button 
+        flex-1 px-5 py-2.5 bg-[#ddd] border-none cursor-pointer text-base text-center transition-colors rounded hover:bg-[#ccc]
+        ${isActive ? 'bg-[#909090] text-white' : ''} 
+        ${isAddButton ? 'add-tab-button' : ''}`}
     data-tab = {tabId} 
 >
     {label}
 </button>
 
-<!--
-    Resultado:
-        <button class="tab-button active" data-tab="personal">Personal</button>
--->
 
+<!--
 <style>
-    /*
     .tab-button {
         flex: 1;
         padding: 10px 20px;
@@ -50,5 +49,5 @@ const {tabId, label, isActive = false, isAddButton = false} = Astro.props;
     .tab-button:hover {
         background-color: #ccc;
     }
-    */
 </style>
+-->

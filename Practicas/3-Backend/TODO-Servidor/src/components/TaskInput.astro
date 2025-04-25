@@ -1,5 +1,8 @@
 ---
 //src\components\TaskInput.astro
+
+import {createTaskElement} from '@shared/templates/createTaskElement';
+
 export interface Props {
   tabId: string;
 }
@@ -14,19 +17,37 @@ const { tabId } = Astro.props;
     name="text"
     placeholder="What do you need to do?"
     required
-    class="task-input"
+    class="task-input
+      bg-[antiquewhite] p-[10px] border border-[#ccc] rounded-l-[2vh] flex-grow border-r-0"
   />
-  <button type="submit" class="add-button" >Add</button>
+  <button type="submit" class="add-button
+    bg-[burlywood] border-none cursor-pointer rounded-r-[2vh] p-[10px_20px] text-[16px] hover:bg-[#a57a5a]"
+  >Add</button>
 </form>
 
 <script>
+import { createTaskElement } from "src/lib/templates/createTaskElement";
+
   // 1. Seleccion segura con verificación de null
   const form = document.querySelector('form.input-container') as HTMLFormElement | null;
 
   if(form){ //Verifica que el formulario existe
 
-    window.addEventListener('taskAdded', () => { // <- Este listener espera a que se agrege la tarea para recargar la pagina
-      window.location.reload();
+    window.addEventListener('taskAdded', (event) => { // <- Este listener espera a que se agrege la tarea para recargar la pagina
+      //window.location.reload();
+
+      const data = (event as CustomEvent).detail; // <-- forma de resuperar los datos
+      if(!data) return; // <-- evito que se ejecute codigo que depende de un data que podria no existir (es como ignorar que ocurrio el evento "taskAdded" )
+
+      const taskElement = createTaskElement(data); // <-- Uso la funcion para crear una tarea
+      const taskList = document.querySelector('.task-list'); // <-- Busco el contenedor de tareas para insertar el nuevo elemento
+      
+      if(!taskList){
+        console.warn('No task list found');
+        return;
+      }
+
+      taskList.appendChild(taskElement);
     });
 
     form.addEventListener('submit', async (e) => {
@@ -50,14 +71,30 @@ const { tabId } = Astro.props;
           //Con el fetch envio la información del formulario al backend
           const response = await fetch('/api/tasks', {
             method: 'POST',
-            body: new FormData(form)
+            body: new FormData(form),
+            headers: {
+              'Accept' : 'application/json' // <-- Lo setteo de esa forma para eviatr que en el redireccionamiento se envie html(lo hace por defecto) cuendo se esta esperando json
+            }
           });
 
           //si el envio sale bien, se lanza un aviso (taskAdded) para que otras partes de la appp sepan que hay una nueva tarea
-          if(response.ok){
-            input.value = '';
-            window.dispatchEvent(new CustomEvent('taskAdded')); // <- Se dispara el evento de que se agrego una nueva tarea
+          if (response.ok) {
+            input.value = ''; // Limpio el input
 
+            const text = await response.text();
+            console.log('Respuesta cruda del servidor:', text);
+
+            try {
+              const data = JSON.parse(text); // ¡solo parseás lo que ya leíste!
+              //console.log('JSON parseado:', data);
+
+              window.dispatchEvent(new CustomEvent('taskAdded', {
+                detail: data // <-- Envio los datos como parte del evento
+              }));
+            } catch (jsonErr) {
+              console.error('Error al parsear JSON:', jsonErr);
+              alert('La respuesta del servidor no es válida. Revisá la consola.');
+            }
           } else {
             throw new Error('Server response not OK');
           }
@@ -78,6 +115,7 @@ const { tabId } = Astro.props;
   
 </script>
 
+<!--
 <style>
   .task-input{
     @apply
@@ -100,7 +138,7 @@ const { tabId } = Astro.props;
       hover:bg-[#a57a5a]
   }
 </style>
-
+-->
 <!-- 
 <style>
     /* Contenedor de entrada y botón ADD */

@@ -1,0 +1,42 @@
+---
+export interface Props {
+  href?: string;
+  type?: 'button' | 'submit';
+  isActive?: boolean;
+  className?: string;
+}
+
+// Props
+const {
+  href,
+  type = 'button',
+  isActive = false,
+  className = '',
+} = Astro.props;
+
+// Clases
+const baseStyles = `
+  px-2 py-1 
+  bg-[antiquewhite] 
+  border border-[burlywood] 
+  rounded 
+  cursor-pointer
+  text-[chocolate]
+  no-underline
+  transition-all
+  hover:bg-[#e6d5c3]
+`;
+
+const activeStyles = isActive ? 'bg-[burlywood] text-white' : '';
+const finalClass = `${baseStyles} ${activeStyles} ${className}`.trim();
+---
+
+{href ? (
+  <a href={href} class={finalClass}>
+    <slot />
+  </a>
+) : (
+  <button type={type} class={finalClass}>
+    <slot />
+  </button>
+)}

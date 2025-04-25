@@ -9,27 +9,11 @@ export interface Props{
 }
 
 const {tabs, activeTab} = Astro.props; // <-- Recibe los datos del componente padre, recibe la lista de tabs del usuario y cual se encuentra usando
-
-/* Explicación (para mi) 
-    "interface Props" lo que hace es decirle a Astro que para que eso funcione se neceiten dos cosas:
-        1- tabs: una lista de tabs, en donde cada una tiene in ID y un Titulo.
-        2- activeTab: El id del tab que esta activo en ese momento.
-
-        Ejemplo de los datos que recibiría:
-        {
-            tabs: [ // <-- Lista de tabs que tiene el usuario
-                {id: "personal", title: "Personal"},
-                {id: "work", title: "Trabajo"}
-            ],
-
-            activeTab: "personal" <-- tab en el que se encuentra el usuario en ese momento
-        }
-
-
-*/
 ---
 
-<div class="tabs">
+<div class="tabs
+    flex mb-[20px] items-center gap-[5px] overflow-x-auto whitespace-nowrap pb-[10px]
+">
     { //Codigo Js que se ejecuta para generar HTML
         tabs.map(tab => ( // <-- De mi lista de pestañas me crea un "boton"
             <TabButton
@@ -42,7 +26,8 @@ const {tabs, activeTab} = Astro.props; // <-- Recibe los datos del componente pa
 
     <TabButton isAddButton label="+"/>
 </div>
-    
+
+<!--
 <style>
     .tabs{
         @apply
@@ -55,7 +40,7 @@ const {tabs, activeTab} = Astro.props; // <-- Recibe los datos del componente pa
             pb-[10px]
     }
 </style>
-
+-->
 <!-- 
 <style>
     /* Pestañas */

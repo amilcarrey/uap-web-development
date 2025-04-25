@@ -11,7 +11,9 @@ export interface Props {
 const { task, tabId } = Astro.props;
 ---
 
-<li class={`task-item ${task.completed ? 'completed' : ''}`}>
+<li class={`task-item 
+  flex items-center justify-between py-[10px] border-b border-[#d3d3d3]
+  ${task.completed ? 'line-through opacity-70' : ''}`}>
 
   <!-- Formulario para marcar como copletada una tarea -->
   <form method="POST" action="/api/tasks" class="task-form">
@@ -42,12 +44,38 @@ const { task, tabId } = Astro.props;
   //Fuerzar la recarga de la pagina al agregar o eliminar tareas
   //Listener que espera a qeu se dispare el evento de que se completo una tarea para forzar la recarga de la pagina
   window.addEventListener('taskCompleted', (e) => { 
-    window.location.reload(); // Recarga la pagina para volver a pedir los datos actualizados
+    //window.location.reload(); // Recarga la pagina para volver a pedir los datos actualizados
+    //Lo que tengo que hacer en este bloque es modificar los elementos del DOM y no refrescar la pagina
+
+    if(!taskForm){
+      console.error('Required elements not found');
+        return;
+    }
+
+    const taskItem = taskForm.closest('li.task-item');
+        const completedInput = taskForm.querySelector('input[name="completed"]') as HTMLInputElement | null;
+        if (taskItem) {
+          taskItem.classList.toggle('completed');
+        }
+
+        if (completedInput) {
+          completedInput.value = completedInput.value === 'true' ? 'false' : 'true';
+        }
+  
   });
 
   //Listener que espera a que se dispare el evento de que se elimino una tarea
   window.addEventListener('taskDeleted', (e) => {
-      window.location.reload(); // Recarga la pagina para volver a pedir los datos actualizados
+      //window.location.reload(); // Recarga la pagina para volver a pedir los datos actualizados
+
+      const taskItem = deleteForm?.closest('li.task-item');
+
+      if(!taskItem){
+        console.error('Required elements not found');
+        return;
+      }
+
+      taskItem.remove();
     });
 
   //Formulario para completar tareas
@@ -71,7 +99,7 @@ const { task, tabId } = Astro.props;
       try {
         const response = await fetch('/api/tasks', {
           method: 'POST',
-          //headers: {'Accept' : 'application/json'},
+          headers: {'Accept' : 'application/json'},
           body: new FormData(taskForm)
         });
 
@@ -136,7 +164,7 @@ const { task, tabId } = Astro.props;
     }
 </script>
 
-
+<!--
 <style>
   .task-item{
     @apply
@@ -152,12 +180,8 @@ const { task, tabId } = Astro.props;
       line-through
       opacity-70;
   }
-
-  .task-form{
-    @apply
-  }
-
 </style>
+-->
 
 <!--
 <style>
@@ -209,5 +233,4 @@ const { task, tabId } = Astro.props;
 
   
 </style>
-
 -->

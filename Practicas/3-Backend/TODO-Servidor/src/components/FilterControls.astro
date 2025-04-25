@@ -1,4 +1,6 @@
 ---
+import UiButton from 'src/components/UiButton.astro';
+
 export interface Props {
   tabId: string;
   currentFilter: string;
@@ -11,45 +13,52 @@ const filters = [
   { id: 'completed', label: 'Completed' }
 ];
 ---
-
-<!--
-  LOS ESTILOS DE LOS BOTONES DE FILTRO SE ENCUENTRAN EN EL ARCHIVO "global.css"
-
--->
-
-<div class="filter-buttons-container flex gap-[10px] justify-center my-4 mx-0">
+ 
+<div class="filter-buttons-container 
+  flex gap-[10px] justify-center my-4 mx-0">
   <!-- Botones de filtro -->
   {filters.map(filter => (
+    <UiButton
+      href={`?tab=${tabId}&filter=${filter.id}`}
+      isActive={filter.id === currentFilter}
+    >
+      {filter.label}
+    </UiButton>
+    /*
     <a
       href={`?tab=${tabId}&filter=${filter.id}`}
       class=  {`filter-button ${filter.id === currentFilter ? 'active' : ''}`}
     >
       {filter.label}
     </a>
+    */
   ))}
 
-  <!-- Botón Limpiar (¡ahora usa la misma clase!) -->
+  <!-- Botón Limpiar -->
   <form method="POST" action="/api/tasks">
     <input type="hidden" name="action" value="clear-completed" />
     <input type="hidden" name="tabId" value={tabId} />
-    <button type="submit" class="filter-button">Limpiar completadas</button>
+    
+    <UiButton type="submit">Limpiar completadas</UiButton>
+
+    <!--
+    <button type="submit" class="filter-button
+      PX-2 PY-1 bg-[antiquewhite] border border-[burlywood] rounded cursor-pointer text-[chocolate] no-underline transition-all hover:bg-[#e6d5c3];"
+    >Limpiar completadas</button>
+    -->
   </form>
 </div>
 
+<!--
 <style>
-
-  /*
+  
   .filter-buttons-container {
     display: flex;
     gap: 10px;
     justify-content: center;
     margin: 15px 0;
   }
-  */
 
-  /* Estilos compartidos por TODOS los botones */
-  /*Creo una clase personalizada en  src/styles/global.css para que los botones compartan los estilos*/
-  /*
   .filter-button {
     padding: 5px 10px;
     background-color: antiquewhite;
@@ -62,27 +71,19 @@ const filters = [
     font-family: inherit;
     font-size: inherit;
   }
-  */
-
-  /* Estilos para etiquetas <a> y <button> */
-  /*
+  
   a.filter-button, button.filter-button {
-    display: inline-block; Alinea correctamente ambos elementos 
+    display: inline-block;
   }
-  */
-
-  /* Estados interactivos */
-  /*
+  
   .filter-button:hover {
     background-color: #e6d5c3;
   }
-  */
-
-  /* Estado "active" para filtros seleccionados */
-  /*
+  
   .filter-button.active {
     background-color: burlywood;
     color: white;
   }
-  */
+  
 </style>
+-->

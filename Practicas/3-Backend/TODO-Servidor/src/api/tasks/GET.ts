@@ -16,7 +16,7 @@ export const GET: APIRoute = async ({ url }) => {
       currentTab: tab,
       currentFilter: filter
     }), {
-      status: 200,
+      status: 200, 
       headers: {
         'Content-Type': 'application/json'
       }

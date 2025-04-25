@@ -1,7 +1,8 @@
-@import "tailwindcss";
+@import "tailwindcss"; 
 
 /* Estilos compartidos por los botones para los filtros*/
 /*Estilos base para <a> y <button>*/
+/*
 .filter-button{
     @apply 
         px-2 py-1 
@@ -14,15 +15,18 @@
         transition-all
         hover:bg-[#e6d5c3];
 }
+*/
 /*Estilo para cuando los botones de filtro se encuantran activos*/
+/*
 .filter-button.active{
   @apply 
     bg-[burlywood]
     text-white;
 }
-
+*/
 
 /*Estilos para los tabs, lo declaro ene este lugar porque no se aplican si los declaro directamente en el html*/
+/*
 .tab-button{
   @apply
     flex-1
@@ -41,3 +45,4 @@
     bg-[#909090]
     text-white;
 }
+*/

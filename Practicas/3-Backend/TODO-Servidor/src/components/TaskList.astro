@@ -10,12 +10,16 @@ export interface Props {
 
 const { tasks, tabId } = Astro.props;
 ---
-<ul class="task-list">
+<ul class="task-list
+  bg-[antiquewhite] p-5 rounded-lg mb-5 list-none"
+
+>
   {tasks.map(task => (
     <TaskItem task={task} tabId={tabId} />
   ))}
 </ul>
 
+<!--
 <style>
   .task-list {
     background-color: antiquewhite;
@@ -26,3 +30,4 @@ const { tasks, tabId } = Astro.props;
   }
 
 </style>
+-->

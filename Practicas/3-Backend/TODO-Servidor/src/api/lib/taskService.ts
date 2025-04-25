@@ -32,7 +32,7 @@ export async function saveState(state: AppState): Promise<void> {
   } catch (error) {
     console.error('Error saving state:', error);
   }
-}
+} 
 
 // Operaciones específicas
 export async function addTask(task: Omit<Task, 'id'>): Promise<Task> {
