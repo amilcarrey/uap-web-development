@@ -1,22 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro'; // Importa el layout que se usará para la página
-import { tasks } from "../lib/tasks.ts"; // Importa la lista de tareas desde el archivo tareas.ts
-
-//const todasLasTareas = Astro.locals.tareas ?? [];
-const allTasks = tasks ?? [];
-// Se obtiene el filtro de la URL, por defecto es "todas"
-const filter = Astro.url.searchParams.get("filter") ?? "all";
-
-// Se filtran las tareas según el filtro seleccionado
-let filteredTasks = allTasks
-  .map((t, index) => ({ ...t, id: index })); // añade índice original
-
-if (filter === "completed") { // Filtra las tareas completadas
-  filteredTasks = filteredTasks.filter(t => t.done);
-} else if (filter === "incomplete") { // Filtra las tareas incompletas
-  filteredTasks = filteredTasks.filter(t => !t.done); //
-}
-
 ---
 
 <Layout>
@@ -38,10 +21,10 @@ if (filter === "completed") { // Filtra las tareas completadas
 
     <!-- Filtros de tareas, para filtrar entre todas, incompletas y completadas -->
     <div class="filters">
-      <form method="GET">
-        <button type="submit" class="filter-btn {filter === 'all' ? 'active' : ''}" name="filter" value="all">All</button>
-        <button type="submit" class="filter-btn {filter === 'incomplete' ? 'active' : ''}" name="filter" value="incomplete">Incomplete</button>
-        <button type="submit" class="filter-btn {filter === 'completed' ? 'active' : ''}" name="filter" value="completed">Completed</button>
+      <form method="GET" class="filter-form">
+        <button type="submit" class="filter-btn" name="filter" data-filter="all">All</button>
+        <button type="submit" class="filter-btn" name="filter" data-filter="incomplete">Incomplete</button>
+        <button type="submit" class="filter-btn" name="filter" data-filter="completed">Completed</button>
       </form>
     </div>
 
@@ -56,34 +39,160 @@ if (filter === "completed") { // Filtra las tareas completadas
 
       <!-- Lista de tareas -->
        <ul class="task-list">
-        {filteredTasks.map((task) => (
-          <li>
-            <form method="POST" class="task-form" action={"/api/completar"}>
-              <div class="task-content">
-                <label>
-									<input type="hidden" name="task-id" value={task.id} />
-                  <button type="submit" class="task-btn" name="task-btn">{task.done ? "✅" : "⬜"}</button>
-                  <span>{ task.text }</span>
-                </label>
-              </div>
-						</form>
-						<form method="POST" class="delete-form" action="/api/eliminar/">
-							<input type="hidden" name="task-id" value={task.id} />
-        			<button type="submit" class="delete-btn" name="delete-btn">🗑️</button>
-            </form>
-          </li>
-        ))}
+        <!-- <li>
+          <form method="POST" class="task-form" action={"/api/completar"}>
+            <div class="task-content">
+              <label>
+                <input type="hidden" name="task-id" value={task.id} />
+                <button type="submit" class="task-btn" name="task-btn">{task.done ? "✅" : "⬜"}</button>
+                <span>{ task.text }</span>
+              </label>
+            </div>
+          </form>
+          <form method="POST" class="delete-form" action="/api/eliminar/">
+            <input type="hidden" name="task-id" value={task.id} />
+            <button type="submit" class="delete-btn" name="delete-btn">🗑️</button>
+          </form>
+        </li> -->
       </ul>
 
       <!-- Botón para limpiar completadas -->
-      <form method="POST" action="/api/limpiar">
+      <form method="POST" class="clear-completed-form" action="/api/clear-completed">
         <button type="submit" class="clear-completed" name="clear-completed">Clear Completed</button>
       </form>
     </main>
   </body>
 </Layout>
 
-<script>
+<script type="module">
+
+  async function handleFilters (event) {
+    event.preventDefault();
+
+    const filter = event.currentTarget.dataset.filter;
+
+    try {
+      const res = await fetch(`/api/filtros?filter=${filter}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!res.ok) throw new Error("Error al obtener tareas filtradas");
+
+      const tasks = await res.json();
+      taskList.innerHTML = ""; // Limpiar la lista de tareas
+      
+      tasks.forEach((task) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <form method="POST" class="task-form" action="/api/completar">
+            <div class="task-content">
+              <label>
+                <input type="hidden" name="task-id" value=${task.id} />
+                <button type="submit" class="task-btn" name="task-btn">${task.done ? "✅" : "⬜"}</button>
+                <span>${ task.text }</span>
+              </label>
+            </div>
+          </form>
+          <form method="POST" class="delete-form" action="/api/eliminar/">
+            <input type="hidden" name="task-id" value=${task.id} />
+            <button type="submit" class="delete-btn" name="delete-btn">🗑️</button>
+          </form>
+        `;
+
+        taskList?.appendChild(li);
+
+        li.querySelector("form.task-form")?.addEventListener("submit", handleCompletarTarea);
+        li.querySelector("form.delete-form")?.addEventListener("submit", handleEliminarTarea);
+      });
+
+    } catch (error) {
+      console.error("Error al filtrar tareas:", error);
+    }
+
+  }
+
+  async function handleCompletarTarea (event) {
+    event.preventDefault(); // Previene el envío por defecto
+
+    const form = event.currentTarget;
+    const input = form.querySelector("input[name='task-id']");
+    const id = input?.value?.trim();
+
+    try {
+      const response = await fetch("api/completar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+
+      if (!response.ok) throw new Error("Error al completar tarea");
+
+      const button = form.querySelector(".task-btn");
+      if (button) {
+        button.textContent = button.textContent === "⬜" ? "✅" : "⬜";
+      }
+				
+
+    } catch (error) {
+      console.error("Error al marcar tarea:", error);
+    }
+  }
+
+  async function handleEliminarTarea (event) {
+    event.preventDefault(); // Previene el envío por defecto
+
+    const form = event.currentTarget;
+    const input = form.querySelector("input[name='task-id']");
+    const id = input?.value?.trim();
+
+    if (!input) return; // Verifica si el input existe
+
+    if (isNaN(id)) return;
+
+    try {
+      const response = await fetch(`/api/eliminar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+
+      if (!response.ok) throw new Error("Error al eliminar tarea");
+
+      // const taskElement = form.closest("li");
+      // if (taskElement) taskElement.remove();
+
+      form.closest("li")?.remove(); // Elimina el elemento de la lista
+
+      // Aquí podrías actualizar la lista de tareas si es necesario
+
+    } catch (error) {
+      console.error("Error al eliminar tarea:", error);
+    }
+  }
+
+  async function handleClearCompleted (event) {
+    event.preventDefault();
+
+    try {
+      const response = await fetch(`/api/clear-completed`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!response.ok) throw new Error("Error al eliminar tareas completadas");
+
+      document.querySelectorAll(".task-list li").forEach((li) => {
+        const button = li.querySelector(".task-btn");
+        if (button.textContent === "✅") {
+          li.remove();
+        }
+      });
+
+    } catch (error) {
+      console.error("Error al eliminar tareas completadas:", error);
+    }
+  }
+
   // Agregar tarea
   const form = document.querySelector(".task-input form");
 	const taskList = document.querySelector(".task-list");
@@ -92,7 +201,7 @@ if (filter === "completed") { // Filtra las tareas completadas
   form?.addEventListener("submit", async (event) => {
     event.preventDefault(); // Previene el envío por defecto
 
-    const input: HTMLInputElement | null = form.querySelector('input[name="task"]');
+    const input = form.querySelector('input[name="task"]');
     if (!input) return; // Verifica si el input existe
 
     const taskText = input?.value?.trim();
@@ -115,12 +224,12 @@ if (filter === "completed") { // Filtra las tareas completadas
 					<div class="task-content">
 						<label>
 							<input type="hidden" name="task-id" value=${task.id} />
-							<button type="submit" class="task-btn" name="task-btn">⬜</button>
+							<button type="submit" class="task-btn" name="task-btn">${task.done ? "✅" : "⬜"}</button>
 							<span>${ task.text }</span>
 						</label>
 					</div>
 				</form>
-				<form method="POST"  action="/api/eliminar/">
+				<form method="POST" class="delete-form" action="/api/eliminar/">
 					<input type="hidden" name="task-id" value=${task.id} />
 					<button type="submit" class="delete-btn" name="delete-btn">🗑️</button>
 				</form>
@@ -128,230 +237,39 @@ if (filter === "completed") { // Filtra las tareas completadas
 
 			taskList?.appendChild(li);
 
-      input.value = ""; // Limpiamos el input
+      	input.value = ""; // Limpiamos el input
+
+	  	li.querySelector("form.task-form")?.addEventListener("submit", handleCompletarTarea);
+
+	  	li.querySelector("form.delete-form")?.addEventListener("submit", handleEliminarTarea);
+
 
     } catch (error) {
-      console.error("Error al agregar tarea:", error);
+      	console.error("Error al agregar tarea:", error);
     }
   });
 
   // Completar tarea
-  // document.querySelectorAll(".task-list form").forEach((form) => {
-	// 	form.addEventListener("submit", async (event) => {
-	// 		event.preventDefault(); // Previene el envío por defecto
-
-	// 		const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
-	// 		const id = input?.value?.trim();
-
-  //     try {
-  //       const response = await fetch("api/completar", {
-  //         method: "POST",
-	// 				headers: { "Content-Type": "application/json" },
-	// 				body: JSON.stringify({ id })
-  //       });
-
-  //       if (!response.ok) throw new Error("Error al completar tarea");
-
-	// 			const button = form.querySelector(".task-btn");
-	// 			if (button) {
-	// 				button.textContent = button.textContent === "⬜" ? "✅" : "⬜";
-	// 			}
-
-  //     } catch (error) {
-  //       console.error("Error al marcar tarea:", error);
-  //     }
-  //   });
-  // });
-
-	// SEGUNDO INTENTO
-	// document.addEventListener("submit", async (event) => {
-	// 	const form = event.target as HTMLFormElement;
-
-	// 	// Verificamos si es un formulario de la lista de tareas
-	// 	if (form.classList.contains("task-form")) {
-	// 		event.preventDefault();
-
-	// 		const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
-	// 		const id = input?.value?.trim();
-
-	// 		try {
-	// 			const response = await fetch("api/completar", {
-	// 				method: "POST",
-	// 				headers: { "Content-Type": "application/json" },
-	// 				body: JSON.stringify({ id })
-	// 			});
-
-	// 			if (!response.ok) throw new Error("Error al completar tarea");
-
-	// 			const button = form.querySelector(".task-btn");
-	// 			if (button) {
-	// 				button.textContent = button.textContent === "⬜" ? "✅" : "⬜";
-	// 			}
-	// 		} catch (error) {
-	// 			console.error("Error al marcar tarea:", error);
-	// 		}
-	// 	}
-	// });
+  document.querySelectorAll(".task-list form").forEach((form) => {
+		form.addEventListener("submit", handleCompletarTarea);
+  });
 
   // Eliminar tarea
-  // document.querySelectorAll(".delete-form").forEach((form) => {
-  //   form.addEventListener("submit", async (event) => {
-  //     event.preventDefault(); // Previene el envío por defecto
+  document.querySelectorAll(".delete-form").forEach((form) => {
+    form.addEventListener("submit", handleEliminarTarea);
+  });
 
-  //     const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
-  //     if (!input) return; // Verifica si el input existe
+  // Clear completed
+  document.querySelectorAll(".clear-completed-form").forEach((form) => {
+    form.addEventListener("submit", handleClearCompleted)
+  });
 
-  //     const id = Number(input.value?.trim());
-  //     if (isNaN(id)) return;
+  // Filtros
+  document.querySelectorAll(".filter-btn").forEach((button) => {
+    button.addEventListener("click", handleFilters);
+  });
 
-  //     try {
-  //       const response = await fetch(`/api/eliminar`, {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({ id })
-  //       });
-
-  //       if (!response.ok) throw new Error("Error al eliminar tarea");
-
-	// 			const taskElement = form.closest("li");
-	// 			if (taskElement) taskElement.remove();
-
-	// 			// Aquí podrías actualizar la lista de tareas si es necesario
-
-  //     } catch (error) {
-  //       console.error("Error al eliminar tarea:", error);
-  //     }
-  //   });
-  // });
-
-	// SEGUNDO INTENTO
-	// document.addEventListener("submit", async (event) => {
-	// 	const form = event.target as HTMLFormElement;
-
-	// 	// Verificamos si es un formulario de eliminación
-	// 	if (form.classList.contains("delete-form")) {
-	// 		event.preventDefault();
-
-	// 		const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
-	// 		if (!input) return;
-
-	// 		const id = Number(input.value?.trim());
-	// 		if (isNaN(id)) return;
-
-	// 		try {
-	// 			const response = await fetch(`/api/eliminar`, {
-	// 				method: "POST",
-	// 				headers: { "Content-Type": "application/json" },
-	// 				body: JSON.stringify({ id })
-	// 			});
-
-	// 			if (!response.ok) throw new Error("Error al eliminar tarea");
-
-	// 			const taskElement = form.closest("li");
-	// 			if (taskElement) taskElement.remove();
-	// 		} catch (error) {
-	// 			console.error("Error al eliminar tarea:", error);
-	// 		}
-	// 	}
-	// });
-
-
-	document.addEventListener("submit", async (event) => {
-		const form = event.target as HTMLFormElement;
-
-		//if (!(form instanceof HTMLFormElement)) return; // Verifica si es un formulario
-
-		// Completar tarea
-		if (form.classList.contains("task-form")) {
-			event.preventDefault();
-
-			const input = form.querySelector("input[name='task-id']") as HTMLInputElement | null;
-			const id = input?.value?.trim();
-
-			try {
-				const response = await fetch("/api/completar", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ id }),
-				});
-
-				if (!response.ok) throw new Error("Error al completar tarea");
-
-				const button = form.querySelector(".task-btn");
-				if (button) {
-					button.textContent = button.textContent === "⬜" ? "✅" : "⬜";
-				}
-			} catch (error) {
-				console.error("Error al completar tarea:", error);
-			}
-
-			return; // Importante para que no pase al código de eliminar
-		}
-	});
-
-	// Eliminar tarea
-	document.addEventListener("submit", async (event) => {
-		const form = event.target as HTMLFormElement;
-
-		if (!(form instanceof HTMLFormElement)) return; // Verifica si es un formulario
-		
-		event.preventDefault(); // Previene el envío por defecto
-
-		if (form.matches(".delete-form")) {
-			const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
-			if (!input) return; // Verifica si el input existe
-
-			const id = Number(input.value?.trim());
-			if (isNaN(id)) return;
-
-			try {
-				const response = await fetch(`/api/eliminar`, {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ id }),
-				});
-
-				if (!response.ok) throw new Error("Error al eliminar tarea");
-
-				const taskElement = form.closest("li");
-				if (taskElement) taskElement.remove();
-			} catch (error) {
-				console.error("Error al eliminar tarea:", error);
-			}
-		}
-	})
-
-
-	// Clear completed tasks
-	// document.querySelectorAll(".task-btn").forEach(button => {
-	// 	button.addEventListener("submit", async (event) => {
-	// 		event.preventDefault(); // Previene el envío por defecto
-
-	// 		const form = button.closest("form");
-	// 		if (!form) return; // Verifica si el formulario existe
-
-	// 		const input: HTMLInputElement | null = form.querySelector("input[name='task-id']");
-	// 		if (!input) return; // Verifica si el input existe
-
-	// 		const id = Number(input.value?.trim());
-	// 		if (isNaN(id)) return;
-
-	// 		try {
-	// 			const response = await fetch(`/api/eliminar`, {
-	// 				method: "POST",
-	// 				headers: { "Content-Type": "application/json" },
-	// 				body: JSON.stringify({ id }),
-	// 			});
-
-	// 			if (!response.ok) throw new Error("Error al eliminar tarea");
-
-	// 			const taskElement = form.closest("li");
-	// 			if (taskElement) taskElement.remove();
-	// 		} catch (error) {
-	// 			console.error("Error al eliminar tarea:", error);
-	// 		}
-	// 	});
-	// });
+	
 </script>
 
 <style is:global>

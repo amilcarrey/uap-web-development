@@ -6,12 +6,13 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const contentType = request.headers.get("content-Type");
 
   try {
-    const { id } =
+    const data  =
       contentType === "application/x-www-form-urlencoded"
         ? await parseFormData(request)
         : await parseJson(request);
     
-    if (typeof id === "number" && !isNaN(id) && id >= 0 && id < tasks.length) {
+    const id = Number(data.id);
+    if (!isNaN(id) && tasks[id]) {
       tasks.splice(id, 1); // elimina la tarea por índice
     }
 

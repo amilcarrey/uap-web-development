@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { tasks } from "../../lib/tasks.ts";
+import { tasks } from "../../types.ts";
 
 export const POST: APIRoute = async ({ request, redirect }) => {
   const contentType = request.headers.get("content-Type");

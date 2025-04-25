@@ -1,0 +1,24 @@
+---
+import type { Task } from "../types";
+
+interface Props {
+  task?: Task;
+}
+
+const { task } = Astro.props as Props;
+---
+<li>
+    <form method="POST" class="task-form" action={`/api/toggle/${task?.id}`} data-text="actions-form" data-task-id={task?.id}>
+      <div class="task-content">
+        <label>
+          <!-- <input type="hidden" name="task-id" value={task.id} /> -->
+          <button type="submit" class="task-btn" name="action" value="complete"><span data-text="done">{task?.done ? "✅" : "⬜"}</span></button>
+          <span data-text="text">{task?.text}</span>
+        </label>
+      </div>
+    </form>
+    <form method="POST" class="delete-form" action={`/api/toggle/${task?.id}`} data-text="actions-form" data-task-id={task?.id}>
+      <!-- <input type="hidden" name="task-id" value={task.id} /> -->
+      <button type="submit" class="delete-btn" name="action" value="delete">🗑️</button>
+    </form>
+  </li>

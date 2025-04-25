@@ -1,24 +1,26 @@
 import type { APIRoute } from "astro";
+import { tasks } from "../../lib/tasks.ts";
 import { parseFormData, parseJson } from "../../lib/requestParse.ts";
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, locals, redirect }) => {
   const contentType = request.headers.get("content-Type");
-  const tasks = locals.tasks || [];
 
   try {
-    const { id } =
+    const data  =
       contentType === "application/x-www-form-urlencoded"
         ? await parseFormData(request)
         : await parseJson(request);
     
-    if (typeof id === "number" && tasks[id]) tasks[id].done = !tasks[id].done;
+    const id = String(data.id);
+    const task = tasks.find((task) => task.id === id);
+    if (task) task.done = !task.done;
 
-    locals.tasks = tasks;
+    // locals.tasks = tasks;
     
     if (contentType === "application/json") {
-      return new Response(JSON.stringify(tasks), {
+      return new Response(JSON.stringify({ success: true, task}), {
         status: 200,
         headers: { "Content-Type": "application/json"},
       });

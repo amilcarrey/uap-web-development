@@ -1,0 +1,23 @@
+---
+type Props = {
+    content: string;
+    likes: number;
+    id: string;
+};
+const { content, likes, id }: Props = Astro.props;
+---
+
+<li>
+    <p>Mensaje 1</p>
+    <div>
+        <button>Like</button>
+        <button>Eliminar</button>
+    </div>
+</li>
+<li>
+    <p>Mensaje 2</p>
+    <div>
+        <button>Like{likes !== 1 ? "s" : ""}</button>
+        <button>Eliminar</button>
+    </div>
+</li>

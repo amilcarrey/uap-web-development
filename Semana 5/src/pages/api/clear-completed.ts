@@ -1,37 +1,21 @@
 import type { APIRoute } from "astro";
 import { tasks } from "../../lib/tasks.ts";
-import { parseFormData, parseJson } from "../../lib/requestParse.ts";
 
 export const POST: APIRoute = async ({ request, redirect }) => {
   const contentType = request.headers.get("content-Type");
 
   try {
-    const { text } =
-      contentType === "application/x-www-form-urlencoded"
-        ? await parseFormData(request)
-        : await parseJson(request);
+    const filteredTasks = tasks.filter(task => !task.done);
+    tasks.splice(0, tasks.length, ...filteredTasks); // Reemplaza el contenido de tasks con las tareas no completadas
     
-    const filter = Astro.url.searchParams.get("filter") ?? "all";
-    let filteredTasks = tasks
-    if (filter === "completed") {
-      filteredTasks = tasks.filter((task) => task.done);
-
-        if (typeof id === "number" && !isNaN(id) && id >= 0 && id < tasks.length) {
-      tasks.splice(id, 1); // elimina la tarea por índice
-    }
-      
-    
-      if (contentType === "application/json") {
-        return new Response(JSON.stringify(newTask), {
-          status: 200,
-          headers: { "Content-Type": "application/json"},
-        });
-      }
-
-      return redirect("/");
+    if (contentType === "application/json") {
+      return new Response(JSON.stringify(tasks), {
+        status: 200,
+        headers: { "Content-Type": "application/json"},
+      });
     }
     
-    return new Response("Invalid task text", { status: 400 });
+    return redirect("/");
 
   } catch (error) {
     return new Response("Invalid content type", { status: 400 });
