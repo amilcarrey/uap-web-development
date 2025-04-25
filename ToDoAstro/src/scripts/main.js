@@ -35,12 +35,14 @@ async function cargarTareas() {
 
 // Filtrar tareas
 filtrosForm?.addEventListener("click", (e) => {
-  const boton = e.target.closest("button[data-filtro]");
+  const boton = e.target.closest("a[data-filtro]");
   if (!boton) return;
+
+  e.preventDefault();
 
   filtroActual = boton.dataset.filtro;
 
-  document.querySelectorAll("#filtros-form button").forEach(btn => {
+  document.querySelectorAll("#filtros-form a").forEach(btn => {
     btn.classList.remove("bg-green-300", "text-white");
     btn.classList.add("bg-gray-100");
   });

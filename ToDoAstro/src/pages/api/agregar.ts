@@ -13,7 +13,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (aceptaHTML) {
       // Si viene de un form clásico, redirige
-      return Response.redirect("/", 303);
+      const location = new URL("/", request.url);
+      return Response.redirect(location.toString(), 303); 
     }
 
     // Si viene de fetch/AJAX, devuelve JSON
