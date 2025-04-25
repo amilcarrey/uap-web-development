@@ -16,7 +16,7 @@ type Tarea = {
     if (filtrar === "pendientes") return tareas.filter((t) => !t.completada);
     return tareas;
   }
-  
+ 
   export function agregarTarea(descripcion: string) {
     const nuevaTarea: Tarea = {
       id: Date.now(),
@@ -37,12 +37,12 @@ type Tarea = {
     );
   }
   
-  export function eliminarTarea(id: number) {
+  export function eliminarTarea(id: number): boolean {
     const tarea = tareas.find((t) => t.id === id);
-    //validacion por si no encuentro la tarea o si fue realizada no pueda eliminarla
-    if(!tarea) return;
-    if(tarea.completada) return;
+    if (!tarea || tarea.completada) return false;
+  
     tareas = tareas.filter((t) => t.id !== id);
+    return true;
   }
   
   export function eliminarCompletadas(){

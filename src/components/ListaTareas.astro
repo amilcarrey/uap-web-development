@@ -3,7 +3,7 @@ import Tarea from "./Tarea.astro";
 const { tareas } = Astro.props;
 ---
 
-<div class="task-list">
+<div class="task-list" id="lista-tareas"> 
   {tareas.map((tarea) => (
     <Tarea tarea={tarea} />
   ))}

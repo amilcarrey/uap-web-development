@@ -1,4 +1,7 @@
-<button type="button" class="eliminar" id="clear">Eliminar todas las tareas completadas</button>
+<form method="post" action="/api/eliminarCompletadas" class="delete-form">
+  <button type="submit" class="eliminar" id="clear">
+  Eliminar todas las tareas completadas</button>
+</form>
 
 <script>
   const boton = document.querySelector("#clear");

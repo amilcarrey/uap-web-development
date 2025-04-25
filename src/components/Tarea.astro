@@ -1,21 +1,19 @@
+--- 
+const { tarea } = Astro.props; 
 ---
-const { tarea } = Astro.props;
----
+
 <div class="task bg-a-lpha-50 border-2 bg-pink-400  rounded-lg p-4 my-2 flex items-center justify-between" 
      data-id={tarea.id}>
-  {/* redirijo para invocar la función actualizarEstado */}
-  <form method="post" action="/api/toggle" class="toggle-form">
-    {/* hidden guarda el id de la tarea */}
+  <!-- Formulario para eliminar la tarea -->
+  <form method="post" action="/api/eliminar" class="delete-form">
     <input type="hidden" name="id" value={tarea.id} />
-    {/* onchange es un evento que se dispara cuando el valor del checkbox cambia
-        checked sincroniza el estado del checkbox con el estado de la tarea */}
-    <input type="checkbox" class="checkmark" 
-           checked={tarea.completada} />
+    <button type="submit" class="deletemark">🗑️</button>
   </form>
-
   <span class="task-text">{tarea.descripcion}</span>
-
-  <button type="button" class="deletemark eliminar-tarea">🗑️</button>
+  <form method="post" action="/api/toggle" class="toggle-form">
+    <input type="hidden" name="id" value={tarea.id} />
+    <input type="checkbox" class="checkmark" checked={tarea.completada} />
+  </form>
 </div>
 
 <script type="module">

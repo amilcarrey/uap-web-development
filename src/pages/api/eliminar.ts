@@ -35,14 +35,22 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  eliminarTarea(id);
+  const eliminada = eliminarTarea(id); // devuelve true o false
 
   if (esJSON) {
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    if (eliminada) {
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } else {
+      return new Response(JSON.stringify({ success: false, error: "No se pudo eliminar la tarea (inexistente o completada)" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
   }
 
+  // En formularios normales, redirigir al home siempre
   return new Response(null, { status: 302, headers: { Location: "/" } });
 };
