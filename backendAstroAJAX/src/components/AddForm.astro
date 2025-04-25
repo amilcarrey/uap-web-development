@@ -1,0 +1,22 @@
+<form id="form-agregar" method="POST" action="/api/tareas" class="flex mt-4">
+    <input
+      type="hidden"
+      name="accion"
+      value="agregar"
+    />
+    <input
+      type="text"
+      id="input-tarea"
+      name="texto"
+      placeholder="What do you want to do?"
+      required
+      class="flex-grow p-2 border border-gray-300 rounded-l-md"
+    />
+    <button
+      type="submit"
+      class="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600"
+    >
+      ADD
+    </button>
+  </form>
+  

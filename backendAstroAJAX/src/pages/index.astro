@@ -1,0 +1,60 @@
+---
+// src/pages/index.astro
+import AddForm from "../components/AddForm.astro"; 
+import TaskItem from "../components/TaskItem.astro";
+import { getTareas } from "../lib/tareas";
+import "../styles/global.css";
+
+const filtro = Astro.url.searchParams.get("filtro") || "todas";
+const tareas = getTareas().filter((t) =>
+  filtro === "completas"
+    ? t.completada
+    : filtro === "incompletas"
+    ? !t.completada
+    : true
+);
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TO-DO</title>
+  </head>
+  <body class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-2xl bg-white shadow-md rounded-4xl p-6">
+      <h1 class="text-3xl font-bold text-center mb-6">TO-DO</h1>
+
+      <AddForm />
+
+      <div class="flex justify-center gap-4 mt-6 mb-4">
+        <a href="/?filtro=todas" class="filtro bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Todas</a>
+        <a href="/?filtro=incompletas" class="filtro bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Incompletas</a>
+        <a href="/?filtro=completas" class="filtro bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Completas</a>
+      </div>
+
+      <ul id="lista-tareas" class="space-y-4">
+        {tareas.map((tarea) => <TaskItem tarea={tarea} />)}
+      </ul>
+
+      <form method="POST" action="/api/tareas" class="mt-6">
+        <input type="hidden" name="accion" value="limpiar" />
+        <button id="btn-limpiar" class="w-full bg-gray-400 hover:bg-gray-600 text-white py-2 px-4 rounded">
+          Clear completed
+        </button>
+      </form>
+
+      <template id="tarea-template">
+		<li>
+		  <div class="flex items-center justify-between gap-4 p-4 bg-white rounded shadow">
+			<button data-toggle class="text-xl w-7 h-7 flex items-center justify-center rounded-full border transition bg-white text-gray-800 border-gray-300 hover:bg-gray-100"></button>
+			<span class="flex-grow text-lg text-gray-800"></span>
+			<button data-borrar class="text-white bg-red-500 hover:bg-red-700 px-3 py-1 rounded">🗑️</button>
+		  </div>
+		</li>
+	  </template>
+	  
+    </div>
+    <script type="module" src="/src/script.ts"></script>
+  </body>
+</html>
