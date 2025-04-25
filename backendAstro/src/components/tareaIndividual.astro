@@ -9,29 +9,44 @@ export interface Props {
 const { tarea } = Astro.props;
 ---
 
-<div class="flex items-center justify-between gap-4 p-4 bg-white rounded shadow">
-  <form method="POST" action="/api/tareas">
-    <input type="hidden" name="accion" value="toggle" />
-    <input type="hidden" name="id" value={tarea.id} />
-    <button
-      type="submit"
-      class={`text-xl w-7 h-7 flex items-center justify-center rounded-full border transition ${
-        tarea.completada
-          ? "bg-green-100 text-green-700 border-green-500"
-          : "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
+<li>
+  <div class="flex items-center justify-between gap-4 p-4 bg-white rounded shadow">
+
+    <!-- Formulario de toggle -->
+    <form method="POST" action="/api/tareas" class="form-toggle">
+      <input type="hidden" name="accion" value="toggle" />
+      <input type="hidden" name="id" value={tarea.id} />
+      <button
+        type="submit"
+        class={`text-xl w-7 h-7 flex items-center justify-center rounded-full border transition ${
+          tarea.completada
+            ? "bg-green-100 text-green-700 border-green-500"
+            : "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
+        }`}
+      >
+        {tarea.completada ? "✔️" : ""}
+      </button>
+    </form>
+
+    <!-- Texto de la tarea -->
+    <span
+      class={`flex-grow text-lg ${
+        tarea.completada ? "line-through text-gray-400" : "text-gray-800"
       }`}
     >
-      {tarea.completada ? "✔️" : ""}
-    </button>
-  </form>
+      {tarea.texto}
+    </span>
 
-  <span class={`flex-grow text-lg ${tarea.completada ? "line-through text-gray-400" : "text-gray-800"}`}>
-    {tarea.texto}
-  </span>
-
-  <form method="POST" action="/api/tareas">
-    <input type="hidden" name="accion" value="borrar" />
-    <input type="hidden" name="id" value={tarea.id} />
-    <button class="text-white bg-red-500 hover:bg-red-700 px-3 py-1 rounded" type="submit">🗑️</button>
-  </form>
-</div>
+    <!-- Formulario de borrar -->
+    <form method="POST" action="/api/tareas" class="form-borrar">
+      <input type="hidden" name="accion" value="borrar" />
+      <input type="hidden" name="id" value={tarea.id} />
+      <button
+        type="submit"
+        class="text-white bg-red-500 hover:bg-red-700 px-3 py-1 rounded"
+      >
+        🗑️
+      </button>
+    </form>
+  </div>
+</li>

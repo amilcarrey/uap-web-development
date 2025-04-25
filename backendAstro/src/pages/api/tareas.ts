@@ -4,42 +4,43 @@ import {
   borrarTarea,
   toggleTarea,
   limpiarCompletadas,
-} from "../lib/tareas"; // Asegurate que este path esté bien
+} from "../lib/tareas";
 
-export const POST: APIRoute = async ({ request, redirect }) => {
-  const contentType = request.headers.get("content-type") || "";
+export const POST: APIRoute = async ({ request }) => {
+  try {
+    const { accion, texto, id } = await request.json();
 
-  let accion = "";
-  let texto = "";
-  let id: number | null = null;
+    if (accion === "agregar") {
+      const tarea = agregarTarea(texto);
+      return json({ tarea });
+    }
 
-  if (contentType.includes("application/json")) {
-    // 📦 Viene de fetch con JSON
-    const data = await request.json();
-    accion = data.accion;
-    texto = data.texto;
-    id = data.id ?? null;
-  } else {
-    // 📦 Viene de un formulario HTML (formData)
-    const data = await request.formData();
-    accion = data.get("accion")?.toString() ?? "";
-    texto = data.get("texto")?.toString() ?? "";
-    id = data.get("id") ? Number(data.get("id")) : null;
+    if (accion === "borrar") {
+      borrarTarea(id);
+      return json({ ok: true });
+    }
+
+    if (accion === "toggle") {
+      toggleTarea(id);
+      return json({ ok: true });
+    }
+
+    if (accion === "limpiar") {
+      limpiarCompletadas();
+      return json({ ok: true });
+    }
+
+    return json({ error: "Acción no reconocida" }, 400);
+
+  } catch (error) {
+    console.error("❌ Error en /api/tareas:", error);
+    return json({ error: "Error de servidor" }, 500);
   }
+};
 
-  // 🧠 Lógica de tareas
-  if (accion === "agregar" && texto) agregarTarea(texto);
-  if (accion === "borrar" && id !== null) borrarTarea(id);
-  if (accion === "toggle" && id !== null) toggleTarea(id);
-  if (accion === "limpiar") limpiarCompletadas();
-
-  // 🔁 Si vino desde un formulario clásico, redirigimos
-  if (!contentType.includes("application/json")) {
-    return redirect("/", 303);
-  }
-
-  // ⚡ Si vino desde fetch con JSON, devolvemos respuesta directa
-  return new Response(JSON.stringify({ ok: true }), {
+function json(data: any, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
     headers: { "Content-Type": "application/json" },
   });
-};
+}

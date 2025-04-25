@@ -21,6 +21,10 @@ if (
 
 const renderMessage = (message: Message) => {
   const messageItem = messageItemExample.cloneNode(true) as HTMLLIElement;
+  const form = messageItem.querySelector("form") as HTMLFormElement;
+  form.setAttribute("action", `/api/messages/${message.id}`);
+  form.setAttribute("data-message-id", message.id); // 👈 Agregá esto
+
   messageItem.querySelector("[data-content='content']")!.textContent =
     message.content;
   messageItem.querySelector("[data-content='createdAt']")!.textContent =
