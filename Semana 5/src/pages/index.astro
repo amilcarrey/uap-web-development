@@ -15,7 +15,7 @@ import Layout from '../layouts/Layout.astro'; // Importa el layout que se usará
     <!-- Botón para la categoría "Professional" (sin clase) -->
     <button class="border-none bg-transparent text-[18px] py-3 px-5 cursor-pointer">Professional</button>
     <!-- Botón para añadir nuevas tareas -->
-    <button class="bg-[#b07c7c] text-white text-[20px] py-1 px-4 rounded">+</button>
+    <button class="bg-[#b07c7c] text-white text-[20px] py-1 px-4 rounded-[5px] cursor-pointer">+</button>
   </nav>
 
   <!-- Filtros de tareas, para filtrar entre todas, incompletas y completadas -->
@@ -32,7 +32,7 @@ import Layout from '../layouts/Layout.astro'; // Importa el layout que se usará
     <div class="flex justify-center items-center my-5" id="task-input">
       <form method="POST" action="/api/agregar">
         <input type="text" class="w-[60%] py-2 px-2 rounded-[20px] bg-[#eadecf] border-none placeholder:text-[13px] placeholder:text-[#888]" name="task" placeholder="What do you need to do?" required>
-        <button type="submit" class="bg-[#65b8d8] text-white py-2 px-5 ml-2 rounded-[20px] cursor-pointer" name="add-task">ADD</button>
+        <button type="submit" class="bg-[#65b8d8] text-white py-2 px-5 ml-2 rounded-[20px] cursor-pointer hover:bg-[#4a9cbd]" name="add-task">ADD</button>
       </form>
     </div>
 
@@ -42,7 +42,7 @@ import Layout from '../layouts/Layout.astro'; // Importa el layout que se usará
 
     <!-- Botón para limpiar completadas -->
     <form method="POST" class="clear-completed-form" name="clear-completed-form" action="/api/clear-completed">
-      <button type="submit" class="bg-[#d9534f] text-white py-2 px-5 rounded-[5px] mt-5 block mx-auto cursor-pointer" name="clear-completed">Clear Completed</button>
+      <button type="submit" class="bg-[#d9534f] text-white py-2 px-5 rounded-[5px] mt-5 block mx-auto cursor-pointer hover:bg-[#c9302c]" name="clear-completed">Clear Completed</button>
     </form>
   </main>
 </Layout>
@@ -248,4 +248,175 @@ import Layout from '../layouts/Layout.astro'; // Importa el layout que se usará
     button.addEventListener("click", handleFilters);
   });
 
+	
 </script>
+
+<!-- <style is:global>
+  /* Estilos generales */
+	body {
+		font-family: Arial, sans-serif; /* Se usa Arial o una fuente sans-serif como fallback */
+		background-color: #f4ede6; /* Color de fondo del cuerpo */
+		color: #555; /* Color del texto general */
+		text-align: center; /* Alineación del texto al centro */
+		margin: 0; /* Se elimina el margen predeterminado */
+	}
+
+	/* Título */
+	header h1 {
+		font-size: 32px; /* Tamaño del texto del título */
+		color: #333; /* Color del texto */
+		margin: 20px 0; /* Espaciado superior e inferior */
+	}
+
+	header h1 span {
+		color: #e08e36; /* Se cambia el color de una parte del texto */
+	}
+
+	/* Barra de navegación */
+	nav {
+		display: flex; /* Se usa flexbox para distribuir los elementos */
+		justify-content: space-between; /* Los elementos se distribuyen uniformemente en la barra */
+		background-color: #fff; /* Fondo blanco */
+		padding: 10px; /* Espaciado interno */
+		border-bottom: 2px solid #ddd; /* Borde inferior para separar visualmente la barra */
+	}
+
+	nav button {
+		border: none; /* Se elimina el borde */
+		background: none; /* Se deja el fondo transparente */
+		font-size: 18px; /* Tamaño del texto */
+		padding: 10px 20px; /* Espaciado interno */
+		cursor: pointer; /* Se cambia el cursor a puntero al pasar sobre el botón */
+	}
+
+	nav .nav-btn {
+		font-weight: bold; /* Texto en negrita */
+		border-bottom: 3px solid #e08e36; /* Línea inferior para destacar el botón activo */
+	}
+
+	.add-btn {
+		background-color: #b07c7c; /* Color de fondo */
+		color: white; /* Texto en color blanco */
+		font-size: 20px; /* Tamaño del texto */
+		padding: 5px 15px; /* Espaciado interno */
+		border-radius: 5px; /* Bordes redondeados */
+	}
+
+	/* Input de tareas */
+	.task-input {
+		margin: 20px auto; /* Espaciado superior e inferior, centrado horizontalmente */
+		display: flex; /* Se usa flexbox para alinear elementos */
+		justify-content: center; /* Centramos el contenido */
+		align-items: center; /* Alineación vertical */
+	}
+
+	.task-input input {
+		width: 60%; /* Ocupa el 60% del ancho disponible */
+		padding: 10px; /* Espaciado interno */
+		border: none; /* Se elimina el borde */
+		border-radius: 20px; /* Bordes redondeados */
+		background-color: #eadecf; /* Color de fondo */
+	}
+
+
+	.add-task {
+		background-color: #65b8d8; /* Color de fondo */
+		color: white; /* Color del texto */
+		border: none; /* Se elimina el borde */
+		padding: 10px 20px; /* Espaciado interno */
+		margin-left: 10px; /* Margen a la izquierda para separación */
+		border-radius: 20px; /* Bordes redondeados */
+		cursor: pointer; /* Se cambia el cursor a puntero */
+	}
+
+	.add-task:hover {
+		background-color: #4a9cbd; /* Color más oscuro al pasar el cursor */
+	}
+	
+	/* Formulario de cada tarea */
+	.task-form {
+		display: flex; /* Se usa flexbox para alinear elementos */
+		justify-content: space-between; /* Los elementos se distribuyen uniformemente */
+		align-items: center; /* Alineación vertical */
+		width: 100%; /* Ancho completo del contenedor */
+	}
+
+	.task-content {
+		display: flex; /* Se usa flexbox para alinear elementos */
+		align-items: center; /* Alineación vertical */
+		gap: 10px; /* Espacio entre el botón y el texto */
+	}
+
+
+	/* Lista de tareas */
+	.task-list {
+		list-style: none; /* Se eliminan los estilos de lista predeterminados */
+		padding: 0; /* Se elimina el padding */
+		margin: 0 auto; /* Centrado horizontalmente */
+		width: 60%; /* Ancho de la lista */
+		background-color: #e4dfd9; /* Color de fondo */
+		border-radius: 10px; /* Bordes redondeados */
+		padding: 20px; /* Espaciado interno */
+	}
+
+	.task-list li {
+		display: flex; /* Se usa flexbox */
+		align-items: center; /* Alineación vertical */
+		justify-content: space-between; /* Espaciado uniforme */
+		padding: 10px; /* Espaciado interno */
+		border-bottom: 1px solid #ccc; /* Línea divisoria entre tareas */
+	}
+
+	.task-btn {
+		background: none; /* Sin fondo */
+		border: none; /* Sin borde */
+		font-size: 18px; /* Tamaño del texto */
+		cursor: pointer; /* Se cambia el cursor a puntero */
+	}
+
+	.delete-btn {
+		background: none; /* Sin fondo */
+		border: none; /* Sin borde */
+		font-size: 18px; /* Tamaño del texto */
+		cursor: pointer; /* Se cambia el cursor a puntero */
+	}
+
+	/* Asegurar que la barra de navegación y filtros están separados */
+	.filters {
+		display: flex; /* Se usa flexbox */
+		justify-content: center; /* Centrado horizontal */
+		gap: 10px; /* Espaciado entre los botones */
+		margin-top: 10px; /* Espaciado superior */
+		padding: 10px; /* Espaciado interno */
+	}
+
+	.filter-btn {
+		padding: 10px 15px; /* Espaciado interno */
+		border: none; /* Sin borde */
+		border-radius: 5px; /* Bordes redondeados */
+		cursor: pointer; /* Se cambia el cursor a puntero */
+		background-color: #b07c7c; /* Color de fondo */
+		color: white;
+		font-size: 16px;
+	}
+
+	.filter-btn:hover {
+		background-color: #916666; /* Color más oscuro al pasar el cursor */
+	}
+
+
+	.clear-completed {
+		display: block; /* Se muestra como un bloque */
+		margin: 20px auto; /* Centrado horizontalmente */
+		padding: 10px 15px; /* Espaciado interno */
+		background-color: #d9534f; /* Color de fondo */
+		color: white; /* Color del texto */
+		border: none; /* Sin borde */
+		border-radius: 5px; /* Bordes redondeados */
+		cursor: pointer; /* Se cambia el cursor a puntero */
+	}
+
+	.clear-completed:hover {
+		background-color: #c9302c; /* Color más oscuro al pasar el cursor */
+	}
+</style> -->
