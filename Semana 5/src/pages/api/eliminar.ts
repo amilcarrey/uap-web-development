@@ -11,10 +11,10 @@ export const POST: APIRoute = async ({ request, redirect }) => {
         ? await parseFormData(request)
         : await parseJson(request);
     
-    const id = Number(data.id);
-    if (!isNaN(id) && tasks[id]) {
-      tasks.splice(id, 1); // elimina la tarea por índice
-    }
+    const taskId = data.id;
+    
+    const filtered = tasks.filter(task => task.id !== taskId);
+    tasks.splice(0, tasks.length, ...filtered);
 
     if (contentType === "application/json") {
       return new Response(JSON.stringify(tasks), {
