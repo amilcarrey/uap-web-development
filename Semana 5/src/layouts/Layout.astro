@@ -7,16 +7,11 @@
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro Basics</title>
 	</head>
-	<body>
+	<body class="flex flex-col items-center font-sans bg-[#f4ede6] min-h-screen text-center text-[#555] m-0">
 		<slot />
 	</body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+<style is:global>
+	@import "tailwindcss";
 </style>
