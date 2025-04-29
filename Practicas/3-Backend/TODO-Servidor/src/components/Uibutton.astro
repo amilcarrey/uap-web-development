@@ -3,6 +3,7 @@ export interface Props {
   href?: string;
   type?: 'button' | 'submit';
   isActive?: boolean;
+  class?: string;
   className?: string;
 }
 
@@ -11,6 +12,7 @@ const {
   href,
   type = 'button',
   isActive = false,
+  class: classAttr = '',
   className = '',
 } = Astro.props;
 
@@ -28,7 +30,8 @@ const baseStyles = `
 `;
 
 const activeStyles = isActive ? 'bg-[burlywood] text-white' : '';
-const finalClass = `${baseStyles} ${activeStyles} ${className}`.trim();
+const finalClass = `${baseStyles} ${activeStyles} ${className || classAttr}`.trim();
+
 ---
 
 {href ? (
