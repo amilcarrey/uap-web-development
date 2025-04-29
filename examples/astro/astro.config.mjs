@@ -1,10 +1,9 @@
-// @ts-check
-import { defineConfig } from "astro/config";
-import node from "@astrojs/node";
-// https://astro.build/config
+import {defineConfig} from 'astro/config';
+import tailwindcss from '@tailwindcss/vite';
+
 export default defineConfig({
-  output: "server",
-  adapter: node({
-    mode: "standalone",
-  }),
+    output: "server",
+    vite: {
+        plugins: [tailwindcss()],
+    },
 });
