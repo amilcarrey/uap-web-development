@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Menu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body class="font-sans bg-gray-100">
+  <header class="text-center py-2">
+    <h1 class="text-[25px] bg-gradient-to-r from-cyan-400 to-blue-700 bg-clip-text text-transparent w-fit mx-auto">TODO</h1>
+  </header>
+  <main class="container mx-auto px-4">
+    <section class="flex w-full mt-2 mb-2">
+      <button class="flex-1 text-center text-blue-500 text-2xl py-2 px-5 {{ 'border-b-2 border-yellow-600 font-bold' if active_category == 'Personal' else 'border-b-2 border-transparent' }} hover:bg-cyan-200">Personal</button>
+      <button class="flex-1 text-center text-blue-500 text-2xl py-2 px-5 {{ 'border-b-2 border-yellow-600 font-bold' if active_category == 'Profesional' else 'border-b-2 border-transparent' }} hover:bg-cyan-200">Profesional</button>
+      <form action="/task-2" method="POST" style="display: inline;">
+        <input type="hidden" name="task" id="hidden-task" value="New Task">
+        <button type="submit" class="w-12 h-12 flex items-center justify-center bg-blue-500 text-white text-2xl font-bold rounded-full hover:bg-cyan-400 cursor-pointer">+</button>
+      </form>
+    </section>
+    <section class="mb-5">
+      <form action="/task-2" method="POST" class="flex items-center gap-2 justify-center w-3/5 mx-auto">
+        <input type="text" name="task" placeholder="What do you need to do?" class="flex-1 p-2 border border-gray-300 rounded-md text-base">
+        <button type="submit" class="w-[50px] h-[50px] flex items-center justify-center bg-blue-500 text-white text-[22px] font-bold rounded-full hover:bg-cyan-400 cursor-pointer leading-none align-middle -translate-y-[0px]">+</button>
+      </form>
+    </section>
+    <section class="text-center my-5">
+      <a href="/tasks?filter=all" class="mx-2 text-blue-600 font-bold hover:underline {{ 'underline' if active_filter == 'all' else '' }}">All</a>
+      <a href="/tasks?filter=active" class="mx-2 text-blue-600 font-bold hover:underline {{ 'underline' if active_filter == 'active' else '' }}">Active</a>
+      <a href="/tasks?filter=completed" class="mx-2 text-blue-600 font-bold hover:underline {{ 'underline' if active_filter == 'completed' else '' }}">Completed</a>
+    </section>
+    <section class="bg-yellow-100 rounded-2xl w-3/5 mx-auto p-5 shadow-lg">
+      <section class="flex flex-col gap-2">
+        {% for task in tasks %}
+        <div class="flex items-center justify-between py-2 text-gray-800 relative {{ 'line-through text-gray-500' if task.completed else '' }}">
+          <div class="flex items-center">
+            <form action="/toggle-completed/{{ loop.index0 }}" method="POST">
+              <button type="submit" class="w-5 h-5 flex items-center justify-center rounded-full border-2 {{ 'border-orange-500 text-orange-500' if task.completed else 'border-gray-400 text-transparent' }} text-xs font-bold">
+                {{ '✔' if task.completed else '' }}
+              </button>
+            </form>
+            <span class="ml-2">{{ task.text }}</span>
+          </div>
+          <form action="/delete-task/{{ loop.index0 }}" method="POST">
+            <button type="submit" class="bg-transparent border-none cursor-pointer">
+              <img src="{{ url_for('static', filename='tacho de basura.png') }}" alt="Delete" class="w-8 h-8">
+            </button>
+          </form>
+          <div class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"></div>
+        </div>
+        {% endfor %}
+        <form action="/clear-completed" method="POST">
+          <footer class="flex justify-end mt-5">
+            <button type="submit" class="text-cyan-400 underline">Clear completed</button>
+          </footer>
+        </form>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
