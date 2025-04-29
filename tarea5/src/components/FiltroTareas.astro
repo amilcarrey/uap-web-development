@@ -1,0 +1,13 @@
+---
+interface Props {
+  filtro: string;
+}
+
+const { filtro } = Astro.props;
+---
+
+<div class="filtros">
+  <button type="button" data-filter="">Tareas</button>
+  <button type="button" data-filter="completas">Completas</button>
+  <button type="button" data-filter="incompletas">Incompletas</button>
+</div>

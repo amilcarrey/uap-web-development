@@ -1,0 +1,127 @@
+---
+import Layout from "../layouts/Layout.astro";
+import NuevaTareaForm from "../components/NuevaTarea.astro";
+import FilterForm from "../components/FiltroTareas.astro";
+import TareaList from "../components/ListaTareas.astro";
+import { getTareas } from "../services/tareas";
+import type { Tarea } from "../type";
+
+const tareas = getTareas("");
+---
+
+<Layout>
+  <div class="body">
+    <div>
+      <h1 class="encabezado">TO-DO</h1>
+    </div>
+
+    <div class="container">
+      <h4 id="subencabezado">Personal</h4>
+      <h4 id="subencabezado">Professional</h4>
+    </div>
+
+    <br><br>
+
+    <NuevaTareaForm id="nueva-tarea-form" />
+
+    <br>
+
+    <FilterForm filtro="" />
+
+    <br>
+
+    <div class="to-do">
+      <TareaList tareas={tareas} />
+    </div>
+  </div>
+</Layout>
+
+<script>
+import { Tarea } from "~/type";
+
+  interface CustomWindow extends Window {
+    listarTareas: () => Promise<void>;
+    toggleTarea: (element: HTMLInputElement) => Promise<void>;
+    eliminarTarea: (element: HTMLButtonElement) => Promise<void>;
+    filtro: string;
+  }
+
+  declare const window: CustomWindow;
+
+  interface TareasResponse {
+    tareas: Tarea[];
+  }
+
+  window.listarTareas = async function () {
+    const response = await fetch(`/api/tareas${window.filtro ? `?search=${window.filtro}` : ""}`);
+    if (!response.ok) {
+      return;
+    }
+    const { tareas }: TareasResponse = await response.json();
+    const tareaList = document.querySelector("tarea-list") as any;
+    if (tareaList && typeof tareaList.renderTareas === "function") {
+      tareaList.renderTareas(tareas);
+    }
+  };
+
+  window.filtro = "";
+
+  window.toggleTarea = async function (element: HTMLInputElement) {
+    const id = element.getAttribute("data-id");
+    if (!id) return;
+    const response = await fetch(`/api/tareas`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, _method: "toggle" }),
+    });
+    if (response.ok) {
+      window.listarTareas();
+    }
+  };
+
+  window.eliminarTarea = async function (element: HTMLButtonElement) {
+    const id = element.getAttribute("data-id");
+    if (!id) return;
+    const response = await fetch(`/api/tareas`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, _method: "delete" }),
+    });
+    if (response.ok) {
+      window.listarTareas();
+    }
+  };
+
+  async function eliminarTareasCompletadas() {
+    const response = await fetch("/api/tareas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ _method: "delete-completadas" }),
+    });
+    if (response.ok) {
+      window.listarTareas();
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const filterButtons = document.querySelectorAll(".filtros button");
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const filterValue = button.getAttribute("data-filter");
+        if (filterValue !== null) {
+          window.filtro = filterValue;
+          window.listarTareas();
+        }
+      });
+    });
+
+    const clearCompletedButton = document.getElementById("clear-completed");
+    if (clearCompletedButton) {
+      clearCompletedButton.addEventListener("click", () => {
+        eliminarTareasCompletadas();
+      });
+    }
+
+    window.listarTareas();
+  });
+</script>
