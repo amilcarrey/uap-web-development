@@ -7,6 +7,8 @@ export const POST: APIRoute = async ({ request }) => {
   
     if (name) {
       addTask(name);
+  
+      
     }
   
     return new Response(null, {

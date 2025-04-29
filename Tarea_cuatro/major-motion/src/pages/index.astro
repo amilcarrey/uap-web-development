@@ -1,23 +1,218 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-import Gestor from '../components/Gestor.astro'
-import { state } from '../services/state';
-import { toCodes } from 'astro:i18n';
-import { getTasksFiltered } from '../lib/tasks';
-
+import Welcome from "../components/Welcome.astro";
+import Layout from "../layouts/Layout.astro";
+import Gestor from "../components/Gestor.astro";
+import { state } from "../services/state";
+import { toCodes } from "astro:i18n";
+import { getTasksFiltered } from "../lib/tasks";
+import "../styles/global.css";
 
 const url = new URL(Astro.request.url);
 const filter = url.searchParams.get("filter");
 
 let filteredTasks = getTasksFiltered(filter);
-
 ---
 
-
-
 <Layout>
-    <Gestor filteredTasks={filteredTasks}  filter={filter}/>
+    <Gestor filteredTasks={filteredTasks} filter={filter} />
 </Layout>
 
+<script>
+    const form = document.getElementById("addForm");
+    const ul = document.getElementById("taskListContainer");
+    const addInput = document.getElementById("addTask") as HTMLInputElement;
+    const links = document.querySelectorAll("#allTasks, #completedTasks, #incompletedTasks");
+    
+    
+    function updateDom(tasks: any[]){
+        const template = document.getElementById("taskTemplate") as HTMLLIElement;
+        ul!.innerHTML = "";
+        ul!.appendChild(template.cloneNode(true)); 
+        tasks.forEach(task=>{
+            
+            const newLi = template.cloneNode(true) as HTMLElement;
+            newLi.classList.remove("hidden");
 
+            const completeButton = newLi.querySelector("form[action='/api/complete-task'] button") as HTMLButtonElement;
+            completeButton.value = task.id;
+            completeButton.textContent = task.completed ? "✔" : "";
+            const label = newLi.querySelector("label") as HTMLLabelElement;
+            label.textContent =task.name;
+
+            if (task.completed) {
+                label.classList.add("line-through", "text-gray-500");
+            } else {
+                label.classList.remove("line-through", "text-gray-500");
+            }
+
+            const deleteButton = newLi.querySelector("form[action='/api/delete-task'] button") as HTMLButtonElement;
+            deleteButton.value = task.id;
+
+            const completeForm = newLi.querySelector("form[action='/api/complete-task']") as HTMLFormElement;
+            addEventListenerComplete(completeForm);
+
+            const deleteForm = newLi.querySelector("form[action='/api/delete-task']") as HTMLFormElement;
+            addEventListenerDelete(deleteForm);
+            ul?.appendChild(newLi);
+        
+            
+
+        })
+
+    }
+
+
+    links.forEach(link => {
+        link.addEventListener("click", (event) => handleFilter(event as MouseEvent))
+    })
+    
+    let currentFilter = "all";
+    
+    async function handleFilter(event?: MouseEvent) {
+        if (event) event.preventDefault();
+        
+        const url = event
+        ?new URL((event.currentTarget as HTMLAnchorElement).href)
+        : new URL(window.location.href); 
+
+        const filter = url.searchParams.get("filter") || "all";
+        currentFilter = filter; 
+
+        // Actualizar la URL sin recargar la página
+        const newUrl = `/?filter=${filter}`;
+        history.pushState({ filter }, "", newUrl);
+
+
+        const response = await fetch(`/api/tasks?filter=${filter}`);
+        const tasks = await response.json();
+        updateDom(tasks)
+
+        
+    links.forEach(link => {
+        const linkUrl = new URL((link as HTMLAnchorElement).href);
+        const linkFilter = linkUrl.searchParams.get("filter") || "all";
+        
+        if (linkFilter === filter) {
+            // Aplicar estilos al enlace activo
+            link.classList.add("bg-blue-400", "border-b-blue-600");
+            link.classList.remove("border-b-blue-400");
+        } else {
+            // Restaurar estilo normal a los demás enlaces
+            link.classList.remove("bg-blue-400", "border-b-blue-600");
+            link.classList.add("border-b-blue-400");
+        }
+    });
+       
+    }
+
+    
+
+    
+      
+
+
+    //addTasks
+    form?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        if (addInput.value.trim() === "") return;
+        const name = addInput.value;
+
+        await fetch("/api/tasks", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ action: "add", name }),
+        });
+
+        const response = await fetch(`/api/tasks?filter=${currentFilter}`);
+        const tasks = await response.json();
+        updateDom(tasks);
+
+        addInput.value = "";
+        
+
+        
+
+        
+    });
+    //Complete
+    function addEventListenerComplete(formulario: HTMLFormElement) {
+        formulario.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const checkbox = formulario.querySelector(
+                "button[name='complete']",
+            ) as HTMLButtonElement;
+            const id = checkbox.value;
+
+            const response = await fetch("/api/complete-task", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "complete", id }),
+            });
+            const updatedTask = await response.json();
+            console.log(updatedTask, checkbox)
+            checkbox.textContent = updatedTask.completed ? "✔" : "";
+
+            const label = formulario.parentElement?.querySelector("label");
+            if (label) {
+                if (updatedTask.completed) {
+                    label.classList.add("line-through", "text-gray-500");
+                } else {
+                    label.classList.remove("line-through", "text-gray-500");
+                }
+            }
+        });
+    }
+    document
+        .querySelectorAll("form[action='/api/complete-task']")
+        .forEach((form) => {
+            addEventListenerComplete(form as HTMLFormElement);
+        });
+
+    //Delete
+    function addEventListenerDelete(formulario: HTMLFormElement) {
+        formulario.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const checkbox = formulario.querySelector(
+                "button[name='delete']",
+            ) as HTMLButtonElement;
+            const id = checkbox.value;
+
+            const response = await fetch("/api/delete-task", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "delete", id }),
+            });
+            const deletedTask = await response.json();
+            if(deletedTask.success){
+                formulario.parentElement?.remove();
+            }
+            console.log(deletedTask, checkbox)
+        })
+    }
+    document
+        .querySelectorAll("form[action='/api/delete-task']")
+        .forEach((form) => {
+            addEventListenerDelete(form as HTMLFormElement);
+        });
+
+    //Clear completed
+
+    const clearForm = document.querySelector("form[action='/api/clear-completed']") as HTMLElement;
+    clearForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const response = await fetch("/api/clear-completed", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "clearCompleted"}),
+            });
+            const clear = await response.json();
+            if(clear.success){
+                const tasksResponse = await fetch(`/api/tasks?filter=${currentFilter}`);
+                const tasks = await tasksResponse.json();
+                updateDom(tasks);
+            }
+    })
+</script>
