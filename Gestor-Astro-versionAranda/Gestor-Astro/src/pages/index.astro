@@ -1,0 +1,147 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const siteUrl = new URL(Astro.request.url);
+const baseUrl = `${siteUrl.protocol}//${siteUrl.host}`;
+const currentFilter = Astro.url.searchParams.get("filter") || 'all';
+const apiUrl = `${baseUrl}/api/filter?filter=${currentFilter}`;
+
+// Carga inicial en servidor
+const response = await fetch(apiUrl);
+const { reminders = [], filter = 'all' } = await response.json();
+---
+<Layout>
+  <main class="max-w-[600px] mx-auto p-8 bg-rose-50 rounded-xl shadow-sm">
+    <h1 class="text-2xl font-bold text-center text-rose-700 mb-8">Mis Recordatorios</h1>
+
+    
+    <form method="POST" action="/api/add" class="flex gap-2 mb-8" id="add-reminder-form">
+      <input
+        name="text"
+        type="text"
+        placeholder="¿Qué necesitas recordar?"
+        class="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 text-lg"
+        required
+      />
+      <button
+        type="submit"
+        class="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors text-lg font-medium"
+      >
+        Add
+      </button>
+    </form>
+
+    <template id="reminder-template">
+      <li class="flex items-center justify-between p-4 rounded-lg hover:bg-rose-100 transition-colors">
+        <form method="POST" action="/api/complete" class="toggle-reminder flex-grow">
+          <input type="hidden" name="id" value="" />
+          <input type="hidden" name="completed" value="" />
+          <button type="submit" class="flex items-center gap-3 w-full text-left">
+            <span class="w-5 h-5 flex items-center justify-center border-2 rounded checkbox-box"></span>
+            <span class="reminder-text text-lg"></span>
+          </button>
+        </form>
+        <form method="POST" action="/api/delete" class="delete-reminder ml-4">
+          <input type="hidden" name="id" value="" />
+          <button
+            type="submit"
+            class="text-rose-600 hover:text-rose-800 text-2xl font-light px-2"
+            aria-label="Eliminar"
+          >
+            ×
+          </button>
+        </form>
+      </li>
+    </template>
+
+    <ul id="remindersList" class="space-y-3 mb-8">
+      {reminders.map((item: any) => (
+        <li
+          class={`flex items-center justify-between p-4 rounded-lg hover:bg-rose-100 transition-colors
+                  ${item.completed ? 'bg-rose-50' : ''}`}
+        >
+          <form method="POST" action="/api/complete" class="flex-grow">
+            <input type="hidden" name="id" value={item.id} />
+            <input type="hidden" name="completed" value={`${!item.completed}`} />
+            <button
+              type="submit"
+              class="flex items-center gap-3 w-full text-left"
+            >
+              <span
+                class={`w-5 h-5 flex items-center justify-center border-2 rounded
+                        ${item.completed ? 'bg-rose-600 border-rose-600 text-white' : 'border-gray-300'}`}
+              >
+                {item.completed ? '✓' : ''}
+              </span>
+              <span
+                class={`text-lg ${item.completed ? 'line-through text-gray-500' : 'text-gray-700'}`}
+              >
+                {item.text}
+              </span>
+            </button>
+          </form>
+          <form method="POST" action="/api/delete" class="ml-4">
+            <input type="hidden" name="id" value={item.id} />
+            <button
+              type="submit"
+              class="text-rose-600 hover:text-rose-800 text-2xl font-light px-2"
+              aria-label="Eliminar"
+            >
+              ×
+            </button>
+          </form>
+        </li>
+      ))}
+    </ul>
+
+    {reminders.some((r: any) => r.completed) && (
+      <form method="POST" action="/api/clear" id="clear-complete-form">
+        <button
+          type="submit"
+          class="w-full py-2 bg-gray-100 text-rose-600 rounded-lg hover:bg-gray-200 font-medium"
+        >
+          Limpiar completados
+        </button>
+      </form>
+    )}
+
+    <!-- Filtros -->
+    <div class="flex gap-3 justify-center mt-6">
+      <a
+        href="?filter=all"
+        class={`px-4 py-2 rounded-full ${
+          filter === 'all'
+            ? 'bg-rose-600 text-white'
+            : 'border border-rose-500 text-rose-500 hover:bg-rose-50'
+        }`}
+      >
+        Todas
+      </a>
+      <a
+        href="?filter=incomplete"
+        class={`px-4 py-2 rounded-full ${
+          filter === 'incomplete'
+            ? 'bg-rose-600 text-white'
+            : 'border border-rose-500 text-rose-500 hover:bg-rose-50'
+        }`}
+      >
+        Pendientes
+      </a>
+      <a
+        href="?filter=completed"
+        class={`px-4 py-2 rounded-full ${
+          filter === 'completed'
+            ? 'bg-rose-600 text-white'
+            : 'border border-rose-500 text-rose-500 hover:bg-rose-50'
+        }`}
+      >
+        Hechas
+      </a>
+    </div>
+  </main>
+</Layout>
+
+<!-- ESTE ES EL PROBLEMA CREOOOOO 
+<style>@import "tailwindcss";</style> -->
+
+<script src="../script.ts"></script>

@@ -1,0 +1,20 @@
+{
+  "reminders": [
+    {
+      "id": "49c32829-fc8a-4dba-8849-8b934ae5b00c",
+      "text": "glmdñl",
+      "completed": true
+    },
+    {
+      "id": "d735304e-30bc-4f77-a1c7-a11a316d70f5",
+      "text": "hola",
+      "completed": true
+    },
+    {
+      "id": "9c2c6d80-a643-4507-b229-156667e6c8e2",
+      "text": "anda",
+      "completed": false
+    }
+  ],
+  "filter": "all"
+}
