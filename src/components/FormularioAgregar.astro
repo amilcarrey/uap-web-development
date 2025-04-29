@@ -5,12 +5,12 @@
   </form>
 
 <script type="module">
-  //Guardamos los elementos con id form-agregar y task en variables
+  // Guardamos los elementos con id form-agregar y task en variables
   const form = document.getElementById("form-agregar");
   const input = document.getElementById("task");
 
-  form.addEventListener("submit", async (e) => {//Captura cuando se apreta add
-    e.preventDefault();//Evitamos la recarga de la pagina
+  form.addEventListener("submit", async (e) => {// Captura cuando se apreta add
+    e.preventDefault();// Evitamos la recarga de la pagina
 
     const descripcion = input.value.trim();
     if (!descripcion) return;
@@ -18,7 +18,7 @@
     try {
       const res = await fetch("/api/agregar", {
         method: "POST",
-        headers: {//Aca se define si llega un json o una request normal
+        headers: {// Aca se define si llega un json o una request normal
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ descripcion })
@@ -29,8 +29,6 @@
         alert(err.error || "Error al agregar tarea");
         return;
       }
-
-      // Podés hacer un reload o manipular el DOM
       location.reload();
     } catch (error) {
       alert("Error de red o servidor");

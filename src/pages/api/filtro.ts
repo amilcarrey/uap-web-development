@@ -1,12 +1,25 @@
 import type { APIRoute } from "astro";
 import { listarTareas } from "../../lib/tareas";
 
-export const GET: APIRoute = async ({ url }) => {
-  const filtro = url.searchParams.get("filtro") as "completadas" | "pendientes" | null;
-  const tareas = listarTareas(filtro || undefined);
+export const POST: APIRoute = async ({ request }) => {
+  const { filtro } = await request.json();
 
-  return new Response(JSON.stringify(tareas), {
-    status: 200,
-    headers: { "Content-Type": "application/json" }
-  });
+  let tareas = listarTareas();
+
+  switch (filtro) {
+    case "completadas":
+      tareas = tareas.filter((t) => t.completada);
+      break;
+    case "pendientes":
+      tareas = tareas.filter((t) => !t.completada);
+      break;
+    case "todas":
+    default:
+      break;
+  }
+
+  return new Response(
+    JSON.stringify({ tareas }),
+    { status: 200, headers: { "Content-Type": "application/json" } }
+  );
 };

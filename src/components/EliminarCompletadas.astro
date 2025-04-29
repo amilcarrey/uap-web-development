@@ -1,33 +1,32 @@
 <form method="post" action="/api/eliminarCompletadas" class="delete-form">
   <button type="submit" class="eliminar" id="clear">
-  Eliminar todas las tareas completadas</button>
+    Eliminar todas las tareas completadas
+  </button>
 </form>
 
 <script>
-  const boton = document.querySelector("#clear");
+  document.addEventListener("DOMContentLoaded", () => {
+    const btnEliminar = document?.querySelector("#clear");
 
-  if (boton) {
-    boton.addEventListener("click", async (e) => {
-      e.preventDefault(); // Prevenir el envío tradicional del formulario
+    btnEliminar?.addEventListener("click", async (e) => {
+      e.preventDefault(); // evitar recarga de página
 
-      try {
-        const respuesta = await fetch("/api/eliminarCompletadas", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
+      const respuesta = await fetch("/api/eliminarCompletadas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (respuesta.ok) {
+        // Eliminar del DOM las tareas marcadas como completadas
+        document.querySelectorAll(".task").forEach((task) => {
+          const checkbox = task.querySelector(".checkmark") as HTMLInputElement;
+          if (checkbox?.checked) {
+            task.remove();
           }
         });
-
-        if (respuesta.ok) {
-          const resultado = await respuesta.json();
-          console.log(resultado.mensaje);
-          location.reload(); // Refrescar la página para actualizar la lista
-        } else {
-          alert("Error al eliminar tareas completadas");
-        }
-      } catch (error) {
-        console.error("Error en la solicitud:", error);
+      } else {
+        alert("No se pudieron eliminar las tareas completadas.");
       }
     });
-  }
+  });
 </script>

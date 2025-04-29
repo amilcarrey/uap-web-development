@@ -1,6 +1,62 @@
 <div id="DFiltro" class="flex justify-center space-x-2 mt-3">
-    <a href="/" id="Todas" class="boton-filtro">Todas</a>
+    <a href="/?filtro=todas" id="Todas" class="boton-filtro">Todas</a>
     <a href="/?filtro=completadas" id="Terminadas" class="boton-filtro">Terminadas</a>
-    <a href="/?filtro=pendientes" id="Pendientes" class="boton-filtro">Pendientes</a>      
-  </div>
-  
+    <a href="/?filtro=pendientes" id="Pendientes" class="boton-filtro">Pendientes</a>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Seleccionamos todos los enlaces
+      const enlacesFiltro = document.querySelectorAll("#DFiltro a");    
+      enlacesFiltro.forEach((enlace) => {
+        enlace.addEventListener("click", async (e) => {
+          e.preventDefault(); // Prevenimos la recarga de la página
+          const filtro = (enlace as HTMLAnchorElement).href;    
+          if (!filtro) return;
+          // Extraemos el filtro de la URL
+          const url = new URL(filtro);
+          const filtroValor = url.searchParams.get("filtro");
+          if (!filtroValor) return;
+          try {
+            const respuesta = await fetch("/api/filtro", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ filtro: filtroValor }),
+            });
+            if (!respuesta.ok) {
+              alert("Error al aplicar el filtro");
+              return;
+            }
+            const data = await respuesta.json();
+            // Limpiar la lista actual de tareas
+            const lista = document.querySelector("#lista-tareas");
+            if (lista) {
+              // Limpiamos el contenido actual de la lista
+              lista.innerHTML = '';    
+              data.tareas.forEach((tarea) => {
+                const divTarea = document.createElement("div");
+                // Aplicamos manualmente porque se pierde el tailwind
+                divTarea.classList.add(
+                  "task", 
+                  "bg-a-lpha-50", 
+                  "border-2", 
+                  "bg-pink-400", 
+                  "rounded-lg", 
+                  "p-4", 
+                  "my-2", 
+                  "flex", 
+                  "items-center", 
+                  "justify-between"
+                );
+                divTarea.textContent = tarea.descripcion;
+                // Agrego el nuevo elemento a la lista
+                lista.appendChild(divTarea);
+              });
+            }
+          } catch (error) {
+            console.error("Error aplicando el filtro:", error);
+          }
+        });
+      });
+    });
+</script>    

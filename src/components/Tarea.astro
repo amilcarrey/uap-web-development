@@ -4,28 +4,30 @@ const { tarea } = Astro.props;
 
 <div class="task bg-a-lpha-50 border-2 bg-pink-400  rounded-lg p-4 my-2 flex items-center justify-between" 
      data-id={tarea.id}>
-  <!-- Formulario para eliminar la tarea -->
-  <form method="post" action="/api/eliminar" class="delete-form">
+  <form method="post" action="/api/eliminar" class="eliminar-tarea">
     <input type="hidden" name="id" value={tarea.id} />
     <button type="submit" class="deletemark">🗑️</button>
   </form>
+
   <span class="task-text">{tarea.descripcion}</span>
+  
   <form method="post" action="/api/toggle" class="toggle-form">
     <input type="hidden" name="id" value={tarea.id} />
-    <input type="checkbox" class="checkmark" checked={tarea.completada} />
-  </form>
+    <button type="submit" class="checkmark">{tarea.completada ? "✅" : "⬜"}</button>
+  </form>  
 </div>
 
-<script type="module">
+<script>
  document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".task").forEach((task) => {
-    const botonEliminar = task.querySelector(".eliminar-tarea");
-    const toggleForm = task.querySelector(".toggle-form");
-    const checkbox = toggleForm.querySelector(".checkmark");
+    const tarea = task as HTMLElement;
+    const botonEliminar = tarea.querySelector(".eliminar-tarea") as HTMLFormElement;
+    const toggleForm = tarea.querySelector(".toggle-form") as HTMLFormElement;
 
     // Eliminar tarea
-    botonEliminar?.addEventListener("click", async () => {
-      const id = Number(task.dataset.id);
+    botonEliminar?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = Number(tarea.dataset.id);
       if (!id) return;
 
       const respuesta = await fetch("/api/eliminar", {
@@ -41,27 +43,28 @@ const { tarea } = Astro.props;
       }
     });
 
-    // Toggle de completado
-    checkbox?.addEventListener("change", async () => {
-      const id = Number(task.dataset.id);
+    // Toggle completado
+    toggleForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = Number(tarea.dataset.id);
       if (!id) return;
-
-      const formData = new FormData();
-      formData.append("id", id);
-
       try {
         const respuesta = await fetch("/api/toggle", {
           method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: new URLSearchParams({ id: id.toString() })
         });
-
         if (!respuesta.ok) {
-          alert("Error al actualizar estado");
-          checkbox.checked = !checkbox.checked; // revertir visual si falló
+          alert("Error al cambiar estado");
+        } else {          const boton = toggleForm.querySelector("button");
+          if (boton) {
+            boton.textContent = boton.textContent === "✅" ? "⬜" : "✅";
+          }
         }
-      } catch (e) {
-        console.error("Error al actualizar estado:", e);
-        checkbox.checked = !checkbox.checked;
+      } catch (error) {
+        console.error("Error al hacer toggle:", error);
       }
     });
   });

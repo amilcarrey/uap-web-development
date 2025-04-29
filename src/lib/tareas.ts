@@ -30,7 +30,6 @@ type Tarea = {
     tareas.push(nuevaTarea);
   }
   
-  
   export function actualizarEstado(id: number) {
     tareas = tareas.map((t) =>
       t.id === id ? { ...t, completada: !t.completada } : t
