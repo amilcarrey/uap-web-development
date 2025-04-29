@@ -54,6 +54,7 @@ if (Astro.request.method === "POST") {
 	}
 }
 
+
 let filteredTasks = state.tasks;
 if (state.filter === "active") {
 	filteredTasks = state.tasks.filter((task) => !task.completed);
@@ -102,7 +103,7 @@ if (state.filter === "active") {
 				<button
 					type="submit"
 					class={state.filter === "active" ? "active-filter" : ""}
-					>No Completadas</button
+					>Incompletas</button
 				>
 			</form>
 

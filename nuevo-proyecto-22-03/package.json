@@ -1,5 +1,5 @@
 {
-  "name": "hilarious-heliosphere",
+  "name": "n",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
-    "astro": "^5.6.0",
+    "astro": "^5.7.4",
     "tailwindcss": "^4.1.4"
   }
 }
