@@ -41,6 +41,8 @@ nav {
 .mas {
   color: #bebebe;
   font-size: 1.2em;
+  background: none;
+  border: none;
 }
 
 .menu a:hover {
@@ -68,18 +70,17 @@ nav {
   margin-top: 30px;
 }
 
-.agrega-tareas input {
+.escribir-tarea {
   padding: 10px;
-  width: 20%;
+  width: 50%;
   border: 0.5px solid #ccc;
   border-radius: 5px;
   font-size: 1em;
   margin-bottom: 10px;
-  justify-content: center;
 }
 
 .agregar {
-  padding: 10px 5px;
+  padding: 10px 15px;
   background-color: #fcf7da;
   color: #000000;
   border: 0;
@@ -97,30 +98,64 @@ nav {
   background-color: wheat;
   padding: 10px;
   border-radius: 5px;
-  width: 30%;
-  height: 300px;
-  margin: auto;
-}
-
-.tareas-pendientes h2 {
-  color: #333;
+  width: 60%;
+  margin: 20px auto;
 }
 
 .lista-tareas {
   list-style: none;
   padding: 0;
-  font-size: 1.2em;
-  font-weight: 500;
+  font-size: 1.1em;
+}
+
+.lista-tareas li {
+  background: #fff;
+  margin: 10px 0;
+  padding: 8px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lista-tareas li span {
+  flex-grow: 1;
+  margin-left: 10px;
+  text-align: left;
 }
 
 .eliminar {
   background-color: #ac1212;
   color: #fff;
-  border: 0;
+  border: none;
+  padding: 5px 10px;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 0.9em;
 }
 
 .eliminar:hover {
   background-color: #ff0000;
+}
+
+.completada span {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.filtros {
+  margin-top: 15px;
+}
+
+.filtros button {
+  margin: 5px;
+  padding: 7px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #fcf7da;
+  cursor: pointer;
+}
+
+.filtros button:hover {
+  background-color: #fff;
 }
