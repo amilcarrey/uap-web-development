@@ -9,18 +9,17 @@
     const btnEliminar = document?.querySelector("#clear");
 
     btnEliminar?.addEventListener("click", async (e) => {
-      e.preventDefault(); // evitar recarga de página
-
+      e.preventDefault(); // Evitar la recarga de la página
       const respuesta = await fetch("/api/eliminarCompletadas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
 
       if (respuesta.ok) {
-        // Eliminar del DOM las tareas marcadas como completadas
+        // Eliminar del DOM las tareas completadas
         document.querySelectorAll(".task").forEach((task) => {
-          const checkbox = task.querySelector(".checkmark") as HTMLInputElement;
-          if (checkbox?.checked) {
+          const checkbox = task.querySelector(".checkmark"); 
+          if (checkbox && checkbox.textContent === "✅") {
             task.remove();
           }
         });
