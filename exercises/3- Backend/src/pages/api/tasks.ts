@@ -8,6 +8,18 @@ import {
   listarTareas,
 } from "../../lib/tasks";
 
+export const GET: APIRoute = async ({ request }) => {
+  const url = new URL(request.url);
+  const filtro = url.searchParams.get("filtro") as "completadas" | "pendientes" | null;
+
+  const tareas = listarTareas(filtro ?? undefined);
+
+  return new Response(JSON.stringify(tareas), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+};
+
 export const POST: APIRoute = async ({ request }) => {
   const contentType = request.headers.get("content-type") || "";
   const acceptHeader = request.headers.get("accept") || "";
