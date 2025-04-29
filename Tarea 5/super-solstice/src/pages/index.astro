@@ -1,0 +1,162 @@
+---
+export const prerender = false; // La página será renderizada dinámicamente
+
+// Variables globales para persistir tareas mientras el servidor esté activo
+globalThis.tasks = globalThis.tasks || [];
+let filter = Astro.url.searchParams.get('filter') || 'all';
+
+// Función para filtrar tareas según el estado
+function getFilteredTasks() {
+  if (filter === 'complete') {
+    return globalThis.tasks.filter(task => task.completed);
+  }
+  if (filter === 'incomplete') {
+    return globalThis.tasks.filter(task => !task.completed);
+  }
+  return globalThis.tasks; // 'all'
+}
+
+// Funciones para manejar las tareas
+function addTask(description) {
+  if (description) {
+    globalThis.tasks.push({ id: Date.now().toString(), description, completed: false });
+  }
+}
+
+function toggleTask(id) {
+  const task = globalThis.tasks.find(t => t.id === id);
+  if (task) task.completed = !task.completed;
+}
+
+function deleteTask(id) {
+  globalThis.tasks = globalThis.tasks.filter(t => t.id !== id);
+}
+
+function deleteCompletedTasks() {
+  globalThis.tasks = globalThis.tasks.filter(task => !task.completed);
+}
+
+// Procesar solicitudes POST según el Content-Type
+if (Astro.request.method === 'POST') {
+  const contentType = Astro.request.headers.get('content-type') || '';
+  
+  if (contentType.includes('application/json')) {
+    // Solicitudes a través de AJAX
+    const body = await Astro.request.json();
+    const action = body.action;
+    const filterAction = body.filter;
+    
+    if (action === 'add') addTask(body.description);
+    if (action === 'toggle') toggleTask(body.id);
+    if (action === 'delete') deleteTask(body.id);
+    if (action === 'clearCompleted') deleteCompletedTasks();
+    if (filterAction) filter = filterAction;
+    
+  } else if (contentType.includes('application/x-www-form-urlencoded')) {
+    // Solicitudes tradicionales desde formularios
+    const formData = await Astro.request.formData();
+    const action = formData.get('_action');
+    const filterAction = formData.get('filter');
+    
+    if (action === 'add') addTask(formData.get('description'));
+    if (action === 'toggle') toggleTask(formData.get('id'));
+    if (action === 'delete') deleteTask(formData.get('id'));
+    if (action === 'clearCompleted') deleteCompletedTasks();
+    if (filterAction) filter = filterAction;
+  }
+}
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Manager</title>
+    <!-- Enlace al CSS compilado con Tailwind -->
+    <link href="/dist/styles.css" rel="stylesheet">
+    <!-- Vincula el archivo tasks.js para AJAX -->
+    <script src="/tasks.js" defer></script>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-6">
+      <h1 class="text-3xl font-bold underline">Task Manager</h1>
+      
+      <!-- Nota: Si deseas agregar una imagen, descomenta o agrega la siguiente línea -->
+      <!-- <img src="/your-image.jpg" alt="Task Manager" class="mx-auto mb-6 max-h-60 rounded" /> -->
+      
+      <!-- Formulario para agregar una tarea (funciona sin JS también) -->
+      <form id="add-task-form" method="POST" class="flex justify-center mb-6">
+        <input
+          type="text"
+          id="taskDescription"
+          name="description"
+          placeholder="Add a new task"
+          required
+          class="px-4 py-2 border rounded-l-md w-2/3 outline-none"
+        />
+        <button
+          type="submit"
+          name="_action"
+          value="add"
+          class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-r-md hover:bg-blue-600"
+        >
+          Add Task
+        </button>
+      </form>
+      
+      <!-- Filtros: se usan botones con dataset para AJAX, pero también sirven si JS está deshabilitado (por ejemplo, puedes agregar enlaces que envíen un form con filter) -->
+      <div class="flex justify-center mb-6 space-x-4">
+        <button type="button" class="filter-btn px-4 py-2 bg-blue-200 rounded hover:bg-blue-300" data-filter="all">
+          All
+        </button>
+        <button type="button" class="filter-btn px-4 py-2 bg-blue-200 rounded hover:bg-blue-300" data-filter="complete">
+          Completed
+        </button>
+        <button type="button" class="filter-btn px-4 py-2 bg-blue-200 rounded hover:bg-blue-300" data-filter="incomplete">
+          Incomplete
+        </button>
+      </div>
+      
+      <!-- Lista de tareas -->
+      <ul id="taskList" class="space-y-4">
+        {getFilteredTasks().map((task) => (
+          <li
+			data-id={task.id}
+			class={`flex items-center justify-between bg-white p-4 rounded shadow ${
+				task.completed ? "completed line-through text-gray-500" : ""
+			}`}
+		>
+
+            <span>{task.description}</span>
+            <div class="space-x-2">
+              <button
+                type="button"
+                class="toggle-task-btn px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                {task.completed ? "Undo" : "Complete"}
+              </button>
+              <button
+                type="button"
+                class="delete-task-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+      
+      <!-- Botón para eliminar tareas completadas -->
+      <div class="flex justify-center mt-6">
+        <button
+          id="clear-completed-btn"
+          type="button"
+          class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+        >
+          Clear Completed
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
