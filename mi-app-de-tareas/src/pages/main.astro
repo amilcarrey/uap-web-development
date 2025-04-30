@@ -1,66 +1,143 @@
 ---
-const globalState = globalThis.globalState || { tareas: [], filtroActual: 'todas' };
+const globalState = globalThis.globalState || {
+  tareas: [],
+  filtroActual: "todas",
+};
 globalThis.globalState = globalState;
 
 let tareasFiltradas = globalState.tareas;
-if (globalState.filtroActual === 'activas') {
-  tareasFiltradas = globalState.tareas.filter(t => !t.completada);
-} else if (globalState.filtroActual === 'completadas') {
-  tareasFiltradas = globalState.tareas.filter(t => t.completada);
+if (globalState.filtroActual === "activas") {
+  tareasFiltradas = globalState.tareas.filter((t) => !t.completada);
+} else if (globalState.filtroActual === "completadas") {
+  tareasFiltradas = globalState.tareas.filter((t) => t.completada);
+}
+
+let { tareas, filtroActual } = globalState;
+
+if (Astro.request.method === "POST") {
+  const data = await Astro.request.formData();
+  const accion = data.get("accion");
+  const texto = data.get("texto");
+  const index = Number(data.get("index"));
+  const filtro = data.get("filtro");
+
+  switch (accion) {
+    case "agregar":
+      if (texto?.trim()) {
+        tareas.push({ texto: texto.trim(), completada: false });
+      }
+      break;
+
+    case "completar":
+      if (!isNaN(index) && tareas[index]) {
+        tareas[index].completada = !tareas[index].completada;
+      }
+      break;
+
+    case "eliminar":
+      if (!isNaN(index)) {
+        tareas.splice(index, 1);
+      }
+      break;
+
+    case "limpiar-completadas":
+      globalState.tareas = globalState.tareas.filter((t) => !t.completada);
+      break;
+
+    case "filtrar":
+      if (["todas", "activas", "completadas"].includes(filtro)) {
+        globalState.filtroActual = filtro;
+      }
+      break;
+  }
 }
 ---
 
-<header class="bg-gray-800 text-white w-full z-50 p-4 fixed top-0 left-0 text-center shadow-md h-[100px] flex flex-col justify-center">
+<header
+  class="bg-gray-800 text-white w-full z-50 p-4 fixed top-0 left-0 text-center shadow-md h-[100px] flex flex-col justify-center"
+>
   <h1 class="text-4xl tracking-wider md:text-2xl">2.DO</h1>
   <nav id="filtro-form" class="tabs flex justify-center mt-2 space-x-4">
-    <a href="#" class="tab text-gray-400 font-bold hover:text-greenyellow" data-filtro="todas">Todas</a>
-    <a href="#" class="tab text-gray-400 font-bold hover:text-greenyellow" data-filtro="activas">Incompletas</a>
-    <a href="#" class="tab text-gray-400 font-bold hover:text-greenyellow" data-filtro="completadas">Completas</a>
+    <a
+      href="#"
+      class="tab text-gray-400 font-bold hover:text-greenyellow"
+      data-filtro="todas">Todas</a
+    >
+    <a
+      href="#"
+      class="tab text-gray-400 font-bold hover:text-greenyellow"
+      data-filtro="activas">Incompletas</a
+    >
+    <a
+      href="#"
+      class="tab text-gray-400 font-bold hover:text-greenyellow"
+      data-filtro="completadas">Completas</a
+    >
   </nav>
 </header>
 
 <main class="w-full flex justify-center mt-[120px] px-4">
   <div class="tareas w-full mt-8 p-4">
-    
     <!-- Formulario para añadir -->
     <div class="contenedor-form flex justify-center items-center mb-8 w-full">
-      <!-- Formulario para añadir -->
-<form id="formulario-agregar" method="POST" action="/api/tareas/agregar"
-class="flex justify-center items-center gap-0 max-w-xl w-full">
-<input type="text" id="añadir" name="texto" placeholder="¿Qué necesitas hacer?" required
-  class="rounded h-16 border-none w-[90%] pl-4 bg-gray-200" />
-</form>
-
+      <form
+        id="formulario-agregar"
+        class="flex justify-center items-center gap-0 max-w-xl w-full"
+        method="POST"
+      >
+        <input type="hidden" name="accion" value="agregar" />
+        <input
+          type="text"
+          id="añadir"
+          name="texto"
+          placeholder="¿Qué necesitas hacer?"
+          required
+          class="rounded h-16 border-none w-[90%] pl-4 bg-gray-200"
+        />
+      </form>
     </div>
 
     <!-- Lista de tareas -->
-    <!-- Lista de tareas -->
-<div id="formulario-tareas" class="bg-green-700 p-8 text-white rounded-3xl w-[90%] mx-auto flex flex-col gap-4">
-  {tareasFiltradas.map((tarea, index) => (
-    <form method="POST" action="/api/tareas/completar" class="contenedor-tarea flex items-center justify-between border-b-2 border-black py-2">
-      <input type="hidden" name="index" value={index} />
-      <button type="submit" class="check text-white text-xl">
-        {tarea.completada ? "✅" : "⭕"}
-      </button>
-      <p class={`flex-1 text-center px-4 ${tarea.completada ? "line-through text-gray-400" : ""}`}>{tarea.texto}</p>
-    </form>
+    <div
+      id="formulario-tareas"
+      class="bg-green-700 p-8 text-white rounded-3xl w-[90%] mx-auto flex flex-col gap-4"
+    >
+      {
+        tareasFiltradas.map((tarea, index) => (
+          <div class="contenedor-tarea flex items-center justify-between border-b-2 border-black py-2">
+            <form method="POST">
+              <input type="hidden" name="accion" value="completar" />
+              <input type="hidden" name="index" value={index} />
+              <button type="submit" class="check">
+                {tarea.completada ? "✅" : "⭕"}
+              </button>
+            </form>
+            <p class={tarea.completada ? "line-through text-gray-400" : ""}>
+              {tarea.texto}
+            </p>
+            <form method="POST">
+              <input type="hidden" name="accion" value="eliminar" />
+              <input type="hidden" name="index" value={index} />
+              <button type="submit" class="eliminar">
+                🗑️
+              </button>
+            </form>
+          </div>
+        ))
+      }
 
-    <form method="POST" action="/api/tareas/eliminar" class="mt-[-2rem] self-end">
-      <input type="hidden" name="index" value={index} />
-      <button type="submit" class="eliminar text-white text-xl">🗑️</button>
-    </form>
-  ))}
-
-  <form method="POST" action="/api/tareas/limpiar-completadas" class="self-end mt-4">
-    <button id="clear" type="submit" class="text-lime-200 border-none bg-transparent p-4 cursor-pointer">
-      Eliminar Tareas Completadas
-    </button>
-  </form>
-</div>
-
+      <form method="POST" class="self-end mt-4">
+        <input type="hidden" name="accion" value="limpiar-completadas" />
+        <button
+          class="text-lime-200 border-none bg-transparent p-4 cursor-pointer"
+          type="submit"
+        >
+          Eliminar Tareas Completadas
+        </button>
+      </form>
+    </div>
   </div>
 </main>
-    
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -70,24 +147,24 @@ class="flex justify-center items-center gap-0 max-w-xl w-full">
     const inputAgregar = document.getElementById("añadir");
     const tareasContainer = document.getElementById("formulario-tareas");
     let filtroActual = "todas";
-  
+
     filtroForm.addEventListener("click", async (e) => {
       e.preventDefault();
       const link = e.target.closest("a");
       if (!link || !link.dataset.filtro) return;
-  
+
       filtroActual = link.dataset.filtro;
-      tabs.forEach(tab => tab.classList.remove("active"));
+      tabs.forEach((tab) => tab.classList.remove("active"));
       link.classList.add("active");
-  
+
       await cargarTareas(filtroActual);
     });
-  
+
     formAgregar.addEventListener("submit", async (e) => {
       e.preventDefault();
       const texto = inputAgregar.value.trim();
       if (!texto) return alert("Por favor escribí una tarea.");
-  
+
       try {
         const res = await fetch("/api/tareas/agregar", {
           method: "POST",
@@ -101,11 +178,11 @@ class="flex justify-center items-center gap-0 max-w-xl w-full">
         console.error("Error al agregar:", err);
       }
     });
-  
+
     tareasContainer.addEventListener("click", async (e) => {
       const target = e.target;
       const index = target.dataset.index;
-  
+
       if (target.classList.contains("check")) {
         await fetch("/api/tareas/completar", {
           method: "POST",
@@ -114,7 +191,7 @@ class="flex justify-center items-center gap-0 max-w-xl w-full">
         });
         await cargarTareas(filtroActual);
       }
-  
+
       if (target.classList.contains("eliminar")) {
         await fetch("/api/tareas/eliminar", {
           method: "POST",
@@ -123,11 +200,13 @@ class="flex justify-center items-center gap-0 max-w-xl w-full">
         });
         await cargarTareas(filtroActual);
       }
-  
+
       if (target.id === "clear") {
-        const confirmar = confirm("¿Seguro que querés eliminar todas las tareas completadas?");
+        const confirmar = confirm(
+          "¿Seguro que querés eliminar todas las tareas completadas?"
+        );
         if (!confirmar) return;
-  
+
         await fetch("/api/tareas/limpiar-completadas", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -135,7 +214,7 @@ class="flex justify-center items-center gap-0 max-w-xl w-full">
         await cargarTareas(filtroActual);
       }
     });
-  
+
     async function cargarTareas(filtro) {
       try {
         const res = await fetch("/api/tareas/listar-filtro", {
@@ -143,7 +222,7 @@ class="flex justify-center items-center gap-0 max-w-xl w-full">
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ filtro }),
         });
-  
+
         if (!res.ok) throw new Error("No se pudo obtener las tareas");
         const { tareas } = await res.json();
         actualizarVistaTareas(tareas);
@@ -151,9 +230,11 @@ class="flex justify-center items-center gap-0 max-w-xl w-full">
         console.error("Error cargando tareas:", err);
       }
     }
-  
+
     function actualizarVistaTareas(tareas) {
-      const tareasHTML = tareas.map((tarea, index) => `
+      const tareasHTML = tareas
+        .map(
+          (tarea, index) => `
         <div class="contenedor-tarea flex items-center justify-between border-b-2 border-black py-2">
           <button type="button" class="check text-white text-xl" data-index="${index}">
             ${tarea.completada ? "✅" : "⭕"}
@@ -165,18 +246,21 @@ class="flex justify-center items-center gap-0 max-w-xl w-full">
             🗑️
           </button>
         </div>
-      `).join("");
-  
-      tareasContainer.innerHTML = tareasHTML + `
+      `
+        )
+        .join("");
+
+      tareasContainer.innerHTML =
+        tareasHTML +
+        `
         <button id="clear" type="button"
           class="self-end mt-4 text-lime-200 border-none bg-transparent p-4 cursor-pointer">
           Eliminar Tareas Completadas
         </button>
       `;
     }
-  
+
     // Cargar tareas al iniciar
     cargarTareas(filtroActual);
   });
-  </script>
-  
+</script>
