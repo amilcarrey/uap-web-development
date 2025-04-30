@@ -1,0 +1,82 @@
+---
+// filterForm.astro
+const { filter } = Astro.props as { filter: string };
+const isSelected = (value: string) => filter.toLowerCase() === value;
+---
+
+<filter-form>
+  <div class="flex gap-2 w-full justify-start">
+    <button
+      class={`rounded-md px-4 py-2 ${isSelected("todas") ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300 text-black"}`}
+      data-filter="todas"
+      aria-pressed={isSelected("todas")}
+    >
+      Todas
+    </button>
+
+    <button
+      class={`rounded-md px-4 py-2 ${isSelected("completadas") ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300 text-black"}`}
+      data-filter="completadas"
+      aria-pressed={isSelected("completadas")}
+    >
+      Completadas
+    </button>
+
+    <button
+      class={`rounded-md px-4 py-2 ${isSelected("nocompletadas") ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300 text-black"}`}
+      data-filter="nocompletadas"
+      aria-pressed={isSelected("nocompletadas")}
+    >
+      No completadas
+    </button>
+  </div>
+</filter-form>
+
+<script>
+  import type { Tarea } from "../types";
+  import type { TareaList } from "./TareaList.astro.0.mts";
+
+  class FilterForm extends HTMLElement {
+    private buttons: NodeListOf<HTMLButtonElement> | null = null;
+    private tareaList: TareaList | null = null;
+
+    connectedCallback() {
+      this.buttons = this.querySelectorAll("button");
+      this.tareaList = document.querySelector("tarea-list");
+
+      this.buttons.forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          const filtro = btn.dataset.filter;
+          this.handleFilter(filtro ?? "todas");
+
+          // Actualiza aria-pressed visualmente
+          this.buttons?.forEach(b => b.setAttribute("aria-pressed", "false"));
+          btn.setAttribute("aria-pressed", "true");
+          this.buttons?.forEach((b) => {
+  b.setAttribute("aria-pressed", "false");
+  b.classList.remove("bg-blue-500", "text-white");
+  b.classList.add("bg-gray-200", "text-black");
+});
+btn.setAttribute("aria-pressed", "true");
+btn.classList.remove("bg-gray-200", "text-black");
+btn.classList.add("bg-blue-500", "text-white");
+        });
+      });
+    }
+
+    handleFilter = async (filtro: string) => {
+  const filtroFormateado = filtro.toUpperCase(); // ✅ Convertimos a mayúsculas
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("filter", filtroFormateado);
+  window.history.pushState({}, "", url.toString());
+
+  const response = await fetch(`/api/tareas?filter=${filtroFormateado}`);
+  const data: { tareas: Tarea[] } = await response.json();
+  this.tareaList?.renderTareas(data.tareas);
+};
+  }
+
+  customElements.define("filter-form", FilterForm);
+</script>

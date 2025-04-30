@@ -1,0 +1,45 @@
+---
+type Props = {
+  content: string;
+  completed: boolean;
+  id: string;
+};
+const { content, completed, id }: Props = Astro.props;
+---
+
+<tarea-item>
+  <li
+    data-id={id}
+    class="w-full flex justify-between items-center border border-gray-300 rounded-md p-2"
+  >
+    <form method="POST" action={`/api/tareas/${id}`}>
+      <button
+        class="rounded-md p-2 cursor-pointer text-xl"
+        name="action"
+        value="toggle"
+        type="submit"
+        data-action-button="toggle-button"
+      >
+        {completed ? "✅" : "⬜"}
+      </button>
+    </form>
+
+    <p data-content="content" class="flex-1 text-xl ml-4">{content}</p>
+
+    <form method="POST" action={`/api/tareas/${id}`}>
+      <button
+        class="bg-red-500 hover:bg-red-600 text-white rounded-md p-2 cursor-pointer"
+        name="action"
+        value="delete"
+        type="submit"
+        data-action-button="delete-button"
+      >
+        🗑️
+      </button>
+    </form>
+  </li>
+</tarea-item>
+
+<script src="./Tarea">
+  
+</script>
