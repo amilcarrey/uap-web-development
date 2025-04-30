@@ -4,87 +4,102 @@ import TareaItem from '../components/TareaItem.astro';
 
 const url = new URL(Astro.request.url);
 const filtro = url.searchParams.get('filtro') || 'all';
+const categoria = url.searchParams.get('categoria') || 'personal';
 
+// Si la solicitud es un POST
 if (Astro.request.method === 'POST') {
   const data = await Astro.request.formData();
   const accion = data.get('accion');
 
+  // Acción de agregar tarea
   if (accion === 'agregar') {
     const texto = data.get('texto');
-    if (texto) agregarTarea(texto);
+    if (texto) agregarTarea(texto, data.get('categoria') || categoria);
   }
 
+  // Acción de marcar tarea como completada
   if (accion === 'toggle') {
     toggleTarea(data.get('id'));
   }
 
+  // Acción de eliminar tarea
   if (accion === 'eliminar') {
     eliminarTarea(data.get('id'));
   }
 
+  // Acción de limpiar tareas completadas
   if (accion === 'limpiar') {
-    limpiarCompletadas();
+    limpiarCompletadas(categoria);
   }
 
-  //si quieren JSON
+  // Si la solicitud acepta JSON (es AJAX), responder con los datos actualizados
   if (Astro.request.headers.get('accept')?.includes('application/json')) {
+    const tareasActualizadas = obtenerTareas(filtro, categoria);
     return new Response(
-      JSON.stringify(obtenerTareas(filtro)),
+      JSON.stringify(tareasActualizadas),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  return Astro.redirect(url.pathname + url.search);
+  // Si no es AJAX, redirigir como antes
+  return Astro.redirect(`${url.pathname}?filtro=${filtro}&categoria=${categoria}`);
 }
 
-
-const tareas = obtenerTareas(filtro);
+const tareas = obtenerTareas(filtro, categoria);
 ---
 
 <html>
-<head>
-	<meta charset="UTF-8">
-  	<title>TODO App</title>
-</head>
-<body>
-  <h1><span class="gray">TO</span><span class="orange">DO</span></h1>
-<!-- Pestañas para cambiar entre categorías de tareas -->
-<div class="tabs">
-	<div class="tab active">Personal</div>  <!-- Pestaña activa por defecto -->
-	<div class="tab">Profesional</div>      <!-- Otra pestaña -->
-</div>
+  <head>
+    <meta charset="UTF-8">
+    <title>TODO App</title>
+  </head>
+  <body>
+    <h1><span class="gray">TO</span><span class="orange">DO</span></h1>
 
-<div class="filters">
-	<a href="?filtro=all">
-	  <button class={`filter ${filtro === 'all' ? 'active' : ''}`}>Todas</button>
-	</a>
-	<a href="?filtro=incomplete">
-	  <button class={`filter ${filtro === 'incomplete' ? 'active' : ''}`}>Incompletas</button>
-	</a>
-	<a href="?filtro=completed">
-	  <button class={`filter ${filtro === 'completed' ? 'active' : ''}`}>Completadas</button>
-	</a>
-  </div>
-  
+    <!-- Pestañas de categoría -->
+    <div class="tabs">
+      <a href={`?filtro=${filtro}&categoria=personal`}>
+        <div class={`tab ${categoria === 'personal' ? 'active' : ''}`}>Personal</div>
+      </a>
+      <a href={`?filtro=${filtro}&categoria=profesional`}>
+        <div class={`tab ${categoria === 'profesional' ? 'active' : ''}`}>Profesional</div>
+      </a>
+    </div>
 
-  <form method="POST" class="escriba">
-	<input type="hidden" name="accion" value="agregar">
-	<input type="text" name="texto" placeholder="Escribe aqui..." required>
-	<button>Agregar</button>
-  </form>
+    <!-- Filtros de tareas -->
+    <div class="filters">
+      <a href={`?filtro=all&categoria=${categoria}`}>
+        <button class={`filter ${filtro === 'all' ? 'active' : ''}`}>Todas</button>
+      </a>
+      <a href={`?filtro=incomplete&categoria=${categoria}`}>
+        <button class={`filter ${filtro === 'incomplete' ? 'active' : ''}`}>Incompletas</button>
+      </a>
+      <a href={`?filtro=completed&categoria=${categoria}`}>
+        <button class={`filter ${filtro === 'completed' ? 'active' : ''}`}>Completadas</button>
+      </a>
+    </div>
 
-  <div class="list-container">
-	<ul class="lista-tareas">
-	  {tareas.map(tarea => <TareaItem tarea={tarea} />)}
-	</ul>
-  
-	<form method="POST">
-	  <input type="hidden" name="accion" value="limpiar">
-	  <button class="boton-limpiar">Limpiar completadas</button>
-	</form>
-  </div>
-  
-</body>
+    <!-- Formulario para agregar tarea -->
+    <form method="POST" class="escriba" id="agregar-tarea-form">
+      <input type="hidden" name="accion" value="agregar">
+      <input type="hidden" name="categoria" value={categoria}>
+      <input type="text" name="texto" placeholder="Escribe aquí..." required>
+      <button>Agregar</button>
+    </form>
+
+    <!-- Contenedor de tareas -->
+    <div class="list-container">
+      <ul class="lista-tareas" id="lista-tareas">
+        {tareas.map(tarea => <TareaItem tarea={tarea} />)}
+      </ul>
+
+      <form method="POST">
+        <input type="hidden" name="accion" value="limpiar">
+        <button class="boton-limpiar">Limpiar completadas</button>
+      </form>
+    </div>
+
+  </body>
 </html>
 
 <style>
@@ -163,7 +178,7 @@ h1 {
     background: #adffbe; /* Fondo verde claro */
     overflow: hidden; /* Oculta el desbordamiento */
     margin-bottom: 15px; /* Espaciado inferior */
-    cursor: pointer;
+    justify-content: center; /* Centra las pestañas en el contenedor */
 }
 
 /* Estilo general para cada pestaña */
@@ -209,7 +224,6 @@ h1 {
     cursor: pointer;
     display: block;
     margin-left: auto; /* Alinea el botón a la derecha */
-}	
-
-
+}
 </style>
+
