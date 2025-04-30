@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gestor de tareas server-side">
+  <title>Gestión de tareas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="min-h-screen font-urbanist antialiased">
+  <!-- Fondo -->
+  <div class="fixed inset-0 bg-office bg-cover bg-center bg-no-repeat -z-20"></div>
+  <div class="fixed inset-0 bg-black/50 -z-10"></div>
+
+  <div class="container mx-auto px-4 py-8 max-w-3xl">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold text-center text-blue-600">Gestión de tareas</h1>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6">
+      <!-- Formulario -->
+      <form action="/tasks" method="POST" class="mb-8 js-task-form">
+        <div class="flex gap-2">
+          <input
+            type="text"
+            name="text"
+            placeholder="Escribe tu tarea"
+            required
+            class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          >
+          <button
+            type="submit"
+            class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
+          >
+            OK
+          </button>
+        </div>
+      </form>
+
+      <!-- Lista de tareas -->
+      <section>
+        <h2 class="text-xl font-semibold mb-4 text-center bg-gray-900 text-white rounded-lg py-2 px-4">
+          Lista de Tareas
+        </h2>
+        
+        <ul class="space-y-3 js-tasks-list">
+          <% tasks.forEach(task => { %>
+            <li class="js-task-item flex items-center justify-between p-4 bg-white rounded-lg shadow hover:shadow-md transition" data-id="<%= task.id %>">
+              <div class="flex items-center gap-3">
+                <!-- Checkbox -->
+                <form action="/tasks/<%= task.id %>/toggle" method="POST" class="js-toggle-form flex-shrink-0">
+                  <button
+                    type="submit"
+                    class="js-task-toggle w-5 h-5 rounded border-2 flex items-center justify-center transition
+                      <%= task.completed ? 'bg-blue-600 border-blue-600' : 'border-gray-300 hover:border-blue-400' %>"
+                    aria-label="<%= task.completed ? 'Desmarcar' : 'Marcar' %> tarea"
+                  >
+                    <% if (task.completed) { %>
+                      <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    <% } %>
+                  </button>
+                </form>
+                
+                <!-- Texto de tarea -->
+                <span class="js-task-text <%= task.completed ? 'line-through text-gray-400' : '' %>">
+                  <%= task.text %>
+                </span>
+              </div>
+              
+              <!-- Botón eliminar -->
+              <form action="/tasks/<%= task.id %>/delete" method="POST" class="js-delete-form">
+                <button
+                  type="submit"
+                  class="text-gray-400 hover:text-red-600 transition p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500"
+                  aria-label="Eliminar tarea"
+                >
+                  <img 
+                    src="/images/recycle_bin.png" 
+                    alt="Eliminar" 
+                    class="w-5 h-5 transition-transform hover:scale-110"
+                  >
+                </button>
+              </form>
+            </li>
+          <% }); %>
+        </ul>
+
+        <!-- Limpiar completadas -->
+        <% if (tasks.some(t => t.completed)) { %>
+          <form action="/tasks/clear-completed" method="POST" class="js-clear-form text-center mt-6">
+            <button
+              type="submit"
+              class="text-sm text-gray-500 hover:text-red-600 transition underline focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded px-2 py-1"
+            >
+              Limpiar completadas
+            </button>
+          </form>
+        <% } %>
+      </section>
+
+      <!-- Filtros -->
+      <div class="flex justify-center gap-2 mt-8">
+        <a
+          href="/?filter=all"
+          class="js-filter px-4 py-2 rounded-full text-sm font-medium transition
+            <%= filter === 'all' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 hover:border-gray-300' %>"
+          data-filter="all"
+        >
+          Todas
+        </a>
+        <a
+          href="/?filter=active"
+          class="js-filter px-4 py-2 rounded-full text-sm font-medium transition
+            <%= filter === 'active' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 hover:border-gray-300' %>"
+          data-filter="active"
+        >
+          Activas
+        </a>
+        <a
+          href="/?filter=completed"
+          class="js-filter px-4 py-2 rounded-full text-sm font-medium transition
+            <%= filter === 'completed' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 hover:border-gray-300' %>"
+          data-filter="completed"
+        >
+          Completadas
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Solo se ejecuta si JavaScript está habilitado
+    document.addEventListener('DOMContentLoaded', () => {
+      // añadir tarea
+      const taskForm = document.querySelector('.js-task-form');
+      if (taskForm) {
+        taskForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(taskForm);
+          
+          try {
+            const response = await fetch('/tasks', {
+              method: 'POST',
+              body: formData,
+              headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) throw new Error('Error al crear tarea');
+            const newTask = await response.json();
+            
+            // Crear elemento de tarea
+            const taskElement = `
+              <li class="js-task-item flex items-center justify-between p-4 bg-white rounded-lg shadow hover:shadow-md transition" data-id="${newTask.id}">
+                <div class="flex items-center gap-3">
+                  <form action="/tasks/${newTask.id}/toggle" method="POST" class="js-toggle-form flex-shrink-0">
+                    <button type="submit" class="js-task-toggle w-5 h-5 rounded border-2 border-gray-300 hover:border-blue-400 flex items-center justify-center transition" aria-label="Marcar tarea">
+                    </button>
+                  </form>
+                  <span class="js-task-text">${newTask.text}</span>
+                </div>
+                <form action="/tasks/${newTask.id}/delete" method="POST" class="js-delete-form">
+                  <button type="submit" class="text-gray-400 hover:text-red-600 transition p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Eliminar tarea">
+                    <img src="/images/recycle_bin.png" alt="Eliminar" class="w-5 h-5 transition-transform hover:scale-110">
+                  </button>
+                </form>
+              </li>
+            `;
+            
+            document.querySelector('.js-tasks-list').insertAdjacentHTML('beforeend', taskElement);
+            taskForm.reset();
+            bindTaskEvents(document.querySelector(`.js-task-item[data-id="${newTask.id}"]`));
+            
+          } catch (error) {
+            taskForm.submit(); 
+          }
+        });
+      }
+
+      // Asignar eventos
+      function bindTaskEvents(taskElement) {
+        // Toggle completado
+        const toggleForm = taskElement.querySelector('.js-toggle-form');
+        if (toggleForm) {
+          toggleForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const taskId = taskElement.dataset.id;
+            
+            try {
+              const response = await fetch(`/tasks/${taskId}/toggle`, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' }
+              });
+              
+              if (!response.ok) throw new Error();
+              const updatedTask = await response.json();
+              
+              const toggleBtn = taskElement.querySelector('.js-task-toggle');
+              const taskText = taskElement.querySelector('.js-task-text');
+              
+              toggleBtn.classList.toggle('bg-blue-600');
+              toggleBtn.classList.toggle('border-blue-600');
+              taskText.classList.toggle('line-through');
+              taskText.classList.toggle('text-gray-400');
+              
+              // Actualizar icono check
+              if (toggleBtn.classList.contains('bg-blue-600')) {
+                toggleBtn.innerHTML = `
+                  <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                `;
+              } else {
+                toggleBtn.innerHTML = '';
+              }
+              
+            } catch {
+              toggleForm.submit(); // Fallback
+            }
+          });
+        }
+        
+        // Eliminar tarea
+        const deleteForm = taskElement.querySelector('.js-delete-form');
+        if (deleteForm) {
+          deleteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const taskId = taskElement.dataset.id;
+            
+            try {
+              const response = await fetch(`/tasks/${taskId}/delete`, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' }
+              });
+              
+              if (!response.ok) throw new Error();
+              taskElement.remove();
+              
+            } catch {
+              deleteForm.submit(); // Fallback
+            }
+          });
+        }
+      }
+
+      // Asignar eventos a las tareas existentes
+      document.querySelectorAll('.js-task-item').forEach(taskElement => {
+        bindTaskEvents(taskElement);
+      });
+
+      // Limpiar completadas
+      const clearForm = document.querySelector('.js-clear-form');
+      if (clearForm) {
+        clearForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          try {
+            const response = await fetch('/tasks/clear-completed', {
+              method: 'POST',
+              headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) throw new Error();
+            document.querySelectorAll('.js-task-item').forEach(item => {
+              if (item.querySelector('.js-task-toggle').classList.contains('bg-blue-600')) {
+                item.remove();
+              }
+            });
+            
+          } catch {
+            clearForm.submit(); // Fallback
+          }
+        });
+      }
+
+      // Filtros
+      document.querySelectorAll('.js-filter').forEach(filter => {
+        filter.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const filterType = filter.dataset.filter;
+          
+          try {
+            const response = await fetch(`/?filter=${filterType}`, {
+              headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) throw new Error();
+            const { tasks: filteredTasks } = await response.json();
+            
+            // Actualizar interfaz de usuario
+            document.querySelectorAll('.js-filter').forEach(f => {
+              f.classList.toggle('bg-blue-600', f.dataset.filter === filterType);
+              f.classList.toggle('text-white', f.dataset.filter === filterType);
+              f.classList.toggle('bg-white', f.dataset.filter !== filterType);
+              f.classList.toggle('border-gray-200', f.dataset.filter !== filterType);
+            });
+            
+          } catch {
+            window.location.href = `/?filter=${filterType}`; // Fallback
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
