@@ -10,10 +10,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.4",
     "body-parser": "^2.2.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "path": "^0.12.7"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.4"
+  }
 }
