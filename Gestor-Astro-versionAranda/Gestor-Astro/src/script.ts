@@ -1,27 +1,26 @@
+// src/script.ts
+
 window.addEventListener('DOMContentLoaded', () => {
-  // Detectar si la navegación fue un reload o no pq no anda pinche cosa
-  const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
-  if (nav?.type === 'reload') {
+  // Detectar si la navegación fue un reload
+  const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+  if (navEntry?.type === 'reload') {
     console.log('🔄 La página se recargó');
   }
 
-  
-});
-
-
-window.addEventListener('DOMContentLoaded', () => {
+  // Elementos del DOM
   const addForm = document.getElementById('add-reminder-form') as HTMLFormElement;
   const remindersList = document.getElementById('remindersList') as HTMLUListElement;
   const tpl = document.getElementById('reminder-template') as HTMLTemplateElement;
-  const clearForm = document.getElementById('clear-complete-form') as HTMLFormElement | null;
+  const clearCompleteForm = document.getElementById('clear-complete-form') as HTMLFormElement | null;
   const filterLinks = Array.from(
     document.querySelectorAll<HTMLAnchorElement>('a[href*="filter="]')
   );
 
+  // Estado local
   let reminders: Array<{ id: string; text: string; completed: boolean }> = [];
   let currentFilter: 'all' | 'completed' | 'incomplete' = 'all';
 
-  /// Carga los recordatorios desde el servidor según filtro
+  /** Carga los recordatorios desde el servidor según filtro */
   async function loadReminders(filter: 'all' | 'completed' | 'incomplete' = 'all') {
     try {
       const res = await fetch(`/api/filter?filter=${filter}`, {
@@ -40,7 +39,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  ///Renderiza la lista en el DOM 
+  /** Renderiza la lista en el DOM */
   function renderReminders() {
     remindersList.innerHTML = '';
     let hasCompleted = false;
@@ -56,12 +55,13 @@ window.addEventListener('DOMContentLoaded', () => {
       const toggleForm = clone.querySelector<HTMLFormElement>('.toggle-reminder')!;
       const deleteForm = clone.querySelector<HTMLFormElement>('.delete-reminder')!;
 
-     
+      // Poblar inputs ocultos
       toggleForm.querySelector<HTMLInputElement>('input[name="id"]')!.value = rem.id;
       toggleForm.querySelector<HTMLInputElement>('input[name="completed"]')!.value =
         String(!rem.completed);
       deleteForm.querySelector<HTMLInputElement>('input[name="id"]')!.value = rem.id;
 
+      // Contenido
       textSpan.textContent = rem.text;
       if (rem.completed) {
         li.classList.add('bg-rose-50');
@@ -73,9 +73,13 @@ window.addEventListener('DOMContentLoaded', () => {
       remindersList.appendChild(clone);
     });
 
-    // Mostrar/ocultar botón "Limpiar completados", mepa qeu its not working, cuando se recarga si anda fuck
-    if (clearForm) {
-      clearForm.style.display = hasCompleted ? '' : 'none';
+    // Mostrar/ocultar botón "Limpiar completados"
+    if (clearCompleteForm) {
+      if (hasCompleted) {
+        clearCompleteForm.classList.remove('hidden');
+      } else {
+        clearCompleteForm.classList.add('hidden');
+      }
     }
 
     // Actualizar estilos de filtros
@@ -91,7 +95,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Añadir recordatorio 
+  // — Añadir recordatorio —
   addForm.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const input = addForm.querySelector<HTMLInputElement>('input[name="text"]')!;
@@ -111,12 +115,12 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  //Delegación
+  // — Delegación: toggle y delete —
   remindersList.addEventListener('click', async (ev) => {
     const btn = (ev.target as Element).closest('button');
     if (!btn) return;
 
-    // Toggle completo/incompleto (cambia state)
+    // Toggle completo/incompleto
     const toggleForm = btn.closest('form.toggle-reminder') as HTMLFormElement | null;
     if (toggleForm) {
       ev.preventDefault();
@@ -138,7 +142,7 @@ window.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Borrar recordatorio ??=?=
+    // Borrar recordatorio
     const deleteForm = btn.closest('form.delete-reminder') as HTMLFormElement | null;
     if (deleteForm) {
       ev.preventDefault();
@@ -158,12 +162,12 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Limpiar completados ... ver arriba pq no aparece al principio
-  if (clearForm) {
-    clearForm.addEventListener('submit', async (ev) => {
+  // — Limpiar completados —
+  if (clearCompleteForm) {
+    clearCompleteForm.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       try {
-        const res = await fetch(clearForm.action, {
+        const res = await fetch(clearCompleteForm.action, {
           method: 'POST',
           headers: { Accept: 'application/json' },
         });
@@ -175,7 +179,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Filtrar sin recargar
+  // — Filtrar sin recargar —
   filterLinks.forEach((link) => {
     link.addEventListener('click', async (ev) => {
       ev.preventDefault();

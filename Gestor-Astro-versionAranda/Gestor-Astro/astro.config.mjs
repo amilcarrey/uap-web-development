@@ -11,9 +11,10 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     server: {
-      hmr: {
-        overlay: false, // 👉 Agregado para minimizar recargas por errores
-      },
+      watch: {
+        ignored:["**/*.json"],
+     
     },
   },
+}
 });

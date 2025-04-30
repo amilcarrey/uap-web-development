@@ -14,7 +14,13 @@ const { reminders = [], filter = 'all' } = await response.json();
   <main class="max-w-[600px] mx-auto p-8 bg-rose-50 rounded-xl shadow-sm">
     <h1 class="text-2xl font-bold text-center text-rose-700 mb-8">Mis Recordatorios</h1>
 
-    
+    <noscript>
+      <p class="text-center text-gray-500 mb-4">
+        Para una experiencia más interactiva, por favor habilita JavaScript.
+      </p>
+    </noscript>
+
+    <!-- Formulario para agregar (funciona sin JS) -->
     <form method="POST" action="/api/add" class="flex gap-2 mb-8" id="add-reminder-form">
       <input
         name="text"
@@ -31,6 +37,7 @@ const { reminders = [], filter = 'all' } = await response.json();
       </button>
     </form>
 
+    <!-- Template para JS -->
     <template id="reminder-template">
       <li class="flex items-center justify-between p-4 rounded-lg hover:bg-rose-100 transition-colors">
         <form method="POST" action="/api/complete" class="toggle-reminder flex-grow">
@@ -54,33 +61,27 @@ const { reminders = [], filter = 'all' } = await response.json();
       </li>
     </template>
 
+    <!-- Lista inicial (SSR) -->
     <ul id="remindersList" class="space-y-3 mb-8">
       {reminders.map((item: any) => (
         <li
-          class={`flex items-center justify-between p-4 rounded-lg hover:bg-rose-100 transition-colors
-                  ${item.completed ? 'bg-rose-50' : ''}`}
+          class={`flex items-center justify-between p-4 rounded-lg hover:bg-rose-100 transition-colors ${item.completed ? 'bg-rose-50' : ''}`}
         >
-          <form method="POST" action="/api/complete" class="flex-grow">
+          <form method="POST" action="/api/complete" class="flex-grow toggle-reminder">
             <input type="hidden" name="id" value={item.id} />
             <input type="hidden" name="completed" value={`${!item.completed}`} />
-            <button
-              type="submit"
-              class="flex items-center gap-3 w-full text-left"
-            >
+            <button type="submit" class="flex items-center gap-3 w-full text-left">
               <span
-                class={`w-5 h-5 flex items-center justify-center border-2 rounded
-                        ${item.completed ? 'bg-rose-600 border-rose-600 text-white' : 'border-gray-300'}`}
+                class={`w-5 h-5 flex items-center justify-center border-2 rounded ${item.completed ? 'bg-rose-600 border-rose-600 text-white' : 'border-gray-300'}`}
               >
                 {item.completed ? '✓' : ''}
               </span>
-              <span
-                class={`text-lg ${item.completed ? 'line-through text-gray-500' : 'text-gray-700'}`}
-              >
+              <span class={`text-lg ${item.completed ? 'line-through text-gray-500' : 'text-gray-700'}`}>
                 {item.text}
               </span>
             </button>
           </form>
-          <form method="POST" action="/api/delete" class="ml-4">
+          <form method="POST" action="/api/delete" class="delete-reminder ml-4">
             <input type="hidden" name="id" value={item.id} />
             <button
               type="submit"
@@ -94,54 +95,55 @@ const { reminders = [], filter = 'all' } = await response.json();
       ))}
     </ul>
 
-    {reminders.some((r: any) => r.completed) && (
-      <form method="POST" action="/api/clear" id="clear-complete-form">
-        <button
-          type="submit"
-          class="w-full py-2 bg-gray-100 text-rose-600 rounded-lg hover:bg-gray-200 font-medium"
-        >
-          Limpiar completados
-        </button>
-      </form>
-    )}
+    <!-- Limpiar completados (siempre en el DOM, oculto por defecto) -->
+<!-- Versión JS (oculta por defecto) -->
+<form 
+  id="clear-complete-form" 
+  class="hidden /* se mostrará y ocultará desde JS */" 
+  method="POST" 
+  action="/api/clear"
+>
+  <button type="submit">Limpiar completados</button>
+</form>
+
+<!-- Versión sin-JS (solo se muestra cuando JS está desactivado) -->
+<noscript>
+  {reminders.some((r: { completed: boolean }) => r.completed) ? (
+    <form method="POST" action="/api/clear" class="mb-8">
+      <button 
+        class="w-full py-2 bg-gray-100 text-rose-600 rounded-lg hover:bg-gray-200 font-medium"
+        type="submit"
+      >
+        Limpiar completados
+      </button>
+    </form>
+  ) : null}
+</noscript>
 
     <!-- Filtros -->
     <div class="flex gap-3 justify-center mt-6">
       <a
         href="?filter=all"
-        class={`px-4 py-2 rounded-full ${
-          filter === 'all'
-            ? 'bg-rose-600 text-white'
-            : 'border border-rose-500 text-rose-500 hover:bg-rose-50'
-        }`}
+        class={`px-4 py-2 rounded-full ${filter === 'all' ? 'bg-rose-600 text-white' : 'border border-rose-500 text-rose-500 hover:bg-rose-50'}`}
       >
         Todas
       </a>
       <a
         href="?filter=incomplete"
-        class={`px-4 py-2 rounded-full ${
-          filter === 'incomplete'
-            ? 'bg-rose-600 text-white'
-            : 'border border-rose-500 text-rose-500 hover:bg-rose-50'
-        }`}
+        class={`px-4 py-2 rounded-full ${filter === 'incomplete' ? 'bg-rose-600 text-white' : 'border border-rose-500 text-rose-500 hover:bg-rose-50'}`}
       >
         Pendientes
       </a>
       <a
-        href="?filter=completed"
-        class={`px-4 py-2 rounded-full ${
-          filter === 'completed'
-            ? 'bg-rose-600 text-white'
-            : 'border border-rose-500 text-rose-500 hover:bg-rose-50'
-        }`}
-      >
-        Hechas
-      </a>
+  href="?filter=completed"
+  class={`px-4 py-2 rounded-full ${filter === 'completed'
+    ? 'bg-rose-600 text-white'
+    : 'border border-rose-500 text-rose-500 hover:bg-rose-50'}`}
+>
+  Hechas
+</a>
     </div>
   </main>
 </Layout>
-
-<!-- ESTE ES EL PROBLEMA CREOOOOO 
-<style>@import "tailwindcss";</style> -->
 
 <script src="../script.ts"></script>
