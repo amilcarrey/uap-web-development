@@ -1,297 +1,113 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { state } from '../state';
+import "../styles/global.css";
 
-if (Astro.request.method === "POST") {
-    const formData = await Astro.request.formData();
-    
-    
-	const agregarTarea = formData.get("agregarTarea");
-	const completarTarea = formData.get("completarTarea");
-	const eliminarTarea = formData.get("eliminarTarea");
-	const limpiarCompletado = formData.get("limpiarCompletado");
+const formData = Astro.request.method === "POST" ? await Astro.request.formData() : null;
+const filtroActual = Astro.url.searchParams.get("filtro") || "Todos";
 
-	if (agregarTarea) {
-		const testoDeTarea = formData.get("inputTarea");
-        console.log("texto de la tarea", testoDeTarea);
-		if (testoDeTarea) {
-			if (typeof testoDeTarea === 'string') {
-				state.tareas.push({ id: Date.now(), testo: testoDeTarea, completada: false });
-			}
-		}
-	} else if (completarTarea) {
-		const taskId = Number(completarTarea);
-		const tarea = state.tareas.find(tarea => tarea.id === taskId);
-		if (tarea) {
-			tarea.completada = !tarea.completada;
-		}
-	} else if (eliminarTarea) {
-		const taskId = Number(eliminarTarea);
-		state.tareas = state.tareas.filter(tarea => tarea.id !== taskId);
-	} else if (limpiarCompletado) {
-		state.tareas = state.tareas.filter(tarea => !tarea.completada);
-	}
-	return Astro.redirect("/");
+if (formData) {
+  const agregarTarea = formData.get("agregarTarea");
+  const completarTarea = formData.get("completarTarea");
+  const eliminarTarea = formData.get("eliminarTarea");
+  const limpiarCompletado = formData.get("limpiarCompletado");
+
+  if (agregarTarea) {
+    const textoDeTarea = formData.get("inputTarea");
+    if (typeof textoDeTarea === 'string' && textoDeTarea.trim()) {
+      state.tareas.push({ id: Date.now(), testo: textoDeTarea.trim(), completada: false });
+    }
+  } else if (completarTarea) {
+    const taskId = Number(completarTarea);
+    const tarea = state.tareas.find(t => t.id === taskId);
+    if (tarea) tarea.completada = !tarea.completada;
+  } else if (eliminarTarea) {
+    const taskId = Number(eliminarTarea);
+    state.tareas = state.tareas.filter(t => t.id !== taskId);
+  } else if (limpiarCompletado) {
+    state.tareas = state.tareas.filter(t => !t.completada);
+  }
+}
+
+// Filtrar tareas según el filtro actual
+let tareasFiltradas = state.tareas;
+if (filtroActual === "Hechos") {
+  tareasFiltradas = state.tareas.filter(t => t.completada);
+} else if (filtroActual === "NoHechos") {
+  tareasFiltradas = state.tareas.filter(t => !t.completada);
 }
 ---
 
 <Layout>
-	<header>
-        
-        <h1> <span class="TO">To</span><span class="DO">Do</span></h1>
-        
-        <form method="POST" class="Filtros">
-            <nav>
-                <ul class="menu">
-                    <li class="mn"><a href="#Hechos">Hechos</a></li>
-                    <li class="mn"><a href="#NoHechos">No Hechos</a></li>
-                    <li class="mn"><a href="#Todos">Todos</a></li>
-                    <li class="mn"> <button class="agregar">+</button></li>
-                </ul>        
-            </nav>
-        </form>
+  <header class="bg-[#d2c3af] text-white text-center py-2">
+    <h1 class="text-2xl font-bold">
+      <span class="text-[#ffffff]">To</span><span class="text-[#ffc400]">Do</span>
+    </h1>
+    <nav>
+      <ul class="flex justify-center space-x-4 text-xl font-bold mt-2">
+        <li>
+          <a href="/?filtro=Hechos" class="hover:text-[#ffc400] active:text-[#d2c3af]">Hechos</a>
+        </li>
+        <li>
+          <a href="/?filtro=NoHechos" class="hover:text-[#ffc400] active:text-[#d2c3af]">No Hechos</a>
+        </li>
+        <li>
+          <a href="/?filtro=Todos" class="hover:text-[#ffc400] active:text-[#d2c3af]">Todos</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
 
-    </header>
+  <form method="POST" class="flex justify-center my-5" id="formAgregar">
+    <div class="flex space-x-2">
+      <input class="w-[500px] h-[55px] text-lg px-4 shadow" id="taskInput" name="inputTarea" type="text" placeholder="¿Qué querés hacer?">
+      <button type="submit" name="agregarTarea" value="1" class="bg-white text-[#d2c3af] px-4 shadow hover:bg-[#d2c3af] hover:text-white active:bg-[#ffc400]">+</button>
+    </div>
+  </form>
 
-        <form method="POST" class ="taskInput">
-            <div class="agregador">
-                <input class= "quep" id="taskInput" name="inputTarea" type="text" placeholder="que queres hacer?">
-                <button type="submit" class="agbot" name="agregarTarea" value="True">+</button>
-            </div>
-        </form>
+  <form method="POST" class="flex flex-col items-center space-y-4" id="tareas">
+    {
+      tareasFiltradas.map((tarea) => (
+        <div class="bg-white flex items-center justify-between w-[60vw] p-4 rounded shadow" id={String(tarea.id)}>
+          <button type="submit" name="completarTarea" value={tarea.id} class={`px-4 py-2 rounded shadow ${tarea.completada ? 'bg-[#22ff00]' : 'bg-white'} hover:shadow-lg active:scale-90`}></button>
+          <p class={`ml-4 text-lg ${tarea.completada ? 'line-through text-gray-500' : 'text-black'}`}>{tarea.testo}</p>
+          <button type="submit" name="eliminarTarea" value={tarea.id} class="bg-red-600 text-white px-4 py-2 rounded shadow hover:bg-red-800 active:scale-90">X</button>
+        </div>
+      ))
+      
+    }
+  </form>
 
-        <form method="POST" class="tareas-cont" id ="tareas">
-            {
-				state.tareas.map((tarea)=>{
-					return (
-						<div class="tareas" id={String(tarea.id)}>
+  <form method="POST" class="text-center my-6">
+    <button name="limpiarCompletado" value="1" class="bg-[#ff5733] text-white px-6 py-2 rounded shadow hover:bg-[#c70039] active:scale-95">
+      Limpia Completadas
+    </button>
+  </form>
 
-							<button type="submit" name="completarTarea" value={tarea.id}
-							class={`checko ${tarea.completada ? 'lesto' : ''}`}></button>
-							<p class={`testoLacra ${tarea.completada ? 'Compete' : ''}`}>{tarea.testo}</p>
+  <script>
+    // Mejora progresiva: solo mejora UX si JS está habilitado
+    document.getElementById('formAgregar')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form as HTMLFormElement);
+      data.append('agregarTarea', '1');
+      const res = await fetch((form as HTMLFormElement)?.action || window.location.href, {
+        method: 'POST',
+        body: data,
+      });
+      if (res.ok) location.reload();
+    });
 
-							<button type="submit" name="eliminarTarea" value={tarea.id}
-							class="borrar">X</button>
-						</div>
-					)
-				})
-			}
-        </form>
-        
-        <form method="POST" class="Limpiar_Completadas">
-            <div>
-                <button name="limpiarCompletado" class="clear-completed" value="True">Limpia Completadas</button>
-            </div>
-        </form>
-    
+    document.querySelectorAll('#tareas form').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = new FormData(form as HTMLFormElement);
+        const res = await fetch((form as HTMLFormElement).action || window.location.href, {
+          method: 'POST',
+          body: data,
+        });
+        if (res.ok) location.reload();
+      });
+    });
+  </script>
 </Layout>
-
-<style>
-    body {
-    font-family: 'Arial', 'Helvetica', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #e9e6cd;
-}
-
-header {
-    background-color: #d2c3af;
-    padding: 5px 0;
-    text-align: center;
-    color: #ffffff;
-}
-
-nav {
-    text-align: center;
-    background-color: #d2c3af;
-    padding: 5px 0;
-}
-
-.menu {
-    list-style-type: none;
-    padding: 0;
-}
-.menu a {
-    text-decoration: none;
-    color: #ffffff;
-}
-
-.menu a:hover {
-    color: #ffc400;
-}
-.menu a:active {
-    color: #d2c3af;
-}
-.menu li {
-    background-color: #d2c3af;
-    margin: 0 10px;
-    display: inline;
-    font-size: 1.5em;
-    font-weight: bold;
-}
-
-.TO {
-    color: #ffffff;
-    font-size: 1.5em;
-}
-
-.DO {
-    color: #ffc400;
-    font-size: 1.5em;
-}
-
-.agbot {
-    background-color: #ffffff;
-    color:#d2c3af;
-    border: none;
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.agbot:hover {
-    background-color: #d2c3af;
-    color: #ffffff;
-}
-.agbot:active {
-    background-color: #ffc400;
-    color: #ffffff;
-}
-
-.quep {
-    width: 500px;
-    height: 55px;
-    font-size: 22px;
-    padding: 10px;
-    border: none;
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.quep:focus {
-    outline: none;
-}
-
-.quep::placeholder {
-    color: #d2c3af;
-}
-
-.agregador {
-    justify-content: center;
-    display: flex;
-    margin: 20px 0;
-}
-.tareas-cont {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 20px 0;
-}
-
-.tareas {
-    font-family: 'Poppins', sans-serif;
-    padding: 10px;
-    width: 60vw;
-    margin: auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-
-.borrar {
-    background: #ff0000; 
-    color: white; 
-    border: none; 
-    padding: 12px 20px; 
-    font-size: 16px; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    transition: 0.1s; 
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2); 
-}
-
-.borrar:hover {
-    background: #9b0000; 
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-}
-.borrar:active {
-    transform: scale(0.85); 
-}
-
-.agregar {
-    background: #e9e6cd; 
-    color: white; 
-    border: none; 
-    padding: 12px 20px; 
-    font-size: 16px; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    transition: 0.1s; 
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2); 
-}
-
-.agregar:hover {
-    background: #e9e6cd; 
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-}
-.agregar:active {
-    transform: scale(0.85); 
-}
-
-.clear-completed {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #ff5733;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.1s;
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-}
-
-.clear-completed:hover {
-    background-color: #c70039;
-}
-
-.clear-completed:active {
-    transform: scale(0.95);
-}
-
-.checko{
-    background: #ffffff; 
-    color: white; 
-    border: none; 
-    padding: 12px 20px; 
-    font-size: 16px; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    transition: 0.1s; 
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2); 
-}
-.checko.lesto {
-    background: #22ff00; 
-    color: white;  
-}
-
-.checko:hover {
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-}
-.checko:active {
-    transform: scale(0.85); 
-}
-.testoLacra {
-    font-size: 20px;
-    color: #000000;
-    margin-left: 10px;
-}
-.testoLacra.Compete {
-    text-decoration: line-through;
-    color: #8f8f8f;
-}
-
-</style>
