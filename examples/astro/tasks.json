@@ -1,1 +1,30 @@
-[]
+{
+  "filter": "undone",
+  "tasks": [
+    {
+      "id": 1745962413024,
+      "text": "hola",
+      "completed": false
+    },
+    {
+      "id": 1745981271570,
+      "text": "hol",
+      "completed": true
+    },
+    {
+      "id": 1745981281117,
+      "text": "dfsfs",
+      "completed": false
+    },
+    {
+      "id": 1745981281869,
+      "text": "sfsdf",
+      "completed": false
+    },
+    {
+      "id": 1745981284335,
+      "text": "xd",
+      "completed": false
+    }
+  ]
+}
