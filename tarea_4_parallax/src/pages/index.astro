@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../layouts/Layout.astro';
+import { state } from '../state';
+import "../styles/global.css";
+
+const formData = Astro.request.method === 'POST'
+  ? await Astro.request.formData()
+  : null;
+
+const currentFilter = Astro.url.searchParams.get('filter') || 'All';
+if (formData) {
+ 
+}
+
+let filteredTasks = state.tasks;
+if (currentFilter === 'Completed')    filteredTasks = state.tasks.filter(t => t.completed);
+else if (currentFilter === 'Pending') filteredTasks = state.tasks.filter(t => !t.completed);
+---
+
+<BaseLayout>
+  <main class="container mx-auto p-6">
+    <div class="flex justify-center gap-3 mb-6">
+      <a
+        href="/?filter=All"
+        class={`px-4 py-2 rounded-full text-sm font-medium transition ${
+          currentFilter === 'All'
+            ? 'bg-blue-500 text-white'
+            : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+        }`}
+      >Todas</a>
+
+      <a
+        href="/?filter=Pending"
+        class={`px-4 py-2 rounded-full text-sm font-medium transition ${
+          currentFilter === 'Pending'
+            ? 'bg-yellow-500 text-white'
+            : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+        }`}
+      >Pendientes</a>
+
+      <a
+        href="/?filter=Completed"
+        class={`px-4 py-2 rounded-full text-sm font-medium transition ${
+          currentFilter === 'Completed'
+            ? 'bg-green-500 text-white'
+            : 'bg-green-100 text-green-700 hover:bg-green-200'
+        }`}
+      >Completadas</a>
+    </div>
+
+    <form id="addForm" method="POST" class="flex max-w-xl mx-auto mb-8">
+      <input
+        name="taskInput"
+        type="text"
+        placeholder="Añadir una tarea..."
+        class="flex-grow p-3 rounded-l-lg border bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        type="submit"
+        name="addTask"
+        value="1"
+        class="bg-blue-500 px-6 rounded-r-lg text-white font-semibold shadow hover:bg-blue-600 transition"
+      >
+        Añadir
+      </button>
+    </form>
+
+
+    <section id="task-list" class="max-w-xl mx-auto space-y-4">
+      {filteredTasks.map(task => (
+        <div
+          class="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition"
+          data-id={task.id}
+        >
+          <button
+            class={`flex-none w-6 h-6 rounded-full flex items-center justify-center transition-transform ${
+              task.completed
+                ? 'bg-green-500 border-green-500'
+                : 'border-2 border-blue-500'
+            } hover:scale-110`}
+          >
+            {task.completed ? '✅' : ''}
+          </button>
+          <p class={`ml-4 flex-grow text-lg ${
+            task.completed ? 'line-through text-gray-400' : 'text-gray-800'
+          }`}>
+            {task.text}
+          </p>
+          <button class="flex-none ml-4 text-lg text-red-500 hover:text-red-600 transition">
+            ✕
+          </button>
+        </div>
+      ))}
+    </section>
+
+  
+    <form id="clearCompletedForm" method="POST" class="mt-8 text-center">
+      <button
+        name="clearCompleted"
+        value="1"
+        class="bg-red-500 text-white px-8 py-2 rounded-full shadow hover:bg-red-600 transition"
+      >
+        Limpiar completadas
+      </button>
+    </form>
+
+  </main>
+
+
+  <script src="/scripts/tasks.js" defer></script>
+</BaseLayout>

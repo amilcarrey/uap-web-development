@@ -1,0 +1,81 @@
+---
+import {
+  listar,
+  agregar,
+  alternar,
+  eliminar,
+  eliminarCompletadas
+} from "../lib/tareas";
+import { Astro } from "astro";
+
+const url = new URL(Astro.request.url);
+const filtro = url.searchParams.get("filtro") ?? "todas";
+
+// Manejo de formularios (solo POST)
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const accion = form.get("accion");
+  const id = form.get("id") ? Number(form.get("id")) : null;
+  const texto = form.get("texto")?.toString() ?? "";
+
+  if (accion === "agregar" && texto.trim()) agregar(texto);
+  if (accion === "alternar" && id !== null) alternar(id);
+  if (accion === "eliminar" && id !== null) eliminar(id);
+  if (accion === "eliminarCompletadas") eliminarCompletadas();
+
+  return Astro.redirect("/");
+}
+
+const tareas = listar(filtro);
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gestor de Tareas (Astro)</title>
+    <style>
+      body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
+      form { display: inline; }
+      .completada { text-decoration: line-through; color: gray; }
+      .acciones button { margin-left: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Gestor de Tareas</h1>
+
+    <form method="POST">
+      <input type="text" name="texto" placeholder="Nueva tarea" required />
+      <input type="hidden" name="accion" value="agregar" />
+      <button type="submit">Agregar</button>
+    </form>
+
+    <div style="margin: 1rem 0">
+      <a href="/">Todas</a> |
+      <a href="/?filtro=completadas">Hechas</a> |
+      <a href="/?filtro=pendientes">No Hechas</a>
+    </div>
+
+    <ul>
+      {tareas.map(tarea => (
+        <li class={tarea.completada ? "completada" : ""}>
+          <form method="POST">
+            <input type="hidden" name="accion" value="alternar" />
+            <input type="hidden" name="id" value={tarea.id} />
+            <button type="submit">{tarea.completada ? "✅" : "⬜"}</button>
+          </form>
+          {tarea.texto}
+          <form method="POST" class="acciones">
+            <input type="hidden" name="accion" value="eliminar" />
+            <input type="hidden" name="id" value={tarea.id} />
+            <button type="submit">Eliminar</button>
+          </form>
+        </li>
+      ))}
+    </ul>
+
+    <form method="POST" style="margin-top: 1rem">
+      <input type="hidden" name="accion" value="eliminarCompletadas" />
+      <button type="submit">Eliminar todas las completadas</button>
+    </form>
+  </body>
+</html>
