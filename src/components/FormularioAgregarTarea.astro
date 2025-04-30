@@ -1,0 +1,41 @@
+<form id="form-agregar" method="POST" action="/api/agregar" class="mb-5">
+  <label for="tarea">Nueva tarea:</label>
+  <input
+    type="text"
+    id="tarea"
+    name="nuevaTarea"
+    required
+    class="p-2 m-2 text-black border-2 border-pink-600"
+  />
+  <button
+    type="submit"
+    class="border-2 border-pink-600 px-4 py-2 hover:bg-pink-600 transition"
+  >
+    Agregar
+  </button>
+</form>
+
+<script type="module">
+  const form = document.getElementById("form-agregar");
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = document.getElementById("tarea");
+      const texto = input.value.trim();
+      if (!texto) return alert("Escribe una tarea");
+
+      const res = await fetch("/api/agregar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texto })
+      });
+
+      if (res.ok) {
+        const nuevaTarea = await res.json();
+        location.reload(); // o mejor aún: insertar la nueva tarea en el DOM
+      } else {
+        alert("Error al agregar tarea");
+      }
+    });
+  }
+</script>

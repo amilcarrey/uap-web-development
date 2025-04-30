@@ -1,0 +1,72 @@
+---
+const { tareas, filtro } = Astro.props;
+---
+
+<ul id="lista-tareas" class="flex flex-col items-center">
+  {tareas.length === 0 ? (
+    <p>No hay tareas para mostrar.</p>
+  ) : tareas.map((tarea, i) => (
+    <li class="bg-white text-black w-80 p-3 m-2 flex justify-between items-center rounded" data-id={i}>
+      <span class={`tarea ${tarea.completada ? 'line-through text-gray-500' : ''}`}>{tarea.texto}</span>
+
+      <form action={`/api/toggle?filtro=${filtro}`} method="POST" class="form-toggle">
+        <input type="hidden" name="index" value={i} />
+        <button type="submit" class="px-2">✔</button>
+      </form>
+
+      <form action={`/api/borrar?filtro=${filtro}`} method="POST" class="form-borrar">
+        <input type="hidden" name="index" value={i} />
+        <button type="submit" class="px-2">🗑</button>
+      </form>
+    </li>
+  ))}
+</ul>
+
+{tareas.length > 0 && (
+  <form action={`/api/borrarCompletadas?filtro=${filtro}`} method="POST" id="form-borrar-completadas">
+    <input type="hidden" name="borrarCompletadas" value="1" />
+    <button type="submit" class="mt-4 border-2 border-pink-600 px-4 py-2 hover:bg-pink-600">Eliminar completadas</button>
+  </form>
+)}
+
+<script type="module">
+  document.querySelectorAll(".form-toggle").forEach(form => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const index = form.querySelector("input[name='index']").value;
+      const res = await fetch(form.action, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ index })
+      });
+      if (res.ok) {
+        const li = form.closest("li");
+        li.querySelector(".tarea").classList.toggle("line-through");
+        li.querySelector(".tarea").classList.toggle("text-gray-500");
+      }
+    });
+  });
+
+  document.querySelectorAll(".form-borrar").forEach(form => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const index = form.querySelector("input[name='index']").value;
+      const res = await fetch(form.action, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ index })
+      });
+      if (res.ok) {
+        form.closest("li").remove();
+      }
+    });
+  });
+
+  document.getElementById("form-borrar-completadas")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const res = await fetch(e.target.action, { method: "POST" });
+    if (res.ok) {
+      document.querySelectorAll(".line-through").forEach(el => el.closest("li").remove());
+    }
+  });
+</script>

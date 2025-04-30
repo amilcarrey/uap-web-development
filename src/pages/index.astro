@@ -1,0 +1,27 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { state } from "../state.js";
+import FormularioAgregarTarea from "../components/FormularioAgregarTarea.astro";
+import Filtros from "../components/Filtros.astro";
+import ListaDeTareas from "../components/ListaDeTareas.astro";
+import "../styles/global.css";
+
+// Obtener el filtro desde la URL
+const url = new URL(Astro.request.url);
+const filtro = url.searchParams.get("filtro") || "todas";
+
+// Aplicar filtrado
+let tareasFiltradas = state.tareas;
+if (filtro === "completadas") {
+  tareasFiltradas = state.tareas.filter(t => t.completada);
+} else if (filtro === "pendientes") {
+  tareasFiltradas = state.tareas.filter(t => !t.completada);
+}
+---
+
+<Layout>
+  <h1 class="text-3xl p-4 bg-pink-600 text-white">Gestor de Tareas</h1>
+  <FormularioAgregarTarea />
+  <Filtros filtroActual={filtro} />
+  <ListaDeTareas tareas={tareasFiltradas} filtro={filtro} />
+</Layout>

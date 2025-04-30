@@ -1,0 +1,20 @@
+<!-- Filtros.astro -->
+---
+const { filtroActual } = Astro.props;
+const filtros = ["todas", "completadas", "pendientes"];
+---
+
+<div class="flex justify-center space-x-4 my-4">
+  {filtros.map(filtro => (
+    <a
+      href={`/?filtro=${filtro}`}
+      class={`px-4 py-2 border-2 rounded ${
+        filtroActual === filtro
+          ? "bg-pink-600 text-white border-white-600"
+          : "border-white-600 text-black-600 hover:bg-black-600 hover:text-white"
+      }`}
+    >
+      {filtro.charAt(0).toUpperCase() + filtro.slice(1)}
+    </a>
+  ))}
+</div>
