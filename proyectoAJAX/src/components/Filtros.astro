@@ -1,0 +1,21 @@
+---
+export const props = { filtroActual: "all" };
+---
+
+<div class="flex justify-center gap-2">
+  <a href="?filtro=all">
+    <button class={`px-3 py-1 rounded ${props.filtroActual === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+      Todas
+    </button>
+  </a>
+  <a href="?filtro=completed">
+    <button class={`px-3 py-1 rounded ${props.filtroActual === 'completed' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+      Completadas
+    </button>
+  </a>
+  <a href="?filtro=incomplete">
+    <button class={`px-3 py-1 rounded ${props.filtroActual === 'incomplete' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+      Incompletas
+    </button>
+  </a>
+</div>

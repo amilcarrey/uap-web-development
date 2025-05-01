@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FormularioAgregar from '../components/FormularioAgregar.astro';
+import Filtros from '../components/Filtros.astro';
+import ListaTareas from '../components/ListaTareas.astro';
+import { procesarSolicitudPOST } from '../services/procesarSolicitud';
+import { obtenerTareas } from '../services/tareas';
+import "../styles/global.css";
+
+if (Astro.request.method === 'POST') {
+  return await procesarSolicitudPOST(Astro);
+}
+
+const filtro = new URL(Astro.request.url).searchParams.get('filtro') || 'all';
+const tareasFiltradas = obtenerTareas(filtro);
+---
+
+<Layout title="Tareneitor">
+  <h1 class="text-5xl font-bold text-center my-8">TARENEITOR</h1>
+
+  <section class="max-w-xl mx-auto flex flex-col gap-4 px-4">
+    <FormularioAgregar action="/" placeholder="¿Qué tenemos que hacer hoy?" />
+    <Filtros filtroActual={filtro} />
+    <ListaTareas tareas={tareasFiltradas} />
+  </section>
+</Layout>
