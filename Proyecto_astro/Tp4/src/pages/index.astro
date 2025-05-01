@@ -11,63 +11,58 @@ const tasks = getTasks(filter);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lista de Tareas</title>
-    <style>
-      body {
-        font-family: sans-serif;
-        max-width: 600px;
-        margin: 2rem auto;
-      }
-      ul {
-        padding: 0;
-        list-style: none;
-      }
-      li {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5rem 0;
-      }
-      form.inline {
-        display: inline;
-      }
-      .completed {
-        text-decoration: line-through;
-        color: #888;
-      }
-    </style>
+    <!-- Referencia al archivo CSS movido a public/styles -->
+    <link href="/styles/main.css" rel="stylesheet" />
   </head>
-  <body>
-    <h1>Lista de Tareas</h1>
+  <body class="font-sans max-w-xl mx-auto mt-8 px-4">
 
-    <form action="/add-task" method="POST">
-      <input type="text" name="text" required placeholder="Nueva tarea" />
-      <button type="submit">Agregar</button>
+    <h1 class="text-2xl font-bold mb-4">Lista de Tareas</h1>
+
+    <form action="/add-task" method="POST" class="flex gap-2 mb-4">
+      <input
+        type="text"
+        name="text"
+        required
+        placeholder="Nueva tarea"
+        class="flex-1 border border-gray-300 rounded px-2 py-1"
+      />
+      <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+        Agregar
+      </button>
     </form>
 
-    <form action="/clear-completed" method="POST" style="margin-top: 1rem;">
-      <button type="submit">Eliminar completadas</button>
+    <form action="/clear-completed" method="POST" class="mb-4">
+      <button type="submit" class="text-sm text-red-600 hover:underline">
+        Eliminar completadas
+      </button>
     </form>
 
-    <div style="margin: 1rem 0;">
-      <a href="/">Todas</a> |
-      <a href="/?filter=incomplete">Incompletas</a> |
-      <a href="/?filter=complete">Completadas</a>
+    <div class="mb-4 space-x-2">
+      <a href="/" class="text-blue-600 hover:underline">Todas</a>
+      <a href="/?filter=incomplete" class="text-blue-600 hover:underline">Incompletas</a>
+      <a href="/?filter=complete" class="text-blue-600 hover:underline">Completadas</a>
     </div>
 
-    <ul>
+    <ul class="space-y-2">
       {tasks.map(task => (
-        <li>
+        <li class="flex justify-between items-center border-b py-2">
           <form action="/update-task" method="POST" class="inline">
             <input type="hidden" name="id" value={task.id} />
-            <button type="submit">{task.completed ? '✅' : '⬜'}</button>
+            <button type="submit" class="mr-2">
+              {task.completed ? '✅' : '⬜'}
+            </button>
           </form>
-          <span class={task.completed ? 'completed' : ''}>{task.text}</span>
+          <span class={task.completed ? 'line-through text-gray-500 flex-1' : 'flex-1'}>
+            {task.text}
+          </span>
           <form action="/delete-task" method="POST" class="inline">
             <input type="hidden" name="id" value={task.id} />
-            <button type="submit">🗑️</button>
+            <button type="submit" class="text-red-600 hover:underline">🗑️</button>
           </form>
         </li>
       ))}
     </ul>
+
+    <script src="/main.js" type="module"></script>
   </body>
 </html>
