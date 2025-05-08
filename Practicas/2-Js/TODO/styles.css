@@ -1,0 +1,320 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Encabezado */
+header {
+    background-color: burlywood;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+/* Contenedor principal */
+main {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Pestañas */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    align-items: center; /* Alinea verticalmente los botones */
+    gap: 5px; /* Espacio entre los botones */
+
+    display: flex;
+    overflow-x: auto; /* Habilita el desplazamiento horizontal */
+    white-space: nowrap; /* Evita que las pestañas se envuelvan a la siguiente línea */
+    padding-bottom: 10px; /* Espacio para la barra de desplazamiento */
+}
+
+.tab-button {
+    flex: 1;
+    padding: 10px 20px;
+    background-color: #ddd;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    transition: background-color 0.3s;
+    border-radius: 5px;
+}
+
+.tab-button.active {
+    background-color: rgb(144, 144, 144);
+    color: white;
+}
+
+.tab-button:hover {
+    background-color: #ccc;
+}
+
+/* Contenido de las pestañas */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+
+/* Estilo para la barra de desplazamiento */
+.tabs::-webkit-scrollbar {
+    height: 8px; /* Altura de la barra de desplazamiento */
+}
+
+.tabs::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color del "pulgarcito" de la barra */
+    border-radius: 4px;
+}
+
+.tabs::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Color de fondo de la barra */
+}
+
+
+/* Estilo específico para el botón de agregar pestañas */
+.tabs .add-tab-button {
+    background-color: #d69c70; /* Color verde */
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0; /* Elimina el padding */
+    width: 30px; /* Ancho fijo */
+    height: 30px; /* Alto fijo */
+    border-radius: 50%; /* Forma circular */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px; /* Espacio a la izquierda */
+    flex-shrink: 0; /* Evita que se reduzca el tamaño */
+    flex: 0 0 auto; /* No permite que el botón crezca o se encoja */
+}
+
+.add-tab-button:hover {
+    background-color: #a57a5a; /* Color verde más oscuro al pasar el mouse */
+}
+
+.tab-title-input {
+    font-size: 16px; /* Tamaño del texto */
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 150px; /* Ancho fijo para el campo de texto */
+    text-align: center;
+    margin-bottom: 10px;
+}
+.tab-title-input:focus {
+    border-color: #4CAF50; /* Cambia el color del borde al enfocar */
+    outline: none; /* Elimina el contorno predeterminado */
+}
+
+/* Estilos para el mensaje emergente */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    font-size: 12px;
+    color: #5b5b5b;
+    background-color: #fbd0b0; /* Color de fondo */
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-left: 10px;
+    animation: fadeOut 3s forwards;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidad */
+    font-family: Arial, sans-serif; /* Fuente moderna */
+}
+
+/* Flecha para el tooltip */
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #fbd0b0 transparent transparent; /* Flecha que apunta al título */
+}
+
+/* Animación de desvanecimiento */
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Secciones */
+section {
+    margin-bottom: 20px;
+}
+
+h3 {
+    color: gray;
+    margin-top: 0;
+}
+
+/* Contenedor de entrada y botón ADD */
+.input-container {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.task-input {
+    background-color: antiquewhite;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 2vh 0 0 2vh;
+    flex-grow: 1; /* El input ocupa el espacio disponible */
+    border-right: none; /* Elimina el borde derecho para que se una con el botón */
+}
+
+.add-button {
+    background-color: burlywood;
+    border: none;
+    cursor: pointer;
+    border-radius: 0 2vh 2vh 0;
+    padding: 10px 20px;
+    color: white;
+    font-size: 16px;
+}
+
+.add-button:hover {
+    background-color: #a57a5a; /* Un tono más oscuro de burlywood */
+}
+
+/* Lista de tareas */
+.task-list {
+    background-color: antiquewhite;
+    padding: 2%;
+    border-radius: 2vh;
+    margin-bottom: 20px;
+}
+
+/* Elementos de tarea */
+.task-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Alinea el contenido a los extremos */
+    margin-bottom: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #adacac;
+}
+
+.task-item:last-child {
+    border-bottom: none; /* Elimina el borde inferior del último elemento */
+}
+
+.task-item label {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el checkbox y el texto */
+    flex-grow: 1; /* Ocupa todo el espacio disponible */
+}
+
+.task-item input[type="checkbox"] {
+    margin: 0; /* Elimina márgenes inconsistentes */
+}
+
+.task-item input[type="checkbox"]:checked + label {
+    text-decoration: line-through;
+    color: #888;
+}
+
+/* Botón de eliminar */
+.delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ff4d4d; /* Color rojo */
+    font-size: 16px;
+    padding: 5px;
+    margin-left: 10px; /* Espacio entre el texto y el botón */
+}
+
+.delete-button:hover {
+    color: #cc0000; /* Color rojo más oscuro al pasar el mouse */
+}
+
+/* Botón Clear Completed */
+.clear-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: antiquewhite;
+    color: chocolate; /* Color del texto */
+    border: none;
+    cursor: pointer;
+    display: block; /* Asegura que funcione */
+    margin-left: auto; /* Mueve el botón a la derecha */
+    border-radius: 2vh;
+}
+
+.clear-button:hover {
+    background-color: #d4c4b4; /* Un tono más claro de antiquewhite */
+}
+
+/* Estilos para los botones de filtro */
+.filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.filter-button {
+    padding: 5px 10px;
+    background-color: antiquewhite;
+    border: 1px solid burlywood;
+    border-radius: 4px;
+    cursor: pointer;
+    color: chocolate;
+    transition: all 0.3s;
+}
+
+.filter-button:hover {
+    background-color: #e6d5c3;
+}
+
+.filter-button.active {
+    background-color: burlywood;
+    color: white;
+    border-color: #a57a5a;
+}
+
+/* Validación de input */
+.task-input:invalid {
+    border-color: #ff4d4d;
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Mejorar filtros */
+.filter-buttons {
+    margin: 15px 0;
+    gap: 8px;
+}
+
+.filter-button.active {
+    transform: scale(1.05);
+}

@@ -1,0 +1,88 @@
+body{
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+h1{
+    text-align: center;
+}
+
+/*Estilo para el contenedor de los sliders*/
+.color-picker{
+    background-color: #faead6;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0, 2px 10px #0000001a;
+    width: 70vh;
+}
+
+.color-display{
+    width: 100%; /*Utiliza el todo el ancho del contenedor "color-picker"*/
+    height: 150px;
+    border-radius: 10px;
+    margin-bottom: 20px; /*Separa 20px el display de lso sliders*/
+    border: 2px solid gray;
+}
+
+.slider-container{
+    margin-bottom: 15px; /*Separa los sliders 20px entre cada uno*/
+}
+
+/*Modifica los imputs "sliders"*/
+input[type="range"]{
+    -webkit-appearance: none; /*Elimina los estilos predeterminados que le ponen los navegadores a los inputs*/
+    outline: none; /*Elimina los contornos predeterminados que le ponen los navegadores*/
+    width: 100%;
+    height: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/*Fondo degradado para el slider rojo*/
+#redSlider{
+    background: linear-gradient(to right, #000000, #ff0000  );
+}
+/*Fondo degradado para el slider verde*/
+#greenSlider{
+    background: linear-gradient(to right, #000000, #00ff00  );
+}
+/*Fondo degradado para el slider azul*/
+#blueSlider{
+    background: linear-gradient(to right, #000000, #0000ff  );
+}
+
+/*Modificacion del control deslizante*/
+input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance: none; /*Quita los estilos por defecto del nevegador*/
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 2px solid #555;
+    cursor: pointer;
+}
+
+label{
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.value-display{
+    display: flex;
+    justify-content: space-between; /*Distribuye el espacio entre los elementos hijos a lo largo del eje principal*/
+}
+
+.hex-value{
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #f5f5f5;
+    text-align: center;
+    font-family: monospace;
+    font-size: 18px;
+}

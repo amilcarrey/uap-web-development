@@ -1,0 +1,42 @@
+---
+import TaskInput from './TaskInput.astro';
+import TaskList from './TaskList.astro';
+import FilterControls from './FilterControls.astro';
+
+export interface Props {
+  tabId: string;
+  title: string;
+  isActive?: boolean;
+  tasks: Array<{id: string, text: string, completed: boolean}>;
+  currentFilter: string;
+  tasksState: string;
+}
+
+const { tabId, title, isActive, tasks, currentFilter, tasksState } = Astro.props;
+---
+<section id={tabId} class={`tab-content ${isActive ? 'active' : ''}`}>
+  <h3>{title}</h3>
+  
+  <TaskInput tabId={tabId} tasksState={tasksState} />
+  
+  <TaskList 
+    tasks={tasks} 
+    tabId={tabId} 
+    tasksState={tasksState} 
+  />
+  
+  <FilterControls 
+    tabId={tabId} 
+    currentFilter={currentFilter} 
+    tasksState={tasksState} 
+  />
+</section>
+
+<style>
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+  }
+</style>
