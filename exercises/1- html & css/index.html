@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="todo.jpg">
+    </header>
+    
+    
+        <div style="text-align: center;">
+        <img src="https://img.freepik.com/fotos-premium/secretaria-que-trabaja-oficina-moderna-rascacielos-escribiendo-pegando-notas-adhesivas-tareas-oficina-moderna-ventana_71455-1244.jpg?w=2000" 
+             alt="buscar foto" width="500">
+            </div>
+    
+    
+    <section>
+        <form id="task-form">
+            <label for="task-input">Nueva Tarea:</label>
+            <input type="text" id="task-input" required>
+            <button type="submit">Agregar</button>
+        </form>
+    </section>
+    
+    <section>
+        <ul id="task-list">
+            <li>
+                <span>Sacar la basura</span>
+                <button class="complete-btn">✔</button>
+            </li>
+            <li>
+                <span>Comprar pollo</span>
+                <button class="complete-btn">✔</button>
+            </li>
+            <li>
+                <span>Sacar al perro</span>
+                <button class="complete-btn">✔</button>
+            </li>
+        </ul>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
