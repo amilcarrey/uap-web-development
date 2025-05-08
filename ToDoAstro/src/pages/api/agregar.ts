@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { tareas } from "../../lib/tareas.ts";
+import { tareas } from "../../lib/tareas";
 
 export const POST: APIRoute = async ({ request }) => {
   const formData = await request.formData();
