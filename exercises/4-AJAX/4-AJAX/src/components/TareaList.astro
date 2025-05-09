@@ -1,0 +1,74 @@
+---
+// TareaList.astro
+import type { Tarea } from "../types"
+import TareaItem  from "./Tarea.astro";
+
+const { tareas } = Astro.props as { tareas: Tarea[] };
+---
+
+<tarea-list>
+  <ul id="tarea-list" class="flex flex-col gap-2 w-full">
+    {
+      tareas.map((tarea) => (
+        <TareaItem
+          content={tarea.content}
+          completed={tarea.completed}
+          id={tarea.id}
+        />
+      ))
+    }
+  </ul>
+
+  <button id="borrar-completadas" class="bg-red-500 hover:bg-red-600 text-white rounded-md p-2 mt-4 self-end">
+    Borrar tareas completadas
+  </button>
+
+  <template id="tarea-item-template">
+    <TareaItem content="" completed={false} id="" />
+  </template>
+</tarea-list>
+
+<script>
+  import type { Tarea } from "../types";
+  import {TareaItem} from "./Tarea"
+  export class TareaList extends HTMLElement {
+    private list: HTMLUListElement | null = null;
+    private newTareaTemplate: HTMLTemplateElement | null = null;
+
+    connectedCallback() {
+      this.list = this.querySelector("ul");
+      this.newTareaTemplate = this.querySelector("template");
+
+      const borrarBtn = this.querySelector("#borrar-completadas");
+      borrarBtn?.addEventListener("click", async () => {
+        await fetch("/api/tareas/completadas", {
+          method: "DELETE"
+        });
+
+        const res = await fetch("/api/tareas");
+        const data = await res.json();
+        this.renderTareas(data.tareas);
+      });
+    }
+
+    renderTareas = (tareas: Tarea[]) => {
+      this.list!.innerHTML = "";
+      for (const tarea of tareas) {
+        this.addTarea(tarea);
+      }
+    };
+
+    addTarea = (tarea: Tarea) => {
+      const template = this.newTareaTemplate?.content.querySelector("tarea-item");
+      const newTarea = template?.cloneNode(true) as TareaItem;
+
+      this.list?.append(newTarea);
+
+      newTarea.setContent(tarea.content);
+      newTarea.setId(tarea.id);
+      newTarea.setCompleted(tarea.completed);
+    };
+  }
+
+  customElements.define("tarea-list", TareaList);
+</script>

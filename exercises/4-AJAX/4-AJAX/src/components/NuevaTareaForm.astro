@@ -1,0 +1,59 @@
+<new-tarea-form>
+  <form
+    action="/api/tareas"
+    method="post"
+    class="flex w-full justify-between gap-2"
+  >
+    <input
+      class="border border-gray-300 rounded-md p-2 flex-1"
+      type="text"
+      name="content"
+      placeholder="Contenido de la tarea"
+    />
+    <button
+      class="bg-blue-500 hover:bg-blue-600 text-white rounded-md p-2 cursor-pointer"
+      type="submit"
+    >
+      Guardar
+    </button>
+  </form>
+</new-tarea-form>
+
+<script>
+  import type { Tarea } from "../types";
+  import type { TareaList } from "./TareaList.astro.0.mts";
+
+  class NewTareaForm extends HTMLElement {
+    private form: HTMLFormElement | null = null;//acceder al form
+    private input: HTMLInputElement | null = null;//acceder al input
+    private tareaList: TareaList | null = null;//acceder al componente donde se agrega la nueva tarea <tarea-list>
+
+    connectedCallback() {
+      this.form = this.querySelector("form");
+      this.input = this.querySelector("input");
+      this.tareaList = document.querySelector("tarea-list");
+      this.form?.addEventListener("submit", this.handleCreateNewTarea);
+    }
+
+    handleCreateNewTarea = async (e: SubmitEvent) => {
+      e.preventDefault();
+      const content = this.input?.value?.trim();
+      if (!content) return;
+
+      this.input!.value = "";
+
+      const response = await fetch("/api/tareas", {
+        method: "POST",
+        body: JSON.stringify({ content }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data: { tarea: Tarea } = await response.json();
+      this.tareaList?.addTarea(data.tarea);
+    };
+  }
+
+  customElements.define("new-tarea-form", NewTareaForm);
+</script>

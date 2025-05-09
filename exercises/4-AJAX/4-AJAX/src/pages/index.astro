@@ -1,0 +1,20 @@
+---
+// src/pages/index.astro
+import Layout from "../layouts/Layout.astro";
+import FilterForm from "../components/FilterForm.astro";
+import NuevaTareaForm from "../components/NuevaTareaForm.astro";
+import TareaList from "../components/TareaList.astro";
+import { getTareas } from "../services/tareas";
+
+const url = new URL(Astro.request.url);
+const filter = url.searchParams.get("filter") ?? "TODAS";
+const tareas = getTareas(filter);
+---
+<Layout>
+	<main class="p-4 max-w-xl mx-auto">
+		<NuevaTareaForm />
+		<FilterForm filter={filter} />
+		<TareaList tareas={tareas} />
+	  </main>
+</Layout>
+
