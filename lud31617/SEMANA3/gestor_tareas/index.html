@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Theme switcher -->
+        <div class="theme-switch-wrapper">
+            <span>🌙</span>
+            <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider"></div>
+            </label>
+            <span>☀️</span>
+        </div>
+        
+        <main>
+            <!-- Título animado -->
+            <div class="logo-text">TAREAS</div>
+
+            <!-- Tabs Header -->
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="personal">Personal</button>
+                <button class="tab-btn" data-tab="professional">Professional</button>
+            </div>
+            
+            <!-- Panel Personal -->
+            <div id="personal" class="tab-content active">
+                <div class="input-bar">
+                    <input type="text" id="input-personal" placeholder="¿Qué necesitas hacer?">
+                    <button class="btn-add" id="add-personal">ADD</button>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all" data-list="personal">Todas</button>
+                    <button class="filter-btn" data-filter="active" data-list="personal">Activas</button>
+                    <button class="filter-btn" data-filter="completed" data-list="personal">Completadas</button>
+                </div>
+                
+                <ul class="tasks" id="list-personal"></ul>
+                <button class="clear-completed" id="clear-personal">Clear Completed</button>
+            </div>
+            
+            <!-- Panel Professional -->
+            <div id="professional" class="tab-content">
+                <div class="input-bar">
+                    <input type="text" id="input-professional" placeholder="¿Qué necesitas hacer?">
+                    <button class="btn-add" id="add-professional">ADD</button>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all" data-list="professional">Todas</button>
+                    <button class="filter-btn" data-filter="active" data-list="professional">Activas</button>
+                    <button class="filter-btn" data-filter="completed" data-list="professional">Completadas</button>
+                </div>
+                
+                <ul class="tasks" id="list-professional"></ul>
+                <button class="clear-completed" id="clear-professional">Clear Completed</button>
+            </div>
+        </main>
+
+        <footer>
+            <script src="scripts.js"></script>
+            <p>Gestor de Tareas - Desarrollado con ❤️</p>
+        </footer>
+    </div>
+</body>
+</html>
