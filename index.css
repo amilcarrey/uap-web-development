@@ -1,0 +1,116 @@
+/*estilo gral:*/
+body {
+    background-color: rgb(240, 242, 245);
+    font-family: Arial, sans-serif;
+}
+
+h1 { /*titulo*/
+    background-color: rgb(234, 209, 221); 
+    padding: 10px 20px;
+    border: 2px solid #cca0a0; 
+    width: 100%; 
+    text-align: center;
+}
+
+.task-form { /*form de agregar las tareas*/
+    background-color: rgb(242, 238, 241);
+    padding: 20px;
+    margin: 10px auto;
+    width: 55%;
+    border: 2px solid #cca0a0;
+    border-radius: 10px; 
+    font-size: 16px;
+}
+
+input[type="text"] { /*box de texto*/
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #cca0a0;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.task-form button { /*sgregar tarea*/
+    width: 101.5%; 
+    padding: 8px 12px;
+    background-color: rgb(235, 189, 217);
+    border: 1px solid #bd7dae;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.task-form button:hover {
+    background-color: #c388b5;
+}
+
+
+#borrarCompletados { /*boton*/
+    width: 40%;
+    padding: 8px;
+    background-color: rgb(220, 191, 205);
+    border: 1px solid #cca0a0;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+
+    /* para centrarlo horiz: */
+    display: block;  /*convierte el boton en un bloque para usar margin auto*/
+    margin: 20px auto; /*cntra horizontalmente*/
+    text-align: center; /* asegura que el texto dentro este centrado */
+}
+#borrarCompletados:hover {
+    background-color: rgb(224, 199, 211);
+}
+
+
+/*lista de tareas*/
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+/*tarea individual en la lista*/
+.task-list li {
+    background-color: rgb(242, 238, 241);
+    width: 55%;
+    padding: 10px;
+    margin: 20px auto;
+    border-radius: 10px;
+    font-size: 18px;
+    border: 1px solid #cca0a0;
+    display: flex; /*alinerar elem dentro de la tarea*/
+    justify-content: space-between; 
+    align-items: center;
+    white-space: normal; /*para saltos de linea!! y q no se esconda el texto"*/
+    overflow: hidden;
+    word-wrap: break-word; 
+}
+
+/*cntenedor del texto de la tarea*/
+.task-list li span {
+    flex-grow: 1; /*ocupa todo el espacio disponible */
+    word-wrap: break-word; /*para q si un texto es muy largo no se salga del contendeor*/
+    overflow-wrap: break-word; /*divide palabras largas*/
+    display: block; /*p q el texto ocupe varias lineas si necesita*/
+    max-width: calc(100% - 50px); /*limita el ancho para que el boton de eliminar no se mueva*/
+}
+
+/*boton eliminar tarea (la X)*/
+.delete-task {
+    background-color: #be4343;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    flex-shrink: 0; /*p que el boton no cambie de tamano*/
+    width: 40px; 
+    height: 30px;
+    text-align: center;
+}
+.delete-task:hover {
+    background-color: #da3737;
+}
