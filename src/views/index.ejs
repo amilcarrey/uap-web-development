@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cambiamos a una fuente monoespaciada -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['"Roboto Mono"', 'monospace'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">    
+    <title>TO DO</title>
+</head>
+
+<body class="font-mono bg-[url('wallpaper.jpg')] bg-cover bg-center bg-no-repeat text-black m-0 p-0 w-full min-h-screen flex flex-col">
+    <header class="text-center p-5 animate__animated animate__fadeInDown">
+        <div class="text-white">
+            <h1 class="text-2xl font-bold animate-pulse-slow">Gestor de tareas</h1>
+        </div>
+    </header>
+
+    <main class="flex flex-col md:flex-row items-center justify-center w-full flex-1 gap-5 py-5">
+        <div id="personal" class="bg-gray-50 rounded flex flex-col items-center justify-center w-full md:w-2/5 p-5 border border-gray-200 mx-auto main-container hover:shadow-lg transition-all duration-300">
+            <h2 class="text-xl font-semibold mb-2 animate-float">Tareas Personales</h2>
+            <form action="/crear" method="POST" class="flex items-center justify-center gap-2.5 w-full crear-form">
+                <input type="text" name="titulo" placeholder="Nueva tarea" 
+                       class="flex-1 p-2.5 border border-gray-200 rounded w-full my-2.5 text-base bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all">
+                <input type="hidden" name="categoria" value="personal">
+                <button type="submit" 
+                        class="p-2.5 bg-black text-white border-none rounded cursor-pointer hover:bg-gray-800 transition-all hover:scale-105 active:scale-95">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </form>
+            <ul class="list-none p-0 mt-5 w-full tareas-list">
+                <% tareas.filter(tarea => tarea.categoria === 'personal').forEach(tarea => { %>
+                    <li class="flex items-center justify-between p-2.5 border-b border-gray-200 bg-white hover:bg-gray-50 transition-all duration-300 gap-2.5 overflow-hidden <%= tarea.completada ? 'completada line-through text-gray-500 bg-gray-100' : '' %>" data-id="<%= tarea.id %>">
+                        <form action="/completar" method="POST" class="inline-block completar-form">
+                            <input type="hidden" name="id" value="<%= tarea.id %>">
+                            <button type="submit" 
+                                    class="p-2 bg-black text-white border-none rounded cursor-pointer hover:bg-gray-800 transition-all hover:scale-110 active:scale-90">
+                                <i class="fas <%= tarea.completada ? 'fa-undo' : 'fa-check' %>"></i>
+                            </button>
+                        </form>
+                        <span class="flex-1 text-center break-words whitespace-normal"><%= tarea.titulo %></span>
+                        <form action="/eliminar" method="POST" class="inline-block eliminar-form">
+                            <input type="hidden" name="id" value="<%= tarea.id %>">
+                            <button type="submit" 
+                                    class="p-2 bg-gray-200 text-red-500 border-none rounded cursor-pointer hover:bg-red-500 hover:text-white transition-all hover:scale-110 active:scale-90 eliminar-btn">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </li>
+                <% }) %>
+            </ul>
+        </div>
+
+        <div id="universidad" class="bg-gray-50 rounded flex flex-col items-center justify-center w-full md:w-2/5 p-5 border border-gray-200 mx-auto main-container hover:shadow-lg transition-all duration-300">
+            <h2 class="text-xl font-semibold mb-2 animate-float">Tareas Universidad</h2>
+            <form action="/crear" method="POST" class="flex items-center justify-center gap-2.5 w-full crear-form">
+                <input type="text" name="titulo" placeholder="Nueva tarea" 
+                       class="flex-1 p-2.5 border border-gray-200 rounded w-full my-2.5 text-base bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all">
+                <input type="hidden" name="categoria" value="universidad">
+                <button type="submit" 
+                        class="p-2.5 bg-black text-white border-none rounded cursor-pointer hover:bg-gray-800 transition-all hover:scale-105 active:scale-95">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </form>
+            <ul class="list-none p-0 mt-5 w-full tareas-list">
+                <% tareas.filter(tarea => tarea.categoria === 'universidad').forEach(tarea => { %>
+                    <li class="flex items-center justify-between p-2.5 border-b border-gray-200 bg-white hover:bg-gray-50 transition-all duration-300 gap-2.5 overflow-hidden <%= tarea.completada ? 'completada line-through text-gray-500 bg-gray-100' : '' %>" data-id="<%= tarea.id %>">
+                        <span class="flex-1 break-words text-left whitespace-normal"><%= tarea.titulo %></span>
+                        <form action="/completar" method="POST" class="inline-block completar-form">
+                            <input type="hidden" name="id" value="<%= tarea.id %>">
+                            <button type="submit" 
+                                    class="p-2 bg-black text-white border-none rounded cursor-pointer hover:bg-gray-800 transition-all hover:scale-110 active:scale-90">
+                                <i class="fas <%= tarea.completada ? 'fa-undo' : 'fa-check' %>"></i>
+                            </button>
+                        </form>
+                        <form action="/eliminar" method="POST" class="inline-block eliminar-form">
+                            <input type="hidden" name="id" value="<%= tarea.id %>">
+                            <button type="submit" 
+                                    class="p-2 bg-gray-200 text-red-500 border-none rounded cursor-pointer hover:bg-red-500 hover:text-white transition-all hover:scale-110 active:scale-90 eliminar-btn">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </li>
+                <% }) %>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Barra de filtros en la parte superior -->
+    <div class="fixed top-24 left-0 right-0 flex justify-center z-10 animate__animated animate__fadeInUp animate__delay-1s">
+        <div class="bg-gray-50 rounded-full flex items-center justify-center p-2 border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300">
+            <form action="/eliminarCompletadas" method="POST" id="eliminar-completadas-form" class="mx-2">
+                <button type="submit" id="deleteSelected" 
+                        class="p-2 bg-black text-white border-none rounded-full cursor-pointer hover:bg-red-600 transition-all hover:scale-105 active:scale-95">
+                    <i class="fas fa-trash"></i> Eliminar completadas
+                </button>
+            </form>
+            <div class="flex justify-center gap-2">
+                <button class="filtro-btn p-2 bg-black text-white border-none rounded-full cursor-pointer hover:bg-gray-800 transition-all hover:scale-105 active:scale-95" data-estado="todas">
+                    <i class="fas fa-list"></i> Todas
+                </button>
+                <button class="filtro-btn p-2 bg-black text-white border-none rounded-full cursor-pointer hover:bg-gray-800 transition-all hover:scale-105 active:scale-95" data-estado="incompletas">
+                    <i class="far fa-circle"></i> Incompletas
+                </button>
+                <button class="filtro-btn p-2 bg-black text-white border-none rounded-full cursor-pointer hover:bg-gray-800 transition-all hover:scale-105 active:scale-95" data-estado="completas">
+                    <i class="fas fa-check-circle"></i> Completas
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="p-2.5 text-center text-white animate__animated animate__fadeInUp animate__delay-2s">
+        <p>Hecho por Luca C. 2025</p>
+    </footer>
+    
+    <!-- Script de tareas -->
+    <script src="tareas.js"></script>
+</body>
+
+</html>
