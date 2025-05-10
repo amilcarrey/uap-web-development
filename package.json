@@ -1,0 +1,28 @@
+{
+  "name": "uap-web-development",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ToDo.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FrancoUribe2003/uap-web-development.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FrancoUribe2003/uap-web-development/issues"
+  },
+  "homepage": "https://github.com/FrancoUribe2003/uap-web-development#readme",
+  "devDependencies": {
+    "astro": "^5.6.0"
+  }
+}
