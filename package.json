@@ -1,0 +1,28 @@
+{
+  "name": "todo2025-css",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "astro dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewblockernst/todo2025-css.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andrewblockernst/todo2025-css/issues"
+  },
+  "homepage": "https://github.com/andrewblockernst/todo2025-css#readme",
+  "dependencies": {
+    "astro": "^5.6.1"
+  }
+}
