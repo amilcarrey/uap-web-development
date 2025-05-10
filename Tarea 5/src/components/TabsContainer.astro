@@ -1,0 +1,60 @@
+---
+// src/components/TabsContainer.astro
+
+import TabButton from "./TabButton.astro";
+
+export interface Props{
+    tabs: Array<{id: string; title: string}>; // <-- para la lista de pestañas
+    activeTab: string; // <-- para saber que pestaña esta activa
+}
+
+const {tabs, activeTab} = Astro.props; // <-- Recibe los datos del componente padre, recibe la lista de tabs del usuario y cual se encuentra usando
+---
+
+<div class="tabs
+    flex mb-[20px] items-center gap-[5px] overflow-x-auto whitespace-nowrap pb-[10px]
+">
+    { //Codigo Js que se ejecuta para generar HTML
+        tabs.map(tab => ( // <-- De mi lista de pestañas me crea un "boton"
+            <TabButton
+                tabId = {tab.id}
+                label = {tab.title}
+                isActive = {tab.id == activeTab}
+            />
+        ))
+    }
+
+    <TabButton isAddButton label="+"/>
+</div>
+
+<!--
+<style>
+    .tabs{
+        @apply
+            flex
+            mb-[20px]
+            items-center
+            gap-[5px]
+            overflow-x-auto
+            whitespace-nowrap
+            pb-[10px]
+    }
+</style>
+-->
+<!-- 
+<style>
+    /* Pestañas */
+
+    .tabs {
+        display: flex;
+        margin-bottom: 20px;
+        align-items: center; /* Alinea verticalmente los botones */
+        gap: 5px; /* Espacio entre los botones */
+
+        display: flex;
+        overflow-x: auto; /* Habilita el desplazamiento horizontal */
+        white-space: nowrap; /* Evita que las pestañas se envuelvan a la siguiente línea */
+        padding-bottom: 10px; /* Espacio para la barra de desplazamiento */
+    }
+</style>
+-->
