@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import AddToDo from '../components/AddToDo.astro';
+import FilterTasks from '../components/FilterTasks.astro';
+import ToDoList from '../components/ToDoList.astro';
+import ClearCompleted from '../components/ClearCompleted.astro';
+
+const url = new URL(Astro.request.url); // Get the current URL
+const filter = url.searchParams.get('filter') || "all"; // Get the filter parameter from the URL
+
+---
+<Layout>
+    <div class="flex flex-col min-h-screen">
+        <Header/>
+            <main class="flex flex-col items-center bg-white flex-grow">
+                <AddToDo/>
+                <div class="w-1/2 my-5 mt-2 p-2 bg-[rgba(241,236,230,255)] rounded-3xl">
+                    <FilterTasks filter={filter}/>
+                    <ToDoList filter={filter}/>
+                    <ClearCompleted/>
+                </div>
+            </main>
+        </div>
+</Layout>
+
+
+
+
