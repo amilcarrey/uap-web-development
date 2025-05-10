@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #0A0A2A;
+            color: white;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Antes de Ameri</h1>
+    <img src="duki.jpg" alt="Imagen de ejemplo">
+    
+    <form>
+        <label for="nueva-tarea">Ingrese el nombre de otro álbum:</label>
+        <input type="text" id="nueva-tarea" name="tarea" required>
+        <button type="submit">Agregar</button>
+    </form>
+    
+    <ul id="lista-tareas">
+        <li>
+            <span>Completar álbum</span><button>Completar</button>
+        </li>
+    </ul>
+</body>
+</html>
