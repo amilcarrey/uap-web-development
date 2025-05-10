@@ -1,0 +1,706 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { state } from '../state.js';
+
+
+let errorMessage = '';
+
+//NOMENCLATURA DE ASTRO PARA INICIALIZAR LA VARIABLE DE ESTADO Y CONSULTAR LOS FORMULARIOS
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get('action');
+
+    //FUNCION PARA AGREGAR LA TAREA
+    if (action === 'add-task') {
+      const taskText = formData.get('taskText')?.toString().trim();
+      const tab = formData.get('tab')?.toString() || 'today';
+      
+      if (taskText && tab) {
+        const newTask = {
+          id: state.nextId++,
+          text: taskText,
+          completed: false
+        };
+        
+        if (!state.tasks[tab]) {
+          state.tasks[tab] = [];
+        }
+        
+        state.tasks[tab].push(newTask);
+      } else {
+        errorMessage = 'Please enter a task!';
+      }
+    }
+    //CAMBIO DE ESTADO ENTRE COMPLETO E INCOMPLETO
+    else if (action === 'toggle-complete') {
+      const taskId = parseInt(formData.get('taskId')?.toString() || '0');
+      const tab = formData.get('tab')?.toString() || 'today';
+      
+      const task = state.tasks[tab]?.find(t => t.id === taskId);
+      if (task) {
+        task.completed = !task.completed;
+      }
+    }
+    //CHAU TAREAS
+    else if (action === 'delete-task') {
+      const taskId = parseInt(formData.get('taskId')?.toString() || '0');
+      const tab = formData.get('tab')?.toString() || 'today';
+      
+      if (state.tasks[tab]) {
+        state.tasks[tab] = state.tasks[tab].filter(t => t.id !== taskId);
+      }
+    }
+    //FUNCION DE LIMPIEZA DE TAREAS COMPLETADAS
+    else if (action === 'clear-completed') {
+      const tab = formData.get('tab')?.toString() || 'today';
+      
+      if (state.tasks[tab]) {
+        state.tasks[tab] = state.tasks[tab].filter(t => !t.completed);
+      }
+    }
+    //FUNCION DEL TIPO DE FILTRO
+    else if (action === 'change-filter') {
+      const filter = formData.get('filter')?.toString() || 'all';
+      state.filter = filter;
+    }
+    //CAMBIO DE PESTANA "TIPO DE TAREA"
+    else if (action === 'change-tab') {
+      const tab = formData.get('tab')?.toString() || 'today';
+      state.activeTab = tab;
+    }
+    //AGREGAR PESTANA 
+    else if (action === 'add-tab') {
+      const newTabName = formData.get('newTabName')?.toString().trim();
+      if (newTabName) {
+        const tabId = newTabName.toLowerCase().replace(/\s+/g, '-');
+        if (!state.tabs.includes(tabId)) {
+          state.tabs.push(tabId);
+          state.tasks[tabId] = [];
+        }
+        state.activeTab = tabId;
+      }
+    }
+  } catch (error) {
+    console.error('Error processing form:', error);
+    errorMessage = 'An error occurred while processing your request.';
+  }
+}
+
+//FUNCION PARA FILTRAR AQUELLAS TAREAS COMPLETADAS
+function getFilteredTasks(tab) {
+  if (!state.tasks[tab]) return [];
+  const tasks = state.tasks[tab];
+  if (state.filter === 'complete') {
+    return tasks.filter(task => task.completed);
+  } else if (state.filter === 'incomplete') {
+    return tasks.filter(task => !task.completed);
+  }
+  return tasks;
+}
+
+//VARIABLE QUE MANEJA LA PESTANA ACTUAL
+const activeTab = state.activeTab;
+---
+
+<Layout>
+    <div class="container">
+      <header>
+        <h1>The Old Stand</h1>
+        <h2>
+          <i>Wanna check which tasks you have to do in the pub? Welcome mate,
+            cause this is the place. Cheers! 🍻</i>
+        </h2>
+        <div class="pub-image">
+          <img src="img/the-old-stand.jpg" alt="Irish Pub" />
+        </div>
+      </header>
+
+      <main>
+        {errorMessage && (
+          <div class="error-message">
+            {errorMessage}
+          </div>
+        )}
+
+        <!--FORMULARIO PARA AGREGAR TAREAS -->
+        <form method="POST" action="/" id="task-form">
+          <div class="form-group">
+            <label for="task-input">New Task:</label>
+            <input
+              type="text"
+              id="task-input"
+              name="taskText"
+              placeholder="Type to enter a new task..."
+              required
+            />
+            <input type="hidden" name="tab" value={activeTab} />
+            <input type="hidden" name="action" value="add-task" />
+          </div>
+          <button type="submit" class="btn-add">Add Task</button>
+        </form>
+
+        <!--PESTANAS-->
+        <div class="tabs">
+          {state.tabs.map(tab => (
+            <form method="POST" action="/" class="inline-form">
+              <input type="hidden" name="action" value="change-tab" />
+              <input type="hidden" name="tab" value={tab} />
+              <button 
+                type="submit" 
+                class={`tab-button ${activeTab === tab ? 'active' : ''}`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            </form>
+          ))}
+          
+          <!--AGREGAR PESTANA-->
+          <form method="POST" action="/" id="add-tab-form" class="add-tab-container">
+            <input type="hidden" name="action" value="add-tab" />
+            <div class="add-tab-input-group">
+              <input type="text" name="newTabName" placeholder="New tab name" required id="new-tab-input" />
+              <button type="submit" id="submit-tab" class="btn-add btn-submit-tab">Add</button>
+            </div>
+            <button type="button" class="btn-add-tab" id="show-tab-input">+</button>
+          </form>
+        </div>
+
+        <!--COTENIDO FILTRADO POR PESTANA-->
+        {state.tabs.map(tab => (
+          <div id={tab} class={`tab-content ${activeTab === tab ? 'active' : ''}`}>
+            <h3>{tab.charAt(0).toUpperCase() + tab.slice(1)} Tasks</h3>
+            <ul id={`task-list-${tab}`}>
+              {getFilteredTasks(tab).map(task => (
+                <li class={`task-item ${task.completed ? 'completed' : ''}`}>
+                  <span class="task-text">{task.text}</span>
+                  <div class="task-buttons">
+                    <!--FORMULARIO DE ELIMINACION DE TAREAS-->
+                    <form method="POST" action="/" class="inline-form">
+                      <input type="hidden" name="action" value="delete-task" />
+                      <input type="hidden" name="taskId" value={task.id} />
+                      <input type="hidden" name="tab" value={tab} />
+                      <button type="submit" class="btn-cancel">🛢️</button>
+                    </form>
+
+                    <!--FORMULARIO DE MARCAR TAREAS COMO COMPLETADAS-->
+                    <form method="POST" action="/" class="inline-form">
+                      <input type="hidden" name="action" value="toggle-complete" />
+                      <input type="hidden" name="taskId" value={task.id} />
+                      <input type="hidden" name="tab" value={tab} />
+                      <button type="submit" class="btn-complete">
+                        {task.completed ? '🍻' : '🍺'}
+                      </button>
+                    </form>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <!--CONTROLES DE TAREAS-->
+            <div class="task-controls">
+              <form method="POST" action="/" class="inline-form">
+                <input type="hidden" name="action" value="clear-completed" />
+                <input type="hidden" name="tab" value={tab} />
+                <button type="submit" class="btn-clear-completed">Clear Completed</button>
+              </form>
+
+              <!--FORMULARIO DE FILTRO DE TAREAS-->
+              <div class="filter-buttons">
+                <form method="POST" action="/" class="inline-form">
+                  <input type="hidden" name="action" value="change-filter" />
+                  <input type="hidden" name="filter" value="all" />
+                  <button 
+                    type="submit" 
+                    class={`btn-filter ${state.filter === 'all' ? 'active' : ''}`}
+                  >
+                    All
+                  </button>
+                </form>
+
+                <form method="POST" action="/" class="inline-form">
+                  <input type="hidden" name="action" value="change-filter" />
+                  <input type="hidden" name="filter" value="incomplete" />
+                  <button 
+                    type="submit" 
+                    class={`btn-filter ${state.filter === 'incomplete' ? 'active' : ''}`}
+                  >
+                    Incomplete
+                  </button>
+                </form>
+
+                <!--FORMULARIO DE FILTRO DE TAREAS COMPLETADAS-->
+                <form method="POST" action="/" class="inline-form">
+                  <input type="hidden" name="action" value="change-filter" />
+                  <input type="hidden" name="filter" value="complete" />
+                  <button 
+                    type="submit" 
+                    class={`btn-filter ${state.filter === 'complete' ? 'active' : ''}`}
+                  >
+                    Complete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        ))}
+      </main>
+
+      <footer>
+        <p>2025 Awrthdrew | Programacion III</p>
+      </footer>
+    </div>
+
+    <style>
+    /* ESTILOS DE THE OLD STAND | TO DO */
+
+    /* VARIABLES DE COLORES */
+    :root {
+      --dark-wood: #3c2415;
+      --medium-wood: #5a3921;
+      --light-wood: #8b5a2b;
+      --red-head: #8e1f1f;
+      --dark-red: #4b0d0d;
+      --gold: #d4af37;
+      --cream: #f5f5dc;
+      --guinness: #1b1b1b;
+      --shamrock: #0c6d43;
+      --shamrock-light: #05bb72;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-color: var(--medium-wood);
+      color: var(--cream);
+      line-height: 1.6;
+      background-image: url("/img/wood-pattern.png");
+      font-family: serif;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: var(--dark-wood);
+      border: 4px solid var(--gold);
+      border-radius: 10px;
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid var(--gold);
+    }
+    
+    h1 {
+      color: var(--gold);
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      color: var (--cream);
+      font-weight: normal;
+      margin-bottom: 20px;
+    }
+    
+    h3 {
+      font-family: serif;
+      font-size: 1.8rem;
+      color: var(--gold);
+      margin-bottom: 15px;
+      text-align: center;
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: 10px;
+    }
+    
+    .pub-image img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 5px;
+      border: 3px solid var(--gold);
+    }
+    
+    /* ESTILO DEL FORMULARIO */
+    form {
+      background-color: var(--medium-wood);
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 30px;
+      border: 2px solid var(--gold);
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: var(--cream);
+      font-size: 1.1rem;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--light-wood);
+      border-radius: 4px;
+      background-color: var(--cream);
+      font-family: serif;
+      font-size: 1rem;
+    }
+    
+    .btn-add {
+      background-color: var(--shamrock);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-family: serif;
+      font-size: 1rem;
+      width: 15%;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .btn-add:hover {
+      background-color: #0f7d4a;
+    }
+    
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+    
+    .tabs form {
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: transparent;
+    }
+    
+    .tab-button {
+      background-color: var(--medium-wood);
+      color: var(--cream);
+      border: 1px solid var(--gold);
+      padding: 10px 10px;
+      cursor: pointer;
+      font-family: serif;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      margin: 0 0;
+      border-radius: 4px;
+    }
+    
+    .tab-button:hover {
+      background-color: var(--dark-wood);
+    }
+    
+    .tab-button.active {
+      background-color: var(--gold);
+      color: var(--guinness);
+    }
+    
+    .tab-content {
+      display: none;
+      background-color: var(--medium-wood);
+      padding: 20px;
+      border-radius: 5px;
+      border: 2px solid var (--gold);
+    }
+    
+    .btn-add-tab {
+      font-weight: bold;
+      background-color: var(--shamrock);
+      color: var(--cream);
+      border: 1px solid var(--gold);
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: serif;
+      transition: all 0.3s;
+    }
+    
+    /* SI SACO ESTA PROPIEDAD, NO PODRIA VER EL CONTENIDO DE CADA TAB */
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* ESTILO PARA EL FORMULARIO DE AGREGAR PESTAÑAS */
+    .add-tab-container {
+      display: inline-block;
+      vertical-align: middle;
+      position: relative;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      border: none;
+    }
+    
+    .add-tab-input-group {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    
+    #new-tab-input {
+      display: inline-block;
+      width: auto;
+      min-width: 150px;
+      margin-right: 5px;
+      padding: 8px 12px;
+      vertical-align: middle;
+    }
+    
+    .btn-submit-tab {
+      display: inline-block;
+      width: auto;
+      margin: 0;
+      padding: 8px 12px;
+      vertical-align: middle;
+    }
+    
+    /* ESTILOS DEL LISTADO DE TAREAS */
+    .task-container {
+      background-color: var(--medium-wood);
+      padding: 20px;
+      border-radius: 5px;
+      border: 2px solid var(--gold);
+      margin-bottom: 20px;
+      min-height: 200px;
+    }
+    
+    ul {
+      list-style-type: none;
+    }
+    
+    .task-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      background-color: var(--dark-wood);
+      border-radius: 4px;
+    }
+    
+    .task-text {
+      font-size: 1.1rem;
+      color: var(--cream);
+      word-break: break-word;
+      flex: 1;
+    }
+    
+    .task-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .task-buttons form {
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: transparent;
+    }
+    
+    .btn-cancel {
+      background-color: var(--dark-red);
+      color: var(--cream);
+      border: 1px solid var(--gold);
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: serif;
+      transition: all 0.3s;
+    }
+    
+    .btn-cancel:hover {
+      background-color: var(--red-head);
+      color: var(--guinness);
+    }
+    
+    .btn-complete {
+      background-color: var(--shamrock);
+      color: var(--cream);
+      border: 1px solid var(--gold);
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: serif;
+      transition: all 0.3s;
+    }
+    
+    .btn-complete:hover {
+      background-color: var(--shamrock-light);
+      color: var(--guinness);
+    }
+    
+    /* Estilos para los controles de tareas */
+    .task-controls {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .task-controls form {
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: transparent;
+    }
+    
+    .btn-clear-completed {
+      background-color: var(--dark-red);
+      color: var(--cream);
+      border: 1px solid var(--gold);
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: serif;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    
+    .btn-clear-completed:hover {
+      background-color: var(--red-head);
+      color: var(--guinness);
+    }
+    
+    .filter-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-buttons form {
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: transparent;
+    }
+    
+    .btn-filter {
+      background-color: var(--medium-wood);
+      color: var(--cream);
+      border: 1px solid var(--gold);
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: serif;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+    
+    .btn-filter:hover {
+      background-color: var(--dark-wood);
+    }
+    
+    .btn-filter.active {
+      background-color: var(--gold);
+      color: var(--guinness);
+    }
+    
+    /* Estilo para tareas completadas */
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      color: var(--light-wood);
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 3px solid var(--gold);
+      color: var(--cream);
+      font-size: 0.9rem;
+    }
+    
+    /* AJUSTES PARA EL RESPONSIVE */
+    @media (max-width: 600px) {
+      .container {
+        margin: 10px;
+        padding: 15px;
+      }
+    
+      h1 {
+        font-size: 2.5rem;
+      }
+    
+      h2 {
+        font-size: 1.2rem;
+      }
+    
+      .btn-add {
+        width: auto;
+      }
+    
+      .tabs {
+        gap: 10px;
+      }
+    }
+    
+    .inline-form {
+      display: inline;
+      margin: 0;
+      padding: 0;
+      background: none;
+      border: none;
+    }
+    
+    .completed .task-text {
+      text-decoration: line-through;
+      color: var(--light-wood);
+    }
+    </style>
+
+    <script>
+      // Script para manejar la visibilidad del input para nueva pestaña
+      document.addEventListener('DOMContentLoaded', () => {
+        const showTabInput = document.getElementById('show-tab-input');
+        const addTabInputGroup = document.querySelector('.add-tab-input-group');
+        
+        showTabInput.addEventListener('click', () => {
+          // Mostrar el grupo de inputs y ocultar el botón +
+          addTabInputGroup.style.display = 'inline-block';
+          showTabInput.style.display = 'none';
+          
+          // Enfocar el input
+          document.getElementById('new-tab-input').focus();
+          
+          // Agregar un manejador para cancelar si se hace clic fuera
+          document.addEventListener('click', function closeTabInput(event) {
+            if (!addTabInputGroup.contains(event.target) && event.target !== showTabInput) {
+              addTabInputGroup.style.display = 'none';
+              showTabInput.style.display = 'inline-block';
+              document.removeEventListener('click', closeTabInput);
+            }
+          });
+        });
+      });
+    </script>
+</Layout>
