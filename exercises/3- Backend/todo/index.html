@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aplicación To-Do</title>
+    <link rel="stylesheet" href="./src/style.css" />
+    <script src="./src/scripts/todo.ts"></script>
+  </head>
+  <body>
+    <div
+      class="bg-white rounded-2xl shadow-md p-4 mx-auto max-w-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+    >
+      <h1
+        class="text-4xl font-semibold text-center uppercase text-gray-800 mb-4 p-4"
+      >
+        Lista de Tareas
+      </h1>
+      <form class="flex justify-center mb-4 p-2" id="task-form">
+        <input
+          class="border border-gray-300 rounded-md mr-2 px-4 py-2 focus:outline-none focus:border-green-500"
+          type="text"
+          id="task-input"
+          placeholder="Agregar nueva tarea"
+          required
+        />
+        <button
+          class="bg-green-500 text-white hover:bg-green-700 font-bold py-2 px-4 rounded-full"
+          type="submit"
+        >
+          Agregar
+        </button>
+      </form>
+      <ul class="list-none p-0" id="task-list">
+      </ul>
+      <div class="flex justify-between mt-4">
+        <button class="mr-10 bg-gray-500 hover:bg-gray-700 text-white font-light py-0.5 px-2 rounded mt-2" id="clear-filter">Limpiar</button>
+
+        <button id="all-filter" class="hover:bg-blue-50 text-gray-500 font-light underline py-0.5 px-1 rounded mt-2 ml-2">Todas</button>
+        <button id="active-filter" class="hover:bg-blue-50 text-gray-500 font-light underline py-0.5 px-1 rounded mt-2 ml-2">Activas</button>
+        <button id="complete-filter" class=" hover:bg-blue-50 text-gray-500 font-light underline py-0.5 px-1 rounded mt-2 ml-2" >Completadas</button>
+      </div>
+    </div>
+  </body>
+</html>
