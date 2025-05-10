@@ -1,0 +1,89 @@
+/* Estilos generales para el cuerpo de la página */
+body {
+    font-family: Arial, sans-serif; /* Fuente predeterminada */
+    display: flex; /* Usa flexbox para centrar los elementos */
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    height: 100vh; /* Ocupa toda la altura de la pantalla */
+    background-color: #f5f5f5; /* Color de fondo gris claro */
+}
+
+/* Contenedor principal */
+.container {
+    background: white; /* Fondo blanco */
+    padding: 20px; /* Espaciado interno */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    text-align: center; /* Alinea el texto al centro */
+    width: 400px; /* Ancho fijo */
+}
+
+/* Caja de color que muestra el color seleccionado */
+.color-box {
+    width: 100%; /* Ocupa todo el ancho disponible */
+    height: 100px; /* Altura fija */
+    border-radius: 10px; /* Bordes redondeados */
+    background: #808080; /* Color gris por defecto */
+    margin-bottom: 10px; /* Espaciado inferior */
+}
+
+/* Texto que muestra el código hexadecimal del color */
+.hex-code {
+    font-size: 18px; /* Tamaño de fuente más grande */
+    font-weight: bold; /* Texto en negrita */
+}
+
+/* Contenedor de los controles deslizantes */
+.sliders label {
+    display: flex; /* Usa flexbox */
+    align-items: center; /* Alinea verticalmente los elementos */
+    justify-content: space-between; /* Separa el texto y el control */
+    margin: 10px 0; /* Espaciado superior e inferior */
+    font-weight: bold; /* Texto en negrita */
+}
+
+/* Estilos para los controles deslizantes */
+input[type="range"] {
+    width: 80%; /* Ajusta el ancho de los sliders */
+}
+
+/* Estilos generales para los botones */
+button {
+    background: #ff6b6b; /* Color rojo claro */
+    border: none; /* Sin borde */
+    padding: 10px; /* Espaciado interno */
+    border-radius: 5px; /* Bordes redondeados */
+    color: white; /* Texto en color blanco */
+    font-weight: bold; /* Texto en negrita */
+    cursor: pointer; /* Cambia el cursor al estilo de puntero */
+    margin-top: 10px; /* Espaciado superior */
+}
+
+/* Cambia el color del botón al pasar el mouse */
+button:hover {
+    background: #ff4d4d; /* Rojo más oscuro */
+}
+
+/* Contenedor de los botones de colores predefinidos */
+.preset-colors {
+    display: grid; /* Usa una cuadrícula */
+    grid-template-columns: repeat(4, 1fr); /* Crea 4 columnas de igual tamaño */
+    gap: 10px; /* Espaciado entre botones */
+    margin-top: 10px; /* Espaciado superior */
+}
+
+/* Estilos para los botones de colores predefinidos */
+.preset {
+    border: none; /* Sin borde */
+    padding: 10px; /* Espaciado interno */
+    border-radius: 5px; /* Bordes redondeados */
+    font-weight: bold; /* Texto en negrita */
+    cursor: pointer; /* Cambia el cursor a puntero */
+    color: white; /* Texto en color blanco */
+    text-transform: uppercase; /* Texto en mayúsculas */
+}
+
+/* Efecto al pasar el mouse sobre los botones de colores */
+.preset:hover {
+    opacity: 0.8; /* Reduce la opacidad para indicar interactividad */
+}
