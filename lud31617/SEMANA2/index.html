@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tareas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #121212;
+            color: #fff;
+            padding: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        body.light-mode {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        /* Título animado */
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 20px rgba(100, 100, 255, 0.6); }
+        }
+        
+        body.light-mode .logo-text {
+            animation: glowLight 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glowLight {
+            from { text-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+            to { text-shadow: 0 0 10px rgba(0, 0, 0, 0.4), 0 0 15px rgba(100, 100, 255, 0.4); }
+        }
+        
+        /* Theme switcher */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+        
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin: 0 8px;
+        }
+        
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Tabs */
+        .tabs-header {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid #444;
+            color: inherit;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        body.light-mode .tab-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .tab-btn.active {
+            border-bottom: 2px solid #2196F3;
+        }
+        
+        /* Contenido de pestañas */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Input y botones */
+        .input-bar {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #444;
+            background-color: #222;
+            color: #fff;
+            border-radius: 4px 0 0 4px;
+        }
+        
+        body.light-mode input[type="text"] {
+            border: 1px solid #ddd;
+            background-color: #fff;
+            color: #333;
+        }
+        
+        .btn-add {
+            padding: 8px 12px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-add:hover {
+            background-color: #0d8bf2;
+            transform: scale(1.05);
+        }
+        
+        /* Filtros */
+        .filters {
+            display: flex;
+            margin: 10px 0;
+            justify-content: center;
+        }
+        
+        .filter-btn {
+            margin: 0 5px;
+            padding: 5px 10px;
+            background: none;
+            border: 1px solid #444;
+            color: inherit;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .filter-btn.active {
+            background-color: #2196F3;
+            border-color: #2196F3;
+            color: white;
+        }
+        
+        body.light-mode .filter-btn {
+            border-color: #ddd;
+        }
+        
+        body.light-mode .filter-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Lista de tareas */
+        .tasks {
+            list-style: none;
+        }
+        
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 8px;
+            background-color: #222;
+            border-radius: 4px;
+        }
+        
+        body.light-mode .task-item {
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .task-label {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .task-text {
+            margin-left: 8px;
+        }
+        
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .delete-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        /* Clear completed button */
+        .clear-completed {
+            padding: 6px 12px;
+            background: none;
+            border: 1px solid #444;
+            color: inherit;
+            border-radius: 4px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .clear-completed:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        body.light-mode .clear-completed {
+            border: 1px solid #ddd;
+        }
+        
+        /* Footer */
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        /* Visibilidad de tareas según filtro */
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Theme switcher -->
+        <div class="theme-switch-wrapper">
+            <span>🌙</span>
+            <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider"></div>
+            </label>
+            <span>☀️</span>
+        </div>
+        
+        <main>
+            <!-- Título animado -->
+            <div class="logo-text">TAREAS</div>
+
+            <!-- Tabs Header -->
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="personal">Personal</button>
+                <button class="tab-btn" data-tab="professional">Professional</button>
+            </div>
+            
+            <!-- Panel Personal -->
+            <div id="personal" class="tab-content active">
+                <div class="input-bar">
+                    <input type="text" id="input-personal" placeholder="¿Qué necesitas hacer?">
+                    <button class="btn-add" id="add-personal">ADD</button>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all" data-list="personal">Todas</button>
+                    <button class="filter-btn" data-filter="active" data-list="personal">Activas</button>
+                    <button class="filter-btn" data-filter="completed" data-list="personal">Completadas</button>
+                </div>
+                
+                <ul class="tasks" id="list-personal"></ul>
+                <button class="clear-completed" id="clear-personal">Clear Completed</button>
+            </div>
+            
+            <!-- Panel Professional -->
+            <div id="professional" class="tab-content">
+                <div class="input-bar">
+                    <input type="text" id="input-professional" placeholder="¿Qué necesitas hacer?">
+                    <button class="btn-add" id="add-professional">ADD</button>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all" data-list="professional">Todas</button>
+                    <button class="filter-btn" data-filter="active" data-list="professional">Activas</button>
+                    <button class="filter-btn" data-filter="completed" data-list="professional">Completadas</button>
+                </div>
+                
+                <ul class="tasks" id="list-professional"></ul>
+                <button class="clear-completed" id="clear-professional">Clear Completed</button>
+            </div>
+        </main>
+
+        <footer>
+            <p>Gestor de Tareas - Desarrollado con ❤️</p>
+        </footer>
+    </div>
+
+    <script>
+        // Theme switcher
+        const toggleSwitch = document.querySelector('#checkbox');
+        const body = document.querySelector('body');
+        
+        // Check for saved theme preference
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        if (currentTheme === 'light') {
+            body.classList.add('light-mode');
+            toggleSwitch.checked = true;
+        }
+        
+        // Switch theme function
+        toggleSwitch.addEventListener('change', function() {
+            body.classList.toggle('light-mode', this.checked);
+            localStorage.setItem('theme', this.checked ? 'light' : 'dark');
+        });
+        
+        // Tabs functionality
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
+            });
+        });
+
+        // Tasks functionality
+        function setupTaskList(inputId, listId, addBtnId, clearBtnId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const addBtn = document.getElementById(addBtnId);
+            const clearBtn = document.getElementById(clearBtnId);
+            const filterBtns = document.querySelectorAll(`.filter-btn[data-list="${listId.split('-')[1]}"]`);
+            
+            // Add task function
+            function addTask() {
+                const text = input.value.trim();
+                if (text === '') return;
+                
+                const li = document.createElement('li');
+                li.classList.add('task-item');
+                
+                const label = document.createElement('label');
+                label.classList.add('task-label');
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                
+                const span = document.createElement('span');
+                span.classList.add('task-text');
+                span.textContent = text;
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.textContent = '🗑️';
+                
+                // Events
+                checkbox.addEventListener('change', () => {
+                    span.classList.toggle('completed', checkbox.checked);
+                    applyFilter(currentFilter);
+                });
+                
+                deleteBtn.addEventListener('click', () => {
+                    list.removeChild(li);
+                });
+                
+                // Append elements
+                label.appendChild(checkbox);
+                label.appendChild(span);
+                li.appendChild(label);
+                li.appendChild(deleteBtn);
+                list.appendChild(li);
+                
+                // Clear input
+                input.value = '';
+                input.focus();
+                
+                // Apply current filter
+                applyFilter(currentFilter);
+            }
+            
+            // Add task events
+            addBtn.addEventListener('click', addTask);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
+            
+            // Clear completed
+            clearBtn.addEventListener('click', () => {
+                const items = list.querySelectorAll('.task-item');
+                items.forEach(item => {
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    if (checkbox && checkbox.checked) {
+                        list.removeChild(item);
+                    }
+                });
+            });
+            
+            // Filter functionality
+            let currentFilter = 'all';
+            
+            function applyFilter(filter) {
+                const items = list.querySelectorAll('.task-item');
+                
+                items.forEach(item => {
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    const isCompleted = checkbox && checkbox.checked;
+                    
+                    if (filter === 'all') {
+                        item.classList.remove('hide');
+                    } else if (filter === 'active') {
+                        item.classList.toggle('hide', isCompleted);
+                    } else if (filter === 'completed') {
+                        item.classList.toggle('hide', !isCompleted);
+                    }
+                });
+            }
+            
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.getAttribute('data-filter');
+                    applyFilter(currentFilter);
+                });
+            });
+        }
+        
+        // Setup both task lists
+        setupTaskList('input-personal', 'list-personal', 'add-personal', 'clear-personal');
+        setupTaskList('input-professional', 'list-professional', 'add-professional', 'clear-professional');
+    </script>
+</body>
+</html>
