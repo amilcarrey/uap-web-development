@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Old Stand TO DO</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>The Old Stand</h1>
+        <h2>
+          <i
+            >Wanna check which tasks you have to do in the pub? Welcome mate,
+            cause this is the place. Cheers! 🍻</i
+          >
+        </h2>
+        <div class="pub-image">
+          <img src="img/the-old-stand.jpg" alt="Irish Pub" />
+        </div>
+      </header>
+
+      <main>
+        <form id="task-form">
+          <div class="form-group">
+            <label for="task-input">New Task:</label>
+            <input
+              type="text"
+              id="task-input"
+              placeholder="Enter a new task..."
+              required
+            />
+          </div>
+          <button type="submit" class="btn-add">Add Task</button>
+        </form>
+
+        <div class="tabs">
+          <button class="tab-button active">Today's Tasks</button>
+          <button class="tab-button">Kitchen Tasks</button>
+          <button class="tab-button">Office Tasks</button>
+        </div>
+
+        <div id="today" class="tab-content active">
+          <h3>Today's Tasks</h3>
+          <ul id="task-list">
+            <li class="task-item">
+              <span class="task-text">Clean the taps</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍻</button>
+              </div>
+            </li>
+            <li class="task-item">
+              <span class="task-text">Order more Guinness</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍻</button>
+              </div>
+            </li>
+            <li class="task-item">
+              <span class="task-text">Throw the bin</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍻</button>
+              </div>
+            </li>
+            <li class="task-item">
+              <span class="task-text"
+                >Check the tips and split it up with the rest of the lads</span
+              >
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍻</button>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div id="kitchen" class="tab-content">
+          <h3>Kitchen Tasks</h3>
+          <p>List of kitchen tasks...</p>
+        </div>
+
+        <div id="office" class="tab-content">
+          <h3>Office Tasks</h3>
+          <p>List of office tasks...</p>
+        </div>
+      </main>
+
+      <footer>
+        <p>2025 Awrthdrew | Programacion III</p>
+      </footer>
+    </div>
+  </body>
+</html>
