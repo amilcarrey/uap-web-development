@@ -1,0 +1,113 @@
+---
+import { updateLanguageServiceSourceFile } from "typescript";
+
+import { state } from "../services/state.ts";
+import type { Task } from "../services/state";
+
+
+
+
+
+const { filteredTasks, filter } = Astro.props;
+
+const { tasks } = state;
+console.log(state);
+---
+
+<head>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    
+</head>
+
+<body class="m-0 p-0">
+    <header class="flex justify-around items-center bg-blue-950  fixed w-full h-24 text-white text-3xl p-3 ">
+        <h1 class="">Gestor de Tareas</h1>
+    </header>
+    <main class="flex flex-col items-center gap-2.5 pt-24">
+        <div class="flex justify-evenly items-center text-3xl w-full h-20 bg-gray-100 p-8">
+           
+                <h2 class="cursor-pointer hover:border-b-2 border-b-blue-300 p-5">Personal</h2>
+                <h2 class="cursor-pointer hover:border-b-2 border-b-blue-300 p-5">Professional</h2>
+          
+    
+            <i class="fa-solid fa-plus cursor-pointer p-2.5 rounded-b-full hover:bg-blue-600"></i>
+        </div>
+
+        <form action="/api/add" id="addForm" class="flex content-center mt-6 h-5 "  method="POST">
+            <input
+                type="text"
+                name="task"
+                id="addTask"
+                placeholder="Añadir tarea"
+                class="w-96 h-12  bg-gray-100  rounded-2xl rounded-r-none p-5 focus:outline-0 "
+            />
+            <button type="submit"  id="add"  class=" bg-blue-700  h-12 w-12 rounded-bl-none rounded-br-xl rounded-tr-xl cursor-pointer text-amber-50 hover:bg-blue-800">ADD</button>
+        </form>
+
+        <div id="taskList" class="flex flex-col bg-gray-100 mt-6 w-2xl rounded-md p-5 ">
+            <div id="classList" class="flex w-full justify-around text-center text-lg">
+                <a id="allTasks" href="/?filter=all" class="border-b-2 border-b-blue-400 w-44 p-2.5 rounded-tl-md rounded-tr-md  hover:bg-gray-200 " >All</a>
+                <a id="incompletedTasks" href="/?filter=incompleted" class="border-b-2 border-b-blue-400 w-52 p-2.5 rounded-tl-md rounded-tr-md hover:bg-gray-200">Incompleted</a>
+                <a id="completedTasks" href="/?filter=completed" class="border-b-2 border-b-blue-400 w-52 p-2.5 rounded-tl-md rounded-tr-md  hover:bg-gray-200">Completed</a>
+            </div>
+
+            <ul id="taskListContainer" class="flex flex-col items-center mt-10 gap-3 ">
+                {
+                    filteredTasks.map((task:Task) => (
+                        <li class ="flex justify-between w-full p-5 ">
+                                <form method="POST" action="/api/complete-task" id="checkForm" >
+                                    <button type="submit" name="complete" value={task.id} class="w-6 h-6 border-2 border-blue-600 rounded-full  text-sm  text-blue-600 hover:bg-blue-100 cursor-pointer">
+                                        {task.completed ? "✔": ""}
+                                    </button>
+                                </form>
+                                <div class="flex-grow border-b-2 border-gray-300 text-center p-3.5">
+                                    <label class={task.completed ? "completeTask" : ""}>
+                                        {task.name}
+                                    </label>
+                                </div>
+            
+                                <form method="POST" action="/api/delete-task">
+                                    <button
+                                        type="submit"
+                                        class="delete"
+                                        name="delete"
+                                        value={task.id}>
+                                            <i class="fa-solid fa-trash cursor-pointer text-red-500 hover:text-red-700" />
+                                    </button>
+                                </form>
+                        </li>
+                  
+                    ))
+                }
+                <li  id ="taskTemplate" class ="flex justify-between w-full p-5 hidden">
+                    <form method="POST" action="/api/complete-task" id="checkForm" >
+                        <button type="submit" name="complete" value="" class="w-6 h-6 border-2 border-blue-600 rounded-full  text-sm  text-blue-600 hover:bg-blue-100 cursor-pointer">
+                        </button>
+                    </form>
+                    <div class="flex-grow border-b-2 border-gray-300 text-center p-3.5">
+                        <label></label>
+                    </div>
+
+                    <form method="POST" action="/api/delete-task">
+                        <button
+                            type="submit"
+                            class="delete"
+                            name="delete"
+                            value="">
+                                <i class="fa-solid fa-trash cursor-pointer text-red-500 hover:text-red-700" />
+                        </button>
+                    </form>
+            </li>
+                
+                
+            </ul>
+            <form method="POST" action="/api/clear-completed" class="flex">
+                <button type="submit" name="clearCompleted" class="cursor-pointer ml-auto text-lg p-5 text-blue-500 hover:text-blue-700" value="true">Clear Completed</button>
+            </form>
+        </div>
+    </main>
+</body>
+
