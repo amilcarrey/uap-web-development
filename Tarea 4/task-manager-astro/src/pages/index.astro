@@ -1,0 +1,114 @@
+---
+export const prerender = false; // Asegura que la página sea renderizada en el servidor
+
+// Variable global para persistir las tareas mientras el servidor esté activo
+globalThis.tasks = globalThis.tasks || [];
+let filter = Astro.url.searchParams.get('filter') || 'all';
+
+// Filtrar las tareas según el estado
+function getFilteredTasks() {
+  if (filter === 'complete') {
+    return globalThis.tasks.filter((task) => task.completed);
+  }
+  if (filter === 'incomplete') {
+    return globalThis.tasks.filter((task) => !task.completed);
+  }
+  return globalThis.tasks; // 'all'
+}
+
+// Agregar una nueva tarea
+function addTask(description) {
+  if (description) {
+    globalThis.tasks.push({ id: Date.now().toString(), description, completed: false });
+  }
+}
+
+// Actualizar el estado de una tarea
+function toggleTask(id) {
+  const task = globalThis.tasks.find((t) => t.id === id);
+  if (task) {
+    task.completed = !task.completed;
+  }
+}
+
+// Eliminar una tarea
+function deleteTask(id) {
+  globalThis.tasks = globalThis.tasks.filter((t) => t.id !== id);
+}
+
+// Eliminar todas las tareas completadas
+function deleteCompletedTasks() {
+  globalThis.tasks = globalThis.tasks.filter((task) => !task.completed);
+}
+
+// Manejar solicitudes según el tipo de contenido
+if (Astro.request.method === 'POST') {
+  const contentType = Astro.request.headers.get('content-type') || '';
+
+  if (contentType.includes('application/json')) {
+    const body = await Astro.request.json();
+    const action = body.action;
+    const filterAction = body.filter;
+
+    if (action === 'add') addTask(body.description);
+    if (action === 'toggle') toggleTask(body.id);
+    if (action === 'delete') deleteTask(body.id);
+    if (action === 'clearCompleted') deleteCompletedTasks();
+    if (filterAction) filter = filterAction;
+  } else if (contentType.includes('application/x-www-form-urlencoded')) {
+    const formData = await Astro.request.formData();
+    const action = formData.get('_action');
+    const filterAction = formData.get('filter');
+
+    if (action === 'add') addTask(formData.get('description'));
+    if (action === 'toggle') toggleTask(formData.get('id'));
+    if (action === 'delete') deleteTask(formData.get('id'));
+    if (action === 'clearCompleted') deleteCompletedTasks();
+    if (filterAction) filter = filterAction;
+  }
+}
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="/styles.css"> <!-- Enlace al archivo CSS -->
+    <script src="/tasks.js" defer></script> <!-- Vincula el archivo tasks.js -->
+  </head>
+  <body>
+    <h1>Task Manager</h1>
+
+    <!-- Imagen centrada -->
+    <img src="/your-image.jpg" alt="Task Manager Image" class="centered-image" />
+
+    <!-- Formulario para agregar una nueva tarea -->
+    <form id="add-task-form">
+      <input type="text" id="taskDescription" placeholder="Add a new task" required />
+      <button type="submit">Add Task</button>
+    </form>
+
+    <!-- Filtros -->
+    <div class="filters">
+      <button class="filter-btn" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="complete">Completed</button>
+      <button class="filter-btn" data-filter="incomplete">Incomplete</button>
+    </div>
+
+    <!-- Lista de tareas filtradas -->
+    <ul id="taskList">
+      {getFilteredTasks().map((task) => (
+        <li data-id={task.id} class={task.completed ? 'completed' : ''}>
+          <span>{task.description}</span>
+          <button class="toggle-task-btn">{task.completed ? 'Undo' : 'Complete'}</button>
+          <button class="delete-task-btn">Delete</button>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Botón para eliminar tareas completadas -->
+    <button id="clear-completed-btn">Clear Completed</button>
+  </body>
+</html>
