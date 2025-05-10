@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<body>
+    
+    <h2 id="title">RECORDATORIOS</h2>
+
+    <div class="Add-list">
+    <form action="/resultado" method="post" id="Add-reminder">
+        <input name="Add" type="text" id="Holaaaa" placeholder="Agregar recordatorio">
+        <button type="submit" id="add-btn" disabled>Agregar</button>
+    </form>
+    </div>
+
+    <div class="todo-container">
+        <ul class="todo-list">
+            <li class="todo-item">
+                <label>
+                    <input type="checkbox"> Subir la tarea de Progra</input>
+                </label>
+                <button class="delete-btn">
+                    <img src="eliminar.png" alt="Eliminar">
+                </button>
+            </li>
+          
+           
+        </ul>
+        <div class="clear-container">
+            <button type="submit" id="Clear-completed"> Eliminar completados</button>
+        </div>
+        <script src="index.js"></script>
+    </div>
+
+    <div class="filter-buttons">
+        <button id="filter-all">Todas</button>
+        <button id="filter-incomplete">Incompletas</button>
+        <button id="filter-complete">Completadas</button>
+    </div>
+
+    </body>
+</html> 
