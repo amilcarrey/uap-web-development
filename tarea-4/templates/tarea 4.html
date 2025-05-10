@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Menu</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="header">
+    <h1>TODO</h1>
+  </header>
+  <main class="container">
+    <section class="categories">
+      <button class="category active">Personal</button>
+      <button class="category">Profesional</button>
+      <form action="/task-2" method="POST" style="display: inline;">
+        <input type="hidden" name="task" id="hidden-task" value="New Task">
+        <button type="submit" class="category add">+</button>
+      </form>
+    </section>
+  
+    <section class="add-task">
+      <form action="/task-2" method="POST" class="add-task-form">
+        <input type="text" name="task" placeholder="What do you need to do?" class="task-input" id="task-input">
+        <button type="submit" class="add-task-button">+</button>
+      </form>
+    </section>
+  </main>
+
+    <section class="filters">
+      <a href="/filter/all" class="filter">All</a>
+      <a href="/filter/active" class="filter">Active</a>
+      <a href="/filter/completed" class="filter">Completed</a>
+    </section>
+
+    <section class="tasks-wrapper">
+      <section class="tasks">
+        {% for task in tasks %}
+        <div class="task {{ 'completed' if task.completed else '' }}">
+          <div class="task-content">
+            <form action="/toggle-completed/{{ loop.index0 }}" method="POST" class="task-form">
+              <button type="submit" class="status-circle {{ 'completed-circle' if task.completed else 'pending-circle' }}">
+                {{ '✔' if task.completed else '' }}
+              </button>
+            </form>
+            <span>{{ task.text }}</span>
+          </div>
+          <form action="/delete-task/{{ loop.index0 }}" method="POST" class="delete-task-form">
+            <button type="submit" class="delete-button">
+              <img src="{{ url_for('static', filename='tacho de basura.png') }}" alt="Delete" class="delete-icon">
+            </button>
+          </form>
+        </div>
+        {% endfor %}
+        <form action="/clear-completed" method="POST">
+          <footer class="clear">
+            <button type="submit">Clear completed</button>
+          </footer>
+        </form>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
