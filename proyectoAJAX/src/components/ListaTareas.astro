@@ -1,0 +1,39 @@
+---
+// components/ListaTareas.astro
+export interface Props {
+  tareas: { id: string; texto: string; completada: boolean }[];
+}
+
+const { tareas } = Astro.props;
+---
+
+<ul id="lista-tareas" class="flex flex-col gap-2">
+  {tareas.map(tarea => (
+    <li data-id={tarea.id}
+        class={`flex items-center justify-between p-2 border rounded ${tarea.completada ? 'bg-green-100 line-through' : 'bg-white'}`}>
+      <form class="form-toggle" method="POST" action="/" class="mr-2">
+        <input type="hidden" name="accion" value="toggle" />
+        <input type="hidden" name="id" value={tarea.id} />
+        <button type="submit" title="Marcar como completada" class="text-xl">
+          {tarea.completada ? '✅' : '⬜'}
+        </button>
+      </form>
+
+      <span class="flex-1 mx-2">{tarea.texto}</span>
+
+      <form class="form-eliminar" method="POST" action="/">
+        <input type="hidden" name="accion" value="eliminar" />
+        <input type="hidden" name="id" value={tarea.id} />
+        <button type="submit" class="text-red-500 hover:text-red-700 font-bold">X</button>
+      </form>
+    </li>
+  ))}
+</ul>
+
+<!-- Botón de limpiar completadas -->
+<form class="form-limpiar text-center" method="POST" action="/">
+  <input type="hidden" name="accion" value="limpiar" />
+  <button type="submit" class="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+    Eliminar tareas completadas
+  </button>
+</form>

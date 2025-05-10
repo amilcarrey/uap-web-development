@@ -1,0 +1,19 @@
+---
+export const props = {
+  action: "/",
+  placeholder: "¿Qué tenemos que hacer hoy?"
+};
+---
+
+<form id="form-agregar" method="POST" action={props.action} class="flex gap-2">
+  <input type="hidden" name="accion" value="agregar" />
+  <input 
+    name="texto" 
+    required 
+    placeholder={props.placeholder} 
+    class="flex-1 p-2 border rounded" 
+  />
+  <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+    Agregar
+  </button>
+</form>
