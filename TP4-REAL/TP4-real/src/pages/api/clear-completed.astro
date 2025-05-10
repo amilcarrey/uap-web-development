@@ -1,0 +1,11 @@
+---
+export const prerender = false;
+
+import { clearCompleted } from '../../data/tasks.js';
+
+if (Astro.request.method === 'POST') {
+  clearCompleted();
+}
+
+return Astro.redirect("/");
+---
