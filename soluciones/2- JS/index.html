@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Configuración del conjunto de caracteres para admitir acentos y caracteres especiales -->
+    <meta charset="UTF-8">
+    <!-- Configuración de la vista para dispositivos móviles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas</title>
+    <!-- Enlace al archivo CSS para aplicar estilos -->
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+    <!-- Título principal de la aplicación -->
+    <h1><span class="gray">TO</span><span class="orange">DO</span></h1>
+
+    <!-- Pestañas para cambiar entre categorías de tareas -->
+    <div class="tabs">
+        <div class="tab active">Personal</div>  <!-- Pestaña activa por defecto -->
+        <div class="tab">Profesional</div>      <!-- Otra pestaña -->
+    </div>
+
+    <!-- Botones de filtro para mostrar tareas según su estado -->
+    <div class="filters">
+        <button data-filter="all" class="filter active">Todas</button>         <!-- Muestra todas las tareas -->
+        <button data-filter="incomplete" class="filter">Incompletas</button>   <!-- Muestra solo las tareas pendientes -->
+        <button data-filter="completed" class="filter">Completadas</button>    <!-- Muestra solo las tareas completadas -->
+    </div>
+
+    <!-- Sección para ingresar una nueva tarea -->
+    <div class="escriba">
+        <input type="text" id="taskInput" placeholder="Escribe aquí...">  <!-- Campo de entrada de texto -->
+        <button id="addTaskBtn">Agregar</button>  <!-- Botón para agregar una nueva tarea -->
+    </div>      
+
+    <!-- Contenedor de la lista de tareas -->
+    <div class="list-container">
+        <ul id="taskList"></ul>  <!-- Lista donde se agregarán las tareas dinámicamente -->
+        <button id="clearCompleted">Limpiar completadas</button>  <!-- Botón para eliminar las tareas completadas -->
+    </div>
+
+    <!-- Enlace al archivo JavaScript que manejará la funcionalidad -->
+    <script src="./script.js"></script>
+
+</body>
+</html>

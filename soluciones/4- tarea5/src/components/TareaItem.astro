@@ -1,0 +1,156 @@
+---
+const { tarea } = Astro.props;
+---
+
+<li class={`flex items-center bg-white p-3 rounded-lg mb-2 shadow-sm gap-2 ${tarea.completado ? 'completada' : ''}`} id={`tarea-${tarea.id}`}>
+  <!-- Formulario para marcar la tarea como completada (izquierda) -->
+  <form method="POST" class="inline flex gap-2" id={`toggle-form-${tarea.id}`} onsubmit="handleToggle(event, ${tarea.id})">
+    <input type="hidden" name="accion" value="toggle" />
+    <input type="hidden" name="id" value={tarea.id} />
+    <button type="submit" class="text-2xl bg-none border-none cursor-pointer mr-2">
+      {tarea.completado ? '✅' : '⭕'}
+    </button>
+    <span class="texto-tarea flex-grow text-lg">{tarea.texto}</span>
+  </form>
+
+  <!-- Formulario para eliminar la tarea (derecha) -->
+  <form method="POST" class="inline ml-auto" id={`delete-form-${tarea.id}`} onsubmit="handleDelete(event, ${tarea.id})">
+    <input type="hidden" name="accion" value="eliminar" />
+    <input type="hidden" name="id" value={tarea.id} />
+    <button type="submit" class="text-2xl bg-none border-none cursor-pointer ml-2">
+      🗑️
+    </button>
+  </form>
+</li>
+
+<script>
+  // JavaScript solo se ejecuta si está habilitado en el navegador.
+
+  async function handleToggle(event, id) {
+    event.preventDefault(); // Prevenir la acción del formulario para usar AJAX
+    const form = document.getElementById(`toggle-form-${id}`);
+    const formData = new FormData(form);
+    
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        // Actualiza el estado de la tarea en la interfaz
+        const tareaElement = document.getElementById(`tarea-${id}`);
+        const updatedTarea = await response.json();
+        
+        // Actualiza la clase de la tarea (marcar como completada o no)
+        if (updatedTarea.completado) {
+          tareaElement.classList.add('completada');
+        } else {
+          tareaElement.classList.remove('completada');
+        }
+      }
+    } catch (error) {
+      console.error('Error al actualizar la tarea:', error);
+    }
+  }
+
+  async function handleDelete(event, id) {
+    event.preventDefault(); // Prevenir la acción del formulario para usar AJAX
+    const form = document.getElementById(`delete-form-${id}`);
+    const formData = new FormData(form);
+    
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        // Elimina la tarea de la lista
+        const tareaElement = document.getElementById(`tarea-${id}`);
+        tareaElement.remove();
+      }
+    } catch (error) {
+      console.error('Error al eliminar la tarea:', error);
+    }
+  }
+</script>
+
+<style>
+  /* Estilos adaptados para lograr el orden correcto */
+
+  .flex {
+    display: flex;
+  }
+
+  .items-center {
+    align-items: center;
+  }
+
+  .gap-2 {
+    gap: 0.5rem;
+  }
+
+  .bg-white {
+    background-color: #ffffff;
+  }
+
+  .p-3 {
+    padding: 0.75rem;
+  }
+
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+
+  .mb-2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .shadow-sm {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .texto-tarea {
+    text-align: left;
+    font-size: 1.125rem; /* Tamaño de texto de la tarea */
+  }
+
+  .completada {
+    text-decoration: line-through;
+    color: gray;
+  }
+
+  .text-2xl {
+    font-size: 1.5rem; /* Tamaño de los íconos de los botones */
+  }
+
+  .bg-none {
+    background: none;
+  }
+
+  .border-none {
+    border: none;
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  .mr-2 {
+    margin-right: 0.5rem;
+  }
+
+  .ml-2 {
+    margin-left: 0.5rem;
+  }
+
+  .ml-auto {
+    margin-left: auto; /* Empuja el tacho hacia la derecha */
+  }
+
+  /* Opcional: mejora la interacción con el cursor sobre los botones */
+  button:hover {
+    opacity: 0.8;
+  }
+</style>
