@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Color Picker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <div class="color-picker">
+      <div class="color-preview"></div>
+
+      <div class="sliders">
+        <div>
+          <p>R</p>
+          <input type="range" min="0" max="255" value="255" />
+          <p class="r-value">255</p>
+        </div>
+
+        <div>
+          <p>G</p>
+          <input type="range" min="0" max="255" value="255" />
+          <p class="g-value">255</p>
+        </div>
+
+        <div>
+          <p>B</p>
+          <input type="range" min="0" max="255" value="255" />
+          <p class="b-value">255</p>
+        </div>
+      </div>
+      <div class="hex-container">
+        <p class="hex-value">#FFFFFF</p>
+        <button class="copy-hex">Copiar HEX</button>
+      </div>
+      <div class="presets">
+        <h3>Preset Colors</h3>
+      <div class="preset-container">
+        <button class="preset" data-color="#ff0000" style="background-color:#ff0000">Red</button>
+        <button class="preset" data-color="#00ff00" style="background-color:#00ff00">Green</button>
+        <button class="preset" data-color="#0000ff" style="background-color:#0000ff">Blue</button>
+        <button class="preset" data-color="#ffff00" style="background-color:#ffff00">Yellow</button>
+        <button class="preset" data-color="#ffa500" style="background-color:#ffa500">Orange</button>
+        <button class="preset" data-color="#800080" style="background-color:#800080">Purple</button>
+      </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="main.js"></script>
+  </body>
+</html>
