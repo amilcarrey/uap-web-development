@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+
+.boton-estilo {
+  @apply bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition;
+}
+
+.boton-filtro
+{
+  @apply bg-orange-400 text-white px-3 py-1 rounded hover:bg-blue-600 transition;
+}
+
+.eliminar
+{
+  @apply bg-red-500 rounded mt-3 hover:bg-blue-600 transition;
+}

@@ -1,0 +1,72 @@
+--- 
+const { tarea } = Astro.props; 
+---
+
+<div class="task bg-a-lpha-50 border-2 bg-pink-400  rounded-lg p-4 my-2 flex items-center justify-between" 
+     data-id={tarea.id}>
+  <form method="post" action="/api/eliminar" class="eliminar-tarea">
+    <input type="hidden" name="id" value={tarea.id} />
+    <button type="submit" class="deletemark">🗑️</button>
+  </form>
+
+  <span class="task-text">{tarea.descripcion}</span>
+  
+  <form method="post" action="/api/toggle" class="toggle-form">
+    <input type="hidden" name="id" value={tarea.id} />
+    <button type="submit" class="checkmark">{tarea.completada ? "✅" : "⬜"}</button>
+  </form>  
+</div>
+
+<script>
+ document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".task").forEach((task) => {
+    const tarea = task as HTMLElement;
+    const botonEliminar = tarea.querySelector(".eliminar-tarea") as HTMLFormElement;
+    const toggleForm = tarea.querySelector(".toggle-form") as HTMLFormElement;
+
+    // Eliminar tarea
+    botonEliminar?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = Number(tarea.dataset.id);
+      if (!id) return;
+
+      const respuesta = await fetch("/api/eliminar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+
+      if (respuesta.ok) {
+        task.remove();
+      } else {
+        alert("Error al eliminar la tarea");
+      }
+    });
+
+    // Toggle completado
+    toggleForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = Number(tarea.dataset.id);
+      if (!id) return;
+      try {
+        const respuesta = await fetch("/api/toggle", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: new URLSearchParams({ id: id.toString() })
+        });
+        if (!respuesta.ok) {
+          alert("Error al cambiar estado");
+        } else {          const boton = toggleForm.querySelector("button");
+          if (boton) {
+            boton.textContent = boton.textContent === "✅" ? "⬜" : "✅";
+          }
+        }
+      } catch (error) {
+        console.error("Error al hacer toggle:", error);
+      }
+    });
+  });
+});
+</script>
