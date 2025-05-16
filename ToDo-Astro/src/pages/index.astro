@@ -1,0 +1,40 @@
+---
+import { listarTareas } from "../lib/tareas"; 
+import '../styles/ToDo.css';
+import FormularioAgregar from "../components/FormularioAgregar.astro";
+import Filtro from "../components/Filtro.astro";
+import ListaTareas from "../components/ListaTareas.astro";
+import EliminarCompletadas from "../components/EliminarCompletadas.astro";
+
+//el string de la url lo convierte en url | ahora tengo acceso directo al valor del filtro
+const { searchParams } = new URL(Astro.request.url);
+//busca el valor del parametro filtro y segun donde este devuelve filtradas pendientes o el null (inicio)
+const filtro = searchParams.get("filtro") as "completadas" | "pendientes" | null;
+//si el filtro es null paso el undifined mostrando todas las tareas
+const tareas = listarTareas(filtro ?? undefined);
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToDo</title>
+  <link rel="stylesheet" href="/src/styles/ToDo.css">
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen bg-pink-300">
+  <div>
+    <h1 class="my-5 mx-auto text-center text-white text-7xl font-bold">ToDo</h1>
+
+    <div class="categories flex justify-center mb-5 space-x-8">
+      <button type="button" class="boton-estilo">Personal</button>
+      <button type="button" class="boton-estilo">+</button>
+      <button type="button" class="boton-estilo">Profesional</button>  
+    </div>
+    <FormularioAgregar />
+    <Filtro />
+    <ListaTareas tareas={tareas} />
+    <EliminarCompletadas />
+  </div>
+</body>
+</html>

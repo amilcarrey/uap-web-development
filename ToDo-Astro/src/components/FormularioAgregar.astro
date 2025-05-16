@@ -1,0 +1,39 @@
+<div class="form-container">
+    <form method="post" id="form-agregar" action="api/agregar">
+    <input type="text" class="bg-white text-center px-10 rounded" id="task" name="descripcion" placeholder="Enter Task" required>
+    <button type="submit" class="bg-red-500 text-center px-3 rounded" id="Agregar">Add</button>
+  </form>
+
+<script type="module">
+  // Guardamos los elementos con id form-agregar y task en variables
+  const form = document.getElementById("form-agregar");
+  const input = document.getElementById("task");
+
+  form.addEventListener("submit", async (e) => {// Captura cuando se apreta add
+    e.preventDefault();// Evitamos la recarga de la pagina
+
+    const descripcion = input.value.trim();
+    if (!descripcion) return;
+
+    try {
+      const res = await fetch("/api/agregar", {
+        method: "POST",
+        headers: {// Aca se define si llega un json o una request normal
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ descripcion })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Error al agregar tarea");
+        return;
+      }
+      location.reload();
+    } catch (error) {
+      alert("Error de red o servidor");
+      console.error(error);
+    }
+  });
+</script>
+</div>
