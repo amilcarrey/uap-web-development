@@ -1,0 +1,139 @@
+---
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Aplicación de tareas con Astro">
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-screen antialiased overflow-x-hidden">
+    <!-- Fondo animado -->
+    <div class="animated-background"></div>
+    
+    <!-- Contenido principal con efecto de vidrio -->
+    <div class="relative z-10">
+      <div class="container mx-auto max-w-3xl px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-8 text-white drop-shadow-lg">
+          {title}
+        </h1>
+        <div class="glass-container p-6 rounded-xl shadow-2xl">
+          <slot />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  /* Estilos para el fondo animado */
+  .animated-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background: linear-gradient(125deg, #000000, #1a237e, #4a148c, #000000);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    opacity: 1;
+  }
+
+  .animated-background::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cpolygon fill='%23000000' opacity='0.1' points='957 450 539 900 1396 900'/%3E%3Cpolygon fill='%23ffffff' opacity='0.05' points='957 450 872.9 900 1396 900'/%3E%3Cpolygon fill='%23000000' opacity='0.1' points='-60 900 398 662 816 900'/%3E%3Cpolygon fill='%23ffffff' opacity='0.05' points='337 900 398 662 816 900'/%3E%3Cpolygon fill='%23000000' opacity='0.1' points='1203 546 1552 900 876 900'/%3E%3Cpolygon fill='%23ffffff' opacity='0.05' points='1203 546 1552 900 1162 900'/%3E%3Cpolygon fill='%23000000' opacity='0.1' points='641 695 886 900 367 900'/%3E%3Cpolygon fill='%23ffffff' opacity='0.05' points='587 900 641 695 886 900'/%3E%3Cpolygon fill='%23000000' opacity='0.1' points='1710 900 1401 632 1096 900'/%3E%3Cpolygon fill='%23ffffff' opacity='0.05' points='1710 900 1401 632 1365 900'/%3E%3Cpolygon fill='%23000000' opacity='0.1' points='1210 900 971 687 725 900'/%3E%3Cpolygon fill='%23ffffff' opacity='0.05' points='943 900 1210 900 971 687'/%3E%3C/svg%3E");
+    animation: move 20s linear infinite;
+    opacity: 0.3;
+  }
+
+  .animated-background::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 25%),
+      radial-gradient(circle at 70% 65%, rgba(255, 255, 255, 0.05) 0%, transparent 25%),
+      radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+    opacity: 0.5;
+  }
+
+  /* Efecto de vidrio para el contenedor principal */
+  .glass-container {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes move {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-5%, -5%); }
+    100% { transform: translate(0, 0); }
+  }
+
+  /* Partículas flotantes */
+  @keyframes particle {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-100vh) rotate(720deg); }
+  }
+</style>
+
+<script>
+  // Crear partículas flotantes de manera dinámica
+  document.addEventListener('DOMContentLoaded', () => {
+    const background = document.querySelector('.animated-background');
+    const particleCount = 30;
+    
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      
+      // Estilos aleatorios para cada partícula
+      const size = Math.random() * 6 + 2; // Entre 2px y 8px
+      const posX = Math.random() * 100; // Posición inicial X (%)
+      const delay = Math.random() * 15; // Retraso aleatorio (s)
+      const duration = Math.random() * 20 + 10; // Duración de la animación (s)
+      const opacity = Math.random() * 0.5 + 0.1; // Opacidad entre 0.1 y 0.6
+      
+      particle.style.cssText = `
+        position: absolute;
+        left: ${posX}%;
+        bottom: -10px;
+        width: ${size}px;
+        height: ${size}px;
+        background: rgba(255, 255, 255, ${opacity});
+        border-radius: 50%;
+        animation: particle ${duration}s linear infinite;
+        animation-delay: ${delay}s;
+        z-index: 1;
+      `;
+      
+      background?.appendChild(particle);
+    }
+  });
+</script>

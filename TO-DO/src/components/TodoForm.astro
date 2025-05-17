@@ -1,0 +1,36 @@
+---
+---
+
+<form id="todo-form" class="mb-6">
+  <div class="flex gap-2">
+    <input
+      type="text"
+      id="todo-input"
+      placeholder="Agregar nueva tarea..."
+      class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+    <button
+      type="submit"
+      class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
+    >
+      Agregar
+    </button>
+  </div>
+</form>
+
+<script>
+  import { addTodo } from "../store/todoStore";
+
+  const form = document.getElementById("todo-form") as HTMLFormElement;
+  const input = document.getElementById("todo-input") as HTMLInputElement;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    
+    if (text) {
+      addTodo(text);
+      input.value = "";
+    }
+  });
+</script>

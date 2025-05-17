@@ -1,0 +1,142 @@
+---
+---
+
+<div class="bg-white rounded-lg shadow p-6">
+  <div class="flex gap-2 mb-6">
+    <button
+      id="filter-all"
+      class="px-3 py-1 text-sm rounded filter-btn active-filter"
+      data-filter="all"
+    >
+      Todas
+    </button>
+    <button
+      id="filter-active"
+      class="px-3 py-1 text-sm rounded filter-btn"
+      data-filter="active"
+    >
+      Pendientes
+    </button>
+    <button
+      id="filter-completed"
+      class="px-3 py-1 text-sm rounded filter-btn"
+      data-filter="completed"
+    >
+      Completadas
+    </button>
+  </div>
+
+  <div id="todo-container" class="space-y-2">
+    <!-- Los ToDos se mostrarán aquí -->
+  </div>
+</div>
+
+<script>
+  import { todos, toggleTodo, removeTodo } from "../store/todoStore";
+  
+  // Elementos DOM
+  const todoContainer = document.getElementById("todo-container");
+  const filterButtons = document.querySelectorAll(".filter-btn");
+  
+  let currentFilter = "all";
+
+  // Suscripción al store
+  todos.subscribe((todoList) => {
+    renderTodos(todoList);
+  });
+
+  // Renderizar las tareas filtradas
+  function renderTodos(todoList) {
+    if (!todoContainer) return;
+    
+    todoContainer.innerHTML = "";
+    
+    const filteredTodos = todoList.filter((todo) => {
+      if (currentFilter === "all") return true;
+      if (currentFilter === "active") return !todo.completed;
+      if (currentFilter === "completed") return todo.completed;
+      return true;
+    });
+
+    if (filteredTodos.length === 0) {
+      todoContainer.innerHTML = `
+        <p class="text-gray-500 text-center py-4">
+          No hay tareas${currentFilter !== "all" ? " " + currentFilter + "s" : ""}
+        </p>
+      `;
+      return;
+    }
+
+    filteredTodos.forEach((todo) => {
+      const todoItem = document.createElement("div");
+      todoItem.className = "flex items-center justify-between border-b py-2";
+      todoItem.innerHTML = `
+        <div class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            class="todo-checkbox"
+            data-id="${todo.id}"
+            ${todo.completed ? "checked" : ""}
+          />
+          <span class="${todo.completed ? "line-through text-gray-500" : "text-gray-800"}">
+            ${todo.text}
+          </span>
+        </div>
+        <button class="remove-btn text-red-500 hover:text-red-700" data-id="${todo.id}">
+          ×
+        </button>
+      `;
+      todoContainer.appendChild(todoItem);
+    });
+
+    // Añadir eventos a los checkboxes
+    document.querySelectorAll(".todo-checkbox").forEach((checkbox) => {
+      checkbox.addEventListener("change", (e) => {
+        const target = e.target as HTMLInputElement;
+        const id = target.getAttribute("data-id");
+        if (id) toggleTodo(id);
+      });
+    });
+
+    // Añadir eventos a los botones de eliminar
+    document.querySelectorAll(".remove-btn").forEach((button) => {
+      button.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        const id = target.getAttribute("data-id");
+        if (id) removeTodo(id);
+      });
+    });
+  }
+
+  // Configuración de filtros
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      const filter = target.getAttribute("data-filter") || "all";
+      
+      currentFilter = filter;
+      
+      // Actualizar clases de botones activos
+      filterButtons.forEach((btn) => {
+        btn.classList.remove("active-filter");
+        btn.classList.remove("bg-blue-100");
+        btn.classList.remove("text-blue-800");
+      });
+      
+      target.classList.add("active-filter", "bg-blue-100", "text-blue-800");
+      
+      // Re-renderizar con el filtro actual
+      renderTodos(todos.get());
+    });
+  });
+
+  // Establecer el filtro "all" como activo por defecto
+  document.querySelector('[data-filter="all"]')?.classList.add("bg-blue-100", "text-blue-800");
+</script>
+
+<style>
+  .active-filter {
+    background-color: rgb(219, 234, 254);
+    color: rgb(30, 64, 175);
+  }
+</style>
