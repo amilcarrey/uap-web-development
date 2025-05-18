@@ -1,0 +1,70 @@
+---
+export const prerender = false;
+
+import Layout from "../layouts/Layout.astro";
+import { state } from "../state";
+import FormularioAgregarTarea from "../components/FormularioAgregarTarea.astro";
+import Filtros from "../components/Filtros.astro";
+import ListaDeTareas from "../components/ListaDeTareas.astro";
+
+const url = new URL(Astro.request.url);
+const filtro = url.searchParams.get("filtro") || "todas"; //si no viene ningun parametro de filtro x defecto es todas
+
+//si se elige un filtro se genera una lista filtrada
+let tareasFiltradas = state.tareas;
+if (filtro === "completadas") {
+  tareasFiltradas = state.tareas.filter(t => t.completada);
+} else if (filtro === "incompletas") {
+  tareasFiltradas = state.tareas.filter(t => !t.completada);
+}
+
+if (
+  Astro.request.method === "POST" &&
+  (Astro.request.headers.get("content-type")?.includes("application/x-www-form-urlencoded") ||
+   Astro.request.headers.get("content-type")?.includes("multipart/form-data"))
+) 
+{
+  const formData = await Astro.request.formData();
+  
+  // Agregar nueva tarea
+  if (formData.has("nuevaTarea")) {
+    const nuevaTarea = formData.get("nuevaTarea")?.toString().trim();
+    if (nuevaTarea) {
+      state.tareas.push({ texto: nuevaTarea, completada: false });
+    }
+  }
+  
+  // Borrar completadas
+  if (formData.has("borrarCompletadas")) {
+    state.tareas = state.tareas.filter(t => !t.completada);
+  }
+  
+  // Toggle estado
+  if (formData.has("toggle")) {
+    const i = parseInt(formData.get("toggle"));
+    if (!isNaN(i) && state.tareas[i]) {
+      state.tareas[i].completada = !state.tareas[i].completada;
+    }
+  }
+  
+  // Borrar tarea específica
+  if (formData.has("borrar")) {
+    const i = parseInt(formData.get("borrar"));
+    if (!isNaN(i) && i >= 0 && i < state.tareas.length) {
+      state.tareas.splice(i, 1);
+    }
+  }
+  
+  return Astro.redirect(`/?filtro=${filtro}`);
+}
+
+---
+<Layout>
+  <h1 class="w-full text-center p-2 bg-pink-200 border-2 border-pink-300">TO DO LIST:</h1>
+  <FormularioAgregarTarea />
+  <Filtros filtroActual={filtro} />
+  <ListaDeTareas tareas={tareasFiltradas} />
+</Layout>
+
+
+
