@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Tareas</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Tareas</h1>
+        <img src="https://images.pexels.com/photos/7845451/pexels-photo-7845451.jpeg" alt="Tareas">
+
+        <form class="add-form" action="/add" method="POST">
+            <input type="text" name="task" placeholder="Nueva tarea" required>
+            <button type="submit">Agregar</button>
+        </form>
+
+        <div class="filters">
+            <a href="/?filter=all" class="{{ALL_ACTIVE}}">Todas</a>
+            <a href="/?filter=pending" class="{{PENDING_ACTIVE}}">Activas</a>
+            <a href="/?filter=completed" class="{{COMPLETED_ACTIVE}}">Completadas</a>
+        </div>
+
+        <ul class="task-list">
+            {{TASK_ITEMS}}
+        </ul>
+
+        <form action="/delete-completed" method="POST">
+            <button type="submit">Limpiar completadas</button>
+        </form>
+    </div>
+</body>
+</html>
