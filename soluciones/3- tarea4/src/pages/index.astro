@@ -1,0 +1,215 @@
+---
+import { obtenerTareas, agregarTarea, toggleTarea, eliminarTarea, limpiarCompletadas } from '../lib/tareas.js';
+import TareaItem from '../components/TareaItem.astro';
+
+const url = new URL(Astro.request.url);
+const filtro = url.searchParams.get('filtro') || 'all';
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const accion = data.get('accion');
+
+  if (accion === 'agregar') {
+    const texto = data.get('texto');
+    if (texto) agregarTarea(texto);
+  }
+
+  if (accion === 'toggle') {
+    toggleTarea(data.get('id'));
+  }
+
+  if (accion === 'eliminar') {
+    eliminarTarea(data.get('id'));
+  }
+
+  if (accion === 'limpiar') {
+    limpiarCompletadas();
+  }
+
+  //si quieren JSON
+  if (Astro.request.headers.get('accept')?.includes('application/json')) {
+    return new Response(
+      JSON.stringify(obtenerTareas(filtro)),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  return Astro.redirect(url.pathname + url.search);
+}
+
+
+const tareas = obtenerTareas(filtro);
+---
+
+<html>
+<head>
+	<meta charset="UTF-8">
+  	<title>TODO App</title>
+</head>
+<body>
+  <h1><span class="gray">TO</span><span class="orange">DO</span></h1>
+<!-- Pestañas para cambiar entre categorías de tareas -->
+<div class="tabs">
+	<div class="tab active">Personal</div>  <!-- Pestaña activa por defecto -->
+	<div class="tab">Profesional</div>      <!-- Otra pestaña -->
+</div>
+
+<div class="filters">
+	<a href="?filtro=all">
+	  <button class={`filter ${filtro === 'all' ? 'active' : ''}`}>Todas</button>
+	</a>
+	<a href="?filtro=incomplete">
+	  <button class={`filter ${filtro === 'incomplete' ? 'active' : ''}`}>Incompletas</button>
+	</a>
+	<a href="?filtro=completed">
+	  <button class={`filter ${filtro === 'completed' ? 'active' : ''}`}>Completadas</button>
+	</a>
+  </div>
+  
+
+  <form method="POST" class="escriba">
+	<input type="hidden" name="accion" value="agregar">
+	<input type="text" name="texto" placeholder="Escribe aqui..." required>
+	<button>Agregar</button>
+  </form>
+
+  <div class="list-container">
+	<ul class="lista-tareas">
+	  {tareas.map(tarea => <TareaItem tarea={tarea} />)}
+	</ul>
+  
+	<form method="POST">
+	  <input type="hidden" name="accion" value="limpiar">
+	  <button class="boton-limpiar">Limpiar completadas</button>
+	</form>
+  </div>
+  
+</body>
+</html>
+
+<style>
+/* Estilo para el título principal */
+h1 {
+    background-color: rgb(93, 207, 169); /* Fondo verde */
+    text-align: center; /* Centra el texto */
+    padding: 20px; /* Espaciado interno */
+}
+
+/* Estilos para las letras del título "TO" y "DO" */
+.gray {
+    color: #06b600; /* Verde oscuro */
+}
+
+.orange {
+    color: #016406; /* Verde aún más oscuro */
+}
+
+/* Contenedor de filtros (Todas, Incompletas, Completadas) */
+.filters {
+    display: flex; /* Distribuye los elementos horizontalmente */
+    justify-content: center; /* Centra los botones */
+    gap: 10px; /* Espacio entre los botones */
+    margin: 10px 0; /* Espaciado arriba y abajo */
+}
+
+/* Estilo general de los botones de filtro */
+.filter {
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Estilo para el filtro activo (seleccionado) */
+.filter.active {
+    background-color: #1eb56c; /* Verde */
+    color: white; /* Texto blanco */
+}
+
+/* Contenedor de entrada de texto y botón de agregar tarea */
+.escriba {
+    display: flex;                  /* Coloca input y botón en fila */
+    justify-content: space-between;/* Espacio entre input y botón */
+    width: 80%;                     /* Ocupa el 80% del ancho del cuerpo */
+    margin: 0 auto;                 /* Centrado horizontal */
+    margin-bottom: 20px;           /* Margen inferior */
+}
+
+/* Estilo del campo de entrada de texto */
+.escriba input {
+    flex: 1;                            /* Ocupa todo el espacio posible */
+    padding: 12px;
+    border: none;
+    border-radius: 20px 0 0 20px;      /* Bordes redondeados en la izquierda */
+    background: #f1ede9;               /* Fondo beige claro */
+    font-size: 14px;
+    width: 100%;                       /* Asegura que use todo el ancho disponible */
+}
+
+/* Estilo del botón de agregar tarea */
+.escriba button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 0 20px 20px 0;     /* Bordes redondeados en la derecha */
+    background-color: #1eb56c;        /* Verde oscuro */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;                  /* Cursor de mano al pasar por encima */
+}
+
+/* Contenedor de las pestañas */
+.tabs {
+    display: flex; /* Organiza las pestañas en fila */
+    background: #adffbe; /* Fondo verde claro */
+    overflow: hidden; /* Oculta el desbordamiento */
+    margin-bottom: 15px; /* Espaciado inferior */
+    cursor: pointer;
+}
+
+/* Estilo general para cada pestaña */
+.tab {
+    flex: 1; /* Cada pestaña ocupa el mismo ancho */
+    text-align: center; /* Centra el texto */
+    padding: 12px; /* Espaciado interno */
+    font-weight: bold; /* Texto en negrita */
+    color: #8e8e8e; /* Color gris */
+}
+
+/* Pestaña activa (seleccionada) */
+.tab.active {
+    border-bottom: 3px solid #006d12; /* Línea inferior para indicar la pestaña activa */
+    color: #3c3c3c; /* Color más oscuro */
+}
+
+/* Contenedor de la lista de tareas */
+.list-container {
+    width: 80%; /* Ocupa el 80% del ancho de la pantalla */
+    margin: 20px auto; /* Centrado con margen superior/inferior */
+    padding: 20px;
+    background-color: #aaffd0; /* Fondo verde agua */
+    border-radius: 15px; /* Bordes redondeados */
+    display: flex;
+    flex-direction: column; /* Elementos en columna */
+}
+
+/* Lista de tareas */
+.lista-tareas {
+    list-style: none; /* Quita los estilos de lista predeterminados */
+    padding: 0;
+}
+
+/* Botón para limpiar tareas completadas */
+.boton-limpiar {
+    background-color: #00de5d; /* Verde */
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px; /* Bordes redondeados */
+    cursor: pointer;
+    display: block;
+    margin-left: auto; /* Alinea el botón a la derecha */
+}	
+
+
+</style>
