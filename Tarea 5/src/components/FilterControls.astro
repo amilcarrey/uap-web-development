@@ -1,0 +1,165 @@
+---
+import UiButton from './Uibutton.astro';
+
+console.log("here")
+
+export interface Props {
+  tabId: string;
+  currentFilter: string;
+}
+
+const { tabId, currentFilter } = Astro.props;
+const filters = [
+  { id: 'all', label: 'All' },
+  { id: 'active', label: 'Active' },
+  { id: 'completed', label: 'Completed' }
+];
+---
+ 
+<div class="filter-buttons-container 
+  flex gap-[10px] justify-center my-4 mx-0">
+  <!-- Botones de filtro -->
+  {filters.map(filter => (
+
+    /*
+    <UiButton
+      type="button"
+      dataFilter={filter.id}
+      class=""
+      isActive={filter.id === currentFilter}
+    />
+    */
+    
+    <UiButton
+      type="button"
+      data-filter={filter.id}
+      class = "filter-button"
+      isActive={filter.id === currentFilter}
+    >
+      {filter.label}
+    </UiButton>
+  ))}
+
+  <!-- Botón Limpiar -->
+  <form method="POST" action="/api/tasks" class="form-clear-completed">
+    <input type="hidden" name="action" value="clear-completed" />
+    <input type="hidden" name="tabId" value={tabId} />
+    
+    <UiButton type="submit">Limpiar completadas</UiButton>
+  </form>
+</div>
+
+<script>
+  console.log("hola")
+  const filterButtons = document.querySelectorAll('.filter-button');
+  console.log("Botones encontrados:", filterButtons.length);
+
+  filterButtons.forEach(button => {
+    console.log("Botón:", button, "data-filter:", button.getAttribute('data-filter'));
+  });
+
+
+  const clearForm = document.querySelector('.form-clear-completed') as HTMLFormElement;
+
+  //Funcion para recargar las tareas
+  async function fetchAndRenderTasks(tab: string, filter: string) {
+    try {
+      const response = await fetch(`/api/tasks?tab=${tab}&filter=${filter}`);
+      //console.log("Hola");
+      if (!response.ok) throw new Error('Error al obtener tareas');
+
+      const data = await response.json();
+      if (!data.success) throw new Error(data.error || 'Respuesta inválida');
+
+      window.dispatchEvent(new CustomEvent('tasksUpdated', {
+        detail: {
+          tasks: data.tasks,
+          currentFilter: data.currentFilter,
+          currentTab: data.currentTab
+        }
+      }));
+    } catch (err) {
+      console.error('Error al actualizar tareas:', err);
+      alert('No se pudieron cargar las tareas');
+    }
+  }
+
+  // Botones de filtro
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      debugger
+      const rawFilter = button.getAttribute('data-filter');
+      const rawTab = new URLSearchParams(window.location.search).get('tab');
+
+      const filter = rawFilter ?? 'all';
+      const tab = rawTab ?? 'personal';
+
+      fetchAndRenderTasks(tab, filter);
+    });
+  });
+
+  // Botón Limpiar completadas
+  if (clearForm) {
+    clearForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(clearForm);
+      try {
+        const response = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: formData
+        });
+
+        if (!response.ok) throw new Error('Error al limpiar tareas');
+
+        const tab = (formData.get('tabId') as string) ?? '';
+        const filter = new URLSearchParams(window.location.search).get('filter') || 'all';
+
+        fetchAndRenderTasks(tab, filter);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('No se pudieron limpiar las tareas');
+      }
+    });
+  }
+
+</script>
+<!--
+<style>
+  
+  .filter-buttons-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 15px 0;
+  }
+
+  .filter-button {
+    padding: 5px 10px;
+    background-color: antiquewhite;
+    border: 1px solid burlywood;
+    border-radius: 4px;
+    cursor: pointer;
+    color: chocolate;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-family: inherit;
+    font-size: inherit;
+  }
+  
+  a.filter-button, button.filter-button {
+    display: inline-block;
+  }
+  
+  .filter-button:hover {
+    background-color: #e6d5c3;
+  }
+  
+  .filter-button.active {
+    background-color: burlywood;
+    color: white;
+  }
+  
+</style>
+-->
