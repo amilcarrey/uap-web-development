@@ -3,12 +3,10 @@ export const prerender = false;
 // Referencia a los todos desde el archivo principal
 import { todos } from '../todos';
 
-// Función para validar un ID
 function isValidId(id) {
   return id && typeof id === 'string' && id.trim() !== '';
 }
 
-// Función para encontrar una tarea por ID
 function findTodoById(id) {
   return todos.find(todo => todo.id === id);
 }
@@ -79,7 +77,6 @@ export async function PUT({ params, request }) {
       ...(updates.completed !== undefined && { completed: Boolean(updates.completed) })
     };
     
-    // Guardar la tarea actualizada
     todos[todoIndex] = updatedTodo;
     
     return new Response(
@@ -107,7 +104,6 @@ export async function DELETE({ params }) {
       );
     }
     
-    // Buscar la tarea
     const todoIndex = todos.findIndex(t => t.id === id);
     
     if (todoIndex === -1) {
@@ -117,7 +113,6 @@ export async function DELETE({ params }) {
       );
     }
     
-    // Eliminar la tarea
     const deletedTodo = todos[todoIndex];
     todos.splice(todoIndex, 1);
     

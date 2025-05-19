@@ -16,12 +16,9 @@ export async function DELETE() {
       );
     }
     
-    // Eliminar tareas completadas
     const completedIds = completedTodos.map(todo => todo.id);
     const remainingTodos = todos.filter(todo => !todo.completed);
     
-    // Actualizar el array global de todos
-    // Nota: esto es una simulación, en un entorno real se eliminarían de la base de datos
     todos.length = 0;
     todos.push(...remainingTodos);
     

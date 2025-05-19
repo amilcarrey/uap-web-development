@@ -1,7 +1,5 @@
 export const prerender = false;
 
-// Usaremos un array en memoria para almacenar las tareas
-// En producción, esto debería ser una base de datos
 let todos = [
 ];
 
