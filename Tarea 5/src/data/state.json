@@ -1,16 +1,18 @@
 {
   "tasks": [
     {
-      "text": "cf",
+      "text": "hola",
       "completed": false,
       "tabId": "personal",
-      "id": "1745961171844"
+      "id": "1747691507318"
     },
     {
-      "text": "xe",
-      "completed": false,
+      "text": "Tarea 1",
+      "completed": true,
       "tabId": "personal",
-      "id": "1745962360385"
+      "id": "1747691519160"
     }
-  ]
+  ],
+  "currentTab": "personal",
+  "currentFilter": "all"
 }
