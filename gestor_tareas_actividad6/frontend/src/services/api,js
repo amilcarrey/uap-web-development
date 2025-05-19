@@ -1,0 +1,10 @@
+// src/api.js
+import axios from 'axios';
+
+const API_URL = '/api/tasks';
+
+export const getTasks = () => axios.get(API_URL);
+export const addTask = (text) => axios.post(API_URL, { text });
+export const toggleTask = (id) => axios.patch(`${API_URL}/${id}/toggle`);
+export const deleteTask = (id) => axios.delete(`${API_URL}/${id}`);
+export const clearCompleted = () => axios.delete(`${API_URL}/completed`);
