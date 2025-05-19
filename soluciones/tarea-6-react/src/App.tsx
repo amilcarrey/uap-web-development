@@ -51,18 +51,23 @@ function App() {
   })
 
   return (
+    <>
+  <div className="w-screen bg-green-300 py-4 mb-6 fixed top-0 left-0 z-50">
+    <h1 className="text-5xl font-bold text-green-900">
+      <span className="text-green-700">To</span>
+      <span className="text-green-500">Do</span>
+    </h1>
+  </div>
+
+  <div className="pt-20">
+    {/* El resto del contenido abajo, con padding-top para que no quede oculto debajo de la barra fija */}
+    <FilterForm filtro={filtro} setFiltro={setFiltro} />
+
+    <div className="my-6">
+      <NuevoMensajeForm onAgregar={agregarTarea} />
+    </div>
+
     <div className="app">
-      <h1 className="text-5xl font-bold mb-6">
-        <span className="text-green-800">To</span>
-        <span className="text-green-400">Do</span>
-      </h1>
-
-      <FilterForm filtro={filtro} setFiltro={setFiltro} />
-
-      <div className="my-6">
-        <NuevoMensajeForm onAgregar={agregarTarea} />
-      </div>
-
       <MensajeList
         tareas={tareasFiltradas}
         onToggle={alternarCompletada}
@@ -78,6 +83,9 @@ function App() {
         </button>
       </div>
     </div>
+  </div>
+</>
+
   )
 }
 
