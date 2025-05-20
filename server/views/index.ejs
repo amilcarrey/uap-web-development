@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="task-manager">
+            <div class="header">
+                <h1>Task Manager</h1>
+            </div>
+
+            <!-- Formulario para agregar tareas -->
+            <form action="/crear<%= estado ? '?estado=' + estado : '' %>" method="POST" id="task-form">
+                <input type="text" id="task-input" name="titulo" placeholder="Add a new task..." required>
+                <button type="submit" class="add-button">Add</button>
+            </form>
+
+            <!-- Lista de tareas -->
+            <ul id="task-list">
+                <% tareas.forEach(t => { %>
+                    <li class="task-item">
+                        <% if (t.estado === 'pendiente') { %>
+                            <form method="POST" action="/completar/<%= t.id %><%= estado ? '?estado=' + estado : '' %>" style="display:inline">
+                                <button type="submit" class="toggle-status">Mark as Completed</button>
+                            </form>
+                        <% } %>
+                        <label style="<%= t.estado === 'completada' ? 'text-decoration: line-through; color: #888;' : '' %>"><%= t.titulo %></label>
+                        <form method="POST" action="/eliminar/<%= t.id %><%= estado ? '?estado=' + estado : '' %>" style="display:inline">
+                            <button type="submit">🗑</button>
+                        </form>
+                    </li>
+                <% }) %>
+            </ul>
+
+            <!-- Botones de filtro -->
+            <div id="filter-buttons">
+                <form method="GET" action="/" style="display:inline">
+                    <button type="submit" name="estado" value="">All</button>
+                </form>
+                <form method="GET" action="/" style="display:inline">
+                    <button type="submit" name="estado" value="pendiente">Pending</button>
+                </form>
+                <form method="GET" action="/" style="display:inline">
+                    <button type="submit" name="estado" value="completada">Completed</button>
+                </form>
+            </div>
+
+            <!-- Botón para limpiar completadas -->
+            <form method="POST" action="/eliminar-completadas<%= estado ? '?estado=' + estado : '' %>">
+                <button type="submit" class="clear-completed">Clear Completed Tasks</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+
