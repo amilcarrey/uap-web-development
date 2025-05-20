@@ -1,6 +1,7 @@
 import { getTasks } from '../../server/tasks.ts';
 import type { APIRoute } from 'astro';
 
+
 export const GET: APIRoute = async () => {
   console.log("GET request received for /api/get_tasks");
 

@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
       event.preventDefault();
 
       const res = await fetch(clearCompletedForm.action, {
-        method: 'POST',
+        method: "POST",
       });
 
       if (res.ok) {
@@ -141,8 +141,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const filterButtons = document.querySelectorAll('button[name="filter"]');
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      event.preventDefault(); // Prevent full page reload
+
+      const filter = button.getAttribute("value");
+      if (!filter) return;
+
+      // 🔁 Update the browser URL without reloading the page
+      history.replaceState(null, "", `?filter=${filter}`);
+
+      const res = await fetch(`/api/filter_tasks?filter=${filter}`);
+      if (res.ok) {
+        const data = await res.json();
+        tasks = data.tasks;
+        renderTasks();
+      } else {
+        console.error("Error filtering tasks");
+      }
+    });
+  });
+
   async function fetchTasks() {
-    const res = await fetch('/api/get_tasks');
+    const res = await fetch("/api/get_tasks");
     if (res.ok) {
       const { tasks: fetchedTasks } = await res.json();
       tasks = fetchedTasks;

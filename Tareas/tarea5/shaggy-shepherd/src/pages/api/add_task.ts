@@ -1,6 +1,7 @@
 import { addTask } from '../../server/tasks.ts';
 import type { APIRoute } from 'astro';
 
+
 export const POST: APIRoute = async ({ request, redirect }) => {
   console.log("POST request received in add_task.ts");
 
@@ -18,7 +19,12 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (!text) {
     return new Response(
       JSON.stringify({ success: false, message: "Task text cannot be empty" }),
-      { status: 400 }
+      {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
   }
 
@@ -27,7 +33,12 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (contentType.includes("application/json")) {
     return new Response(
       JSON.stringify({ success: true, task: newTask }),
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
   }
 
