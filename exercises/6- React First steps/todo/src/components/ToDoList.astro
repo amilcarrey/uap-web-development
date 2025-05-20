@@ -1,0 +1,22 @@
+---
+import { getFilteredTodos } from '../services/todos';
+import type { TodoItem } from '../types';
+import ToDoItem from './ToDoItem.astro';
+
+const filter = Astro.props.filter || 'all'; // Get t
+const filteredTodos  = getFilteredTodos(filter) as TodoItem[]
+---
+<style>
+  .active {
+    border: orange 3px solid;
+    color: orange;
+    font-weight: bolder;
+  }
+</style>
+
+  <ul class="list-none p-0 m-0">
+    {filteredTodos.map((todo) => (
+      <ToDoItem key={todo.id} todo={todo} />
+    ))}
+  </ul>
+

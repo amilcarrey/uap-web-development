@@ -9,7 +9,7 @@ import { useDebounce } from "./utils/useDebounce";
 const BASE_URL = "http://localhost:4321/api";
 
 function App() {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(""); //
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const debouncedSearch = useDebounce(search, 500);
 
@@ -60,7 +60,7 @@ function App() {
     );
   };
 
-  useEffect(() => {
+  useEffect (() => {
     const fetchMensajes = async () => {
       const response = await fetch(
         `${BASE_URL}/mensajes?search=${debouncedSearch}`

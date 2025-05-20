@@ -1,0 +1,37 @@
+<form action="/api/todos" method="POST" id="clear-completed-form">
+    <button type="submit" name="action" value="clearCompleted" class="text-orange-500 mx-8 my-2 mt-24 ml-auto block text-right cursor-pointer border-0 bg-transparent">Clear Completed</button>
+</form>
+
+<script>
+    import { renderTodos } from "../scripts/renderTodos"; // Import the renderTodos function
+
+    const form = document.querySelector("#clear-completed-form"); // Select the form element
+
+    form?.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent the default form submission
+
+        try {
+            const response = await fetch("/api/todos", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ action: "clearCompleted"}), // Send the action as JSON
+            });
+
+            console.log("Response:", response); // Log the response for debugging
+
+            if (!response.ok) {
+                console.error("Error clearing completed todos:", response.statusText); // Log an error if the response is not ok
+                return;
+            }
+
+            const json = await response.json(); // Parse the JSON response
+            console.log("Completed todos cleared"); // Log the response
+
+            renderTodos(json); // Call the renderTodos function to update the todo list
+        } catch (error) {
+            console.error("Error:", error); // Log any errors that occur during the fetch
+        }
+    });
+</script>

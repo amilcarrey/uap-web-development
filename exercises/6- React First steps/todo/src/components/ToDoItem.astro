@@ -1,0 +1,74 @@
+---
+const todo = Astro.props.todo
+---
+<li class="flex mt-2 items-center p-2">
+    <form action={`/api/todos/${todo.id}`} method="POST" class="inline">
+        <button type="submit" name="action" value="toggle" class={`flex-shrink-0 bg-transparent border-2 border-gray-500 rounded-full py-2 px-3 mr-5 transition-all duration-500 cursor-pointer ${todo.completed ? 'border-orange-500 border-2 text-orange-500 font-extrabold' : 'text-transparent'}`} title="Toggle">
+          ✓
+        </button>
+        <input type="hidden" name="id" value={todo.id} />
+        <input type="hidden" name="action" value="toggle" />
+    </form>
+      
+    <p class={`flex-grow font-sans text-lg pb-2 mb-0 border-b border-[rgb(116,178,202)] transition-all duration-500 ${todo.completed ? 'line-through opacity-50 text-[rgb(158,151,151)]' : ''}`}>{todo.text}</p>
+      
+    <form action={`/api/todos/${todo.id}`} method="POST" class="inline">
+        <button type="submit" name="action" value="delete" class="flex-shrink-0 bg-transparent border-0 text-orange-500 text-base px-2 cursor-pointer" title="Delete">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+        <input type="hidden" name="id" value={todo.id} />
+        <input type="hidden" name="action" value="delete" />
+    </form>
+</li>
+
+<script>
+    import { renderTodos } from "../scripts/renderTodos"; // Import the renderTodos function
+
+    document.addEventListener("DOMContentLoaded", async () => {
+
+        console.log("DOM fully loaded and parsed");
+        const todoList = document.querySelector("ul");
+
+        // Escuchar clics en los formularios de toggle y delete
+        todoList?.addEventListener("submit", async (e) => {
+
+        console.log("SUBMIT")
+        e.preventDefault(); // Evita la recarga
+
+        const form = e.target as HTMLFormElement;
+        const formData = new FormData(form);
+
+        const action = formData.get("action");
+        const id = formData.get("id");
+
+        console.log("ACTION", action)
+        console.log("ID", id)
+
+        const body = {
+            action
+        };
+
+        try {
+            const res = await fetch(`/api/todos/${id}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+            });
+
+            
+
+            if (res.ok) {
+            console.log("RES OK")
+            const todos = await res.json(); // Esperás el array actualizado
+            console.log("JSON recibido:", JSON.stringify(todos));
+            renderTodos(todos); // Ahora definimos esa función
+            } else {
+            console.log("RES NO OK")
+            }
+
+        } catch (err) {
+            console.error("Error con AJAX:", err);
+        }
+        });
+    });
+</script>

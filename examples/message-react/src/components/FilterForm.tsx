@@ -5,7 +5,7 @@ type FilterFormProps = {
 
 export function FilterForm({ search, setSearch }: FilterFormProps) {
   return (
-    <form action="/" className="flex w-full justify-between gap-2">
+    <form action="/api/todos" className="flex w-full justify-between gap-2">
       <input
         className="border border-gray-300 rounded-md p-2 flex-1"
         type="text"
