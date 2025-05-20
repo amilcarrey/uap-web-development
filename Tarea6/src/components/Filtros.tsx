@@ -1,36 +1,36 @@
-type FilterFormProps = {
-  search: string;
-  setSearch: (value: string) => void;
-  filter: "all" | "completed" | "incomplete";
-  setFilter: (value: "all" | "completed" | "incomplete") => void;
-};
+import React from 'react'
 
-export function FilterForm({ filter, setFilter }: FilterFormProps) {
+type Filtro = 'todas' | 'completas' | 'incompletas'
+
+type Props = {
+  filtro: Filtro
+  setFiltro: React.Dispatch<React.SetStateAction<Filtro>>
+}
+
+export default function FilterForm({ filtro, setFiltro }: Props) {
   return (
-    <form>
-      <div className="filtros">
-        <button
-          type="button"
-          className={filter === "all" ? "active" : ""}
-          onClick={() => setFilter("all")}
-        >
-          Todas
-        </button>
-        <button
-          type="button"
-          className={filter === "completed" ? "active" : ""}
-          onClick={() => setFilter("completed")}
-        >
-          Completas
-        </button>
-        <button
-          type="button"
-          className={filter === "incomplete" ? "active" : ""}
-          onClick={() => setFilter("incomplete")}
-        >
-          Incompletas
-        </button>
-      </div>
-    </form>
-  );
+    <div className="filtros">
+      <button
+        className={filtro === 'todas' ? 'active' : ''}
+        onClick={() => setFiltro('todas')}
+        type="button"
+      >
+        Todas
+      </button>
+      <button
+        className={filtro === 'completas' ? 'active' : ''}
+        onClick={() => setFiltro('completas')}
+        type="button"
+      >
+        Completas
+      </button>
+      <button
+        className={filtro === 'incompletas' ? 'active' : ''}
+        onClick={() => setFiltro('incompletas')}
+        type="button"
+      >
+        Incompletas
+      </button>
+    </div>
+  )
 }

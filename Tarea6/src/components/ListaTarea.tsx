@@ -1,29 +1,23 @@
-import type { Tarea } from "../types/tarea";
+import type { Tarea } from '../types/tarea'
+import ItemTarea from './TareaItem'
 
-interface Props {
-  tareas: Tarea[];
-  toggleCompletar: (id: string) => void;
-  removeTarea: (id: string) => void;
+type Props = {
+  tareas: Tarea[]
+  onToggle: (id: number) => void
+  onDelete: (id: number) => void
 }
 
-export function ListaTareas({ tareas, toggleCompletar, removeTarea }: Props) {
+export default function ListaTarea({ tareas, onToggle, onDelete }: Props) {
   return (
-    <ul>
-      {tareas.map((tarea) => (
-        <li key={tarea.id} className="tarea">
-          <input
-            type="checkbox"
-            checked={tarea.completed}
-            onChange={() => toggleCompletar(tarea.id)}
-          />
-          <span style={{ textDecoration: tarea.completed ? "line-through" : "none" }}>
-            {tarea.content}
-          </span>
-          <button className="basura" onClick={() => removeTarea(tarea.id)}>
-            🗑️
-          </button>
-        </li>
+    <ul className="to-do">
+      {tareas.map(tarea => (
+        <ItemTarea
+          key={tarea.id}
+          tarea={tarea}
+          onToggle={onToggle}
+          onDelete={onDelete}
+        />
       ))}
     </ul>
-  );
+  )
 }

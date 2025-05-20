@@ -1,118 +1,87 @@
-import "./App.css";
-import { FilterForm } from "./components/Filtros";
-import { NuevaTareaForm } from "./components/TareaNueva";
-import { ListaTareas } from "./components/ListaTarea";
-import { useCallback, useEffect, useState } from "react";
-import type { Tarea } from "./types/tarea";
-import { useDebounce } from "./utils/useDebounce";
+import { useEffect, useState } from 'react';
+import type { Tarea } from './types/tarea';
+import ListaTarea from './components/ListaTarea';
+import TareaNueva from './components/TareaNueva';
+import Filtros from './components/Filtros';
+import './App.css';
 
-const BASE_URL = "http://localhost:4321/api";
+type Filtro = 'todas' | 'completas' | 'incompletas';
 
 function App() {
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "completed" | "incomplete">("all");
   const [tareas, setTareas] = useState<Tarea[]>([]);
-  const debouncedSearch = useDebounce(search, 500);
+  const [filtro, setFiltro] = useState<Filtro>('todas');
 
-  const addTarea = useCallback(
-    async (texto: string) => {
-      if (!texto.trim()) return; // valida que no sea vacío
-      const response = await fetch(`${BASE_URL}/tareas`, {
-        method: "POST",
-        body: JSON.stringify({ texto }),
-        headers: { "Content-Type": "application/json" },
-      });
-      const data: { tarea: Tarea } = await response.json();
-      setTareas((current) => [...current, data.tarea]);
-    },
-    [setTareas]
-  );
+  useEffect(() => {
+    const guardarTareas = localStorage.getItem('tareas');
+    if (guardarTareas) {
+      setTareas(JSON.parse(guardarTareas));
+    }
+  }, []);
 
-  const toggleCompletar = async (id: string) => {
-    const response = await fetch(`${BASE_URL}/tareas/${id}`, {
-      method: "POST",
-      body: JSON.stringify({ action: "toggle" }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const data: { tarea: Tarea } = await response.json();
-    setTareas((current) =>
-      current.map((tarea) =>
-        tarea.id === data.tarea.id ? { ...tarea, completed: data.tarea.completed } : tarea
+  useEffect(() => {
+    localStorage.setItem('tareas', JSON.stringify(tareas));
+  }, [tareas]);
+
+  const agregoTarea = (texto: string) => {
+    if (!texto.trim()) return;
+    const nueva: Tarea = {
+      id: Date.now(),
+      content: texto,
+      completed: false,
+    };
+    setTareas([...tareas, nueva]);
+  };
+
+  const tareaCompletada = (id: number) => {
+    setTareas(
+      tareas.map((t) =>
+        t.id === id ? { ...t, completed: !t.completed } : t
       )
     );
   };
 
-  const removeTarea = async (id: string) => {
-    const response = await fetch(`${BASE_URL}/tareas/${id}`, {
-      method: "POST",
-      body: JSON.stringify({ action: "delete" }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const data: { tarea: Tarea } = await response.json();
-    setTareas((current) => current.filter((t) => t.id !== data.tarea.id));
+  const tareaEliminada = (id: number) => {
+    setTareas(tareas.filter((t) => t.id !== id));
   };
 
-  const clearCompletadas = async () => {
-    const response = await fetch(`${BASE_URL}/tareas`, {
-      method: "DELETE",
-    });
-    const data: { tareas: Tarea[] } = await response.json();
-    setTareas(data.tareas);
+  const eliminarCompletadas = () => {
+    setTareas(tareas.filter((t) => !t.completed));
   };
 
-  useEffect(() => {
-    const fetchTareas = async () => {
-      const response = await fetch(`${BASE_URL}/tareas?search=${debouncedSearch}`);
-      const data: { tareas: Tarea[] } = await response.json();
-      setTareas(data.tareas);
-    };
-    fetchTareas();
-  }, [debouncedSearch]);
-
-  // Filtra las tareas según el filtro seleccionado
-  const tareasFiltradas = tareas.filter((tarea) => {
-    if (filter === "completed") return tarea.completed;
-    if (filter === "incomplete") return !tarea.completed;
-    return true; // all
+  const filtrarTareas = tareas.filter((t) => {
+    if (filtro === 'completas') return t.completed;
+    if (filtro === 'incompletas') return !t.completed;
+    return true;
   });
 
-  return (
+ return (
     <>
-      <header className="encabezado">TO - DO</header>
+      <header>
+        <h1 className="encabezado">TO-DO</h1>
+      </header>
 
       <div className="container">
         <h4 id="subencabezado">Personal</h4>
         <h4 id="subencabezado">Professional</h4>
       </div>
 
-      <div className="buscador">
-        <NuevaTareaForm addTarea={addTarea} />
-      </div>
+      <TareaNueva onAgregar={agregoTarea} />
 
-      <div className="filtros">
-        <FilterForm
-          search={search}
-          setSearch={setSearch}
-          filter={filter}
-          setFilter={setFilter}
-        />
-      </div>
+      <Filtros filtro={filtro} setFiltro={setFiltro} />
 
       <div className="to-do">
-        <ListaTareas
-          tareas={tareasFiltradas}
-          toggleCompletar={toggleCompletar}
-          removeTarea={removeTarea}
+        <ListaTarea
+          tareas={filtrarTareas}
+          onToggle={tareaCompletada}
+          onDelete={tareaEliminada}
         />
 
-        {tareas.some((t) => t.completed) && (
-          <button className="clear-completed" onClick={clearCompletadas}>
-            Clear Completed
-          </button>
-        )}
+        <p className="clear-completed" onClick={eliminarCompletadas}>
+          Clear Completed
+        </p>
       </div>
     </>
-  );
+  )
 }
 
 export default App;

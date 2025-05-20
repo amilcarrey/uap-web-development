@@ -1,19 +1,19 @@
-import { type FormEvent, useState } from "react";
+import { useState } from 'react'
 
-interface Props {
-  addTarea: (texto: string) => void;
+type Props = {
+  onAgregar: (texto: string) => void
 }
 
-export function NuevaTareaForm({ addTarea }: Props) {
-  const [texto, setTexto] = useState("");
+export default function NuevoMensajeForm({ onAgregar }: Props) {
+  const [texto, setTexto] = useState('')
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
     if (texto.trim()) {
-      addTarea(texto.trim());
-      setTexto("");
+      onAgregar(texto.trim())
+      setTexto('')
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="buscador">
@@ -21,9 +21,9 @@ export function NuevaTareaForm({ addTarea }: Props) {
         type="text"
         placeholder="Agregar una tarea..."
         value={texto}
-        onChange={(e) => setTexto(e.target.value)}
+        onChange={e => setTexto(e.target.value)}
       />
-      <button type="submit">Agregar</button>
+      <button type="submit">ADD</button>
     </form>
-  );
+  )
 }
