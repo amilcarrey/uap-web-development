@@ -4,7 +4,7 @@ import {
   createTask,
   updateTask,
   deleteTask,
-  clearCompletedTasks
+  deleteCompletedTasks
 } from './services/api';
 
 import TaskForm from './components/TaskForm';
@@ -14,7 +14,7 @@ import ClearCompleted from './components/ClearCompleted';
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = useState('all'); // 'all', 'active', 'completed'
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     getTasks()
@@ -23,25 +23,41 @@ const App = () => {
   }, []);
 
   const handleAddTask = async (text) => {
-    const newTask = await createTask(text);
-    setTasks(prev => [...prev, newTask]);
+    try {
+      const newTask = await createTask({ text, completed: false });
+      setTasks(prev => [...prev, newTask]);
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
 
   const handleToggleComplete = async (id, completed) => {
-    const updatedTask = await updateTask(id, { completed });
-    setTasks(prev =>
-      prev.map(task => task.id === id ? updatedTask : task)
-    );
+    try {
+      const updatedTask = await updateTask(id, { completed });
+      setTasks(prev =>
+        prev.map(task => task.id === id ? updatedTask : task)
+      );
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
   };
 
   const handleDelete = async (id) => {
-    await deleteTask(id);
-    setTasks(prev => prev.filter(task => task.id !== id));
+    try {
+      await deleteTask(id);
+      setTasks(prev => prev.filter(task => task.id !== id));
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   };
 
   const handleClearCompleted = async () => {
-    await clearCompletedTasks();
-    setTasks(prev => prev.filter(task => !task.completed));
+    try {
+      await deleteCompletedTasks();
+      setTasks(prev => prev.filter(task => !task.completed));
+    } catch (error) {
+      console.error('Error clearing completed tasks:', error);
+    }
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -51,16 +67,27 @@ const App = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-center">Gestor de Tareas</h1>
-      <TaskForm onAdd={handleAddTask} />
-      <FilterButtons currentFilter={filter} onChange={setFilter} />
-      <TaskList
-        tasks={filteredTasks}
-        onToggleComplete={handleToggleComplete}
-        onDelete={handleDelete}
-      />
-      <ClearCompleted onClear={handleClearCompleted} />
+    <div className="app-container">
+      <header className="fondo-seccion">
+        <h1 className="titulo-principal">Gestión de tareas</h1>
+      </header>
+
+      <main className="contenedor-principal">
+        <TaskForm onAdd={handleAddTask} />
+        
+        <section className="seccion-tareas">
+          <TaskList
+            tasks={filteredTasks}
+            onToggle={handleToggleComplete}
+            onDelete={handleDelete}
+          />
+          <ClearCompleted onClear={handleClearCompleted} />
+        </section>
+
+        <div className="filtros">
+          <FilterButtons currentFilter={filter} onChange={setFilter} />
+        </div>
+      </main>
     </div>
   );
 };

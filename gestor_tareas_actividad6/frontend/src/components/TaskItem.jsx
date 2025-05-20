@@ -1,21 +1,35 @@
-function TaskItem({ task, onToggle, onDelete }) {
+const TaskItem = ({ task, onToggle, onDelete }) => {
   return (
-    <li className="flex items-center justify-between p-2 bg-white shadow rounded">
-      <label className="flex items-center space-x-2">
+    <li className={`tarea ${task.completed ? 'completada' : ''}`}>
+      {/* Checkbox */}
+      <div className="checkbox-wrapper">
         <input
           type="checkbox"
           checked={task.completed}
-          onChange={onToggle}
+          onChange={() => onToggle(task.id, !task.completed)}
+          id={`task-${task.id}`}
+          className="checkbox-real"
         />
-        <span className={task.completed ? 'line-through text-gray-500' : ''}>
+        <label htmlFor={`task-${task.id}`} className="checkbox-custom"></label>
+      </div>
+
+      {/* Solo texto afectado por estado completado */}
+      <span className="task-text">
+        <span className={task.completed ? 'completada' : ''}>
           {task.text}
         </span>
-      </label>
-      <button onClick={onDelete} className="text-red-500 hover:text-red-700">
-        Eliminar
+      </span>
+
+      {/* Papelera no debe verse afectada */}
+      <button 
+        className="delete-btn" 
+        onClick={() => onDelete(task.id)}
+        aria-label="Eliminar tarea"
+      >
+        🗑️
       </button>
     </li>
   );
-}
+};
 
 export default TaskItem;
