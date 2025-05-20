@@ -1,24 +1,24 @@
-// src/components/TaskForm.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-const TaskForm = ({ onAdd }) => {
+function TaskForm({ onAdd }) {
   const [text, setText] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!text.trim()) return;
-    onAdd(text.trim());
-    setText('');
+    if (text.trim()) {
+      onAdd(text.trim());
+      setText('');
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
+    <form onSubmit={handleSubmit} className="flex space-x-2">
       <input
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Nueva tarea..."
         className="flex-grow p-2 border rounded"
+        placeholder="Nueva tarea"
       />
       <button
         type="submit"
@@ -28,6 +28,6 @@ const TaskForm = ({ onAdd }) => {
       </button>
     </form>
   );
-};
+}
 
 export default TaskForm;
