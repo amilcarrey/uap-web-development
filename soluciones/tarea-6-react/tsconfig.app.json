@@ -1,0 +1,64 @@
+{
+  "compilerOptions": {
+    // Ruta donde TypeScript guarda información incremental de compilación (para mejorar tiempos de build)
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    // Versión de JavaScript objetivo a la que se compilará el código
+    "target": "ES2020",
+
+    // Usa `define` en lugar de `assign` para declarar campos en clases (más moderno y seguro)
+    "useDefineForClassFields": true,
+
+    // Bibliotecas que estarán disponibles globalmente (APIs de ES2020 y del navegador)
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    // Sistema de módulos usado en la salida (ESNext para módulos modernos de JS)
+    "module": "ESNext",
+
+    // Omite la comprobación de tipos en archivos `.d.ts` de librerías para acelerar la compilación
+    "skipLibCheck": true,
+
+    /* Modo Bundler (útil para herramientas como Vite, esbuild, etc.) */
+
+    // Modo de resolución de módulos adaptado a empaquetadores modernos
+    "moduleResolution": "bundler",
+
+    // Permite importar archivos .ts directamente (por ejemplo: `import './file.ts'`)
+    "allowImportingTsExtensions": true,
+
+    // Conserva la sintaxis de import/export tal cual en lugar de transformarla
+    "verbatimModuleSyntax": true,
+
+    // Fuerza que todos los archivos con código sean tratados como módulos, no como scripts
+    "moduleDetection": "force",
+
+    // No emite archivos de salida (.js), útil cuando se usa un bundler como Vite
+    "noEmit": true,
+
+    // Soporte para JSX moderno (React 17+ sin necesidad de importar React)
+    "jsx": "react-jsx",
+
+    /* Reglas de lint (buena calidad de código) */
+
+    // Activa el modo estricto: implica varias verificaciones de tipo más rigurosas
+    "strict": true,
+
+    // Reporta variables locales no usadas
+    "noUnusedLocals": true,
+
+    // Reporta parámetros no usados en funciones
+    "noUnusedParameters": true,
+
+    // Solo permite sintaxis que pueda eliminarse de forma segura sin afectar el resultado
+    "erasableSyntaxOnly": true,
+
+    // Previene errores por no incluir una instrucción `break` en los casos de `switch`
+    "noFallthroughCasesInSwitch": true,
+
+    // Avisa si se importan módulos que podrían tener efectos secundarios no verificados
+    "noUncheckedSideEffectImports": true
+  },
+
+  // Archivos incluidos en la compilación (la carpeta `src`)
+  "include": ["src"]
+}

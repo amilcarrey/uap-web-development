@@ -1,0 +1,29 @@
+<!-- Indica que el documento es HTML5 -->
+<!DOCTYPE html>
+
+<!-- Comienza el elemento raíz del documento HTML, especificando el idioma como inglés -->
+<html lang="en">
+  <head>
+    <!-- Define el conjunto de caracteres como UTF-8, que soporta caracteres internacionales -->
+    <meta charset="UTF-8" />
+
+    <!-- Establece el ícono de la página (favicon), que se muestra en la pestaña del navegador -->
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+
+    <!-- Define la configuración de la ventana gráfica para hacer la página responsive -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Define el título de la página, que aparece en la pestaña del navegador -->
+    <title>Mensajes</title>
+  </head>
+
+  <body>
+    <!-- Este div es el punto de montaje de la aplicación React.
+         Todo el contenido generado por React se renderiza dentro de este contenedor -->
+    <div id="root"></div>
+
+    <!-- Carga el archivo principal de la aplicación, que inicia la app React.
+         Usa `type="module"` para permitir importaciones tipo ES6 -->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
