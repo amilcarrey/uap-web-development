@@ -10,7 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-Semana 5
+Semana 5/*
 *.local
 
 # Editor directories and files
