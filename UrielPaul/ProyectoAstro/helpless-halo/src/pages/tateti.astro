@@ -1,0 +1,120 @@
+---
+declare global {
+  var __tasks: { id: number; description: string; completed: boolean }[] | undefined;
+  var __taskIdCounter: number | undefined;
+}
+
+// Inicializar variables globales si no existen
+if (!globalThis.__tasks) {
+  globalThis.__tasks = [];
+}
+if (globalThis.__taskIdCounter === undefined) {
+  globalThis.__taskIdCounter = 1;
+}
+
+let tasks = globalThis.__tasks;
+let taskIdCounter = globalThis.__taskIdCounter;
+
+// Procesar la acción a partir de los parámetros GET
+const action = Astro.url.searchParams.get('action');
+
+if (action === 'create') {
+  const description = Astro.url.searchParams.get('description');
+  if (description) {
+    tasks.push({ id: taskIdCounter, description, completed: false });
+    taskIdCounter++;
+    globalThis.__tasks = tasks;
+    globalThis.__taskIdCounter = taskIdCounter;
+    // Redirige a la misma ruta sin parámetros
+    return Astro.redirect(Astro.url.pathname);
+  }
+} else if (action === 'update') {
+  const idStr = Astro.url.searchParams.get('id');
+  if (idStr) {
+    const id = parseInt(idStr, 10);
+    const completed = Astro.url.searchParams.get('completed') === 'true';
+    tasks = tasks.map(task => task.id === id ? { ...task, completed } : task);
+    globalThis.__tasks = tasks;
+    return Astro.redirect(Astro.url.pathname);
+  }
+} else if (action === 'delete') {
+  const idStr = Astro.url.searchParams.get('id');
+  if (idStr) {
+    const id = parseInt(idStr, 10);
+    tasks = tasks.filter(task => task.id !== id);
+    globalThis.__tasks = tasks;
+    return Astro.redirect(Astro.url.pathname);
+  }
+} else if (action === 'clear') {
+  tasks = tasks.filter(task => !task.completed);
+  globalThis.__tasks = tasks;
+  return Astro.redirect(Astro.url.pathname);
+}
+
+// Filtrar las tareas según el parámetro "filter"
+const filter = Astro.url.searchParams.get('filter');
+let filteredTasks;
+if (filter === 'active') {
+  filteredTasks = tasks.filter(task => !task.completed);
+} else if (filter === 'completed') {
+  filteredTasks = tasks.filter(task => task.completed);
+} else {
+  filteredTasks = tasks;
+}
+---
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lista de Tareas con Astro (versión simple)</title>
+  </head>
+  <body>
+    <h1>Lista de Tareas</h1>
+    
+    <!-- Formulario para crear una nueva tarea (usa GET) -->
+    <form method="GET">
+      <input type="hidden" name="action" value="create" />
+      <input type="text" name="description" placeholder="Nueva tarea" required />
+      <button type="submit">Agregar Tarea</button>
+    </form>
+    
+    <hr />
+    
+    <!-- Enlaces para filtrar tareas -->
+    <div>
+      <a href="?">Todas</a> |
+      <a href="?filter=active">Activas</a> |
+      <a href="?filter=completed">Completadas</a>
+    </div>
+    
+    <!-- Lista de tareas -->
+    <ul>
+      {filteredTasks.map(task => (
+        <li>
+          <!-- Formulario para actualizar el estado de la tarea -->
+          <form method="GET" style="display:inline;">
+            <input type="hidden" name="action" value="update" />
+            <input type="hidden" name="id" value={task.id} />
+            <input type="hidden" name="completed" value={(!task.completed).toString()} />
+            <button type="submit">
+              {task.completed ? "Marcar como activa" : "Marcar como completada"}
+            </button>
+          </form>
+          {task.description}
+          <!-- Formulario para eliminar la tarea -->
+          <form method="GET" style="display:inline;">
+            <input type="hidden" name="action" value="delete" />
+            <input type="hidden" name="id" value={task.id} />
+            <button type="submit">Eliminar</button>
+          </form>
+        </li>
+      ))}
+    </ul>
+    
+    <!-- Formulario para eliminar todas las tareas completadas -->
+    <form method="GET">
+      <input type="hidden" name="action" value="clear" />
+      <button type="submit">Eliminar Tareas Completadas</button>
+    </form>
+  </body>
+</html>
