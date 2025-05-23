@@ -1,0 +1,53 @@
+---
+export interface Props {
+  tabId: string;
+  tasksState: string;
+}
+
+const { tabId, tasksState } = Astro.props;
+---
+<form method="POST" class="input-container">
+  <input type="hidden" name="tasksState" value={tasksState} />
+  <input type="hidden" name="action" value="add" />
+  <input type="hidden" name="tabId" value={tabId} />
+  <input
+    type="text"
+    name="text"
+    placeholder="What do you need to do?"
+    required
+    class="task-input"
+  />
+  <button type="submit" class="add-button">Add</button>
+</form>
+
+<style>
+    /* Contenedor de entrada y botón ADD */
+    .input-container {
+        display: flex;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .task-input {
+        background-color: antiquewhite;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 2vh 0 0 2vh;
+        flex-grow: 1; /* El input ocupa el espacio disponible */
+        border-right: none; /* Elimina el borde derecho para que se una con el botón */
+    }
+
+    .add-button {
+        background-color: burlywood;
+        border: none;
+        cursor: pointer;
+        border-radius: 0 2vh 2vh 0;
+        padding: 10px 20px;
+        color: white;
+        font-size: 16px;
+    }
+
+    .add-button:hover {
+    background-color: #a57a5a; /* Un tono más oscuro de burlywood */
+}
+</style>

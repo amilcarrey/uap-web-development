@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>TODO app</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>TODO</h1>
+    </header>
+
+    <main>
+        <!-- Pestañas -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="personal" onclick="openTab('personal')">Personal</button>
+            <button class="tab-button" data-tab="professional" onclick="openTab('professional')">Professional</button>
+            <button class="tab-button add-tab-button" onclick="addNewTab()">+</button>
+        </div>
+
+        <!-- Sección Personal -->
+        <section id="personal" class="tab-content active">
+            <h3 onclick="makeTitleEditable(this, document.querySelector('[data-tab=\'personal\']'))">Personal</h3>
+            <form>
+                <div class="input-container">
+                    <input type="text" placeholder="What do you need to do?" class="task-input" 
+                           id="taskInputPersonal" onkeypress="handleAddTask('personal', event)">
+                    <button type="button" class="add-button" onclick="handleAddTask('personal')">ADD</button>
+                </div>
+
+                <div class="task-list" id="taskListPersonal">
+                    <div class="task-item">
+                        <label>
+                            <input type="checkbox" name="task1"> Personal Work No. 1
+                        </label>
+                        <button type="button" class="delete-button" onclick="deleteTask(this)">🗑️</button>
+                    </div>
+                </div>
+
+                <div class="filter-buttons">
+                    <button type="button" class="filter-button active" data-filter="all">All</button>
+                    <button type="button" class="filter-button" data-filter="active">Active</button>
+                    <button type="button" class="filter-button" data-filter="completed">Completed</button>
+                </div>
+                <button type="button" class="clear-button" onclick="clearCompleted()">Clear Completed</button>
+            </form>
+        </section>
+
+        <!-- Sección Professional -->
+        <section id="professional" class="tab-content">
+            <h3 onclick="makeTitleEditable(this, document.querySelector('[data-tab=\'professional\']'))">Professional</h3>
+            <form>
+                <div class="input-container">
+                    <input type="text" placeholder="What do you need to do?" class="task-input" 
+                           id="taskInputProfessional" onkeypress="handleAddTask('professional', event)">
+                    <button type="button" class="add-button" onclick="handleAddTask('professional')">ADD</button>
+                </div>
+
+                <div class="task-list" id="taskListProfessional">
+                    <div class="task-item">
+                        <label>
+                            <input type="checkbox" name="task1"> Prepare project presentation
+                        </label>
+                        <button type="button" class="delete-button" onclick="deleteTask(this)">🗑️</button>
+                    </div>
+                </div>
+
+                <div class="filter-buttons">
+                    <button type="button" class="filter-button active" data-filter="all">All</button>
+                    <button type="button" class="filter-button" data-filter="active">Active</button>
+                    <button type="button" class="filter-button" data-filter="completed">Completed</button>
+                </div>
+                <button type="button" class="clear-button" onclick="clearCompleted()">Clear Completed</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
