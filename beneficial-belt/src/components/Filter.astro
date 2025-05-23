@@ -1,0 +1,126 @@
+---
+const { search } = Astro.props as { search: string };
+---
+
+<filter-forms
+    class="flex justify-center bg-[#faebd7] rounded-b-xl mx-auto w-3/5 p-3 gap-2"
+>
+    <form method="post">
+        <button
+            type="submit"
+            name="action"
+            value="delete-checked"
+            data-action-button="delete-button"
+            class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
+        >
+            Borrar completadas</button
+        >
+    </form>
+    <form method="post">
+        <button
+            type="submit"
+            name="action"
+            value="list-check"
+            data-action-button="check-button"
+            class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
+            >Completadas
+        </button>
+    </form>
+    <form method="post">
+        <button
+            type="submit"
+            name="action"
+            value="list-uncheck"
+            data-action-button="uncheck-button"
+            class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
+            >Faltantes
+        </button>
+    </form>
+    <form method="post">
+        <button
+            type="submit"
+            name="action"
+            value="list-all"
+            data-action-button="list-button"
+            class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
+            >Todas
+        </button>
+    </form>
+</filter-forms>
+
+<script>
+    import { tasks } from "../services/tasks";
+    import type { Task } from "../types";
+    import type { TaskList } from "./TaskList.astro.0.mts";
+
+    class FilterForm extends HTMLElement {
+        private deleteButton: HTMLButtonElement | null = null;
+        private checkButton: HTMLButtonElement | null = null;
+        private uncheckButton: HTMLButtonElement | null = null;
+        private allButton: HTMLButtonElement | null = null;
+        private taskList: TaskList | null = null;
+
+        connectedCallback() {
+            this.deleteButton = this.querySelector<HTMLButtonElement>(
+                "[data-action-button = 'delete-button']",
+            )!;
+            this.checkButton = this.querySelector<HTMLButtonElement>(
+                "[data-action-button = 'check-button']",
+            )!;
+            this.uncheckButton = this.querySelector<HTMLButtonElement>(
+                "[data-action-button = 'uncheck-button']",
+            )!;
+            this.allButton = this.querySelector<HTMLButtonElement>(
+                "[data-action-button = 'list-button']",
+            )!;
+            this.taskList = document.querySelector("task-list");
+
+            this.deleteButton.addEventListener("click", this.handleDelete);
+            this.checkButton.addEventListener("click", this.handleFilterCheck);
+            this.uncheckButton.addEventListener(
+                "click",
+                this.handleFilterUncheck,
+            );
+            this.allButton.addEventListener("click", this.handleFilterAll);
+        }
+
+        handleDelete = async (e: MouseEvent) => {
+            e.preventDefault();
+            const response = await fetch(`/api/tasks`);
+            const data: { tasks: Task[] } = await response.json();
+            data.tasks.forEach((t) => {
+                if (t.checked == true) {
+                    const index = tasks.indexOf(t);
+                    tasks.slice(index,1)
+                }
+            });
+
+            this.taskList?.renderTasks(tasks);
+        };
+
+        handleFilterCheck = async (e: MouseEvent) => {
+            e.preventDefault();
+            const response = await fetch(`/api/tasks`);
+            const tasks: { tasks: Task[] } = await response.json();
+            const filteredTasks = tasks.tasks.filter((t) => t.checked === true);
+            this.taskList?.renderTasks(filteredTasks);
+        };
+
+        handleFilterUncheck = async (e: MouseEvent) => {
+            e.preventDefault();
+            const response = await fetch(`/api/tasks`);
+            const data: { tasks: Task[] } = await response.json();
+            const filteredTasks = data.tasks.filter((t) => t.checked === false);
+            this.taskList?.renderTasks(filteredTasks);
+        };
+
+        handleFilterAll = async (e: MouseEvent) => {
+            e.preventDefault();
+            const response = await fetch(`/api/tasks`);
+            const data: { tasks: Task[] } = await response.json();
+            this.taskList?.renderTasks(data.tasks);
+        };
+    }
+
+    customElements.define("filter-forms", FilterForm);
+</script>

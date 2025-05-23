@@ -1,0 +1,43 @@
+---
+import Layout from "../layouts/Layout.astro";
+import agregar from "../assets/añadir.png";
+import checked from "../assets/task.png";
+import TaskList from "../components/TaskList.astro";
+import { getTareas } from "../services/tasks";
+import NewTaskForm from "../components/newTaskForm.astro";
+import Filter from "../components/Filter.astro";
+import { undefined } from "astro:schema";
+
+let t: undefined = undefined;
+const tareas = getTareas(t);
+---
+
+<Layout>
+    <header class="bg-[rgb(177,228,228)]">
+        <div id="title" class="h-24 flex justify-center items-center">
+            <h1 class="flex items-center gap-2 text-2xl font-bold">
+                tasking.com
+                <img src={checked.src} alt="imagen de tareas" class="h-8" />
+            </h1>
+        </div>
+    </header>
+    <div class="windows flex justify-between items-center px-8 py-4">
+        <div class="window flex justify-around w-full bg-[#f0f8ff] border-b-2 border-[#7fffd4]l mx-4">
+            <div>
+                <p class="font-medium">Personal</p>
+            </div>
+            <div>
+                <p class="font-medium">Profesional</p>
+            </div>
+        </div>
+        <img src={agregar.src} class="h-8 cursor-pointer" />
+    </div>
+    <section class="px-4 py-2">
+        <NewTaskForm />
+    </section>
+    <TaskList tasks={tareas}/>
+
+    <Filter/>
+
+</Layout>
+

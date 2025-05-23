@@ -1,0 +1,59 @@
+---
+import type { Task } from "../types";
+import TaskElement from "./Task.astro";
+
+const { tasks } = Astro.props as { tasks: Task[] };
+---
+
+<task-list>
+  <ul id="task-list">
+    {
+      tasks.map((task) => (
+        <TaskElement
+          id={task.id}
+          content={task.content}
+          checked={task.checked}
+        />
+      ))
+      
+    }
+  </ul>
+  <template id="task-element-template">
+    <TaskElement id="" content="" checked={false}/>
+  </template>
+</task-list>
+
+<script>
+  import type { Task } from "../types";
+  import type { TaskElement } from "./Task.astro.0.mts";
+  export class TaskList extends HTMLElement {
+    private list: HTMLUListElement | null = null;
+    private newTaskTemplate: HTMLTemplateElement | null = null;
+
+    connectedCallback() {
+      this.list = this.querySelector("ul");
+      this.newTaskTemplate = this.querySelector("template");
+    }
+
+    renderTasks = (tasks: Task[]) => {
+      this.list!.innerHTML = "";
+
+      for (const task of tasks) {
+        this.addTarea(task);
+      }
+    };
+
+    addTarea = (tarea: Task) => {
+      const template =
+        this.newTaskTemplate?.content.querySelector("task-element");
+      const newTask = template?.cloneNode(true) as TaskElement;
+
+      this.list?.append(newTask);
+      newTask.setId(tarea.id);
+      newTask.setContent(tarea.content);
+      newTask.setChecked(tarea.checked);
+    };
+  }
+
+  customElements.define("task-list", TaskList);
+</script>
