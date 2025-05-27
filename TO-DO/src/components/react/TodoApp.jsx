@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // <-- Importa esto
 import TodoForm from './TodoForm';
 import TodoList from './TodoList';
 import { fetchTodos, addTodo, updateTodo, deleteTodo } from '../../services/todoService';
+
+const queryClient = new QueryClient();
 
 const TodoApp = () => {
   const [todos, setTodos] = useState([]);
@@ -184,6 +187,12 @@ const CategoryButton = ({ active, onClick, children, count, color = "bg-black" }
       {count}
     </span>
   </button>
+);
+
+return (
+  <QueryClientProvider client={queryClient}>
+    <TodoApp />
+  </QueryClientProvider>
 );
 
 export default TodoApp;
