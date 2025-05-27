@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>TODO List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-orange-50 font-sans text-center">
+    <div class="flex justify-center my-4 gap-4">
+        <form method="get" action="/">
+            <button class="px-4 py-2 font-semibold border-b-4 rounded-md transition hover:text-black hover:border-orange-400
+            {% if current_filter == 'all' %}text-black border-orange-400{% else %}text-gray-500 border-transparent{% endif %}" name="filter" value="all">Tareas</button>
+            <button class="px-4 py-2 font-semibold border-b-4 rounded-md transition hover:text-black hover:border-orange-400
+            {% if current_filter == 'completed' %}text-black border-orange-400{% else %}text-gray-500 border-transparent{% endif %}" name="filter" value="completed">Completas</button>
+            <button class="px-4 py-2 font-semibold border-b-4 rounded-md transition hover:text-black hover:border-orange-400
+            {% if current_filter == 'incomplete' %}text-black border-orange-400{% else %}text-gray-500 border-transparent{% endif %}" name="filter" value="incomplete">Incompletas</button>
+        </form>
+    </div>
+
+    <div class="bg-white max-w-md mx-auto p-6 rounded-xl shadow-md">
+        <h1 class="text-2xl text-orange-500 font-bold mb-4">TO.DO</h1>
+        <form method="post" action="/add" class="flex gap-2 mb-4" id="add-form">
+            <input type="text" name="task" placeholder="Nueva tarea" required class="flex-1 p-2 rounded border" />
+            <button type="submit" class="bg-blue-400 text-white px-4 py-2 rounded">Agregar</button>
+        </form>
+        <ul id="task-list" class="flex flex-col gap-2">
+            {% for task in tasks %}
+            <li class="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded justify-between">
+                <form method="post" action="/toggle/{{ task.id }}" class="flex-1 flex gap-2 items-center">
+                    <input type="checkbox" onchange="this.form.submit()" {% if task.completed %}checked{% endif %} class="w-5 h-5">
+                    <span class="flex-1 text-left {% if task.completed %}line-through text-gray-400{% endif %}">{{ task.text }}</span>
+                </form>
+                <form method="post" action="/delete/{{ task.id }}">
+                    <button class="hover:scale-110 transition-transform">🗑️</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        <form method="post" action="/clear_completed" class="mt-4">
+            <button class="text-sm text-red-500 hover:underline">Clear Completed</button>
+        </form>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
