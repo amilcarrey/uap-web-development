@@ -1,3 +1,19 @@
 {
-  "tareas": []
+  "tareas": [
+    {
+      "id": "mazvv31gf7bcbbu025w",
+      "texto": "sadasdwe",
+      "completada": false
+    },
+    {
+      "id": "mazvv4j9qr09pdfow5",
+      "texto": "asdasdasd",
+      "completada": false
+    },
+    {
+      "id": "mazvv8bswdu0yyswnep",
+      "texto": "sadadssad",
+      "completada": false
+    }
+  ]
 }
