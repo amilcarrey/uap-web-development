@@ -1,0 +1,88 @@
+---
+//src\pages\index.astro
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import TabsContainer from '../components/TabsContainer.astro';
+import TabContent from '../components/TabContent.astro';
+import FilterControls from '@components/FilterControls.astro';
+
+// Configuración inicial
+const tabs = [
+  { id: 'personal', title: 'Personal' },
+  { id: 'professional', title: 'Profesional' }
+];
+const activeTab = Astro.url.searchParams.get('tab') || tabs[0].id;
+const currentFilter = Astro.url.searchParams.get('filter') || 'all';
+
+// Interface de Task (puede moverse a src/lib/types.ts)
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+  tabId: string;
+}
+
+// Obtener tareas desde la API
+let filteredTasks: Task[] = [];
+let allTasks: Task[] = [];
+
+try {
+  // Primera carga: obtiene tareas ya filtradas desde la API
+  
+  const baseUrl = Astro.site || 'http://localhost:4321'; // por si no está configurado Astro.site
+  const response = await fetch(`${baseUrl}/api/tasks?tab=${activeTab}&filter=${currentFilter}`);
+  /*
+    Ese fetch se esta ejecutando en el servidor y no en el cliente como en los demas casos, por eso, tiene que utilizar un path
+    absoluto porque sino no tiene contexto del dominio/localhost, por lo que puede fallar o no responder correctamente
+    El error que se presento en mi caso es que no se mostraba el listado de las tareas.
+  */
+
+  const data = await response.json();
+  
+  if (response.ok) {
+    filteredTasks = data.tasks;
+    allTasks = data.allTasks || data.tasks; // Depende de tu implementación API
+  } else {
+    console.error('Error loading tasks:', data.error);
+  }
+} catch (error) {
+  console.error('Network error:', error);
+}
+
+// Procesar POST (si aún necesitas SSR para algunos casos)
+if (Astro.request.method === "POST") {
+  // Redirige a la API para manejar la acción
+  const formData = await Astro.request.formData();
+  const action = formData.get('action');
+  const redirectTo = `/api/tasks/${action === 'add' ? '' : formData.get('taskId')}`;
+  
+  return Astro.redirect(redirectTo);
+}
+---
+<Layout>
+  <Header />
+  <main>
+    <TabsContainer tabs={tabs} activeTab={activeTab} />
+    
+    {tabs.map(tab => (
+      <TabContent
+        tabId={tab.id}
+        title={tab.title}
+        isActive={tab.id === activeTab}
+        tasks={tab.id === activeTab ? filteredTasks : []}
+        currentFilter={currentFilter}
+      />
+    ))}
+  </main>
+</Layout>
+
+<style>
+  main {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+</style>

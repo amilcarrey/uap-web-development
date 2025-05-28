@@ -1,0 +1,33 @@
+---
+//src\components\TaskList.astro
+
+import TaskItem from './TaskItem.astro';
+
+export interface Props {
+  tasks: Array<{id: string, text: string, completed: boolean}>;
+  tabId: string;
+}
+
+const { tasks, tabId } = Astro.props;
+---
+<ul class="task-list
+  bg-[antiquewhite] p-5 rounded-lg mb-5 list-none"
+
+>
+  {tasks.map(task => (
+    <TaskItem task={task} tabId={tabId} />
+  ))}
+</ul>
+
+<!--
+<style>
+  .task-list {
+    background-color: antiquewhite;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    list-style: none;
+  }
+
+</style>
+-->

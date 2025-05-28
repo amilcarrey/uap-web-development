@@ -1,0 +1,72 @@
+{
+  "tasks": [
+    {
+      "text": "hola",
+      "completed": false,
+      "tabId": "personal",
+      "id": "1747691507318"
+    },
+    {
+      "text": "Tarea 1",
+      "completed": true,
+      "tabId": "personal",
+      "id": "1747691519160"
+    },
+    {
+      "text": "sakm nbj",
+      "completed": false,
+      "tabId": "personal",
+      "id": "1748380928841"
+    },
+    {
+      "text": "hu",
+      "completed": false,
+      "tabId": "personal",
+      "id": "1748436484661"
+    },
+    {
+      "text": "dsd",
+      "completed": false,
+      "tabId": "personal",
+      "id": "1748436498827"
+    },
+    {
+      "text": "dsd",
+      "completed": false,
+      "tabId": "personal",
+      "id": "1748436500541"
+    },
+    {
+      "text": "xsx",
+      "completed": false,
+      "tabId": "personal",
+      "id": "1748436515733"
+    },
+    {
+      "text": "gf",
+      "completed": false,
+      "tabId": "personal",
+      "id": "1748436626644"
+    },
+    {
+      "text": "jhn",
+      "completed": false,
+      "tabId": "personal",
+      "id": "1748436752378"
+    },
+    {
+      "text": "jdfsi",
+      "completed": false,
+      "tabId": "personal",
+      "id": "1748436956828"
+    },
+    {
+      "text": "xcsx",
+      "completed": false,
+      "tabId": "personal",
+      "id": "1748436998303"
+    }
+  ],
+  "currentTab": "personal",
+  "currentFilter": "all"
+}
