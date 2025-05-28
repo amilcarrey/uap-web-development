@@ -4,16 +4,32 @@ import { tareas } from "../../lib/tareas";
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
   const filtro = url.searchParams.get("filtro") ?? "todas";
+  const page = parseInt(url.searchParams.get("page") ?? "1", 10);
+  const limit = parseInt(url.searchParams.get("limit") ?? "5", 10);
 
   let tareasFiltradas = tareas.map((t, i) => ({ ...t, id: i }));
 
-  if (filtro === "completadas" || filtro === "completed") {
-    tareasFiltradas = tareasFiltradas.filter(t => t.completada);
-  } else if (filtro === "incompletas" || filtro === "incomplete") {
-    tareasFiltradas = tareasFiltradas.filter(t => !t.completada);
+  if (filtro === "completadas") {
+    tareasFiltradas = tareasFiltradas.filter((t) => t.completada);
+  } else if (filtro === "incompletas") {
+    tareasFiltradas = tareasFiltradas.filter((t) => !t.completada);
   }
 
-  return new Response(JSON.stringify(tareasFiltradas), {
-    headers: { "Content-Type": "application/json" },
-  });
+  const total = tareasFiltradas.length;
+  const totalPages = Math.ceil(total / limit);
+  const start = (page - 1) * limit;
+  const end = start + limit;
+  const tareasPaginadas = tareasFiltradas.slice(start, end);
+
+  return new Response(
+    JSON.stringify({
+      tareas: tareasPaginadas,
+      total,
+      page,
+      totalPages,
+    }),
+    {
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 };

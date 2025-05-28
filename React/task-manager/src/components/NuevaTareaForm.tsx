@@ -1,59 +1,43 @@
-// import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAgregarTarea } from "../hooks/useAgregarTarea";
+import { useEditarTarea } from "../hooks/useEditarTarea";
+import type { Tarea } from "../types";
 
-// type NuevaTareaFormProps = {
-//   agregarTarea: (texto: string) => void;
-// };
-
-// export function NuevaTareaForm({ agregarTarea }: NuevaTareaFormProps) {
-//   const [texto, setTexto] = useState("");
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-//     const limpio = texto.trim();
-//     if (limpio.length === 0) return;
-//     await agregarTarea(limpio);
-//     setTexto("");
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit} className="flex w-full gap-2">
-//       <input
-//         className="border border-gray-300 rounded-md p-2 flex-1"
-//         type="text"
-//         placeholder="Nueva tarea"
-//         value={texto}
-//         onChange={(e) => setTexto(e.target.value)}
-//       />
-//       <button
-//         type="submit"
-//         className="bg-blue-600 text-white rounded-md px-4 py-2 hover:bg-blue-700"
-//       >
-//         Agregar
-//       </button>
-//     </form>
-//   );
-// }
-
-import { useState } from "react";
-
-type NuevaTareaFormProps = {
-  agregarTarea: (texto: string) => void;
+type Props = {
+  tareaEditando?: Tarea;
+  cancelarEdicion?: () => void;
 };
 
-export function NuevaTareaForm({ agregarTarea }: NuevaTareaFormProps) {
+export function NuevaTareaForm({ tareaEditando, cancelarEdicion }: Props) {
   const [texto, setTexto] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { mutate: agregarTarea, isPending: agregando } = useAgregarTarea();
+  const { mutate: editarTarea, isPending: editando } = useEditarTarea();
+
+  // Prellenar el input si estamos editando
+  useEffect(() => {
+    if (tareaEditando) {
+      setTexto(tareaEditando.texto);
+    }
+  }, [tareaEditando]);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const limpio = texto.trim();
     if (!limpio) return;
-    await agregarTarea(limpio);
-    setTexto("");
+
+    if (tareaEditando) {
+      editarTarea(
+        { id: tareaEditando.id, texto: limpio },
+        { onSuccess: () => cancelarEdicion?.() }
+      );
+    } else {
+      agregarTarea(limpio, { onSuccess: () => setTexto("") });
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-3">
-      {/* input redondeado, placeholder gris claro */}
+    <form onSubmit={handleSubmit} className="flex gap-3 items-center">
       <input
         type="text"
         placeholder="What do you need to do?"
@@ -63,14 +47,30 @@ export function NuevaTareaForm({ agregarTarea }: NuevaTareaFormProps) {
                    placeholder-gray-400 focus:outline-none focus:border-pink-300"
       />
 
-      {/* botón azul pastel */}
       <button
         type="submit"
+        disabled={agregando || editando}
         className="bg-blue-300 hover:bg-blue-400 text-white font-bold
                    rounded-full px-6 py-3 transition-colors"
       >
-        ADD
+        {tareaEditando
+          ? editando
+            ? "Guardando..."
+            : "Guardar"
+          : agregando
+          ? "Agregando..."
+          : "Agregar"}
       </button>
+
+      {tareaEditando && cancelarEdicion && (
+        <button
+          type="button"
+          onClick={cancelarEdicion}
+          className="text-sm px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+        >
+          Cancelar
+        </button>
+      )}
     </form>
   );
 }

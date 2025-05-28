@@ -1,60 +1,33 @@
 import type { Tarea } from "../types";
+import { useEliminarTarea } from "../hooks/useEliminarTarea";
+import { useToggleTarea } from "../hooks/useToggleTarea";
 
 type TareaListProps = {
   tareas: Tarea[];
-  toggleTarea: (index: number) => void;
-  eliminarTarea: (index: number) => void;
+  onEditar: (id: number) => void;
 };
 
-// export function TareaList({ tareas, toggleTarea, eliminarTarea }: TareaListProps) {
-//   if (tareas.length === 0) {
-//     return <p className="text-gray-500 text-center">No hay tareas</p>;
-//   }
+export function TareaList({ tareas, onEditar }: TareaListProps) {
+  const { mutate: eliminarTarea, isPending: eliminando } = useEliminarTarea();
+  const { mutate: toggleTarea, isPending: cambiando } = useToggleTarea();
 
-//   return (
-//     <ul className="space-y-2">
-//       {tareas.map((tarea, index) => (
-//         <li
-//           key={index}
-//           className="flex justify-between items-center border border-gray-200 rounded-md p-2"
-//         >
-//           <div className="flex items-center gap-2">
-//             <input
-//               type="checkbox"
-//               checked={tarea.completada}
-//               onChange={() => toggleTarea(index)}
-//             />
-//             <span
-//               className={`${
-//                 tarea.completada ? "line-through text-gray-400" : ""
-//               }`}
-//             >
-//               {tarea.texto}
-//             </span>
-//           </div>
-//           <button
-//             onClick={() => eliminarTarea(index)}
-//             className="text-red-500 text-sm hover:underline"
-//           >
-//             Eliminar
-//           </button>
-//         </li>
-//       ))}
-//     </ul>
-//   );
-// }
-export function TareaList({ tareas, toggleTarea, eliminarTarea }: TareaListProps) {
-  if (!tareas.length) return <p className="text-gray-500 text-center">No hay tareas</p>;
+  if (!tareas.length) {
+    return <p className="text-gray-500 text-center">No hay tareas</p>;
+  }
 
   return (
     <ul className="space-y-2">
-      {tareas.map((t, i) => (
-        <li key={i} className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-lg">
+      {tareas.map((t) => (
+        <li
+          key={t.id}
+          className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-lg"
+        >
           {/* toggle */}
           <button
-            onClick={() => toggleTarea(i)}
+            onClick={() => toggleTarea(t.id)}
             className="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold
                        bg-pink-300 hover:bg-pink-400 transition"
+            disabled={cambiando}
           >
             {t.completada ? "✓" : "○"}
           </button>
@@ -67,14 +40,26 @@ export function TareaList({ tareas, toggleTarea, eliminarTarea }: TareaListProps
             {t.texto}
           </span>
 
-          {/* delete */}
-          <button
-            onClick={() => eliminarTarea(i)}
-            className="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold
-                       bg-pink-300 hover:bg-pink-400 transition"
-          >
-            ✕
-          </button>
+          <div className="flex gap-2">
+            {/* editar */}
+            <button
+              onClick={() => onEditar(t.id)}
+              className="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold
+                         bg-blue-300 hover:bg-blue-400 transition"
+            >
+              ✎
+            </button>
+
+            {/* eliminar */}
+            <button
+              onClick={() => eliminarTarea(t.id)}
+              className="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold
+                         bg-pink-300 hover:bg-pink-400 transition"
+              disabled={eliminando}
+            >
+              ✕
+            </button>
+          </div>
         </li>
       ))}
     </ul>
