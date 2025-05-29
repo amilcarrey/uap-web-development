@@ -19,7 +19,7 @@ type Tarea = {
  
 export function agregarTarea(descripcion: string): Tarea | null {
   const nuevaTarea: Tarea = {
-    id: Date.now(),
+    id: Date.now() + Math.floor(Math.random() * 1000),
     descripcion,
     completada: false
   };
@@ -49,4 +49,14 @@ export function eliminarCompletadas(): number[] {
   tareas = tareas.filter(t => !t.completada);
   return idsEliminadas;
 }
-  
+
+export function actualizarDescripcion(id: number, nuevaDescripcion: string): boolean {
+  const existe = tareas.some(t => t.id === id);
+  if (!existe) return false;
+
+  tareas = tareas.map(t =>
+    t.id === id ? { ...t, descripcion: nuevaDescripcion } : t
+  );
+
+  return true;
+}

@@ -6,5 +6,5 @@ export const POST: APIRoute = async ({ request }) => {
   const id = Number(formData.get("id"));
 
   actualizarEstado(id);
-  return new Response(null, { status: 302, headers: { Location: "/" } });
+  return new Response(null, { status: 200, headers: { "Content-Type": "application/json" } });
 };
