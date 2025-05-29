@@ -2,16 +2,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Task } from '../types';
 import { BASE_URL } from '../hooks/useTasks';
 import type { TaskFilter } from '../hooks/useTasks';
+import { showToast } from '../utils/showToast';
 
 type TaskItemProps = {
 	filter: TaskFilter;
 	task: Task;
+  setTaskEditing: (task: Task | null) => void;
 };
 
-export function TaskItem({
-	filter,
-	task,
-}: TaskItemProps) {
+export function TaskItem({ filter, task, setTaskEditing }: TaskItemProps) {
 	const queryClient = useQueryClient();
 	const queryKey = ['tasks', filter];
 
@@ -71,6 +70,7 @@ export function TaskItem({
       queryClient.invalidateQueries({ queryKey });
     },
     onSuccess: () => {
+      showToast('Task deleted successfully', 'success');
       queryClient.invalidateQueries({ queryKey });
     },
   })
@@ -89,6 +89,13 @@ export function TaskItem({
 					</label>
 				</div>
 			</form>
+      <div>
+        <button className="text-[18px] cursor-pointer"
+            onClick={() => setTaskEditing(task)}
+        >
+          ✏️
+        </button>
+      </div>
 			<form method="POST" className="delete-form" name="delete-form" action="/api/eliminar/">
 				<input type="hidden" name="task-id" value={task.id} />
 				<button type="submit" className="text-[18px] cursor-pointer" name="delete-btn" onClick={(e) => {

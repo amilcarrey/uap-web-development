@@ -1,18 +1,25 @@
+import type { Task } from './types';
+import { ToastContainer } from "./components/ToastContainer";
 import { NewTaskForm } from "./components/NewTaskForm";
 import { TaskList } from "./components/TaskList";
 import { useEffect, useState } from "react";
-import type { Task } from "./types";
 import { FiltersForm } from "./components/FiltersForm";
 import { ClearCompleted } from "./components/ClearCompleted";
-import { Stats } from "./components/Stats";
 
 
 function App() {
   const [filter, setFilter] = useState<"all" | "completed" | "incomplete">("all");
+  const [page, setPage] = useState(1);
+  const [taskEditing, setTaskEditing] = useState<Task | null>(null);
+
+  useEffect(() => {
+    setPage(1); // Reset page to 1 when filter changes
+  }, [filter]);
 
   
   return (
     <>
+      <ToastContainer />
       <header>
       {/* Título principal con un diseño simple donde "TO" y "DO" están separados para dar énfasis */}
         <h1 className="font-bold text-center text-[32px] text-[#333] my-4"><span className="text-[#e08e36]">TO</span>DO</h1>
@@ -33,10 +40,10 @@ function App() {
 
       <main>
         {/* Agregar tarea */}
-        <NewTaskForm filter={filter} />
+        <NewTaskForm filter={filter} page={page} setPage={setPage} taskEditing={taskEditing} setTaskEditing={setTaskEditing} />
 
         {/* Lista de tareas */}
-        <TaskList filter={filter} />
+        <TaskList filter={filter} page={page} setPage={setPage} setTaskEditing={setTaskEditing} />
 
         {/* Botón para limpiar tareas completadas */}
         <ClearCompleted filter={filter} />

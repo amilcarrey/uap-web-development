@@ -19,7 +19,7 @@ export function ClearCompleted({ filter }: ClearCompletedProps) {
           "Content-Type": "application/json",
         },
       });
-      const data: Task = await response.json();
+      const data: Task[] = await response.json();
       return data;
     },
     onSuccess: () => {
@@ -29,7 +29,7 @@ export function ClearCompleted({ filter }: ClearCompletedProps) {
 
   return (
     <form method="POST" className="clear-completed-form" name="clear-completed-form" action="/api/clear-completed">
-      <button type="submit" className="bg-[#d9534f] text-white py-2 px-5 rounded-[5px] mt-5 block mx-auto cursor-pointer hover:bg-[#c9302c]" name="clear-completed" onClick={(e) => {
+      <button type="submit" className="bg-[#d9534f] text-white py-2 px-5 rounded-[5px] mt-2 block mx-auto cursor-pointer hover:bg-[#c9302c]" name="clear-completed" onClick={(e) => {
         e.preventDefault();
         clearCompleted();
       }}>Clear Completed</button>

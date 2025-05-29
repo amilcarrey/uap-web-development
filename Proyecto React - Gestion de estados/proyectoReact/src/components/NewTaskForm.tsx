@@ -1,16 +1,23 @@
-import type { FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { BASE_URL } from "../hooks/useTasks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Task } from "../types";
 import type { TaskFilter } from "../hooks/useTasks";
+import { showToast } from "../utils/showToast";
 
 type NewTaskFormProps = {
   filter: TaskFilter;
+  page: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  taskEditing: Task | null;
+  setTaskEditing: (task: Task | null) => void;
 };
 
-export function NewTaskForm({ filter }: NewTaskFormProps) {
+export function NewTaskForm({ filter, page, setPage, taskEditing, setTaskEditing }: NewTaskFormProps) {
   const queryClient = useQueryClient();
-  const queryKey = ["tasks", filter];
+  const queryKey = ["tasks", filter, page];
+
+  const isEditing = taskEditing !== null;
 
   const { mutate: addTask } = useMutation({
     mutationFn: async (text: string) => {
@@ -25,10 +32,44 @@ export function NewTaskForm({ filter }: NewTaskFormProps) {
       const data: Task = await response.json();
       return data;
     },
-    onSuccess: (data) => {
-      queryClient.setQueryData(queryKey, (oldData: Task[]) => [...oldData, data]);
+    // onSuccess: (data) => {
+    //   // queryClient.setQueryData(queryKey, (oldData: Task[]) => [...oldData, data]);
+    //   if (filter !== "completed") {
+    //     queryClient.setQueryData(queryKey, (oldData: Task[]) => [...oldData, data,]);
+    //   }  
+    // },
+    onSuccess: () => {
+      showToast("Task added successfully", "success");
+      queryClient.invalidateQueries({ queryKey });
+      setTaskEditing(null);
+    },
+    onError: (error) => {
+      showToast(`Error adding task: ${error}`, "error");
     },
   });
+
+  const { mutate: editTask } = useMutation({
+    mutationFn: async ({ id, text }: { id: string; text: string }) => {
+      const response = await fetch(`${BASE_URL}/editar`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, text }),
+      });
+
+      const data: Task = await response.json();
+      return data;
+    },
+    onSuccess: () => {
+      showToast("Task updated successfully", "success");
+      queryClient.invalidateQueries({ queryKey });
+      setTaskEditing(null);
+    },
+    onError: (error) => {
+      showToast(`Error updating task: ${error}`, "error");
+    },
+  })
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,14 +82,34 @@ export function NewTaskForm({ filter }: NewTaskFormProps) {
       return alert("Please enter a task");
     }
 
-    addTask(text);
-    target.reset();
+    if (isEditing && taskEditing) {
+      editTask({ id: taskEditing.id, text });
+    } else {
+      addTask(text);
+    }
+    setInputValue(""); // Clear input after submission
   }
+
+  const [inputValue, setInputValue] = useState(taskEditing?.text ?? "");
+
+  useEffect(() => {
+    setInputValue(taskEditing?.text ?? "");
+  }, [taskEditing]);
 
   return (
     <form method="POST" action="/api/agregar" className="flex justify-center items-center my-5 mx-auto max-w-xl" id="task-input" onSubmit={handleSubmit}>
-      <input type="text" className="w-[60%] py-2 px-2 rounded-[20px] bg-[#eadecf] border-none placeholder:text-[13px] placeholder:text-[#888]" name="task" placeholder="What do you need to do?" required />
-      <button type="submit" className="bg-[#65b8d8] text-white py-2 px-5 ml-2 rounded-[20px] cursor-pointer hover:bg-[#4a9cbd]" name="add-task">ADD</button>
+      <input type="text" className="w-[60%] py-2 px-2 rounded-[20px] bg-[#eadecf] border-none placeholder:text-[13px] placeholder:text-[#888]" name="task" placeholder="What do you need to do?" required
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+      />
+      <button type="submit" className="bg-[#65b8d8] text-white py-2 px-5 ml-2 rounded-[20px] cursor-pointer hover:bg-[#4a9cbd]" name="add-task">{isEditing ? "SAVE" : "ADD"}</button>
+      {isEditing && (
+        <button type="button"className="ml-2 py-2 px-5 rounded-[20px] bg-gray-300 hover:bg-gray-400 cursor-pointer"
+          onClick={() => setTaskEditing(null)}
+        >
+          Cancel
+        </button>
+      )}
     </form>
   );
 };
