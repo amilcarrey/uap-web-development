@@ -2,18 +2,18 @@ import { useEffect, useState, type FormEvent } from "react";
 import { BASE_URL } from "../hooks/useTasks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Task } from "../types";
-import type { TaskFilter } from "../hooks/useTasks";
+import { useFilterStore } from "../store/useFilterStore";
 import { showToast } from "../utils/showToast";
 
 type NewTaskFormProps = {
-  filter: TaskFilter;
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   taskEditing: Task | null;
   setTaskEditing: (task: Task | null) => void;
 };
 
-export function NewTaskForm({ filter, page, setPage, taskEditing, setTaskEditing }: NewTaskFormProps) {
+export function NewTaskForm({ page, setPage, taskEditing, setTaskEditing }: NewTaskFormProps) {
+  const filter = useFilterStore((state) => state.filter);
   const queryClient = useQueryClient();
   const queryKey = ["tasks", filter, page];
 
@@ -32,12 +32,6 @@ export function NewTaskForm({ filter, page, setPage, taskEditing, setTaskEditing
       const data: Task = await response.json();
       return data;
     },
-    // onSuccess: (data) => {
-    //   // queryClient.setQueryData(queryKey, (oldData: Task[]) => [...oldData, data]);
-    //   if (filter !== "completed") {
-    //     queryClient.setQueryData(queryKey, (oldData: Task[]) => [...oldData, data,]);
-    //   }  
-    // },
     onSuccess: () => {
       showToast("Task added successfully", "success");
       queryClient.invalidateQueries({ queryKey });

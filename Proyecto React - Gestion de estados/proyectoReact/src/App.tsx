@@ -5,10 +5,12 @@ import { TaskList } from "./components/TaskList";
 import { useEffect, useState } from "react";
 import { FiltersForm } from "./components/FiltersForm";
 import { ClearCompleted } from "./components/ClearCompleted";
+import { useFilterStore } from "./store/useFilterStore";
 
 
 function App() {
-  const [filter, setFilter] = useState<"all" | "completed" | "incomplete">("all");
+  const filter = useFilterStore((state) => state.filter);
+  const setFilter = useFilterStore((state) => state.setFilter);
   const [page, setPage] = useState(1);
   const [taskEditing, setTaskEditing] = useState<Task | null>(null);
 
@@ -35,18 +37,18 @@ function App() {
         <button className="bg-[#b07c7c] text-white text-[20px] py-1 px-4 rounded-[5px] cursor-pointer">+</button>
       </nav>
 
-      <FiltersForm filter={filter} setFilter={setFilter} />
+      <FiltersForm />
       {/* <Stats filter={filter} /> */}
 
       <main>
         {/* Agregar tarea */}
-        <NewTaskForm filter={filter} page={page} setPage={setPage} taskEditing={taskEditing} setTaskEditing={setTaskEditing} />
+        <NewTaskForm page={page} setPage={setPage} taskEditing={taskEditing} setTaskEditing={setTaskEditing} />
 
         {/* Lista de tareas */}
-        <TaskList filter={filter} page={page} setPage={setPage} setTaskEditing={setTaskEditing} />
+        <TaskList page={page} setPage={setPage} setTaskEditing={setTaskEditing} />
 
         {/* Botón para limpiar tareas completadas */}
-        <ClearCompleted filter={filter} />
+        <ClearCompleted />
       </main>
     </>
   );

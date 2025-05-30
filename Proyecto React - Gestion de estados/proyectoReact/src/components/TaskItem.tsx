@@ -1,16 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Task } from '../types';
 import { BASE_URL } from '../hooks/useTasks';
-import type { TaskFilter } from '../hooks/useTasks';
+import { useFilterStore } from '../store/useFilterStore';
 import { showToast } from '../utils/showToast';
 
 type TaskItemProps = {
-	filter: TaskFilter;
 	task: Task;
   setTaskEditing: (task: Task | null) => void;
 };
 
-export function TaskItem({ filter, task, setTaskEditing }: TaskItemProps) {
+export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
+  const filter = useFilterStore((state) => state.filter);
 	const queryClient = useQueryClient();
 	const queryKey = ['tasks', filter];
 

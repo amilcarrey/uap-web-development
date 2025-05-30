@@ -1,5 +1,5 @@
-import { useToastStore } from "../store/toastStore";
-import type { ToastType } from "../store/toastStore";
+import { useToastStore } from "../store/useToastStore";
+import type { ToastType } from "../store/useToastStore";
 
 export function showToast(message: string, type: ToastType = "info") {
   const addToast = useToastStore.getState().addToast;

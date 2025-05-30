@@ -1,13 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "../hooks/useTasks";
 import type { Task } from "../types";
-import type { TaskFilter } from "../hooks/useTasks";
+import { useFilterStore } from "../store/useFilterStore";
 
-type ClearCompletedProps = {
-  filter: TaskFilter;
-};
-
-export function ClearCompleted({ filter }: ClearCompletedProps) {
+export function ClearCompleted() {
+  const filter = useFilterStore((state) => state.filter);
   const queryClient = useQueryClient();
   const queryKey = ["tasks", filter];
   

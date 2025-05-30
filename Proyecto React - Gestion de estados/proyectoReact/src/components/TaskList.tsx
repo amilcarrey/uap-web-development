@@ -1,19 +1,17 @@
 import type { Task } from '../types';
 import { TaskItem } from './TaskItem.tsx';
-import type { TaskFilter } from '../hooks/useTasks.tsx';
 import { useTasks } from '../hooks/useTasks.tsx';
 
 type TaskItemProps = {
-  filter: TaskFilter;
   page: number;
   setPage: (page: number) => void;
   setTaskEditing: (task: Task | null) => void;
 };
 
-export function TaskList({ filter, page, setPage, setTaskEditing }: TaskItemProps) {
+export function TaskList({ page, setPage, setTaskEditing }: TaskItemProps) {
   const limit = 5;
 
-  const { data, isLoading, isError } = useTasks(filter, page, limit);
+  const { data, isLoading, isError } = useTasks(page, limit);
 
   if (isLoading) return (
     <div className="flex justify-center items-center h-full">
@@ -34,7 +32,7 @@ export function TaskList({ filter, page, setPage, setTaskEditing }: TaskItemProp
     <div>
       <ul className="list-none mx-auto max-w-xl bg-[#e4dfd9] rounded-[10px] p-[20px]" id="task-list">
         {tasks.map((task) => (
-          <TaskItem key={task.id} task={task} filter={filter} setTaskEditing={setTaskEditing} />
+          <TaskItem key={task.id} task={task} setTaskEditing={setTaskEditing} />
         ))}
       </ul>
 

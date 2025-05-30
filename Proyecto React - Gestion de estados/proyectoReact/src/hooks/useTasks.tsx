@@ -1,5 +1,6 @@
 import type { Task } from "../types";
 import { useQuery } from "@tanstack/react-query";
+import { useFilterStore } from "../store/useFilterStore";
 
 export type TaskFilter = "all" | "completed" | "incomplete";
 export const BASE_URL = "http://localhost:4321/api";
@@ -9,7 +10,8 @@ type UseTasksResult = {
   total: number;
 }
 
-export function useTasks(filter: TaskFilter, page: number, limit = 5) { //np se si es string o all, completed y incomplete
+export function useTasks(page: number, limit = 5) {
+  const filter = useFilterStore((state) => state.filter);
   const queryKey = ["tasks", filter, page];
 
   return useQuery<UseTasksResult>({
@@ -27,6 +29,6 @@ export function useTasks(filter: TaskFilter, page: number, limit = 5) { //np se 
       return data;
     },
     // initialData: [],
-    staleTime: 0, // 1 minute
+    staleTime: 0,
   });
 }

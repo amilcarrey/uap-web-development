@@ -1,11 +1,7 @@
-import type { TaskFilter } from '../hooks/useTasks';
+import { useFilterStore } from "../store/useFilterStore";
 
-type FiltersFormProps = {
-  filter: TaskFilter;
-  setFilter: (value: TaskFilter) => void;
-}
-
-export function FiltersForm({ filter, setFilter }: FiltersFormProps) {
+export function FiltersForm() {
+  const { filter, setFilter } = useFilterStore();
 
   return (
     <form method="GET" className="flex justify-center gap-2 mt-5" name="filter-form">
