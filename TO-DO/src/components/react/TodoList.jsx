@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TodoList = ({ todos, onToggleTodo, onRemoveTodo, filter, onChangeFilter, category, onClearCompleted }) => {
+const TodoList = ({ todos, onToggleTodo, onRemoveTodo, filter, onChangeFilter, category, onClearCompleted, onEditTodo }) => {
   const getCategoryColor = (cat) => {
     switch (cat) {
       case 'personal': return 'border-purple-900';
@@ -76,6 +76,7 @@ const TodoList = ({ todos, onToggleTodo, onRemoveTodo, filter, onChangeFilter, c
                 todo={todo}
                 onToggle={onToggleTodo}
                 onRemove={onRemoveTodo}
+                onEdit={onEditTodo}
                 categoryColor={getCategoryColor(todo.category)}
                 categoryBg={getCategoryBg(todo.category)}
                 index={index}
@@ -101,7 +102,7 @@ const FilterButton = ({ label, isActive, onClick }) => (
   </button>
 );
 
-const TodoItem = ({ todo, onToggle, onRemove, categoryColor, categoryBg, index }) => (
+const TodoItem = ({ todo, onToggle, onRemove, onEdit, categoryColor, categoryBg, index }) => (
   <li className={`animate-fadeIn py-3 px-4 flex items-center justify-between group
       border-l-4 ${categoryColor} hover:bg-gray-50 transition-all duration-300`}
       style={{animationDelay: `${index * 50}ms`}}
@@ -132,16 +133,24 @@ const TodoItem = ({ todo, onToggle, onRemove, categoryColor, categoryBg, index }
         </span>
       </div>
     </div>
-    <button 
-      onClick={() => onRemove(todo.id)}
-      className="text-gray-400 hover:text-red-500 transition-colors duration-300
-        opacity-0 group-hover:opacity-100 focus:opacity-100"
-      aria-label="Eliminar tarea"
-    >
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-      </svg>
-    </button>
+    <div className="flex gap-2">
+      <button 
+        onClick={() => onEdit(todo)}
+        className="text-gray-400 hover:text-blue-600 transition-colors duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100"
+        aria-label="Editar tarea"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21h6l11.293-11.293a1 1 0 000-1.414l-2.586-2.586a1 1 0 00-1.414 0L3 15v6z"></path></svg>
+      </button>
+      <button 
+        onClick={() => onRemove(todo.id)}
+        className="text-gray-400 hover:text-red-500 transition-colors duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100"
+        aria-label="Eliminar tarea"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+      </button>
+    </div>
   </li>
 );
 

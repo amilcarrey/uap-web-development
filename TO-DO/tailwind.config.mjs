@@ -4,35 +4,31 @@ export default {
   theme: {
     extend: {
       animation: {
-        fadeIn: 'fadeIn 0.5s ease-out',
-        slideUp: 'slideUp 0.3s ease-out',
-        shake: 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
-        float: 'float 3s ease-in-out infinite',
-        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        shimmer: 'shimmer 2.5s linear infinite',
+        'fadeIn': 'fadeIn 0.3s ease-in-out',
+        'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+        'spin': 'spin 1s linear infinite',
+        'slideIn': 'slideIn 0.3s ease-out',
+        'slideOut': 'slideOut 0.3s ease-in',
       },
       keyframes: {
         fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-        slideUp: {
-          '0%': { transform: 'translateY(10px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         shake: {
-          '0%, 100%': { transform: 'translateX(0)' },
-          '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-2px)' },
-          '20%, 40%, 60%, 80%': { transform: 'translateX(2px)' },
+          '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+          '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+          '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+          '40%, 60%': { transform: 'translate3d(4px, 0, 0)' },
         },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
+        slideIn: {
+          '0%': { transform: 'translateY(-100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
         },
-        shimmer: {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        }
+        slideOut: {
+          '0%': { transform: 'translateY(0)', opacity: '1' },
+          '100%': { transform: 'translateY(-100%)', opacity: '0' },
+        },
       },
       colors: {
         'blue': {

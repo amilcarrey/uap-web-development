@@ -1,17 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // <-- Importa esto
+import React, { useEffect } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import TodoForm from './TodoForm';
 import TodoList from './TodoList';
+import LoadingSpinner from './LoadingSpinner';
+import ErrorMessage from './ErrorMessage';
+import Pagination from './Pagination';
+import ToastContainer from './ToastContainer';
 import { fetchTodos, addTodo, updateTodo, deleteTodo } from '../../services/todoService';
+import useUIStore from '../../hooks/useUIStore';
+import useToast from '../../hooks/useToast';
 
 const queryClient = new QueryClient();
 
 const TodoApp = () => {
-  const [todos, setTodos] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [error, setError] = useState(null);
+  const { 
+    activeFilter, 
+    setActiveFilter, 
+    activeCategory, 
+    setActiveCategory,
+    isLoading,
+    setLoading,
+    error,
+    setError,
+    clearError,
+    currentPage,
+    itemsPerPage,
+    setCurrentPage
+  } = useUIStore();
+
+  const { toasts, removeToast, showSuccess, showError } = useToast();
+
+  const [todos, setTodos] = React.useState([]);
+  const [editingTodo, setEditingTodo] = React.useState(null);
 
   useEffect(() => {
     loadTodos();
@@ -19,30 +39,33 @@ const TodoApp = () => {
 
   const loadTodos = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
       const data = await fetchTodos();
       setTodos(data);
-      setError(null);
+      clearError();
+      showSuccess('Tareas cargadas correctamente');
     } catch (err) {
       setError('Error al cargar tareas. Por favor recarga la página.');
+      showError('Error al cargar las tareas');
       console.error('Error cargando tareas:', err);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   const handleAddTodo = async (text, category = 'personal') => {
     if (!text || !text.trim()) {
-      setError('El texto de la tarea no puede estar vacío');
+      showError('El texto de la tarea no puede estar vacío');
       return;
     }
 
     try {
       const newTodo = await addTodo(text.trim(), category);
       setTodos(prev => [...prev, newTodo]);
-      setError(null);
+      clearError();
+      showSuccess('Tarea agregada correctamente');
     } catch (err) {
-      setError('Error al añadir tarea');
+      showError('Error al añadir tarea');
       console.error('Error añadiendo tarea:', err);
     }
   };
@@ -61,8 +84,9 @@ const TodoApp = () => {
           todo.id === id ? updatedTodo : todo
         )
       );
+      showSuccess(`Tarea ${updatedTodo.completed ? 'completada' : 'marcada como pendiente'}`);
     } catch (err) {
-      setError('Error al actualizar tarea');
+      showError('Error al actualizar tarea');
       console.error('Error actualizando tarea:', err);
     }
   };
@@ -71,8 +95,9 @@ const TodoApp = () => {
     try {
       await deleteTodo(id);
       setTodos(prev => prev.filter(todo => todo.id !== id));
+      showSuccess('Tarea eliminada correctamente');
     } catch (err) {
-      setError('Error al eliminar tarea');
+      showError('Error al eliminar tarea');
       console.error('Error eliminando tarea:', err);
     }
   };
@@ -80,17 +105,52 @@ const TodoApp = () => {
   const handleClearCompleted = async () => {
     try {
       const completedTodos = todos.filter(todo => todo.completed);
-      if (completedTodos.length === 0) return;
+      if (completedTodos.length === 0) {
+        showInfo('No hay tareas completadas para eliminar');
+        return;
+      }
 
-      await Promise.all(
+      setLoading(true);
+      
+      const results = await Promise.allSettled(
         completedTodos.map(todo => deleteTodo(todo.id))
       );
+
+      const errors = results.filter(result => result.status === 'rejected');
       
-      setTodos(prev => prev.filter(todo => !todo.completed));
+      if (errors.length > 0) {
+        console.error('Errores al eliminar tareas:', errors);
+        showWarning(`Se eliminaron ${completedTodos.length - errors.length} tareas, pero ${errors.length} fallaron`);
+      } else {
+        setTodos(prev => prev.filter(todo => !todo.completed));
+        showSuccess('Todas las tareas completadas fueron eliminadas');
+      }
     } catch (err) {
-      setError('Error al eliminar tareas completadas');
+      showError('Error al eliminar tareas completadas');
       console.error('Error eliminando tareas completadas:', err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleEditTodo = (todo) => {
+    setEditingTodo(todo);
+  };
+
+  const handleSaveEdit = async (text, category) => {
+    if (!editingTodo) return;
+    try {
+      const updated = await updateTodo(editingTodo.id, { text, category });
+      setTodos(prev => prev.map(todo => todo.id === editingTodo.id ? updated : todo));
+      setEditingTodo(null);
+      showSuccess('Tarea editada correctamente');
+    } catch (err) {
+      showError('Error al editar la tarea');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTodo(null);
   };
 
   const filteredTodos = todos.filter(todo => {
@@ -99,76 +159,94 @@ const TodoApp = () => {
       todo.category === activeCategory;
     
     const statusMatch = 
-      filter === 'all' || 
-      (filter === 'active' && !todo.completed) || 
-      (filter === 'completed' && todo.completed);
+      activeFilter === 'all' || 
+      (activeFilter === 'active' && !todo.completed) || 
+      (activeFilter === 'completed' && todo.completed);
     
     return categoryMatch && statusMatch;
   });
+
+  // Calcular los índices para la paginación
+  const indexOfLastTodo = currentPage * itemsPerPage;
+  const indexOfFirstTodo = indexOfLastTodo - itemsPerPage;
+  const currentTodos = filteredTodos.slice(indexOfFirstTodo, indexOfLastTodo);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   const personalCount = todos.filter(todo => todo.category === 'personal').length;
   const universidadCount = todos.filter(todo => todo.category === 'universidad').length;
 
   return (
-    <div className="space-y-8 animate-fadeIn">
-      {error && (
-        <div className="p-3 bg-red-100 bg-opacity-80 text-red-700 rounded-lg animate-shake flex justify-between items-center backdrop-blur-sm shadow-lg">
-          <span>{error}</span>
-          <button 
-            className="ml-2 text-sm font-bold"
-            onClick={() => setError(null)}
-            aria-label="Cerrar mensaje"
+    <QueryClientProvider client={queryClient}>
+      <div className="space-y-8 animate-fadeIn">
+        {error && (
+          <ErrorMessage 
+            message={error} 
+            onClose={clearError}
+          />
+        )}
+        
+        <div className="flex flex-wrap space-x-2 md:space-x-4 justify-center">
+          <CategoryButton 
+            active={activeCategory === 'all'} 
+            onClick={() => setActiveCategory('all')}
+            count={todos.length}
           >
-            ×
-          </button>
+            Todas
+          </CategoryButton>
+          <CategoryButton 
+            active={activeCategory === 'personal'} 
+            onClick={() => setActiveCategory('personal')}
+            count={personalCount}
+            color="bg-purple-900"
+          >
+            Personal
+          </CategoryButton>
+          <CategoryButton 
+            active={activeCategory === 'universidad'} 
+            onClick={() => setActiveCategory('universidad')}
+            count={universidadCount}
+            color="bg-blue-900"
+          >
+            Universidad
+          </CategoryButton>
         </div>
-      )}
-      
-      <div className="flex flex-wrap space-x-2 md:space-x-4 justify-center">
-        <CategoryButton 
-          active={activeCategory === 'all'} 
-          onClick={() => setActiveCategory('all')}
-          count={todos.length}
-        >
-          Todas
-        </CategoryButton>
-        <CategoryButton 
-          active={activeCategory === 'personal'} 
-          onClick={() => setActiveCategory('personal')}
-          count={personalCount}
-          color="bg-purple-900"
-        >
-          Personal
-        </CategoryButton>
-        <CategoryButton 
-          active={activeCategory === 'universidad'} 
-          onClick={() => setActiveCategory('universidad')}
-          count={universidadCount}
-          color="bg-blue-900"
-        >
-          Universidad
-        </CategoryButton>
-      </div>
-      
-      <TodoForm onAddTodo={handleAddTodo} activeCategory={activeCategory} />
-      
-      {isLoading ? (
-        <div className="text-center p-10">
-          <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-black border-r-transparent"></div>
-          <p className="mt-4">Cargando tareas...</p>
-        </div>
-      ) : (
-        <TodoList 
-          todos={filteredTodos}
-          onToggleTodo={handleToggleTodo}
-          onRemoveTodo={handleRemoveTodo}
-          onClearCompleted={handleClearCompleted}
-          filter={filter}
-          onChangeFilter={setFilter}
-          category={activeCategory}
+        
+        <TodoForm 
+          onAddTodo={handleAddTodo} 
+          activeCategory={activeCategory}
+          editingTodo={editingTodo}
+          onSaveEdit={handleSaveEdit}
+          onCancelEdit={handleCancelEdit}
         />
-      )}
-    </div>
+        
+        {isLoading ? (
+          <LoadingSpinner message="Cargando tareas..." />
+        ) : (
+          <>
+            <TodoList 
+              todos={currentTodos}
+              onToggleTodo={handleToggleTodo}
+              onRemoveTodo={handleRemoveTodo}
+              onClearCompleted={handleClearCompleted}
+              filter={activeFilter}
+              onChangeFilter={setActiveFilter}
+              category={activeCategory}
+              onEditTodo={handleEditTodo}
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredTodos.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+            />
+          </>
+        )}
+      </div>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+    </QueryClientProvider>
   );
 };
 
@@ -187,12 +265,6 @@ const CategoryButton = ({ active, onClick, children, count, color = "bg-black" }
       {count}
     </span>
   </button>
-);
-
-return (
-  <QueryClientProvider client={queryClient}>
-    <TodoApp />
-  </QueryClientProvider>
 );
 
 export default TodoApp;
