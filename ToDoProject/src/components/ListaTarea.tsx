@@ -3,9 +3,13 @@ import { useClientStore } from '../store/clientStore';
 import Tarea from './Tarea';
 import Paginacion from './Paginacion';
 
-export default function ListaTareas() {
+interface ListaTareasProps {
+  tableroAlias?: string; 
+}
+
+export default function ListaTareas({ tableroAlias }: ListaTareasProps) {
   const { paginaActual, filtroActual } = useClientStore();
-  const { data, isLoading, error } = useTareasQuery(paginaActual, filtroActual, 5);
+  const { data, isLoading, error } = useTareasQuery(paginaActual, filtroActual, 5, tableroAlias); 
 
   if (isLoading) return <p className="text-yellow-400 text-center">Cargando tareas...</p>;
   if (error) return <p className="text-red-400 text-center">Error al cargar tareas</p>;

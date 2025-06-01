@@ -1,25 +1,31 @@
 import type { APIRoute } from "astro";
-import { eliminarCompletadas, listarTareas } from "../../lib/tareas";
+import { eliminarCompletadas } from "../../lib/tareas";
 
 export const POST: APIRoute = async ({ request }) => {
-  const esJSON = request.headers.get("content-type")?.includes("application/json");
+  try {
+    const { idTablero } = await request.json();
+    
+    if (!idTablero) {
+      return new Response(JSON.stringify({ error: "idTablero es requerido" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
-  // Eliminar y obtener IDs eliminados
-  const idsEliminados = eliminarCompletadas();
+    const idsEliminados = eliminarCompletadas();
 
-  // Obtener la nueva lista de tareas
-  const tareasActualizadas = listarTareas();
-
-  return new Response(
-    JSON.stringify({
+    return new Response(JSON.stringify({
       success: true,
       mensaje: "Tareas completadas eliminadas",
-      tareas: tareasActualizadas,
-      ids: idsEliminados,
-    }),
-    {
+      idsEliminados,
+    }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
-    }
-  );
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: "Error al eliminar tareas completadas" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 };

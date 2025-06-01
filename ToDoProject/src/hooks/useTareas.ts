@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { TareaType } from '../types/Tarea';
 
 export interface PaginatedResponse {
@@ -8,19 +8,87 @@ export interface PaginatedResponse {
   totalTareas: number;
 }
 
-export const useTareasQuery = (
-  pagina: number = 1,
-  filtro: 'todas' | 'completadas' | 'pendientes' = 'todas',
-  limite: number = 5
-) => {
+// Función helper para convertir alias a ID de tablero
+const getTableroIdFromAlias = async (alias: string | undefined): Promise<string> => {
+  if (!alias) return "tb-1"; // fallback
+  
+  try {
+    const response = await fetch(`http://localhost:4321/api/tablero/${alias}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.tablero.id;
+    }
+  } catch (error) {
+    console.error('Error al obtener tablero:', error);
+  }
+  
+  return "tb-1"; // fallback
+};
+
+export const useTareasQuery = (pagina: number, filtro: string, limite: number, tableroAlias: string | undefined) => {
   return useQuery<PaginatedResponse>({
-    queryKey: ['tareas', pagina, filtro, limite],
+    queryKey: ["tareas", tableroAlias, filtro, pagina, limite],
     queryFn: async () => {
-      const res = await fetch(
-        `http://localhost:4321/api/tareas?pagina=${pagina}&filtro=${filtro}&limite=${limite}`
-      );
-      if (!res.ok) throw new Error('Error al cargar tareas');
-      return res.json();
+      const idTablero = await getTableroIdFromAlias(tableroAlias);
+      
+      const params = new URLSearchParams({
+        idTablero,
+        pagina: pagina.toString(),
+        filtro: filtro === "todas" ? "" : filtro,
+        limite: limite.toString(),
+      });
+
+      const response = await fetch(`http://localhost:4321/api/tareas?${params}`);
+      if (!response.ok) throw new Error("Error al obtener tareas");
+      return response.json();
+    },
+    enabled: !!tableroAlias, // Solo ejecutar si tenemos alias
+  });
+};
+
+export const useCrearTarea = (tableroAlias: string | undefined) => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ descripcion }: { descripcion: string }) => {
+      const idTablero = await getTableroIdFromAlias(tableroAlias);
+      
+      const response = await fetch("http://localhost:4321/api/agregar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          descripcion, 
+          idTablero
+        }),
+      });
+      
+      if (!response.ok) throw new Error("Error al agregar tarea");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tareas"] });
+    },
+  });
+};
+
+export const useEliminarCompletadas = (tableroAlias: string | undefined) => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async () => {
+      const idTablero = await getTableroIdFromAlias(tableroAlias);
+      
+      const response = await fetch("http://localhost:4321/api/eliminarCompletadas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idTablero }),
+      });
+      
+      if (!response.ok) throw new Error("Error al eliminar tareas completadas");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tareas"] });
     },
   });
 };

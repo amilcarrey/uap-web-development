@@ -3,13 +3,21 @@ import { listarTareas } from "../../lib/tareas";
 
 export const GET: APIRoute = async ({ url }) => {
   const params = new URLSearchParams(url.search);
+  const idTablero = params.get("idTablero");
   const pagina = parseInt(params.get("pagina") || "1");
-  const filtro = params.get("filtro") as "todas" | "completadas" | "pendientes" || "todas";
+  const filtro = params.get("filtro") as "completadas" | "pendientes" | null;
   const limite = parseInt(params.get("limite") || "5");
 
+  if (!idTablero) {
+    return new Response(JSON.stringify({ error: "idTablero es requerido" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   try {
-    // Obtener todas las tareas según el filtro
-    const todasLasTareas = listarTareas(filtro === "todas" ? undefined : filtro);
+    // Obtener tareas del tablero específico
+    const todasLasTareas = listarTareas(idTablero, filtro || undefined);
     
     // Calcular paginación
     const totalTareas = todasLasTareas.length;

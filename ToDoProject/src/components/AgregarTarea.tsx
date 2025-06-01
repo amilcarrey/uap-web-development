@@ -2,17 +2,20 @@ import { useState } from "react";
 import { useCrearTarea } from "../hooks/useCrearTarea";
 import { useClientStore } from "../store/clientStore";
 
-export default function AgregarTarea() {
+interface AgregarTareaProps {
+  tableroAlias?: string; 
+}
+
+export default function AgregarTarea({ tableroAlias }: AgregarTareaProps) {
   const [descripcion, setDescripcion] = useState("");
   const { mostrarToast } = useClientStore();
-  const crearMutation = useCrearTarea();
+  const crearMutation = useCrearTarea(tableroAlias);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const desc = descripcion.trim();
     if (!desc) return;
 
-    // Cambio: pasar un objeto { descripcion } en lugar de solo el string
     crearMutation.mutate({ descripcion: desc }, {
       onSuccess: () => {
         mostrarToast("Tarea agregada con éxito", "exito");
