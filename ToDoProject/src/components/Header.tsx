@@ -52,7 +52,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
       )}
       
       <div className="categories flex justify-center items-center space-x-6 mb-4">
-        {/* Renderizar TODOS los tableros dinámicamente */}
+        
         {tablerosData?.tableros.map((tablero) => (
           <button
             key={tablero.id}
@@ -76,7 +76,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
 
       {/* Formulario para crear tablero */}
       {mostrarFormulario && (
-        <div className="mt-4 bg-white p-4 rounded-lg shadow-md max-w-md mx-auto">
+        <div className="mt-4 bg-pink-400 p-4 rounded-lg shadow-md max-w-md mx-auto">
           <h3 className="text-lg font-semibold mb-3 text-center">Crear Nuevo Tablero</h3>
           <form onSubmit={handleCrearTablero} className="flex flex-col gap-3">
             <input

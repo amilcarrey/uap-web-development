@@ -7,7 +7,7 @@ interface EliminarCompletadasProps {
 
 export default function EliminarCompletadas({ tableroAlias }: EliminarCompletadasProps) {
   const { mostrarToast } = useClientStore();
-  const eliminarMutation = useEliminarCompletadas(tableroAlias); // 👈 PASAR: tableroAlias al hook
+  const eliminarMutation = useEliminarCompletadas(tableroAlias); 
 
   const handleEliminar = () => {
     eliminarMutation.mutate(undefined, {

@@ -11,18 +11,7 @@ interface ClientState {
   mostrarToast: (mensaje: string, tipo: ToastType['tipo']) => void;
   cerrarToast: () => void;
   
-  // Estado de dialogs/modales
-  modalAgregarAbierto: boolean;
-  modalEditarAbierto: boolean;
-  tareaEditando: number | null;
-  
-  // Acciones para modales
-  abrirModalAgregar: () => void;
-  cerrarModalAgregar: () => void;
-  abrirModalEditar: (id: number) => void;
-  cerrarModalEditar: () => void;
-  
-  // Paginación local
+  // Paginación y filtros
   paginaActual: number;
   setPaginaActual: (pagina: number) => void;
   filtroActual: 'todas' | 'completadas' | 'pendientes';
@@ -37,17 +26,6 @@ export const useClientStore = create<ClientState>((set) => ({
     setTimeout(() => set({ toast: null }), 3000);
   },
   cerrarToast: () => set({ toast: null }),
-  
-  // Modal state
-  modalAgregarAbierto: false,
-  modalEditarAbierto: false,
-  tareaEditando: null,
-  
-  // Modal actions
-  abrirModalAgregar: () => set({ modalAgregarAbierto: true }),
-  cerrarModalAgregar: () => set({ modalAgregarAbierto: false }),
-  abrirModalEditar: (id) => set({ modalEditarAbierto: true, tareaEditando: id }),
-  cerrarModalEditar: () => set({ modalEditarAbierto: false, tareaEditando: null }),
   
   // Pagination state
   paginaActual: 1,

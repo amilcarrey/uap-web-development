@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useEliminarTareaMutation, useToggleTareaMutation, useEditarTareaMutation } from "../hooks/useTareas";
 import { useClientStore } from "../store/clientStore";
+import { useConfiguraciones } from "../hooks/useConfiguraciones";
 import type { TareaType } from "../types/Tarea";
 
 type TareaProps = {
@@ -12,9 +13,18 @@ export default function Tarea({ tarea }: TareaProps) {
   const [nuevaDescripcion, setNuevaDescripcion] = useState(tarea.descripcion);
   
   const { mostrarToast } = useClientStore();
+  const { data: configData } = useConfiguraciones();
   const eliminarMutation = useEliminarTareaMutation();
   const toggleMutation = useToggleTareaMutation();
   const editarMutation = useEditarTareaMutation();
+
+  // Obtener configuración de mayúsculas
+  const descripcionMayusculas = configData?.configuraciones?.descripcionMayusculas ?? false;
+  
+  // Aplicar formato según configuración
+  const descripcionFormateada = descripcionMayusculas 
+    ? tarea.descripcion.toUpperCase() 
+    : tarea.descripcion;
 
   const handleEliminar = () => {
     eliminarMutation.mutate(tarea.id, {
@@ -76,7 +86,7 @@ export default function Tarea({ tarea }: TareaProps) {
           autoFocus
         />
       ) : (
-        <span className="task-text">{tarea.descripcion}</span>
+        <span className="task-text">{descripcionFormateada}</span>
       )}
 
       <button onClick={handleEditar} className="editmark">

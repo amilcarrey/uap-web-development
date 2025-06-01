@@ -8,6 +8,7 @@ import EliminarCompletadas from './components/EliminarCompletadas'
 import { useClientStore } from './store/clientStore'
 import { useTablero } from './hooks/useTableros'
 import App from './App'
+import Configuraciones from './components/Configuraciones'
 
 // 1. Crear ruta raíz
 const rootRoute = createRootRoute({
@@ -29,6 +30,22 @@ const tableroRoute = createRoute({
     const { alias } = tableroRoute.useParams()
     const { toast, cerrarToast } = useClientStore()
     
+    // Si es el tablero de configuración, mostrar componente especial
+    if (alias === 'configuracion') {
+      const { data: tableroData } = useTablero(alias)
+      
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-pink-200 h-screen w-screen">
+          <div className="flex flex-col items-center space-y-4">
+            <Header tableroNombre="Configuración" />
+            <Configuraciones />
+          </div>
+          {toast && <Notificacion {...toast} onCerrar={cerrarToast} />}
+        </div>
+      )
+    }
+    
+    // Resto del código existente para tableros normales...
     const { data: tableroData, isLoading, error } = useTablero(alias)
 
     if (isLoading) {
@@ -57,7 +74,7 @@ const tableroRoute = createRoute({
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-pink-200 h-screen w-screen">
         <div className="flex flex-col items-center space-y-2">
-          <Header tableroNombre={nombreTablero} /> {/* 👈 Solo pasa el nombre */}
+          <Header tableroNombre={nombreTablero} />
           <AgregarTarea tableroAlias={alias} />
           <FiltroTareas />
           <ListaTareas tableroAlias={alias} />

@@ -31,7 +31,7 @@ export default function AgregarTarea({ tableroAlias }: AgregarTareaProps) {
         type="text"
         value={descripcion}
         onChange={(e) => setDescripcion(e.target.value)}
-        placeholder="Nueva tarea..."
+        placeholder="Nueva tarea"
         className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
         disabled={crearMutation.isPending}
       />
