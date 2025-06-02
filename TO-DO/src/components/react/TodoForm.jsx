@@ -21,7 +21,7 @@ const TodoForm = ({ onAddTodo, activeCategory, editingTodo, onSaveEdit, onCancel
       if (editingTodo) {
         onSaveEdit(text.trim(), category);
       } else {
-        onAddTodo(text.trim(), category);
+      onAddTodo(text.trim(), category);
       }
       setText('');
     }

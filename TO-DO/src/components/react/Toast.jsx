@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 const Toast = ({ 
   message, 
   type = 'info', // 'success', 'error', 'info', 'warning'
-  duration = 3000,
+  duration = 1000,  // tiempo de duracion del toast
   onClose 
 }) => {
   useEffect(() => {

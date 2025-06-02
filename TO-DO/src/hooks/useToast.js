@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 const useToast = () => {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback(({ message, type = 'info', duration = 3000 }) => {
+  const addToast = useCallback(({ message, type = 'info', duration = 1000 }) => {  // tiempo de duracion del toast
     const id = Date.now();
     setToasts(prev => [...prev, { id, message, type, duration }]);
   }, []);

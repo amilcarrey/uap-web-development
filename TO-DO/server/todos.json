@@ -1,9 +1,65 @@
 [
   {
-    "id": "1748617816734",
+    "id": "1748794723756",
+    "text": "ir a comprar pan",
+    "category": "personal",
+    "completed": false,
+    "boardId": "undefined",
+    "createdAt": "2025-06-01T16:18:43.756Z",
+    "updatedAt": "2025-06-01T16:18:43.756Z"
+  },
+  {
+    "id": "1748794761967",
+    "text": "comprar pasta termica",
+    "category": "personal",
+    "completed": false,
+    "boardId": "undefined",
+    "createdAt": "2025-06-01T16:19:21.967Z",
+    "updatedAt": "2025-06-01T16:19:21.967Z"
+  },
+  {
+    "id": "1748794768982",
+    "text": "comprar pasta termica",
+    "category": "personal",
+    "completed": false,
+    "boardId": "1748794731752",
+    "createdAt": "2025-06-01T16:19:28.982Z",
+    "updatedAt": "2025-06-01T16:19:28.982Z"
+  },
+  {
+    "id": "1748794782303",
+    "text": "comprar tomates",
+    "category": "personal",
+    "completed": false,
+    "boardId": "1748794694950",
+    "createdAt": "2025-06-01T16:19:42.303Z",
+    "updatedAt": "2025-06-01T16:19:42.303Z"
+  },
+  {
+    "id": "1748794801690",
+    "text": "Ir a buscar los libros",
+    "category": "universidad",
+    "completed": false,
+    "boardId": "1748794794756",
+    "createdAt": "2025-06-01T16:20:01.690Z",
+    "updatedAt": "2025-06-01T16:20:01.690Z"
+  },
+  {
+    "id": "1748795239225",
     "text": "Ir a comprar pan",
     "category": "personal",
     "completed": false,
-    "createdAt": "2025-05-30T15:10:16.734Z"
+    "boardId": "1748794694950",
+    "createdAt": "2025-06-01T16:27:19.225Z",
+    "updatedAt": "2025-06-01T16:27:23.556Z"
+  },
+  {
+    "id": "1748795260820",
+    "text": "Hacer la tarea",
+    "category": "universidad",
+    "completed": false,
+    "boardId": "1748794694950",
+    "createdAt": "2025-06-01T16:27:40.820Z",
+    "updatedAt": "2025-06-01T16:27:40.820Z"
   }
 ]

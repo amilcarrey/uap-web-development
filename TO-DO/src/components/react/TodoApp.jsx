@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import TodoForm from './TodoForm';
 import TodoList from './TodoList';
@@ -6,7 +6,9 @@ import LoadingSpinner from './LoadingSpinner';
 import ErrorMessage from './ErrorMessage';
 import Pagination from './Pagination';
 import ToastContainer from './ToastContainer';
-import { fetchTodos, addTodo, updateTodo, deleteTodo } from '../../services/todoService';
+import BoardSelector from './BoardSelector';
+import { getBoards, createBoard } from '../../services/boardService';
+import { getTodosByBoard, createTodo, updateTodo, deleteTodo } from '../../services/todoService';
 import useUIStore from '../../hooks/useUIStore';
 import useToast from '../../hooks/useToast';
 
@@ -30,24 +32,63 @@ const TodoApp = () => {
 
   const { toasts, removeToast, showSuccess, showError } = useToast();
 
-  const [todos, setTodos] = React.useState([]);
-  const [editingTodo, setEditingTodo] = React.useState(null);
+  const [boards, setBoards] = useState([]);
+  const [selectedBoard, setSelectedBoard] = useState('');
+  const [todos, setTodos] = useState([]);
+  const [editingTodo, setEditingTodo] = useState(null);
 
   useEffect(() => {
-    loadTodos();
+    loadBoards();
   }, []);
 
-  const loadTodos = async () => {
+  useEffect(() => {
+    if (selectedBoard) {
+      loadTodos(selectedBoard);
+    } else {
+      setTodos([]);
+    }
+  }, [selectedBoard]);
+
+  const loadBoards = async () => {
     try {
       setLoading(true);
-      const data = await fetchTodos();
+      const data = await getBoards();
+      setBoards(data);
+      if (data.length > 0 && !selectedBoard) {
+        setSelectedBoard(data[0].id);
+      }
+    } catch (err) {
+      setError('Error al cargar tableros');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateBoard = async (name) => {
+    try {
+      setLoading(true);
+      const newBoard = await createBoard({ name });
+      setBoards(prev => [...prev, newBoard]);
+      setSelectedBoard(newBoard.id);
+      showSuccess('Tablero creado');
+    } catch (err) {
+      showError('Error al crear tablero');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadTodos = async (boardId) => {
+    try {
+      setLoading(true);
+      const data = await getTodosByBoard(boardId);
       setTodos(data);
       clearError();
       showSuccess('Tareas cargadas correctamente');
     } catch (err) {
       setError('Error al cargar tareas. Por favor recarga la página.');
       showError('Error al cargar las tareas');
-      console.error('Error cargando tareas:', err);
+      setTodos([]);
     } finally {
       setLoading(false);
     }
@@ -58,9 +99,12 @@ const TodoApp = () => {
       showError('El texto de la tarea no puede estar vacío');
       return;
     }
-
+    if (!selectedBoard) {
+      showError('Selecciona un tablero primero');
+      return;
+    }
     try {
-      const newTodo = await addTodo(text.trim(), category);
+      const newTodo = await createTodo(selectedBoard, { text: text.trim(), category });
       setTodos(prev => [...prev, newTodo]);
       clearError();
       showSuccess('Tarea agregada correctamente');
@@ -115,14 +159,14 @@ const TodoApp = () => {
       const results = await Promise.allSettled(
         completedTodos.map(todo => deleteTodo(todo.id))
       );
-
+      
       const errors = results.filter(result => result.status === 'rejected');
       
       if (errors.length > 0) {
         console.error('Errores al eliminar tareas:', errors);
         showWarning(`Se eliminaron ${completedTodos.length - errors.length} tareas, pero ${errors.length} fallaron`);
       } else {
-        setTodos(prev => prev.filter(todo => !todo.completed));
+      setTodos(prev => prev.filter(todo => !todo.completed));
         showSuccess('Todas las tareas completadas fueron eliminadas');
       }
     } catch (err) {
@@ -180,40 +224,46 @@ const TodoApp = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="space-y-8 animate-fadeIn">
-        {error && (
+    <div className="space-y-8 animate-fadeIn">
+      <BoardSelector
+        boards={boards}
+        selectedBoard={selectedBoard}
+        onCreateBoard={handleCreateBoard}
+        onSelectBoard={setSelectedBoard}
+      />
+      {error && (
           <ErrorMessage 
             message={error} 
             onClose={clearError}
           />
-        )}
-        
-        <div className="flex flex-wrap space-x-2 md:space-x-4 justify-center">
-          <CategoryButton 
-            active={activeCategory === 'all'} 
-            onClick={() => setActiveCategory('all')}
-            count={todos.length}
-          >
-            Todas
-          </CategoryButton>
-          <CategoryButton 
-            active={activeCategory === 'personal'} 
-            onClick={() => setActiveCategory('personal')}
-            count={personalCount}
-            color="bg-purple-900"
-          >
-            Personal
-          </CategoryButton>
-          <CategoryButton 
-            active={activeCategory === 'universidad'} 
-            onClick={() => setActiveCategory('universidad')}
-            count={universidadCount}
-            color="bg-blue-900"
-          >
-            Universidad
-          </CategoryButton>
-        </div>
-        
+      )}
+      
+      <div className="flex flex-wrap space-x-2 md:space-x-4 justify-center">
+        <CategoryButton 
+          active={activeCategory === 'all'} 
+          onClick={() => setActiveCategory('all')}
+          count={todos.length}
+        >
+          Todas
+        </CategoryButton>
+        <CategoryButton 
+          active={activeCategory === 'personal'} 
+          onClick={() => setActiveCategory('personal')}
+          count={personalCount}
+          color="bg-purple-900"
+        >
+          Personal
+        </CategoryButton>
+        <CategoryButton 
+          active={activeCategory === 'universidad'} 
+          onClick={() => setActiveCategory('universidad')}
+          count={universidadCount}
+          color="bg-blue-900"
+        >
+          Universidad
+        </CategoryButton>
+      </div>
+      
         <TodoForm 
           onAddTodo={handleAddTodo} 
           activeCategory={activeCategory}
@@ -221,19 +271,19 @@ const TodoApp = () => {
           onSaveEdit={handleSaveEdit}
           onCancelEdit={handleCancelEdit}
         />
-        
-        {isLoading ? (
+      
+      {isLoading ? (
           <LoadingSpinner message="Cargando tareas..." />
-        ) : (
+      ) : (
           <>
-            <TodoList 
+        <TodoList 
               todos={currentTodos}
-              onToggleTodo={handleToggleTodo}
-              onRemoveTodo={handleRemoveTodo}
-              onClearCompleted={handleClearCompleted}
+          onToggleTodo={handleToggleTodo}
+          onRemoveTodo={handleRemoveTodo}
+          onClearCompleted={handleClearCompleted}
               filter={activeFilter}
               onChangeFilter={setActiveFilter}
-              category={activeCategory}
+          category={activeCategory}
               onEditTodo={handleEditTodo}
             />
             <Pagination
@@ -243,8 +293,8 @@ const TodoApp = () => {
               onPageChange={handlePageChange}
             />
           </>
-        )}
-      </div>
+      )}
+    </div>
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </QueryClientProvider>
   );
