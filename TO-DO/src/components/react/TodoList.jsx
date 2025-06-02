@@ -1,6 +1,9 @@
 import React from 'react';
+import { useSettingsStore } from '../../stores/settingsStore';
 
 const TodoList = ({ todos, onToggleTodo, onRemoveTodo, onClearCompleted, filter, onChangeFilter, category, onEditTodo }) => {
+  const { showUppercase } = useSettingsStore();
+  
   const filteredTodos = todos.filter(todo => {
     if (filter === 'active') return !todo.completed;
     if (filter === 'completed') return todo.completed;
@@ -81,44 +84,52 @@ const FilterButton = ({ label, isActive, onClick }) => (
   </button>
 );
 
-const TodoItem = ({ todo, onToggle, onRemove, index, onEdit }) => (
-  <li className="flex items-center justify-between py-3 px-2 group">
-    <div className="flex items-center gap-3">
-      <button
-        onClick={onToggle}
-        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors duration-300 ${todo.completed ? 'border-green-500 bg-green-100' : 'border-purple-500 bg-white'}`}
-        aria-label="Completar tarea"
-      >
-        {todo.completed && (
-          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+const TodoItem = ({ todo, onToggle, onRemove, index, onEdit }) => {
+  const { showUppercase } = useSettingsStore();
+  
+  return (
+    <li className="flex items-center justify-between py-3 px-2 group">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onToggle}
+          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors duration-300 ${todo.completed ? 'border-green-500 bg-green-100' : 'border-purple-500 bg-white'}`}
+          aria-label="Completar tarea"
+        >
+          {todo.completed && (
+            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+        </button>
+        <span className={`text-lg ${todo.completed ? 'line-through text-gray-400' : ''}`}>
+          {showUppercase ? todo.text.toUpperCase() : todo.text}
+        </span>
+        <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${todo.category === 'personal' ? 'bg-purple-200 text-purple-900' : 'bg-blue-200 text-blue-900'}`}>
+          {todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}
+        </span>
+      </div>
+      <div className="flex gap-2 items-center">
+        <button
+          onClick={onEdit}
+          className="text-gray-400 hover:text-blue-500 transition-colors duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100"
+          aria-label="Editar tarea"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21h6v-6l9.293-9.293a1 1 0 00-1.414-1.414L9 11z" />
           </svg>
-        )}
-      </button>
-      <span className={`text-lg ${todo.completed ? 'line-through text-gray-400' : ''}`}>{todo.text}</span>
-      <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${todo.category === 'personal' ? 'bg-purple-200 text-purple-900' : 'bg-blue-200 text-blue-900'}`}>{todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</span>
-    </div>
-    <div className="flex gap-2 items-center">
-      <button
-        onClick={onEdit}
-        className="text-gray-400 hover:text-blue-500 transition-colors duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100"
-        aria-label="Editar tarea"
-      >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21h6v-6l9.293-9.293a1 1 0 00-1.414-1.414L9 11z" />
-        </svg>
-      </button>
-      <button 
-        onClick={onRemove}
-        className="text-gray-400 hover:text-red-500 transition-colors duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100"
-        aria-label="Eliminar tarea"
-      >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-        </svg>
-      </button>
-    </div>
-  </li>
-);
+        </button>
+        <button 
+          onClick={onRemove}
+          className="text-gray-400 hover:text-red-500 transition-colors duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100"
+          aria-label="Eliminar tarea"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
+    </li>
+  );
+};
 
 export default TodoList;
