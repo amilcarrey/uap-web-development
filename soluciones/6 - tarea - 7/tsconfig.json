@@ -1,0 +1,14 @@
+{
+  // Lista de archivos específicos que este tsconfig debe compilar (vacío en este caso, ya que se usa como proyecto raíz)
+  "files": [],
+
+  // Referencias a otros archivos de configuración tsconfig, lo que permite usar Project References
+  // Esto divide el proyecto en partes reutilizables y mejora el rendimiento en builds grandes.
+  "references": [
+    // Apunta al archivo de configuración de la aplicación (frontend con React, por ejemplo)
+    { "path": "./tsconfig.app.json" },
+
+    // Apunta al archivo de configuración del entorno Node.js (puede incluir scripts, configuraciones de build, etc.)
+    { "path": "./tsconfig.node.json" }
+  ]
+}
