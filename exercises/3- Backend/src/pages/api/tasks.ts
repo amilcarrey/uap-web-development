@@ -6,79 +6,63 @@ import {
   toggleTaskCompletion,
   deleteCompletedTasks,
   listarTareas,
+  listarTareasPaginadas,
+  editTask,
 } from "../../lib/tasks";
 
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
   const filtro = url.searchParams.get("filtro") as "completadas" | "pendientes" | null;
+  const categoriaId = url.searchParams.get("categoriaId") || "";
+  const page = parseInt(url.searchParams.get("page")!, 10); // Asume que siempre se envía
+  const pageSize = parseInt(url.searchParams.get("pageSize")!, 10); // Asume que siempre se envía
 
-  const tareas = listarTareas(filtro ?? undefined);
+  const result = listarTareasPaginadas(page, pageSize, categoriaId, filtro ?? undefined);
 
-  return new Response(JSON.stringify(tareas), {
+  return new Response(JSON.stringify(result), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
 };
 
+
 export const POST: APIRoute = async ({ request }) => {
   const contentType = request.headers.get("content-type") || "";
-  const acceptHeader = request.headers.get("accept") || "";
-  const isJsonRequest = acceptHeader.includes("application/json");
+  const isJsonRequest = contentType.includes("application/json");
 
   let method: string | null = null;
   let text: string | null = null;
   let id: number | null = null;
+  let categoriaId: string ;
 
-  // Lectura del body según tipo
-  if (contentType.includes("application/x-www-form-urlencoded")) {
-    const bodyText = await request.text();
-    const params = new URLSearchParams(bodyText);
-    method = params.get("_method");
-    text = params.get("text");
-    id = params.get("id") ? Number(params.get("id")) : null;
-  } else if (contentType.includes("multipart/form-data")) {
-    const formData = await request.formData();
-    method = formData.get("_method")?.toString() || null;
-    text = formData.get("text")?.toString() || null;
-    const idStr = formData.get("id");
-    id = idStr ? Number(idStr) : null;
-  } else if (contentType.includes("application/json")) {
+  if (isJsonRequest) {
     const json = await request.json();
     method = json._method || null;
     text = json.text || null;
     id = json.id !== undefined ? Number(json.id) : null;
+    categoriaId = json.categoriaId || null;
   } else {
     return new Response("Unsupported Content-Type", { status: 400 });
   }
 
-  // Acciones
-  if (method === "DELETE" && id !== null) {
-    deleteTask(id);
+  if (method === "ADD" && text && categoriaId) {
+    addTask(text, categoriaId);
+  } else if (method === "DELETE" && id !== null) {
+    deleteTask(id, categoriaId || "");
   } else if (method === "TOGGLE" && id !== null) {
-    toggleTaskCompletion(id);
-  } else if (method === "DELETE_COMPLETED") {
-    deleteCompletedTasks();
-    if (isJsonRequest) {
-      return new Response(JSON.stringify(listarTareas()), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } else {
-      return new Response(null, { status: 303, headers: { Location: "/" } });
-    }
-  } else if (method === "ADD" && text) {
-    addTask(text);
+    toggleTaskCompletion(id, categoriaId || "");
+  } else if (method === "DELETE_COMPLETED" && categoriaId) {
+
+    deleteCompletedTasks(categoriaId);
+  } else if (method === "EDIT" && id !== null && text && categoriaId) {
+    editTask(id, text, categoriaId);
   } else {
     return new Response("Bad Request", { status: 400 });
   }
 
-  // Respuesta final: JSON si es SPA, redirigir si es form
-  if (isJsonRequest) {
-    return new Response(JSON.stringify(listarTareas()), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } else {
-    return new Response(null, { status: 303, headers: { Location: "/" } });
-  }
+  return new Response(JSON.stringify(listarTareasPaginadas(1, 10, categoriaId)), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 };
+
