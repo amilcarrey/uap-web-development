@@ -1,5 +1,5 @@
 import TaskItem from './taskItem';
-import type { Task } from '../lib/tasks'; // Conservamos el tipo
+import type { Task } from '../types'; // Conservamos el tipo
 
 
 

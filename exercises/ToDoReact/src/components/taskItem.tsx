@@ -1,16 +1,20 @@
-import type { Task } from "../lib/tasks";
+import type { Task } from "../types";
 import { useState } from "react";
+import { useSettingsStore } from "../store/settingsStore";
 
 interface TaskItemProps {
   task: Task;
   onDelete: () => void;
   onToggleCompletion: () => void;
-  onEditTasks: (newText: string) => void; // 👈 Recibe id + texto
+  onEditTasks: (newText: string) => void; // Recibe id + texto
 }
+
+
 
 function TaskItem({ task, onDelete, onToggleCompletion, onEditTasks }: TaskItemProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedText, setEditedText] = useState(task.text);
+    const uppercaseDescriptions = useSettingsStore((state) => state.uppercaseDescriptions);
 
     const handleEditClick = () => {
       setIsEditing(true);
@@ -20,6 +24,8 @@ function TaskItem({ task, onDelete, onToggleCompletion, onEditTasks }: TaskItemP
       onEditTasks(editedText); // Llama a la función con el nuevo texto
       setIsEditing(false); // Sale del modo edición
     };
+    console.log("uppercaseDescriptions en TaskItem:", uppercaseDescriptions);
+console.log("Texto de la tarea:", task.text);
   return (
       <div className="Task flex justify-between items-center w-[83%] p-[10px] rounded-[5px] bg-[rgb(83,57,88)]">
         <input
@@ -45,7 +51,7 @@ function TaskItem({ task, onDelete, onToggleCompletion, onEditTasks }: TaskItemP
           className={`flex-1 text-center transition-all duration-300 
             ${task.completed ? 'line-through text-gray-400' : 'text-white'}`}
         >
-          {task.text}
+          {uppercaseDescriptions ? task.text.toUpperCase() : task.text}
         </span>
       )}
 

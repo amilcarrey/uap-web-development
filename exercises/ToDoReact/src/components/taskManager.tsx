@@ -1,4 +1,4 @@
-  import Title from "./title";
+import Title from "./title";
   import CategoryButtons from "./categoryButtons";
   import TaskInput from "./taskInput";
   import Filters from "./filters";
@@ -10,32 +10,37 @@
   import { useToggleTask } from "../hooks/useToggleTask";
   import { useDeleteCompletedTasks } from "../hooks/useDeleteCompleted";
   import { useEditTask } from "../hooks/useEditTasks";
-  import type { Task } from "../lib/tasks";
   import { useModalStore } from "../store/modalStore";
-
- 
-  type TaskManagerProps = {
-    filtro?: "completadas" | "pendientes";
-  };
-
-  
-  function TaskManager({ filtro }: TaskManagerProps) {
-   const [page, setPage] = useState(1);
-   const [pageSize] = useState(7); // Puedes cambiar el valor por defecto
-   const { data = { tasks: [], totalPages: 1 }, isLoading, error } = useTasks(filtro, page, pageSize);
-   const tasks = data.tasks as Task[];
-
-    const addTaskMutation = useAddTask();
-    const deleteTaskMutation = useDeleteTask();
-    const toggleTaskMutation = useToggleTask();
-    const deleteCompletedMutation = useDeleteCompletedTasks();
-    const editTaskMutation = useEditTask();
+  import { useParams } from "@tanstack/react-router";
+  import { useSearch } from "@tanstack/react-router";
+  import { useCategorias } from "../hooks/useCategorias";
+  import type { Categoria } from "../types";
 
 
+function TaskManager() {
+  const search = useSearch({ from: "/categorias/$categoriaId" });
+ const filtro = search.filtro === "completadas" || search.filtro === "pendientes" ? search.filtro : undefined;
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(7);
+  const { categoriaId } = useParams({ from: "/categorias/$categoriaId" });
 
+  // Tareas
+  const { data = { tasks: [], totalPages: 1 }, isLoading, error } = useTasks(filtro, page, pageSize, categoriaId);
+  const tasks = data.tasks;
+  const addTaskMutation = useAddTask();
+  const deleteTaskMutation = useDeleteTask();
+  const toggleTaskMutation = useToggleTask();
+  const deleteCompletedMutation = useDeleteCompletedTasks();
+  const editTaskMutation = useEditTask();
+
+  // Categorias
+  const { categoriasQuery, addCategoriaMutation, deleteCategoriaMutation } = useCategorias();
+
+
+// Funciones para tareas
 const handleAddTask = (text: string) => {
   addTaskMutation.mutate(
-    { text },
+    { text, categoriaId, page },
     {
       onSuccess: () => useModalStore.getState().openModal("Tarea agregada", "success"),
       onError: () => useModalStore.getState().openModal("Error al agregar tarea", "error"),
@@ -45,7 +50,7 @@ const handleAddTask = (text: string) => {
 
 const handleDeleteTask = (id: number) => {
   deleteTaskMutation.mutate(
-    { id },
+    { id, categoriaId, page}, 
     {
       onSuccess: () => useModalStore.getState().openModal("Tarea eliminada", "success"),
       onError: () => useModalStore.getState().openModal("Error al eliminar tarea", "error"),
@@ -59,7 +64,7 @@ const handleToggleCompletion = (id: number) => {
   const estabaCompleta = task?.completed;
 
   toggleTaskMutation.mutate(
-    { id },
+    { id, categoriaId, page}, 
     {
       onSuccess: () => {
         if (estabaCompleta) {
@@ -74,20 +79,25 @@ const handleToggleCompletion = (id: number) => {
 };
 
 const handleDeleteCompleted = () => {
+  console.log("Datos enviados desde TaskManager:", { categoriaId });
   // Filtra las tareas completadas
   const completedTasks = tasks.filter(task => task.completed);
   if (completedTasks.length === 0) {
     useModalStore.getState().openModal("No hay tareas completadas para eliminar", "success");
     return;
   }
-  deleteCompletedMutation.mutate(undefined, {
+  deleteCompletedMutation.mutate(
+    { categoriaId, page}, 
+    {
+    // No necesitamos pasar un id porque estamos eliminando todas las completadas
     onSuccess: () => useModalStore.getState().openModal("Tareas completadas eliminadas", "success"),
     onError: () => useModalStore.getState().openModal("Error al eliminar tareas completadas", "error"),
   });
 };
 const handleEditTask = (id: number, text: string) => {
+   console.log("Llamando a mutate con:", { id, text, categoriaId, page});
   editTaskMutation.mutate(
-    { id, text },
+    { id, text, categoriaId, page}, 
     {
       onSuccess: () => useModalStore.getState().openModal("Tarea editada", "success"),
       onError: () => useModalStore.getState().openModal("Error al editar tarea", "error"),
@@ -95,10 +105,41 @@ const handleEditTask = (id: number, text: string) => {
   );
 };
 
+// Funciones para categorias
+  const handleAddCategoria = (name: string) => {
+    // Verificar si el nombre ya está en uso
+    if (categoriasQuery.data?.some((categoria:Categoria) => categoria.name.toLowerCase() === name.toLowerCase())) {
+      useModalStore.getState().openModal("El nombre de la categoria ya está en uso", "error");
+      return;
+    }
+
+    // Si no está en uso, proceder a agregar la categoria
+    addCategoriaMutation.mutate(name, {
+      onSuccess: () => useModalStore.getState().openModal("Categoria creada", "success"),
+      onError: () => useModalStore.getState().openModal("Error al crear la categoria", "error"),
+    });
+  };
+
+  const handleDeleteCategoria = (id: string) => {
+    deleteCategoriaMutation.mutate(id, {
+      onSuccess: () =>  useModalStore.getState().openModal("Categoria eliminada", "success"),
+      onError: () =>  useModalStore.getState().openModal("Error al eleiminar la categoria", "error"),
+    });
+  };
+
+
+console.log("Tareas pasadas a TaskList:", data?.tasks); // Agrega este log para verificar las tareas
+console.log("categoriaId en TaskManager:", categoriaId);
+console.log("filtro en TaskManager:", filtro);
+
     return (
       <div className="TaskManager flex flex-col items-center justify-center w-full h-full">
         <Title />
-        <CategoryButtons />
+        <CategoryButtons
+        categorias={categoriasQuery.data || []}
+        onAddCategoria={handleAddCategoria}
+        onDeleteCategoria={handleDeleteCategoria}
+      />
         <TaskInput onAddTask={handleAddTask} />
         <Filters />
 
@@ -106,13 +147,15 @@ const handleEditTask = (id: number, text: string) => {
           <p className="text-gray-500">Cargando tareas...</p>
         ) : error ? (
           <p className="text-red-500">Error al cargar tareas</p>
-        ) : (
+        ) : tasks && tasks.length > 0 ? ( // Verifica que tasks esté definido y tenga elementos
           <TaskList
             tasks={tasks}
             onDeleteTask={handleDeleteTask}
             onToggleCompletion={handleToggleCompletion}
-            onEditTasks={handleEditTask} //funcion flecha que se pasa como prop a TaskList
+            onEditTasks={handleEditTask}
           />
+        ) : (
+          <p>No hay tareas disponibles.</p> // Maneja el caso donde tasks está vacío
         )}
 
       <div className="flex gap-4 my-4">
@@ -133,8 +176,8 @@ const handleEditTask = (id: number, text: string) => {
 
         <button
           onClick={handleDeleteCompleted}
-          className="clearCompletedButton bg-orange-400 text-white font-bold cursor-pointer hover:bg-[rgb(139,90,0)] w-[80%] h-[40px] rounded-[5px] border-none flex items-center justify-center mb-[20px]">
-          <i className="fas fa-trash"></i> Eliminar Completas
+          className="clearCompletedButton bg-orange-400 text-white font-bold cursor-pointer hover:bg-[rgb(139,90,0)] w-[80%] h-[40px] rounded-[5px] border-none flex items-center justify-center mb-[20px] SPACE-x-2">
+          <i className="fas fa-trash "></i> Eliminar Completas
         </button>
       </div>
     );

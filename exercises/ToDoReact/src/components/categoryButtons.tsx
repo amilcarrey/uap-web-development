@@ -1,14 +1,64 @@
-export default function CategoryButton() {
+import type { Categoria } from "../types";
+import { useParams } from "@tanstack/react-router";
+
+type CategoryButtonsProps = {
+  categorias: Categoria[]; 
+  onAddCategoria: (name: string) => void; 
+  onDeleteCategoria: (id: string) => void; 
+};
+
+export default function CategoryButtons({
+  categorias,
+  onAddCategoria,
+  onDeleteCategoria,
+}: CategoryButtonsProps) {
+  const { categoriaId } = useParams({ from: "/categorias/$categoriaId" }); // Obtiene el categoriaId actual desde la URL
+
   return (
-    <div className="flex items-center justify-end p-1 bg-[antiquewhite] space-x-100 w-full h-[60px]">
-      <button className="text-[30px] font-bold bg-[antiquewhite] px-3 py-1.5 cursor-pointer hover:text-[rgb(120,118,0)] hover:border-b-[3px] hover:border-[rgb(64,0,83)]">
-        PERSONAL
+    <div className="flex items-center justify-center p-1 bg-[antiquewhite] space-x-4 w-full h-[60px]">
+      {categorias.map((categoria) => (
+        <button
+          key={categoria.id}
+          className={`text-[20px] font-bold bg-[antiquewhite] px-3 py-1.5 cursor-pointer hover:text-[rgb(120,118,0)] ${
+            categoriaId === categoria.id ? "border-b-[3px] border-[rgb(64,0,83)] text-[rgb(64,0,83)]" : "hover:border-b-[3px] hover:border-[rgb(64,0,83)]"
+          }`}
+          onClick={() => (window.location.href = `/categorias/${categoria.id}`)} // Navega a la categoría seleccionada
+        >
+          {categoria.name}
+        </button>
+      ))}
+
+      <button
+        className={`text-[20px] font-bold bg-[antiquewhite] px-3 py-1.5 cursor-pointer hover:text-[rgb(120,118,0)] ${
+          categoriaId === 'configuraciones' ? "border-b-[3px] border-[rgb(64,0,83)] text-[rgb(64,0,83)]" : "hover:border-b-[3px] hover:border-[rgb(64,0,83)]"
+        }`}
+        onClick={() => (window.location.href = '/settings')}
+      >
+        Configuraciones
       </button>
-      <button className="text-[30px] font-bold bg-[antiquewhite] px-3 py-1.5 cursor-pointer hover:text-[rgb(120,118,0)] hover:border-b-[3px] hover:border-[rgb(64,0,83)]">
-        PROFESIONAL
-      </button>
-      <button type="button" id="AddAreaButton" className="text-[20px] text-white bg-orange-400 px-2.5 py-1.5 rounded border-none cursor-pointer hover:bg-[rgb(139,90,0)]">
+
+      <button
+        onClick={() => {
+          const name = prompt("Nombre de la nueva categoría:");
+          if (categorias.some((categoria) => categoria.name === name)) {
+            alert("Ya existe una categoría con ese nombre.");
+            return;
+          }
+          if (name) onAddCategoria(name);
+        }}
+        className="text-[20px] text-white bg-orange-400 px-2.5 py-1.5 rounded border-none cursor-pointer hover:bg-[rgb(139,90,0)]"
+      >
         +
+      </button>
+
+      <button
+        onClick={() => {
+          const id = prompt("ID de la categoría a eliminar:");
+          if (id) onDeleteCategoria(id);
+        }}
+        className="text-[20px] text-white bg-orange-400 px-2.5 py-1.5 rounded border-none cursor-pointer hover:bg-red-600"
+      >
+        -
       </button>
     </div>
   );

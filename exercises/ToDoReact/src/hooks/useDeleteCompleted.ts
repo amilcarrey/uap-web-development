@@ -6,29 +6,25 @@ export function useDeleteCompletedTasks() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ categoriaId, page }: { categoriaId: string; page: number }) => {
       const res = await fetch(`${API_URL}/api/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ _method: "DELETE_COMPLETED" }),
+        body: JSON.stringify({ _method: "DELETE_COMPLETED", categoriaId, page }),
       });
-      if (!res.ok) {
-        //toast.error("Error al eliminar las tareas completadas ❌");
-        throw new Error("Error al eliminar las tareas completadas");
-      }
+      if (!res.ok) throw new Error("Error al eliminar las tareas completadas");
       return res.json();
     },
-    onError: () => {
-      // Si hay un error, revertimos el estado a lo que teníamos antes
-      const previousTasks = queryClient.getQueryData(['tasks']);
+    onError: (_, { categoriaId, page }) => {
+      const previousTasks = queryClient.getQueryData(["tasks", undefined, categoriaId, page, 7]);
       if (previousTasks) {
-        queryClient.setQueryData(['tasks'], previousTasks);
+        queryClient.setQueryData(["tasks", undefined, categoriaId, page, 7], previousTasks);
       }
-      //toast.error("Error al eliminar las tareas completadas ❌");
     },
-onSuccess: async () => {
-  // Actualiza la query de tasks y espera los datos actualizados
-  await queryClient.invalidateQueries({ queryKey: ['tasks'] });
-},
-});
+    onSuccess: (_, { categoriaId, page }) => {
+      queryClient.invalidateQueries({ queryKey: ["tasks", undefined, categoriaId, page, 7] });
+      //undefined porque no estamos filtrando por completadas o pendientes
+      // Esto le dice a React Query: "Actualizá la query de tasks" invalidando la cache del tablero correspondiente
+    },
+  });
 }

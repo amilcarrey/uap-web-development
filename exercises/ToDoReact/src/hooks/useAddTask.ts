@@ -7,27 +7,23 @@ export function useAddTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ text }: { text: string }) => {
+    mutationFn: async ({ text, categoriaId, page }: { text: string; categoriaId: string; page: number }) => {
       const res = await fetch(`${API_URL}/api/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ _method: "ADD", text }),
+        body: JSON.stringify({ _method: "ADD", text, categoriaId, page }),
       });
       if (!res.ok) throw new Error("No se pudo agregar la tarea");
       return res.json();
     },
-    onError: () => {
-      // Si hay un error, revertimos el estado a lo que teníamos antes
-      const previousTasks = queryClient.getQueryData(['tasks']);
+    onError: (_, { categoriaId, page }) => {
+      const previousTasks = queryClient.getQueryData(["tasks", undefined, categoriaId, page, 7]);
       if (previousTasks) {
-        queryClient.setQueryData(['tasks'], previousTasks);
+        queryClient.setQueryData(["tasks", undefined, categoriaId, page, 7], previousTasks);
       }
-      //toast.error("Error al agregar la tarea ❌");
     },
-    onSuccess: () => {
-      // Esto le dice a React Query: "Actualizá la query de tasks"
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      //toast.success("Tarea agregada ✅");
+    onSuccess: (_, { categoriaId, page }) => {
+      queryClient.invalidateQueries({ queryKey: ["tasks", undefined, categoriaId, page, 7] });
     },
   });
 }

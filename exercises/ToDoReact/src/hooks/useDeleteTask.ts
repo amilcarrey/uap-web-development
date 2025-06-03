@@ -7,27 +7,23 @@ export function useDeleteTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id }: { id: number }) => {
+    mutationFn: async ({ id, categoriaId, page }: { id: number; categoriaId: string; page: number }) => {
       const res = await fetch(`${API_URL}/api/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ _method: "DELETE", id }),
+        body: JSON.stringify({ _method: "DELETE_TASK", id, categoriaId, page }),
       });
       if (!res.ok) throw new Error("Error al eliminar la tarea");
       return res.json();
     },
-    onError() {
-      // Si hay un error, revertimos el estado a lo que teníamos antes
-      const previousTasks = queryClient.getQueryData(['tasks']);
+    onError: (_, { categoriaId, page }) => {
+      const previousTasks = queryClient.getQueryData(["tasks", undefined, categoriaId, page, 7]);
       if (previousTasks) {
-        queryClient.setQueryData(['tasks'], previousTasks);
+        queryClient.setQueryData(["tasks", undefined, categoriaId, page, 7], previousTasks);
       }
-      //toast.error("Error al eliminar la tarea ❌");
     },
-    onSuccess: () => {
-      // Esto le dice a React Query: "Actualizá la query de tasks"
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      //toast.success("Tarea eliminada ✅");
+    onSuccess: (_, { categoriaId, page }) => {
+      queryClient.invalidateQueries({ queryKey: ["tasks", undefined, categoriaId, page, 7] });
     },
   });
 }
