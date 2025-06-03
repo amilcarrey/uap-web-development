@@ -1,0 +1,342 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { state } from '../state.js';
+
+let errorMessage = '';
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get('action');
+
+    if (action === 'add-task') {
+      const taskText = formData.get('taskText')?.toString().trim();
+      const tab = formData.get('tab')?.toString() || 'today';
+      
+      if (taskText && tab) {
+        const newTask = {
+          id: state.nextId++,
+          text: taskText,
+          completed: false
+        };
+        
+        if (!state.tasks[tab]) {
+          state.tasks[tab] = [];
+        }
+        
+        state.tasks[tab].push(newTask);
+      } else {
+        errorMessage = 'Please enter a task!';
+      }
+    }
+    else if (action === 'toggle-complete') {
+      const taskId = parseInt(formData.get('taskId')?.toString() || '0');
+      const tab = formData.get('tab')?.toString() || 'today';
+      
+      const task = state.tasks[tab]?.find(t => t.id === taskId);
+      if (task) {
+        task.completed = !task.completed;
+      }
+    }
+    else if (action === 'delete-task') {
+      const taskId = parseInt(formData.get('taskId')?.toString() || '0');
+      const tab = formData.get('tab')?.toString() || 'today';
+      
+      if (state.tasks[tab]) {
+        state.tasks[tab] = state.tasks[tab].filter(t => t.id !== taskId);
+      }
+    }
+    else if (action === 'clear-completed') {
+      const tab = formData.get('tab')?.toString() || 'today';
+      
+      if (state.tasks[tab]) {
+        state.tasks[tab] = state.tasks[tab].filter(t => !t.completed);
+      }
+    }
+    else if (action === 'change-filter') {
+      const filter = formData.get('filter')?.toString() || 'all';
+      state.filter = filter;
+    }
+    else if (action === 'change-tab') {
+      const tab = formData.get('tab')?.toString() || 'today';
+      state.activeTab = tab;
+    }
+    else if (action === 'add-tab') {
+      const newTabName = formData.get('newTabName')?.toString().trim();
+      if (newTabName) {
+        const tabId = newTabName.toLowerCase().replace(/\s+/g, '-');
+        if (!state.tabs.includes(tabId)) {
+          state.tabs.push(tabId);
+          state.tasks[tabId] = [];
+        }
+        state.activeTab = tabId;
+      }
+    }
+  } catch (error) {
+    console.error('Error processing form:', error);
+    errorMessage = 'An error occurred while processing your request.';
+  }
+}
+
+function getFilteredTasks(tab) {
+  if (!state.tasks[tab]) return [];
+  const tasks = state.tasks[tab];
+  if (state.filter === 'complete') {
+    return tasks.filter(task => task.completed);
+  } else if (state.filter === 'incomplete') {
+    return tasks.filter(task => !task.completed);
+  }
+  return tasks;
+}
+
+const activeTab = state.activeTab;
+---
+
+<Layout>
+  <div class="min-h-screen">
+    <div class="max-w-4xl mx-auto py-2">
+      
+      <!--CONTENEDOR GENERAL DEL TODO CON EL BORDE-->
+      <div class="bg-orange-950 border-4 border-amber-200 rounded-lg overflow-hidden">
+        
+        <!-- Header section -->
+        <div class="text-center p-6 border-b-2 border-amber-200">
+          <h1 class="text-amber-200 text-3xl font-serif">The Old Stand</h1>
+          <p class="text-slate-100 text-shadow italic mt-2">
+            Wanna check which tasks you have to do in the pub? Welcome mate, cause 
+            this is the place. Cheers! 🍻
+          </p>
+          
+          <!--IMAGEN PUB-->
+          <div class="mt-4">
+            <img 
+              src="img/the-old-stand.jpg" 
+              alt="Irish Pub" 
+              class="w-full h-48 object-cover rounded border-2 border-amber-200"
+            />
+          </div>
+        </div>
+        
+        <!--INPUT DE LA TAREA A AGREGAR-->
+        <div class="bg-orange-900 p-6 border-b-2 border-amber-200">
+          <form method="POST" action="/" id="task-form">
+            <div class="mb-4">
+              <label for="task-input" class="block text-slate-100 font-bold mb-2">New Task:</label>
+              <input
+                type="text"
+                id="task-input"
+                name="taskText"
+                placeholder="Type to enter a new task..."
+                required
+                class="w-full p-3 bg-slate-100 border-2 border-light-wood rounded"
+              />
+              <input type="hidden" name="tab" value={activeTab} />
+              <input type="hidden" name="action" value="add-task" />
+            </div>
+            <div class="flex justify-center">
+              <button 
+                type="submit" 
+                class="bg-green-800 hover:bg-green-600 text-white font-bold py-2 px-6 rounded transition-colors outline outline-green-400"
+              >
+                Add Task
+              </button>
+            </div>
+          </form>
+        </div>
+        
+        <!--SECCION PESTAÑAS -->
+        <div class="flex justify-center gap-2 py-4 bg-medium-wood">
+          {state.tabs.map(tab => (
+            <form method="POST" action="/" class="inline-block">
+              <input type="hidden" name="action" value="change-tab" />
+              <input type="hidden" name="tab" value={tab} />
+              <button 
+                type="submit" 
+                class={`px-4 py-2 rounded font-bold transition-colors ${
+                  activeTab === tab 
+                    ? 'bg-amber-400 text-slate-900 border border-amber-200' 
+                    : 'bg-orange-900 text-slate-100 border border-amber-500 hover:bg-amber-950'
+                }`}
+                data-tab={tab}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            </form>
+          ))}
+          
+          <!--BOTON AÑADIR PESTAÑA-->
+          <form method="POST" action="/" id="add-tab-form" class="inline-block relative">
+            <input type="hidden" name="action" value="add-tab" />
+            <div class="add-tab-input-group hidden absolute top-0 left-0 whitespace-nowrap z-10">
+              <input 
+                type="text" 
+                name="newTabName" 
+                placeholder="New tab name" 
+                required 
+                id="new-tab-input" 
+                class="px-2 py-1 bg-slate-100 border border-light-wood rounded"
+              />
+              <button 
+                type="submit" 
+                id="submit-tab" 
+                class="bg-green-600 text-white px-2 py-1 rounded border border-green-400"
+              >
+                Add
+              </button>
+            </div>
+            <button 
+              type="button" 
+              id="show-tab-input" 
+              class="bg-green-800 hover:bg-green-500 text-white px-3 py-2 rounded border border-green-600 font-bold transition-colors"
+            >
+              +
+            </button>
+          </form>
+        </div>
+        
+        <!--TAREAS EN BASE A LA PESTAÑA-->
+        {state.tabs.map(tab => (
+          <div class={`p-6 ${activeTab === tab ? 'block' : 'hidden'}`} data-tab={tab} id={`tab-${tab}`}>
+            <h2 class="text-amber-200 text-2xl text-center font-serif mb-4 pb-2 border-b border-amber-200">
+              {tab.charAt(0).toUpperCase() + tab.slice(1)} Tasks
+            </h2>
+            
+            <ul class="space-y-2 mb-6">
+              {getFilteredTasks(tab).map(task => (
+                <li class="flex justify-between items-center p-3 bg-amber-950 rounded-lg task-item" data-task-id={task.id}>
+                  <span class={`text-lg ${task.completed ? 'text-light-wood line-through' : 'text-slate-100'}`}>
+                    {task.text}
+                  </span>
+                  <div class="flex gap-2">
+                    <!--BOTON ELIMINAR TAREA-->
+                    <form method="POST" action="/" class="inline-block">
+                      <input type="hidden" name="action" value="delete-task" />
+                      <input type="hidden" name="taskId" value={task.id} />
+                      <input type="hidden" name="tab" value={tab} />
+                      <button 
+                        type="submit" 
+                        class="bg-dark-red hover:bg-red-head text-slate-100 hover:text-guinness p-2 rounded border bg-red-900 hover:bg-red-600 border-red-600 transition-colors"
+                      >
+                        🛢️
+                      </button>
+                    </form>
+                    
+                    <!--BOTON COMPLETAR TAREA -->
+                    <form method="POST" action="/" class="inline-block">
+                      <input type="hidden" name="action" value="toggle-complete" />
+                      <input type="hidden" name="taskId" value={task.id} />
+                      <input type="hidden" name="tab" value={tab} />
+                      <button 
+                        type="submit" 
+                        class="bg-green-900 hover:bg-green-600 text-slate-100 hover:text-guinness p-2 rounded border border-green-400 transition-colors"
+                      >
+                        {task.completed ? '✅' : '🍺'}
+                      </button>
+                    </form>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            
+            <!--BOTONES CON LAS ACCIONES DE TAREAS-->
+            <div class="flex flex-wrap justify-center gap-2 mt-2">
+
+              <!--BOTONES DE FILTROS-->
+              <form method="POST" action="/" class="inline-block">
+                <input type="hidden" name="action" value="change-filter" />
+                <input type="hidden" name="filter" value="all" />
+                <button 
+                  type="submit" 
+                  class={`px-3 py-1 rounded border border-amber-200 transition-colors ${
+                  state.filter === 'all' 
+                    ? 'bg-amber-200 text-guinness' 
+                    : 'bg-medium-wood text-slate-100 hover:bg-amber-800'
+                  }`}
+                  data-filter="all"
+                >
+                  All
+                </button>
+              </form>
+              
+              <form method="POST" action="/" class="inline-block">
+                <input type="hidden" name="action" value="change-filter" />
+                <input type="hidden" name="filter" value="incomplete" />
+                <button 
+                  type="submit" 
+                  class={`px-3 py-1 rounded border border-amber-200 transition-colors ${
+                  state.filter === 'incomplete' 
+                    ? 'bg-amber-200 text-guinness' 
+                    : 'bg-medium-wood text-slate-100 hover:bg-amber-800'
+                  }`}
+                  data-filter="incomplete"
+                >
+                  Incomplete
+                </button>
+              </form>
+              
+              <form method="POST" action="/" class="inline-block">
+                <input type="hidden" name="action" value="change-filter" />
+                <input type="hidden" name="filter" value="complete" />
+                <button 
+                  type="submit" 
+                  class={`px-3 py-1 rounded border border-amber-200 transition-colors ${
+                  state.filter === 'complete' 
+                    ? 'bg-amber-200 text-guinness' 
+                    : 'bg-medium-wood text-slate-100 hover:bg-amber-800'
+                  }`}
+                  data-filter="complete"
+                >
+                  Complete
+                </button>
+              </form>
+
+              <!--LIMPIAR TAREAS-->
+              <form method="POST" action="/" class="inline-block">
+                <input type="hidden" name="action" value="clear-completed" />
+                <input type="hidden" name="tab" value={tab} />
+                <button 
+                  type="submit" 
+                  class="px-3 py-1 rounded border hover:bg-amber-800 border-amber-200 bg-dark-red hover:bg-red-head text-slate-100 hover:text-guinness transition-colors"
+                >
+                  Clear Completed
+                </button>
+              </form>
+            </div>
+          </div>
+        ))}
+        
+        <!--FOOTER-->
+        <footer class="p-4 text-center border-t-2 border-amber-200 text-slate-100 text-sm">
+          <p>2025 Awrthdrew | Programacion III</p>
+        </footer>
+        
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Script para manejar la visibilidad del input para nueva pestaña
+    document.addEventListener('DOMContentLoaded', () => {
+      const showTabInput = document.getElementById('show-tab-input');
+      const addTabInputGroup = document.querySelector('.add-tab-input-group');
+      
+      showTabInput.addEventListener('click', () => {
+        // Mostrar el grupo de inputs y ocultar el botón +
+        addTabInputGroup.style.display = 'inline-block';
+        showTabInput.style.display = 'none';
+        
+        // Enfocar el input
+        document.getElementById('new-tab-input').focus();
+        
+        // Agregar un manejador para cancelar si se hace clic fuera
+        document.addEventListener('click', function closeTabInput(event) {
+          if (!addTabInputGroup.contains(event.target) && event.target !== showTabInput) {
+            addTabInputGroup.style.display = 'none';
+            showTabInput.style.display = 'inline-block';
+            document.removeEventListener('click', closeTabInput);
+          }
+        });
+      });
+    });
+  </script>
+</Layout>

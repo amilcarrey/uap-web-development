@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+/*NOTIFICATION ANIMATIONS*/
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+/*NOTIFICATION SLIDE OUT ANIMATIONS*/
+@keyframes slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slide-out {
+  animation: slide-out 0.3s ease-in;
+}
+
+/* Textura de madera para notificaciones */
+.wood-texture {
+  background-image: radial-gradient(
+      circle at 25% 25%,
+      rgba(255, 215, 0, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 75% 75%,
+      rgba(255, 165, 0, 0.05) 0%,
+      transparent 50%
+    );
+  box-shadow: inset 0 1px 0 rgba(255, 215, 0, 0.3),
+    inset 0 -1px 0 rgba(139, 69, 19, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Mejoras en las animaciones para el estilo pub */
+@keyframes slide-in {
+  from {
+    transform: translateX(120%) rotate(2deg);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  to {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Efecto de hover para las notificaciones */
+.wood-texture:hover {
+  transform: scale(1.02);
+  box-shadow: inset 0 1px 0 rgba(255, 215, 0, 0.4),
+    inset 0 -1px 0 rgba(139, 69, 19, 0.4), 0 6px 16px rgba(0, 0, 0, 0.5),
+    0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Animación de salida más suave */
+@keyframes slide-out {
+  from {
+    transform: translateX(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(120%) rotate(-2deg) scale(0.95);
+    opacity: 0;
+  }
+}
+
+.animate-slide-out {
+  animation: slide-out 0.3s ease-in forwards;
+}
+
+/* Estilos para el dialog del pub irlandés - CENTRADO */
+.irish-pub-dialog {
+  padding: 1rem;
+  border: none;
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+
+  /* Centrado perfecto */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* Flex para centrar el contenido interno */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* IMPORTANTE: Oculto por defecto */
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* Solo visible cuando está abierto */
+.irish-pub-dialog[open] {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  animation: irish-dialog-in 0.3s ease-out;
+}
+
+.irish-pub-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+/* Animación de entrada */
+@keyframes irish-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Efecto de sombra especial para el contenido del dialog */
+.irish-pub-dialog > div {
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.5), 0 10px 25px rgba(0, 0, 0, 0.5),
+    0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(245, 158, 11, 0.3);
+
+  max-width: 90vw;
+  max-height: 90vh;
+
+  /* Prevenir que los clics en el contenido cierren el dialog */
+  pointer-events: auto;
+}
+
+/* Hover effects para los botones del dialog */
+.irish-pub-dialog button:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+/* Responsive para móviles */
+@media (max-width: 480px) {
+  .irish-pub-dialog > div {
+    margin: 0.5rem;
+    padding: 1rem;
+    max-width: 95vw;
+  }
+}
