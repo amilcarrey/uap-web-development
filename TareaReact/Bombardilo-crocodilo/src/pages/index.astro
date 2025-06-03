@@ -1,0 +1,190 @@
+---
+import { astroCalledServerError } from "astro:actions";
+import Layout from "../layouts/Layout.astro";
+
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+
+import { state } from "./api/state";
+
+import "../styles/global.css";
+
+if (Astro.request.method === "POST") {
+	console.log("POST recibido");
+	try {
+		const formData = await Astro.request.formData();
+		const action = formData.get("action")?.toString();
+
+		if (action === "add") {
+			const taskText = formData.get("task")?.toString().trim();
+			if (taskText) {
+				state.tasks.push({
+					id: state.nextId++,
+					task_content: taskText,
+					completed: false,
+				});
+				console.log("Tarea añadida:", state.tasks);
+			}
+		}
+
+		if (action === "delete") {
+			const id = Number(formData.get("id"));
+			state.tasks = state.tasks.filter((t) => t.id !== id);
+			console.log("Tarea eliminada:", state.tasks);
+		}
+
+		if (action === "toggle") {
+			const id = Number(formData.get("id"));
+			const task = state.tasks.find((t) => t.id === id);
+			if (task) {
+				task.completed = !task.completed;
+			}
+		}
+
+		if (action === "filter") {
+			const filter = formData.get("filter")?.toString();
+			if (["all", "active", "completed"].includes(filter!)) {
+				state.filter = filter!;
+			}
+		}
+
+		if (action === "clearCompleted") {
+			state.tasks = state.tasks.filter((t) => !t.completed);
+		}
+	} catch (error) {
+		console.log("Error al procesar el POST");
+	}
+}
+
+if (Astro.request.method === "GET") {
+	const url = new URL(Astro.request.url);
+	const urlFilter = url.searchParams.get("filter");
+	if (urlFilter && ["all", "active", "completed"].includes(urlFilter)) {
+		state.filter = urlFilter;
+	}
+}
+
+let filteredTasks = state.tasks;
+if (state.filter === "active") {
+	filteredTasks = state.tasks.filter((task) => !task.completed);
+} else if (state.filter === "completed") {
+	filteredTasks = state.tasks.filter((task) => task.completed);
+}
+---
+
+<Layout>
+	<div
+		class="max-w-2xl mx-auto mt-24 p-8 bg-purple-200 rounded-2xl shadow-lg"
+	>
+		<h1 class="text-4xl text-center text-gray-800">TODO</h1>
+		<div class="flex justify-center mb-4">
+			<form id="task-form" method="POST" class="flex w-full">
+				<input
+					type="text"
+					name="task"
+					id="task-input"
+					placeholder="¿Qué necesitas hacer?"
+					required
+					class="flex-1 p-3 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-blue-600"
+				/>
+				<button
+					type="submit"
+					name="action"
+					class="ml-4 p-4 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition-colors"
+					value="add">ADD</button
+				>
+			</form>
+		</div>
+
+		<div class="flex justify-center gap-4 mb-4 flex-wrap">
+			<a
+				href="/?filter=all"
+				data-filter="all"
+				class={`px-4 py-2 rounded-lg border transition-colors duration-200 ${
+					state.filter === "all"
+						? "bg-blue-600 text-white border-blue-600"
+						: "bg-gray-200 text-gray-800 hover:bg-gray-300 border-transparent"
+				}`}>
+				Todas
+			</a>
+		
+			<a
+				href="/?filter=active"
+				data-filter="active"
+				class={`px-4 py-2 rounded-lg border transition-colors duration-200 ${
+					state.filter === "active"
+						? "bg-blue-600 text-white border-blue-600"
+						: "bg-gray-200 text-gray-800 hover:bg-gray-300 border-transparent"
+				}`}>
+				Incompletas
+			</a>
+		
+			<a
+				href="/?filter=completed"
+				data-filter="completed"
+				class={`px-4 py-2 rounded-lg border transition-colors duration-200 ${
+					state.filter === "completed"
+						? "bg-blue-600 text-white border-blue-600"
+						: "bg-gray-200 text-gray-800 hover:bg-gray-300 border-transparent"
+				}`}>
+				Completadas
+			</a>
+		</div>
+		
+
+		<ul id="task-list" class="list-none p-0 m-0">
+			{
+				filteredTasks.map((task) => (
+					<li class="bg-gray-100 mb-2 p-5 rounded-lg flex items-center justify-between">
+						<form method="POST" class="inline" action-toggle>
+							<input type="hidden" name="id" value={task.id} />
+							<button
+								type="submit"
+								name="action"
+								value="toggle"
+								class="text-xl cursor-pointer transition-transform transform hover:scale-110"
+							>
+								{task.completed ? "✅" : "⬜"}
+							</button>
+						</form>
+
+						<span
+							class={
+								task.completed
+									? "line-through text-gray-500"
+									: ""
+							}
+						>
+							{task.task_content}
+						</span>
+
+						<form method="POST" class="inline" action-delete>
+							<input type="hidden" name="id" value={task.id} />
+							<button
+								type="submit"
+								name="action"
+								value="delete"
+								class="text-xl text-red-500 hover:text-red-700 transition-colors"
+							>
+								🗑
+							</button>
+						</form>
+					</li>
+				))
+			}
+		</ul>
+
+		<div class="mt-8 text-center">
+			<button
+				id="clear-completed"
+				class="bg-red-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-600 transition-colors"
+			>
+				Borrar las tareas completadas
+			</button>
+		</div>
+	</div>
+	<script type="module" src="/src/scripts/add-task.js"></script>
+	<script type="module" src="/src/scripts/filters.js"></script>
+	<script type="module" src="/src/scripts/clear-completed.js"></script>
+
+</Layout>

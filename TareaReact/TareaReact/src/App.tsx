@@ -1,61 +1,87 @@
 import { useEffect, useState, type FormEvent } from 'react'
 
+const BACKEND_URL = 'http://localhost:4321/api' // Dirección del backend de Astro
+
 type Filter = 'all' | 'active' | 'completed'
 
 type Task = {
-  id: string
-  title: string
+  id: number
+  task_content: string
   completed: boolean
 }
 
 function App() {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const saved = localStorage.getItem('tasks')
-    return saved ? JSON.parse(saved) : []
-  })
-
+  const [tasks, setTasks] = useState<Task[]>([])
   const [newTask, setNewTask] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
 
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks))
-  }, [tasks])
+  // Cargar tareas desde el servidor según el filtro
+  const loadTasks = () => {
+    fetch(`${BACKEND_URL}/get-tasks?filter=${filter}`)
+      .then((res) => res.json())
+      .then((data) => setTasks(data))
+      .catch((err) => console.error('Error al cargar tareas:', err))
+  }
 
-  const handleSubmit = (e: FormEvent) => {
+  useEffect(() => {
+    loadTasks()
+  }, [filter])
+
+  // Agregar nueva tarea
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     const trimmed = newTask.trim()
     if (!trimmed) return
 
-    const newT: Task = {
-      id: crypto.randomUUID(),
-      title: trimmed,
-      completed: false,
+    const formData = new FormData()
+    formData.append('task', trimmed)
+
+    const res = await fetch(`${BACKEND_URL}/add-task`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (res.ok) {
+      setNewTask('')
+      loadTasks()
     }
-    setTasks((prev) => [...prev, newT])
-    setNewTask('')
   }
 
-  const toggleTask = (id: string) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    )
-  }
+  // Marcar tarea como completada / incompleta
+const toggleTask = async (id: number) => {
+  const formData = new FormData()
+  formData.append('id', id.toString())
+  formData.append('action', 'toggle')
 
-  const deleteTask = (id: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id))
-  }
-
-  const clearCompleted = () => {
-    setTasks((prev) => prev.filter((task) => !task.completed))
-  }
-
-  const filteredTasks = tasks.filter((task) => {
-    if (filter === 'active') return !task.completed
-    if (filter === 'completed') return task.completed
-    return true
+  const res = await fetch(`${BACKEND_URL}/update-task`, {
+    method: 'POST',
+    body: formData,
   })
+
+  if (res.ok) loadTasks()
+}
+
+  // Eliminar tarea
+const deleteTask = async (id: number) => {
+  const formData = new FormData()
+  formData.append('id', id.toString())
+  formData.append('action', 'delete')
+
+  const res = await fetch(`${BACKEND_URL}/update-task`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  if (res.ok) loadTasks()
+}
+
+  // Eliminar tareas completadas
+  const clearCompleted = async () => {
+    await fetch(`${BACKEND_URL}/clear-completed`, {
+      method: 'POST',
+    })
+    loadTasks()
+  }
 
   return (
     <div className="min-h-screen bg-purple-100 p-6">
@@ -100,7 +126,7 @@ function App() {
         </div>
 
         <ul id="task-list" className="list-none p-0 m-0">
-          {filteredTasks.map((task) => (
+          {tasks.map((task) => (
             <li
               key={task.id}
               className="bg-gray-100 mb-2 p-5 rounded-lg flex items-center justify-between"
@@ -115,7 +141,7 @@ function App() {
               <span
                 className={task.completed ? 'line-through text-gray-500' : ''}
               >
-                {task.title}
+                {task.task_content}
               </span>
 
               <button
