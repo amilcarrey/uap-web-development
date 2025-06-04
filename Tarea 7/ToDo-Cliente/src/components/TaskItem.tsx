@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useToggleTask, useDeleteTask, useEditTask } from '../hooks/task';
 import { useUIStore } from '../stores/uiStore';
+import {useConfigStore} from '../stores/configStore';
 import toast from "react-hot-toast";
 
 // Interfaz que describe la estructura de una tarea:
@@ -38,6 +39,8 @@ interface Props {
  * - tabId: ID de la pestaña a la que pertenece la tarea
  */
 export function TaskItem({ task, tabId }: Props) {
+  const upperCase = useConfigStore(state => state.upperCaseDescription);
+
   // Hooks de React Query para mutaciones
   const { mutate: toggleTask, isPending: isToggling } = useToggleTask();
   const { mutate: deleteTask, isPending: isDeleting } = useDeleteTask();
@@ -160,7 +163,9 @@ export function TaskItem({ task, tabId }: Props) {
                 disabled={isToggling} // desactivamos si está cargando
                 title="Completar tarea"
               />
-              <span>{task.text}</span> {/* Mostramos el texto de la tarea */}
+              <span>
+                {upperCase ? task.text.toUpperCase() : task.text} {/* Mostramos el texto de la tarea, en mayúsculas si corresponde */}
+              </span> {/* Mostramos el texto de la tarea */}
             </label>
           </form>
 

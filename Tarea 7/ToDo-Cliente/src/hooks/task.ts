@@ -8,6 +8,7 @@
 */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Task } from '../components/TaskItem';
+import { useConfigStore } from '../stores/configStore';
 
 
 /*
@@ -15,12 +16,16 @@ import type { Task } from '../components/TaskItem';
  Se hace una petición GET al endpoint `/api/tasks?tabId=...`
  y se espera una respuesta JSON.
 */
-const fetchTasks = async (tabId: string) => {
-  const res = await fetch(`http://localhost:4321/api/tasks?tab=${tabId}`, {
+const fetchTasks = async (tabId: string, page: number, limit: number) => {
+  //console.log(`[Refetch] Solicitando tareas para ${tabId} a las ${new Date().toLocaleTimeString()}`);
+  const res = await fetch(`http://localhost:4321/api/tasks?tab=${tabId}&page=${page}&limit=${limit}`, {
     method: 'GET',
     headers: { accept: 'application/json' },
   });
-  return res.json(); // devuelve el array de tareas
+  const result = await res.json()
+  //console.log(result);
+  
+  return result.tasks // devuelve el array de tareas
 };
 
 
@@ -30,11 +35,14 @@ const fetchTasks = async (tabId: string) => {
    Se usa un array con 'tasks' y el tabId, para que cada pestaña tenga su propia caché.
  - queryFn: es la función que se ejecuta para hacer la petición real.
 */
-export function useTasks(tabId: string) {
+export function useTasks(tabId: string, page:number=1, limit:number=5) { //Agrego valores por defecto en el caso de que al Hook no se le pase el page y limit
+  const refetchInterval = useConfigStore(s => s.refetchInterval);
+
   return useQuery<Task[]>({
-    queryKey: ['tasks', tabId],
-    queryFn: () => fetchTasks(tabId),
+    queryKey: ['tasks', tabId, page, limit], // clave única para esta consulta
+    queryFn: () => fetchTasks(tabId, page, limit), // función que obtiene las tareas
     initialData: [], // valor inicial si no hay datos aún
+    refetchInterval, // intervalo para volver a hacer fetch automáticamente
   });
 }
 
@@ -56,7 +64,7 @@ export function useAddTask() {
         body: new URLSearchParams({
           action: 'add',
           text,
-          tabId,
+          tabId, // el backend espera tabId
         }),
       });
       return res.json(); // devuelve la tarea agregada (opcionalmente)
@@ -105,7 +113,7 @@ export function useToggleTask() {
           action: 'toggle',
           taskId,
           tabId,
-          //completed: String(completed),
+          completed: String(completed),
         }),
       });
       if (!res.ok) throw new Error('Error al alternar tarea');
@@ -133,6 +141,29 @@ export function useEditTask() {
         }),
       });
       if (!res.ok) throw new Error('Error al editar tarea');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+    },
+  });
+}
+
+// Hook para limpiar las tareas completadas
+export function useClearCompletedTasks() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (tabId: string) => {
+      //console.log('Enviando petición clear-completed para tabId:', tabId);
+      const res = await fetch('http://localhost:4321/api/tasks', {
+        method: 'POST',
+        headers: { accept: 'application/json' },
+        body: new URLSearchParams({
+          action: 'clear-completed',
+          tabId,
+        }),
+      });
+      if (!res.ok) throw new Error('Error al limpiar tareas completadas');
       return res.json();
     },
     onSuccess: () => {

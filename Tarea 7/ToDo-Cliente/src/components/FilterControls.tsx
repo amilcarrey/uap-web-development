@@ -21,7 +21,6 @@ Muestra los botones para filtrar la lista de tareas por estado:
  Usa un componente CustomButton para mantener estilo y comportamiento uniforme.
  */
 export function FilterControls({
-  tabId,                        // ID de la pestaña actual (no se usa directamente)
   currentFilter,                // Filtro global activo
   onFilterChange,               // Cambia el filtro global (Zustand)
   onClearCompleted              // Elimina todas las tareas completadas
@@ -48,7 +47,10 @@ export function FilterControls({
       ))}
 
       {/* Botón para limpiar todas las tareas completadas */}
-      <CustomButton type="button" onClick={onClearCompleted}>
+      <CustomButton onClick={() => {
+        //console.log('Limpiar completadas');
+        onClearCompleted();
+      }}>
         Limpiar completadas
       </CustomButton>
     </div>

@@ -9,10 +9,10 @@ const DB_PATH = path.join(process.cwd(), 'src/data/state.json');
 export async function readState(): Promise<AppState> {
   try {
     const data = await readFile(DB_PATH, 'utf-8');
-    return JSON.parse(data) || { tasks: [], currentTab: 'personal', currentFilter: 'all' };
+    return JSON.parse(data) || { tasks: [], tabs: [], currentTab: 'personal', currentFilter: 'all' };
   } catch (error) {
     console.error('Error reading state:', error);
-    return { tasks: [], currentTab: 'personal', currentFilter: 'all' };
+    return { tasks: [], tabs: [], currentTab: 'personal', currentFilter: 'all' };
   }
 }
 
@@ -66,4 +66,15 @@ export async function clearCompleted(tabId: string): Promise<void> {
   const state = await readState();
   state.tasks = state.tasks.filter(t => !(t.tabId === tabId && t.completed));
   await saveState(state);
+}
+
+export async function updateTask(id: string, updates: Partial<Omit<Task, 'id'>>): Promise<Task | null> {
+  const state = await readState();
+  const task = state.tasks.find(t => t.id === id);
+  if (task) {
+    Object.assign(task, updates);
+    await saveState(state);
+    return task;
+  }
+  return null;
 }
