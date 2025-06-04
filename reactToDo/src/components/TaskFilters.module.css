@@ -1,0 +1,45 @@
+.filtersContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.filterButtons {
+  display: flex;
+  gap: 5px;
+}
+
+.filterButton {
+  padding: 5px 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #666;
+  border-radius: 3px;
+}
+
+.filterButton.active {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.filterButton:hover {
+  background-color: #f0f0f0;
+}
+
+.clearButton {
+  padding: 5px 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #666;
+  border-radius: 3px;
+}
+
+.clearButton:hover {
+  color: #e74c3c;
+  text-decoration: underline;
+}
