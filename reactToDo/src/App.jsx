@@ -4,17 +4,15 @@ import Tabs from './components/Tabs';
 import TaskList from './components/TaskList';
 import AddTask from './components/AddTask';
 import TaskFilters from './components/TaskFilters';
-import './App.css';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('Personal');
   const [tasks, setTasks] = useState(loadTasks());
   const [filter, setFilter] = useState('all');
 
-  // Persiste los cambios en localStorage
   useEffect(() => {
     saveTasks(tasks);
-  }, [tasks]);
+  }, [tasks])
 
   const addTask = (text) => {
     const newTask = { id: Date.now(), text, completed: false };
@@ -57,20 +55,26 @@ export default function App() {
   };
 
   return (
-    <div className="container">
-      <h1>My Tasks</h1>
-      <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
-      <AddTask onAddTask={addTask} />
-      <TaskFilters 
-        currentFilter={filter}
-        onFilterChange={setFilter} 
-        onClearCompleted={clearCompleted}
-      />
-      <TaskList 
-        tasks={getFilteredTasks()}
-        onToggle={toggleTask}
-        onDelete={deleteTask}
-      />
+    <div className="min-h-screen bg-gray-100 py-8">
+      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">ToDo</h1>
+        
+        <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        <TaskFilters 
+          currentFilter={filter}
+          onFilterChange={setFilter} 
+          onClearCompleted={clearCompleted}
+        />
+        
+        <AddTask onAddTask={addTask} />
+        
+        <TaskList 
+          tasks={getFilteredTasks()}
+          onToggle={toggleTask}
+          onDelete={deleteTask}
+        />
+      </div>
     </div>
   );
 }
