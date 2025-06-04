@@ -1,35 +1,21 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import Tabs from './components/Tabs';
+import TaskList from './components/TaskList';
+import './index.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [activeTab, setActiveTab] = useState('Personal');
+  const [tasks, setTasks] = useState({
+    Personal: ['Buy groceries', 'Go to gym'],
+    University: ['Finish assignment', 'Read chapter 5'],
+    Work: ['Prepare presentation', 'Reply to emails']
+  });
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="container">
+      <h1>My Tasks</h1>
+      <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <TaskList tasks={tasks[activeTab]} />
+    </div>
+  );
 }
-
-export default App
