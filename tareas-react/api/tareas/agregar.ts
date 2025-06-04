@@ -1,3 +1,4 @@
+// src/pages/api/agregar.ts
 import type { APIRoute } from "astro";
 
 const globalState = globalThis.globalState || {
@@ -9,21 +10,26 @@ globalThis.globalState = globalState;
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    console.log("Cuerpo recibido:", body); // Log para depuración
-
     const { texto } = body;
     const cleanTexto = texto?.toString().trim();
 
     if (cleanTexto) {
-      globalState.tareas.push({ texto: cleanTexto, completada: false });
-      console.log("Tarea agregada:", cleanTexto); // Log para confirmar la tarea
+      const now = new Date().toISOString();
+
+      globalState.tareas.push({
+        texto: cleanTexto,
+        completada: false,
+        fecha_creacion: now,
+        fecha_modificacion: now,
+        fecha_realizada: null,
+      });
+
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    console.warn("Texto vacío recibido"); // Log de advertencia
     return new Response(
       JSON.stringify({ success: false, error: "Texto vacío" }),
       {
@@ -32,7 +38,6 @@ export const POST: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error("Error en el servidor:", error); // Log del error
     return new Response(
       JSON.stringify({
         success: false,

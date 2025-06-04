@@ -1,80 +1,49 @@
-import React, { useState } from "react";
+import React from "react";
 import Header from "./components/Header";
 import ListaTareas from "./components/ListaTareas";
+import Notificaciones from "./components/Notificaciones"; // opcional
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useParams } from "@tanstack/react-router";
 
 type Tarea = {
+  id: string;
   texto: string;
   completada: boolean;
+  fecha_creacion: string;
+  fecha_modificacion: string;
+  fecha_realizada: string | null;
+  tableroId: string;
 };
 
 const App = () => {
-  const [tareas, setTareas] = useState<Tarea[]>([]);
-  const [filtro, setFiltro] = useState<"todas" | "activas" | "completadas">(
-    "todas"
-  );
-  const [texto, setTexto] = useState("");
+  const { tableroId } = useParams({ from: "/tablero/$tableroId" });
 
-  const tareasFiltradas = tareas.filter((t) =>
-    filtro === "activas"
-      ? !t.completada
-      : filtro === "completadas"
-      ? t.completada
-      : true
-  );
-
-  const agregarTarea = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!texto.trim()) return;
-    setTareas([...tareas, { texto: texto.trim(), completada: false }]);
-    setTexto("");
-  };
-
-  const toggleCompletada = (index: number) => {
-    const nuevas = [...tareas];
-    nuevas[index].completada = !nuevas[index].completada;
-    setTareas(nuevas);
-  };
-
-  const eliminarTarea = (index: number) => {
-    setTareas(tareas.filter((_, i) => i !== index));
-  };
-
-  const limpiarCompletadas = () => {
-    const confirmar = confirm(
-      "¿Seguro que querés eliminar todas las tareas completadas?"
-    );
-    if (!confirmar) return;
-    setTareas(tareas.filter((t) => !t.completada));
-  };
+  const {
+    data: tareas = [],
+    isLoading,
+    isError,
+  } = useQuery<Tarea[]>({
+    queryKey: ["tareas", tableroId],
+    queryFn: () =>
+      axios
+        .get(`http://localhost:8008/tareas?tableroId=${tableroId}`)
+        .then((res) => res.data),
+    enabled: !!tableroId,
+  });
 
   return (
-    <div className="w-full flex justify-center px-4 float-center">
-      <Header filtro={filtro} setFiltro={setFiltro} />
+    <div className="w-full flex flex-col items-center px-4 bg-white bg-opacity-10 relative p-6">
+      <Header />
+      <Notificaciones />
 
-      <main className="w-full flex justify-center mt-[120px] px-4 align-center">
-      <div className="tareas w-full max-w-xl mx-auto mt-8 p-4 float-center">
-          <div className="contenedor-form flex justify-center items-center mb-8 w-full">
-            <form
-              onSubmit={agregarTarea}
-              className="flex justify-center items-center gap-0 max-w-xl w-full"
-            >
-              <input
-                type="text"
-                value={texto}
-                onChange={(e) => setTexto(e.target.value)}
-                placeholder="¿Qué necesitas hacer?"
-                required
-                className="rounded h-16 border-none w-[90%] pl-4 bg-gray-200 placeholder-gray-700 text-black"
-              />
-            </form>
-          </div>
-
-          <ListaTareas
-            tareas={tareasFiltradas}
-            onToggle={toggleCompletada}
-            onDelete={eliminarTarea}
-            onClearCompleted={limpiarCompletadas}
-          />
+      <main className="w-full flex justify-center mt-8 px-4">
+        <div className="tareas w-full max-w-xl mx-auto mt-5 p-4">
+          {isError ? (
+            <div className="text-red-500">Error cargando tareas.</div>
+          ) : (
+            <ListaTareas tareas={tareas} isLoading={isLoading} />
+          )}
         </div>
       </main>
     </div>
