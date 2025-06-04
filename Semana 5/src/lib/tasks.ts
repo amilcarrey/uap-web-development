@@ -2,6 +2,7 @@ export type Task = {
   id: string;
   text: string;
   done: boolean;
+  boardId: string;
 };
   
 export let tasks: Task[] = [];

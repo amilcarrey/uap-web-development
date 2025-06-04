@@ -3,16 +3,19 @@ import type { Task } from '../types';
 import { BASE_URL } from '../hooks/useTasks';
 import { useFilterStore } from '../store/useFilterStore';
 import { showToast } from '../utils/showToast';
+import { useBoardStore } from '../store/useBoardStore';
 
 type TaskItemProps = {
 	task: Task;
+  // boardId: string;
   setTaskEditing: (task: Task | null) => void;
 };
 
 export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
   const filter = useFilterStore((state) => state.filter);
+  const boardId = useBoardStore((state) => state.activeBoardId);
 	const queryClient = useQueryClient();
-	const queryKey = ['tasks', filter];
+	const queryKey = ['tasks', filter, boardId];
 
 	const { mutate: toggleTask } = useMutation({
 		mutationFn: async (id: string) => {
@@ -21,7 +24,7 @@ export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ id }),
+				body: JSON.stringify({ id, boardId }),
 			});
 
       const data: Task = await response.json();

@@ -3,15 +3,16 @@ import { TaskItem } from './TaskItem.tsx';
 import { useTasks } from '../hooks/useTasks.tsx';
 
 type TaskItemProps = {
+  boardId: string;
   page: number;
   setPage: (page: number) => void;
   setTaskEditing: (task: Task | null) => void;
 };
 
-export function TaskList({ page, setPage, setTaskEditing }: TaskItemProps) {
+export function TaskList({ boardId, page, setPage, setTaskEditing }: TaskItemProps) {
   const limit = 5;
 
-  const { data, isLoading, isError } = useTasks(page, limit);
+  const { data, isLoading, isError } = useTasks( page, limit);
 
   if (isLoading) return (
     <div className="flex justify-center items-center h-full">

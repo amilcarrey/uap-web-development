@@ -1,6 +1,7 @@
 import type { Task } from "../types";
 import { useQuery } from "@tanstack/react-query";
 import { useFilterStore } from "../store/useFilterStore";
+import { useBoardStore } from "../store/useBoardStore";
 
 export type TaskFilter = "all" | "completed" | "incomplete";
 export const BASE_URL = "http://localhost:4321/api";
@@ -10,15 +11,16 @@ type UseTasksResult = {
   total: number;
 }
 
-export function useTasks(page: number, limit = 5) {
+export function useTasks( page: number, limit = 5) {
   const filter = useFilterStore((state) => state.filter);
-  const queryKey = ["tasks", filter, page];
+  const activeBoardId = useBoardStore((state) => state.activeBoardId);
+  const queryKey = ["tasks", filter, activeBoardId, page];
 
   return useQuery<UseTasksResult>({
     queryKey,
     queryFn: async () => {
       await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate a delay
-      const response = await fetch(`${BASE_URL}/filtros?filter=${filter}&page=${page}&limit=${limit}`, {
+      const response = await fetch(`${BASE_URL}/filtros?activeBoardId=${activeBoardId}&filter=${filter}&page=${page}&limit=${limit}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

@@ -3,10 +3,10 @@ import { BASE_URL } from "../hooks/useTasks";
 import type { Task } from "../types";
 import { useFilterStore } from "../store/useFilterStore";
 
-export function ClearCompleted() {
+export function ClearCompleted({ boardId }: { boardId: string }) {
   const filter = useFilterStore((state) => state.filter);
   const queryClient = useQueryClient();
-  const queryKey = ["tasks", filter];
+  const queryKey = ["tasks", filter, boardId];
   
   const { mutate: clearCompleted } = useMutation({
     mutationFn: async () => {

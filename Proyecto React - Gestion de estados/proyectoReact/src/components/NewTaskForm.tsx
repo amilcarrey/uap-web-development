@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Task } from "../types";
 import { useFilterStore } from "../store/useFilterStore";
 import { showToast } from "../utils/showToast";
+import { useBoardStore } from "../store/useBoardStore";
 
 type NewTaskFormProps = {
   page: number;
@@ -14,19 +15,21 @@ type NewTaskFormProps = {
 
 export function NewTaskForm({ page, setPage, taskEditing, setTaskEditing }: NewTaskFormProps) {
   const filter = useFilterStore((state) => state.filter);
+  const activeBoardId = useBoardStore((state) => state.activeBoardId);
+  console.log("Active Board ID in NewTaskForm:", activeBoardId);
   const queryClient = useQueryClient();
-  const queryKey = ["tasks", filter, page];
+  const queryKey = ["tasks", filter, activeBoardId, page];
 
   const isEditing = taskEditing !== null;
 
   const { mutate: addTask } = useMutation({
-    mutationFn: async (text: string) => {
+    mutationFn: async ({ text, activeBoardId }: {text: string; activeBoardId: string}) => {
       const response = await fetch(`${BASE_URL}/agregar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, activeBoardId }),
       });
 
       const data: Task = await response.json();
@@ -34,6 +37,7 @@ export function NewTaskForm({ page, setPage, taskEditing, setTaskEditing }: NewT
     },
     onSuccess: () => {
       showToast("Task added successfully", "success");
+      console.log("queryKey antes del invalidate", queryKey);
       queryClient.invalidateQueries({ queryKey });
       setTaskEditing(null);
     },
@@ -79,7 +83,8 @@ export function NewTaskForm({ page, setPage, taskEditing, setTaskEditing }: NewT
     if (isEditing && taskEditing) {
       editTask({ id: taskEditing.id, text });
     } else {
-      addTask(text);
+      console.log("Adding task to board:", activeBoardId);
+      addTask({ text, activeBoardId });
     }
     setInputValue(""); // Clear input after submission
   }
