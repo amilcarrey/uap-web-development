@@ -1,10 +1,7 @@
-// @ts-check
+/** @type {import('astro').AstroUserConfig} */
 import { defineConfig } from "astro/config";
-import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-output: "server",
-  vite: {
-    plugins: [tailwindcss()],
-  },
+  output: "server",
+  integrations: [], // Elimina la integración de Tailwind
 });

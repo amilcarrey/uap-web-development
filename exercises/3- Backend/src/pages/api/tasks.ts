@@ -9,6 +9,7 @@ import {
   listarTareasPaginadas,
   editTask,
 } from "../../lib/tasks";
+import { categoriaExiste } from "../../lib/categories";
 
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
@@ -16,6 +17,10 @@ export const GET: APIRoute = async ({ request }) => {
   const categoriaId = url.searchParams.get("categoriaId") || "";
   const page = parseInt(url.searchParams.get("page")!, 10); // Asume que siempre se envía
   const pageSize = parseInt(url.searchParams.get("pageSize")!, 10); // Asume que siempre se envía
+
+  if (categoriaId && !categoriaExiste(categoriaId)) {
+    return new Response("Error: La categoría no existe", { status: 404 });
+  }
 
   const result = listarTareasPaginadas(page, pageSize, categoriaId, filtro ?? undefined);
 
@@ -45,16 +50,16 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response("Unsupported Content-Type", { status: 400 });
   }
 
-  if (method === "ADD" && text && categoriaId) {
+  if (method === "ADD_TASK" && text && categoriaId) {
     addTask(text, categoriaId);
-  } else if (method === "DELETE" && id !== null) {
+  } else if (method === "DELETE_TASK" && id !== null) {
     deleteTask(id, categoriaId || "");
-  } else if (method === "TOGGLE" && id !== null) {
+  } else if (method === "TOGGLE_TASK" && id !== null) {
     toggleTaskCompletion(id, categoriaId || "");
   } else if (method === "DELETE_COMPLETED" && categoriaId) {
 
     deleteCompletedTasks(categoriaId);
-  } else if (method === "EDIT" && id !== null && text && categoriaId) {
+  } else if (method === "EDIT_TASK" && id !== null && text && categoriaId) {
     editTask(id, text, categoriaId);
   } else {
     return new Response("Bad Request", { status: 400 });

@@ -1,7 +1,16 @@
 import { APIRoute } from "astro";
-import { addCategoria, deleteCategoria, listarCategorias } from "../../lib/categories";
+import { addCategoria, deleteCategoria, listarCategorias, categoriaExiste } from "../../lib/categories";
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ request }) => {
+  const url = new URL(request.url);
+  const categoriaId = url.searchParams.get("categoriaId") || "";
+
+  // Validar si se proporciona un categoriaId y si no existe
+  if (categoriaId && !categoriaExiste(categoriaId)) {
+    return new Response("Error: La categoría no existe", { status: 404 });
+  }
+
+  // Si no se proporciona categoriaId o es válido, devolver todas las categorías
   const categorias = listarCategorias();
   return new Response(JSON.stringify(categorias), {
     status: 200,
@@ -26,9 +35,12 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response("Unsupported Content-Type", { status: 400 });
   }
 
-  if (method === "ADD" && name) {
+  if (method === "ADD_CATEGORIA" && name) {
     addCategoria(name);
-  } else if (method === "DELETE" && id) {
+  } else if (method === "DELETE_CATEGORIA" && id) {
+       if (!categoriaExiste(id)) {
+      return new Response("Error: La categoría no existe", { status: 404 });
+    }
     deleteCategoria(id);
   } else {
     return new Response("Bad Request", { status: 400 });
