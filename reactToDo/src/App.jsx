@@ -1,61 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { loadTasks, saveTasks } from './utils/storage';
 import Tabs from './components/Tabs';
 import TaskList from './components/TaskList';
 import AddTask from './components/AddTask';
 import TaskFilters from './components/TaskFilters';
-import './index.css';
+import './App.css';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('Personal');
-  const [tasks, setTasks] = useState({
-    Personal: [
-      { id: 1, text: 'Comprar leche', completed: false },
-      { id: 2, text: 'Ir al gimnasio', completed: false }
-    ],
-    University: [
-      { id: 3, text: 'Terminar ensayo', completed: false },
-      { id: 4, text: 'Leer capítulo 5', completed: false }
-    ],
-    Work: [
-      { id: 5, text: 'Preparar presentación', completed: false },
-      { id: 6, text: 'Responder emails', completed: false }
-    ]
-  });
+  const [tasks, setTasks] = useState(loadTasks());
   const [filter, setFilter] = useState('all');
 
-  const addTask = (taskText) => {
-    const newTask = {
-      id: Date.now(),
-      text: taskText,
-      completed: false
-    };
-    
-    setTasks(prevTasks => ({
-      ...prevTasks,
-      [activeTab]: [...prevTasks[activeTab], newTask]
+  // Persiste los cambios en localStorage
+  useEffect(() => {
+    saveTasks(tasks);
+  }, [tasks]);
+
+  const addTask = (text) => {
+    const newTask = { id: Date.now(), text, completed: false };
+    setTasks(prev => ({
+      ...prev,
+      [activeTab]: [...(prev[activeTab] || []), newTask]
     }));
   };
 
-  const toggleTaskCompletion = (taskId) => {
-    setTasks(prevTasks => ({
-      ...prevTasks,
-      [activeTab]: prevTasks[activeTab].map(task => 
-        task.id === taskId ? { ...task, completed: !task.completed } : task
+  const toggleTask = (id) => {
+    setTasks(prev => ({
+      ...prev,
+      [activeTab]: prev[activeTab].map(task => 
+        task.id === id ? { ...task, completed: !task.completed } : task
       )
     }));
   };
 
-  const deleteTask = (taskId) => {
-    setTasks(prevTasks => ({
-      ...prevTasks,
-      [activeTab]: prevTasks[activeTab].filter(task => task.id !== taskId)
+  const deleteTask = (id) => {
+    setTasks(prev => ({
+      ...prev,
+      [activeTab]: prev[activeTab].filter(task => task.id !== id)
     }));
   };
 
   const clearCompleted = () => {
-    setTasks(prevTasks => ({
-      ...prevTasks,
-      [activeTab]: prevTasks[activeTab].filter(task => !task.completed)
+    setTasks(prev => ({
+      ...prev,
+      [activeTab]: prev[activeTab].filter(task => !task.completed)
     }));
   };
 
@@ -75,13 +63,13 @@ export default function App() {
       <AddTask onAddTask={addTask} />
       <TaskFilters 
         currentFilter={filter}
-        onFilterChange={setFilter}
+        onFilterChange={setFilter} 
         onClearCompleted={clearCompleted}
       />
       <TaskList 
-        tasks={getFilteredTasks()} 
-        onToggleCompletion={toggleTaskCompletion}
-        onDeleteTask={deleteTask}
+        tasks={getFilteredTasks()}
+        onToggle={toggleTask}
+        onDelete={deleteTask}
       />
     </div>
   );
