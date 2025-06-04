@@ -132,6 +132,23 @@ console.log("Tareas pasadas a TaskList:", data?.tasks); // Agrega este log para 
 console.log("categoriaId en TaskManager:", categoriaId);
 console.log("filtro en TaskManager:", filtro);
 
+  // Verificar si hay un error 404
+
+if (error?.message === "URL inválida: El tablero no existe") {
+  return (
+    <div className="flex flex-col items-center justify-center w-full h-full">
+      <h1 className="text-2xl font-bold text-red-500">URL inválida: El tablero no existe</h1>
+      <button
+        onClick={() => (window.location.href = "/settings")}
+        className="bg-orange-400 text-white px-4 py-2 rounded mt-4"
+      >
+        Ir a Configuraciones
+      </button>
+    </div>
+  );
+}
+  
+
     return (
       <div className="TaskManager flex flex-col items-center justify-center w-full h-full">
         <Title />

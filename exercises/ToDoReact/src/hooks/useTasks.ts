@@ -18,6 +18,9 @@ export function useTasks(filtro?: "completadas" | "pendientes", page = 1, pageSi
     queryFn: async () => {
       const res = await fetch(`${API_URL}/api/tasks?filtro=${filtro}&categoriaId=${categoriaId}&page=${page}&pageSize=${pageSize}`);
       if (!res.ok) {
+          if (res.status === 404) {
+          throw new Error("URL inválida: El tablero no existe");
+        }
         console.error("Error al cargar tareas:", res.statusText);
         throw new Error("Error al cargar tareas");
       }

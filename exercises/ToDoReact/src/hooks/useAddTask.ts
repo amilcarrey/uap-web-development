@@ -11,7 +11,7 @@ export function useAddTask() {
       const res = await fetch(`${API_URL}/api/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ _method: "ADD", text, categoriaId, page }),
+        body: JSON.stringify({ _method: "ADD_TASK", text, categoriaId, page }),
       });
       if (!res.ok) throw new Error("No se pudo agregar la tarea");
       return res.json();
