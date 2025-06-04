@@ -1,0 +1,90 @@
+{
+  "tareas": [
+    {
+      "id": "1",
+      "name": "dormir",
+      "completed": true,
+      "boardId": "personal"
+    },
+    {
+      "id": "2",
+      "name": "leer",
+      "completed": true,
+      "boardId": "personal"
+    },
+    {
+      "id": "3",
+      "name": "comer3",
+      "completed": false,
+      "boardId": "profesional"
+    },
+    {
+      "id": "4bb6",
+      "name": "comer",
+      "completed": true,
+      "boardId": "estudio"
+    },
+    {
+      "id": "12a4",
+      "name": "asd",
+      "completed": true,
+      "boardId": "profesional"
+    },
+    {
+      "id": "57f4",
+      "name": "asd",
+      "completed": false,
+      "boardId": "profesional"
+    },
+    {
+      "id": "3037",
+      "name": "asd",
+      "completed": false,
+      "boardId": "profesional"
+    },
+    {
+      "id": "441b",
+      "name": "hfgh",
+      "completed": true,
+      "boardId": "profesional"
+    },
+    {
+      "id": "4b3d",
+      "name": "das",
+      "completed": false,
+      "boardId": "personal"
+    },
+    {
+      "id": "025e",
+      "name": "asd",
+      "completed": false,
+      "boardId": "personal"
+    },
+    {
+      "id": "9aff",
+      "name": "dased",
+      "completed": false,
+      "boardId": "profesional"
+    },
+    {
+      "id": "772e",
+      "name": "fds",
+      "completed": true,
+      "boardId": "profesional"
+    }
+  ],
+  "tableros": [
+    {
+      "id": "personal",
+      "nombre": "Personal"
+    },
+    {
+      "id": "profesional",
+      "nombre": "Profesional"
+    },
+    {
+      "id": "estudio",
+      "nombre": "estudio"
+    }
+  ]
+}

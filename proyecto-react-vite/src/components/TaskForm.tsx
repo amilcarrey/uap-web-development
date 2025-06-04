@@ -1,15 +1,24 @@
 import { useState } from "react";
-import { useTaskStore } from "../state/taskStore";
+import { useAddTask } from "../api/useTasks";
+import { toast } from "react-hot-toast";
 
-export default function TaskForm() {
+export default function TaskForm({ boardId }: { boardId: string }) {
   const [task, setTask] = useState("");
-  const addTask = useTaskStore((state) => state.addTask);
+  const addTask = useAddTask();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!task.trim()) return;
-    addTask(task.trim());
-    setTask("");
+
+    addTask.mutate({ name: task.trim(), boardId }, {
+      onSuccess: () => {
+        toast.success("Tarea agregada");
+        setTask("");
+      },
+      onError: () => {
+        toast.error("Error al agregar tarea");
+      }
+    });
   };
 
   return (
