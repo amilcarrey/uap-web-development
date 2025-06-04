@@ -1,10 +1,12 @@
+import styles from './TaskList.module.css';
+
 export default function TaskList({ tasks }) {
   return (
-    <ul className="task-list">
+    <ul className={styles.taskList}>
       {tasks.map((task, index) => (
-        <li key={index} className="task-item">
-          <input type="checkbox" className="task-checkbox" />
-          <span className="task-text">{task}</span>
+        <li key={index} className={styles.taskItem}>
+          <input type="checkbox" className={styles.taskCheckbox} />
+          <span className={styles.taskText}>{task}</span>
         </li>
       ))}
     </ul>
