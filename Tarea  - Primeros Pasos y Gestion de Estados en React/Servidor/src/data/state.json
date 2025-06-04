@@ -1,0 +1,294 @@
+{
+  "tasks": [
+    {
+      "text": "Comprar útiles",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837710"
+    },
+    {
+      "text": "Estudiar para el examen",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837711"
+    },
+    {
+      "text": "Hacer tarea de matemáticas",
+      "completed": true,
+      "tabId": "tab-1",
+      "id": "1749005837712"
+    },
+    {
+      "text": "Leer historia",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837713"
+    },
+    {
+      "text": "Preparar presentación",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837714"
+    },
+    {
+      "text": "Resolver ejercicios de física",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837715"
+    },
+    {
+      "text": "Investigar biología",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837716"
+    },
+    {
+      "text": "Hacer resumen de literatura",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837717"
+    },
+    {
+      "text": "Revisar apuntes",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837718"
+    },
+    {
+      "text": "Consultar dudas con profesor",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837719"
+    },
+    {
+      "text": "Preparar mochila",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837720"
+    },
+    {
+      "text": "Imprimir trabajos",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837721"
+    },
+    {
+      "text": "Buscar libros en biblioteca",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837722"
+    },
+    {
+      "text": "Hacer maqueta",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837723"
+    },
+    {
+      "text": "Enviar tarea por mail",
+      "completed": false,
+      "tabId": "tab-1",
+      "id": "1749005837724"
+    },
+    {
+      "text": "Ir al gimnasio",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837725"
+    },
+    {
+      "text": "Llamar al médico",
+      "completed": true,
+      "tabId": "tab-4",
+      "id": "1749005837726"
+    },
+    {
+      "text": "Leer un libro",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837727"
+    },
+    {
+      "text": "Limpiar la casa",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837728"
+    },
+    {
+      "text": "Cocinar cena",
+      "completed": true,
+      "tabId": "tab-4",
+      "id": "1749005837729"
+    },
+    {
+      "text": "Pasear al perro",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837730"
+    },
+    {
+      "text": "Hacer compras",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837731"
+    },
+    {
+      "text": "Lavar ropa",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837732"
+    },
+    {
+      "text": "Pagar facturas",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837733"
+    },
+    {
+      "text": "Organizar escritorio",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837734"
+    },
+    {
+      "text": "Ver una película",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837735"
+    },
+    {
+      "text": "Llamar a un amigo",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837736"
+    },
+    {
+      "text": "Actualizar agenda",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837737"
+    },
+    {
+      "text": "Meditar 10 minutos",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837738"
+    },
+    {
+      "text": "Regar las plantas",
+      "completed": false,
+      "tabId": "tab-4",
+      "id": "1749005837739"
+    },
+    {
+      "text": "Planificar viaje",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837740"
+    },
+    {
+      "text": "Reservar hotel",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837741"
+    },
+    {
+      "text": "Comprar pasajes",
+      "completed": true,
+      "tabId": "tab-5",
+      "id": "1749005837742"
+    },
+    {
+      "text": "Hacer maletas",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837743"
+    },
+    {
+      "text": "Buscar actividades",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837744"
+    },
+    {
+      "text": "Contratar seguro de viaje",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837745"
+    },
+    {
+      "text": "Cambiar dinero",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837746"
+    },
+    {
+      "text": "Revisar pasaporte",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837747"
+    },
+    {
+      "text": "Imprimir reservas",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837748"
+    },
+    {
+      "text": "Buscar restaurantes",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837749"
+    },
+    {
+      "text": "Ver clima del destino",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837750"
+    },
+    {
+      "text": "Comprar adaptador de enchufe",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837751"
+    },
+    {
+      "text": "Hacer itinerario",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837752"
+    },
+    {
+      "text": "Cargar cámara de fotos",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837753"
+    },
+    {
+      "text": "Enviar dirección a familia",
+      "completed": false,
+      "tabId": "tab-5",
+      "id": "1749005837754"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Escuela",
+      "id": "tab-1"
+    },
+    {
+      "title": "Personal",
+      "id": "tab-4"
+    },
+    {
+      "title": "Viajes",
+      "id": "tab-5"
+    },
+    {
+      "title": "Trabajo",
+      "id": "tab-6"
+    }
+  ],
+  "currentTab": "personal",
+  "currentFilter": "all"
+}
