@@ -1,5 +1,7 @@
+import type { TaskFilter } from "../types";
+
 type TaskFiltersProps = {
-  onFilter: (filter: string) => void;
+  onFilter: (filter: TaskFilter) => void;
 };
 
 export default function TaskFilters({ onFilter }: TaskFiltersProps) {
