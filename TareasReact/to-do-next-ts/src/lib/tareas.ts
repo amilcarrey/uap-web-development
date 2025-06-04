@@ -1,52 +1,86 @@
+import fs from 'fs';
+import path from 'path';
+
+const DATA_PATH = path.join(process.cwd(), 'data', 'tareas.json');
+
 export type Tarea = {
   id: string;
   texto: string;
+  tableroId: string;
   completada: boolean;
 };
 
-type State = {
-  tareas: Tarea[];
-};
+function asegurarArchivo() {
+  if (!fs.existsSync(DATA_PATH)) {
+    fs.mkdirSync(path.dirname(DATA_PATH), { recursive: true });
+    fs.writeFileSync(DATA_PATH, '[]', 'utf-8');
+  }
+}
 
-// Estado en memoria (se borra al reiniciar el servidor)
-const state: State = {
-  tareas: [],
-};
+function leerTareas(): Tarea[] {
+  asegurarArchivo();
+  const data = fs.readFileSync(DATA_PATH, 'utf-8');
+  return JSON.parse(data) as Tarea[];
+}
+
+function guardarTareas(tareas: Tarea[]) {
+  fs.writeFileSync(DATA_PATH, JSON.stringify(tareas, null, 2), 'utf-8');
+}
 
 // Obtener todas las tareas
 export const getTareas = (): Tarea[] => {
-  return state.tareas;
+  return leerTareas();
 };
 
 // Agregar nueva tarea
-export const agregarTarea = (texto: string): Tarea => {
+export const agregarTarea = (texto: string, tableroId: string): Tarea => {
+  const tareas = leerTareas();
   const nueva: Tarea = {
     id: crypto.randomUUID(),
     texto,
+    tableroId, // Usar el que viene como parámetro
     completada: false,
   };
-  state.tareas.push(nueva);
+  const actualizadas = [...tareas, nueva];
+  guardarTareas(actualizadas);
   return nueva;
 };
 
+
 // Alternar completada
-// Consigna 3: Capacidad de completar y descompletar una tarea al clickear en su correspondiente checkbox.
 export const toggleTarea = (id: string): Tarea | undefined => {
-  const tarea = state.tareas.find((t) => t.id === id);
-  if (tarea) {
-    tarea.completada = !tarea.completada;
+  const tareas = leerTareas();
+  const idx = tareas.findIndex((t) => t.id === id);
+  if (idx !== -1) {
+    tareas[idx].completada = !tareas[idx].completada;
+    guardarTareas(tareas);
+    return tareas[idx];
   }
-  return tarea;
+  return undefined;
 };
 
 // Borrar una tarea
-// Consigna 4: Capacidad de eliminar una tarea de la lista.
 export const borrarTarea = (id: string): void => {
-  state.tareas = state.tareas.filter((t) => t.id !== id);
+  const tareas = leerTareas();
+  const actualizadas = tareas.filter((t) => t.id !== id);
+  guardarTareas(actualizadas);
 };
 
-// Limpiar todas las completadas
-// Consigna 5: Eliminar todas las tareas ya completadas al clickear el botón de Clear Completed.
+// Limpiar completadas
 export const limpiarCompletadas = (): void => {
-  state.tareas = state.tareas.filter((t) => !t.completada);
+  const tareas = leerTareas();
+  const actualizadas = tareas.filter((t) => !t.completada);
+  guardarTareas(actualizadas);
+};
+
+// Editar una tarea
+export const editarTarea = (id: string, nuevoTexto: string): Tarea | undefined => {
+  const tareas = leerTareas();
+  const idx = tareas.findIndex((t) => t.id === id);
+  if (idx !== -1) {
+    tareas[idx].texto = nuevoTexto;
+    guardarTareas(tareas);
+    return tareas[idx];
+  }
+  return undefined;
 };

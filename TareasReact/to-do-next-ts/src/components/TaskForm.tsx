@@ -3,29 +3,29 @@
 import { useState, FormEvent } from 'react';
 
 type Props = {
-  onAdd: (texto: string) => void;
+  onAdd: (texto: string, tableroId: string) => void;
+  tableroId: string | null; // antes era solo string
 };
 
-// Consigna 1: Cuando se apriete el botón de agregar, validar que se haya ingresado texto en el input. Agregar una nueva tarea incompleta con ese texto y borrar el input.
-export default function TaskForm({ onAdd }: Props) {
+
+export default function TaskForm({ onAdd, tableroId }: Props) {
   const [texto, setTexto] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const clean = texto.trim();
-    if (!clean) return;
-    onAdd(clean);
+    if (!tableroId) return null; // no renderizar si no hay tablero
+    onAdd(clean, tableroId); // Pasás el id
     setTexto('');
   };
 
-// Consigna 2: Realizar lo mismo cuando se apriete la tecla Enter mientras se escribe en el input.
   return (
     <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
       <input
         value={texto}
         onChange={(e) => setTexto(e.target.value)}
         placeholder="Nueva tarea"
-        className="flex-grow border px-4 py-2 rounded"
+        className="flex-grow border px-4 py-2 rounded placeholder:text-gray-400 text-gray-800"
       />
       <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
         Agregar

@@ -1,49 +1,52 @@
 'use client';
 
-export type Tarea = {
-  id: string;
-  texto: string;
-  completada: boolean;
-};
+import { Tarea } from '@/lib/tareas';
+import { useConfigStore } from '@/stores/configStore';
 
 type Props = {
   tarea: Tarea;
-  onToggle: (id: string) => void;
-  onDelete: (id: string) => void;
+  onToggle?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onEdit?: () => void;
 };
 
-export default function TaskItem({ tarea, onToggle, onDelete }: Props) {
-  return (
-    <li>
-      <div className="flex items-center justify-between gap-4 p-4 bg-white rounded shadow">
-        <button
-        // Consigna 3: Capacidad de completar y descompletar una tarea al clickear en su correspondiente checkbox.
-          onClick={() => onToggle(tarea.id)}
-          className={`text-xl w-7 h-7 flex items-center justify-center rounded-full border transition ${
-            tarea.completada
-              ? 'bg-green-100 text-green-700 border-green-500'
-              : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
-          }`}
-        >
-          {tarea.completada ? '✔️' : ''}
-        </button>
+export default function TaskItem({ tarea, onToggle, onDelete, onEdit }: Props) {
+  const { mayusculas } = useConfigStore();
 
-        <span
-          className={`flex-grow text-lg ${
-            tarea.completada ? 'line-through text-gray-400' : 'text-gray-800'
-          }`}
-        >
-          {tarea.texto}
-        </span>
-        
-        {/* Consigna 4: Borrar una tarea al clickear en su correspondiente botón. */}
+  return (
+    <div className="flex items-center justify-between bg-white rounded p-3 shadow">
+      <button
+        onClick={() => onToggle?.(tarea.id)}
+        className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
+          tarea.completada ? 'bg-green-500 border-green-500' : 'border-gray-400'
+        }`}
+        title="Marcar como completada"
+      >
+        {tarea.completada && (
+          <span className="text-white text-sm font-bold">✓</span>
+        )}
+      </button>
+
+      <span className="flex-1 text-gray-700">
+        {mayusculas ? tarea.texto.toUpperCase() : tarea.texto}
+      </span>
+
+      <div className="flex gap-2 ml-3">
         <button
-          onClick={() => onDelete(tarea.id)}
-          className="text-white bg-red-500 hover:bg-red-700 px-3 py-1 rounded"
+          onClick={onEdit}
+          className="text-blue-600 hover:text-blue-800"
+          title="Editar"
         >
-          🗑️
+          ✏️
+        </button>
+        <button
+          onClick={() => onDelete?.(tarea.id)}
+          className="text-red-600 hover:text-red-800"
+          title="Eliminar"
+        >
+          🗑
         </button>
       </div>
-    </li>
+    </div>
   );
 }

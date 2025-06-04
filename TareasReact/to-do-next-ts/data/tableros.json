@@ -1,0 +1,14 @@
+[
+  {
+    "id": "default",
+    "nombre": "Principal"
+  },
+  {
+    "id": "1234",
+    "nombre": "Secundario"
+  },
+  {
+    "id": "c124206b-a7fd-4d07-b9fc-3ff1129d198a",
+    "nombre": "Terciario"
+  }
+]

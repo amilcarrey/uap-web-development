@@ -5,48 +5,59 @@ import {
   borrarTarea,
   toggleTarea,
   limpiarCompletadas,
+  editarTarea,
 } from '@/lib/tareas';
 
 export async function GET(req: NextRequest) {
   const filtro = req.nextUrl.searchParams.get('filtro') || 'todas';
+  const page = parseInt(req.nextUrl.searchParams.get('page') || '1');
+  const limit = parseInt(req.nextUrl.searchParams.get('limit') || '5');
+  const tableroId = req.nextUrl.searchParams.get('tableroId');
 
-  // Consigna 6: Agregar botones de filtro que permitan ver todas las tareas, las incompletas y las completas. Prestar atención que si se aplica un filtro, no se pierdan datos y se pueda volver a un estado anterior.
-  const tareas = getTareas().filter((t) =>
-    filtro === 'completas'
-      ? t.completada
-      : filtro === 'incompletas'
-      ? !t.completada
-      : true
+  const todas = getTareas();
+
+  const filtradas = todas.filter((t) =>
+    (filtro === 'completas' ? t.completada :
+     filtro === 'incompletas' ? !t.completada :
+     true) &&
+    (!tableroId || t.tableroId === tableroId)
   );
 
-  return NextResponse.json(tareas);
+  const total = filtradas.length;
+  const inicio = (page - 1) * limit;
+  const paginadas = filtradas.slice(inicio, inicio + limit);
+
+  return NextResponse.json({ tareas: paginadas, total });
 }
 
+
 export async function POST(req: NextRequest) {
-  const { accion, texto, id } = await req.json();
+  const { accion, texto, id, tableroId } = await req.json();
 
-  if (accion === 'agregar' && texto) {
-    const tarea = agregarTarea(texto);
-    return NextResponse.json({ tarea });
-  }
+if (accion === 'agregar' && texto && tableroId) {
+  const tarea = agregarTarea(texto, tableroId);
+  return NextResponse.json({ tarea });
+}
 
-  // Consigna 3: Capacidad de completar y descompletar una tarea al clickear en su correspondiente checkbox.
-  if (accion === 'toggle' && id) {
-    const tarea = toggleTarea(id);
-    return NextResponse.json({ tarea });
-  }
+if (accion === 'editar' && id && texto) {
+  const tarea = editarTarea(id, texto);
+  return NextResponse.json({ tarea });
+}
 
-  // Consigna 4: Capacidad de eliminar una tarea de la lista.
-  if (accion === 'borrar' && id) {
-    borrarTarea(id);
-    return NextResponse.json({ ok: true });
-  }
+if (accion === 'toggle' && id) {
+  const tarea = toggleTarea(id);
+  return NextResponse.json({ tarea });
+}
 
-  // Consigna 5: Eliminar todas las tareas ya completadas al clickear el botón de Clear Completed.
-  if (accion === 'limpiar') {
-    limpiarCompletadas();
-    return NextResponse.json({ ok: true });
-  }
+if (accion === 'borrar' && id) {
+  borrarTarea(id);
+  return NextResponse.json({ ok: true });
+}
+
+if (accion === 'limpiar') {
+  limpiarCompletadas();
+  return NextResponse.json({ ok: true });
+}
 
   return NextResponse.json({ error: 'Acción no válida' }, { status: 400 });
 }
