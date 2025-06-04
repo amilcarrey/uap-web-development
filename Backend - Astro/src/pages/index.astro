@@ -1,0 +1,122 @@
+---
+import BaseLayout from '../layouts/Layout.astro';
+export const prerender = false;
+
+let filtro = Astro.url.searchParams.get('filter') || 'all';
+let paginaActual = parseInt(Astro.url.searchParams.get('page') || '0', 10);
+const limite = 5;
+
+async function cargarTareas(filtro = 'all', page = 0) {
+  const response = await fetch(`http://localhost:4321/api/tareas/getFiltered?filter=`);
+  const tareas = await response.json();
+  return tareas;
+}
+
+
+if (Astro.request.method === 'POST') {
+  const datos = await Astro.request.formData();
+  const accion = datos.get('_action');
+  if (accion) {
+    await fetch(`http://localhost:4321/api/tareas/${accion}`, {
+      method: 'POST',
+      body: datos
+    });
+  }
+  // Después de hacer post, redirige a la página actual y filtro para mantener paginación
+  return Astro.redirect(Astro.url.pathname + `?filter=${filtro}&page=${paginaActual}`);
+}
+
+let tareas = await cargarTareas(filtro, paginaActual);
+---
+
+<BaseLayout title="Buscador de Messis - Tareas Server">
+  <BaseLayout title="Buscador de Messis - Tareas Server">
+  <header class="bg-orange-100 p-6 text-center rounded-lg">
+    <h1 class="text-4xl font-bold mb-2">Buscador de Messis - Tareas Server</h1>
+  </header>
+
+  <div class="flex justify-center my-6">
+    <img src="https://www.fifpro.org/media/ovzgbezo/messi_w11_2024.jpg" alt="Lionel Messi" class="h-40 rounded-lg" />
+  </div>
+
+  <div class="flex justify-center gap-4 mb-6">
+    <button class="bg-orange-100 border-2 border-orange-100 rounded px-6 py-3 text-lg hover:bg-orange-200 transition">Personal</button>
+    <button class="bg-orange-100 border-2 border-orange-100 rounded px-6 py-3 text-lg hover:bg-orange-200 transition">Profesional</button>
+    <button class="bg-orange-100 border-2 border-orange-100 rounded px-6 py-3 text-lg hover:bg-orange-200 transition">+</button>
+  </div>
+
+  <div class="bg-orange-100 p-6 rounded-lg mx-6">
+    <form method="POST" id="form-agregar" class="flex gap-4">
+      <input 
+        type="text" 
+        name="descripcion" 
+        placeholder="¿Qué tarea necesitas hacer?" 
+        required 
+        class="flex-1 p-3 rounded border border-gray-300 text-lg" 
+      />
+      <button 
+        type="submit" 
+        name="_action" 
+        value="add" 
+        class="bg-blue-300 hover:bg-blue-400 text-black px-6 py-3 rounded">
+        Añadir
+      </button>
+    </form>
+  </div>
+
+  <div class="flex justify-center gap-6 my-6" id="filtros">
+    <a href="#" data-filter="all" class="text-lg" id="filtro-all">Todas</a>
+    <a href="#" data-filter="incomplete" class="text-lg" id="filtro-incomplete">Pendientes</a>
+    <a href="#" data-filter="complete" class="text-lg" id="filtro-complete">Completadas</a>
+  </div>
+
+  <div id="task-list" class="bg-orange-100 p-6 rounded-lg mx-6">
+    {tareas.data.length === 0 ? (
+      <p class="text-center text-gray-600">Sin tareas.</p>
+    ) : (
+      tareas.data.map((tarea) => (
+        <div class={`flex items-center justify-between bg-orange-50 p-3 rounded mb-3 ${tarea.completada ? 'line-through text-gray-500' : ''}`}>
+          <form method="POST" class="inline">
+            <input type="hidden" name="id" value={tarea.id} />
+            <button type="submit" name="_action" value="toggle" class="toggle-btn text-xl">
+              {tarea.completada ? '🔄' : '✔️'}
+            </button>
+          </form>
+
+          <span class="flex-1 mx-4">{tarea.descripcion}</span>
+
+          <form method="POST" class="inline">
+            <input type="hidden" name="id" value={tarea.id} />
+            <button type="submit" name="_action" value="delete" class="delete-btn text-xl">🗑️</button>
+          </form>
+        </div>
+      ))
+    )}
+  </div>
+
+  <!-- Controles de paginación -->
+  <div class="flex justify-center gap-4 mt-6 text-lg">
+    <a 
+      href={`?filter=${filtro}&page=${paginaActual - 1}`} 
+      class={`px-4 py-2 bg-orange-300 rounded hover:bg-orange-400 ${paginaActual <= 1 ? 'opacity-50 pointer-events-none' : ''}`}>
+      Anterior
+    </a>
+    <span class="flex items-center">Página {paginaActual} de {tareas.totalPages}</span>
+    <a 
+      href={`?filter=${filtro}&page=${paginaActual + 1}`} 
+      class={`px-4 py-2 bg-orange-300 rounded hover:bg-orange-400 ${paginaActual >= tareas.totalPages ? 'opacity-50 pointer-events-none' : ''}`}>
+      Siguiente
+    </a>
+  </div>
+
+  <!-- Botón para eliminar completadas -->
+  <div class="text-center mt-6">
+    <form method="POST" id="form-clear">
+      <button type="submit" name="_action" value="clearCompleted" class="bg-blue-300 hover:bg-blue-400 rounded-full w-48 h-10 text-black">Eliminar Completadas</button>
+    </form>
+  </div>
+
+
+
+  <script type="module" src="/scripts/tareas.js"></script>
+</BaseLayout>
