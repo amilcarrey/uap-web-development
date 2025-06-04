@@ -1,0 +1,292 @@
+---
+// SERVER SIDE:
+interface Tarea {
+  id: number;
+  nombre: string;
+  completada: boolean;
+}
+
+// Get tasks from session storage or initialize with default tasks
+let tareas: Tarea[] = [];
+if (!Astro.cookies.has('tareas')) {
+  tareas = [
+    { id: 1, nombre: "Tarea de prueba 1", completada: false },
+    { id: 2, nombre: "Tarea de prueba 2", completada: true }
+  ];
+  Astro.cookies.set('tareas', JSON.stringify(tareas));
+} else {
+  tareas = JSON.parse(Astro.cookies.get('tareas')!.value);
+}
+
+// Process form actions
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+
+    if (data.has("nueva-tarea")) {
+      const nombreTarea = data.get("nueva-tarea")?.toString().trim();
+      if (nombreTarea) {
+        tareas.push({
+          id: Date.now(),
+          nombre: nombreTarea,
+          completada: false,
+        });
+      }
+    } else if (data.has("toggle-tarea")) {
+      const tareaId = parseInt(data.get("toggle-tarea")?.toString() || "0");
+      tareas = tareas.map(t => 
+        t.id === tareaId ? {...t, completada: !t.completada} : t
+      );
+    } else if (data.has("eliminar-tarea")) {
+      const tareaId = parseInt(data.get("eliminar-tarea")?.toString() || "0");
+      tareas = tareas.filter(t => t.id !== tareaId);
+    } else if (data.has("eliminar-completadas")) {
+      tareas = tareas.filter(t => !t.completada);
+    }
+
+    // Save updated tasks and redirect
+    Astro.cookies.set('tareas', JSON.stringify(tareas));
+    return Astro.redirect(`/todo?filtro=${Astro.url.searchParams.get("filtro") || "todas"}`);
+  } catch (error) {
+    console.error("Error processing form:", error);
+  }
+}
+
+// Filtrar tareas
+const filtro = Astro.url.searchParams.get("filtro") || "todas";
+let tareasFiltradas = tareas;
+if (filtro === "completadas") {
+  tareasFiltradas = tareas.filter((t) => t.completada);
+} else if (filtro === "incompletas") {
+  tareasFiltradas = tareas.filter((t) => !t.completada);
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TODO</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>TO-DO | Kevin Stivala</h1>
+
+      <!-- Formulario para nueva tarea -->
+      <form method="POST">
+        <input
+          type="text"
+          name="nueva-tarea"
+          placeholder="Introduce una tarea"
+          required
+        />
+        <button type="submit">Añadir</button>
+      </form>
+
+      <!-- Lista de tareas -->
+      <ul id="lista-tareas">
+        {
+          tareasFiltradas.map((tarea) => (
+            <li>
+              <form method="POST" style="display: inline;">
+                <input type="hidden" name="toggle-tarea" value={tarea.id} />
+                <input
+                  type="checkbox"
+                  checked={tarea.completada}
+                  onchange="this.form.submit()"
+                />
+                <span
+                  style={
+                    tarea.completada ? "text-decoration: line-through" : ""
+                  }
+                >
+                  {tarea.nombre}
+                </span>
+              </form>
+
+              <form method="POST" style="display: inline;">
+                <input type="hidden" name="eliminar-tarea" value={tarea.id} />
+                <button type="submit">×</button>
+              </form>
+            </li>
+          ))
+        }
+      </ul>
+
+      <!-- Filtros y acciones -->
+      <div>
+        <form method="POST" style="display: inline;">
+            <button type="submit" name="eliminar-completadas" value="true">
+              Eliminar Completadas
+            </button>
+          </form>
+
+        <a href="?filtro=todas">
+          <button type="button">Todas</button>
+        </a>
+        <a href="?filtro=incompletas">
+          <button type="button">Incompletas</button>
+        </a>
+        <a href="?filtro=completadas">
+          <button type="button">Completadas</button>
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  body {
+    margin: 0;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+      "Helvetica Neue", sans-serif;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .container {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 800px;
+    margin: 20px;
+  }
+
+  h1 {
+    margin: 40px 0;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    text-shadow: none;
+  }
+
+  form {
+    margin: 30px auto;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    max-width: 600px;
+  }
+
+  input[type="text"] {
+    padding: 12px 16px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 10px;
+    width: 100%;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+  }
+
+  input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #0071e3;
+  }
+
+  input[type="submit"] {
+    padding: 12px 24px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 10px;
+    background-color: #0071e3;
+    color: #ffffff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  input[type="submit"]:hover {
+    background-color: #0077ed;
+    transform: translateY(-1px);
+  }
+
+  #lista-tareas {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0;
+  }
+
+  li {
+    list-style: none;
+    margin: 12px auto;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 12px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+  }
+
+  li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  label {
+    font-size: 1rem;
+    color: #1d1d1f;
+  }
+
+  button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #f5f5f7;
+    color: #1d1d1f;
+    margin: 0 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #e5e5e5;
+  }
+
+  #eliminar-completadas {
+    background-color: #ff3b30;
+    color: white;
+  }
+
+  #eliminar-completadas:hover {
+    background-color: #ff453a;
+  }
+
+  @media (max-width: 768px) {
+    body {
+      padding: 16px;
+      align-items: flex-start;
+    }
+
+    .container {
+      padding: 20px;
+      margin: 0;
+      border-radius: 15px;
+    }
+
+    form {
+      flex-direction: column;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+    }
+
+    li {
+      width: 100%;
+      margin: 8px auto;
+    }
+  }
+</style>
