@@ -1,29 +1,24 @@
-export default function Tabs({ activeTab, onTabChange }) {
-  const tabs = ['Personal', 'Universidad', 'Work'];
-  
-  const getTabColor = (tab) => {
-    switch(tab) {
-      case 'Personal': return 'primary';
-      case 'Universidad': return 'secondary';
-      case 'Work': return 'success';
-      default: return 'gray';
-    }
-  };
+import { motion } from 'framer-motion'; // Asegúrate de instalar framer-motion
 
+export default function Tabs({ activeTab, onTabChange, tabs }) {
   return (
-    <div className="flex justify-center space-x-4 mb-6">
-      {tabs.map(tab => (
+    <div className="flex border-b mb-6 relative">
+      {tabs.map((tab) => (
         <button
           key={tab}
-          className={`
-            px-4 py-2 rounded-full font-medium transition-colors
-            ${activeTab === tab 
-              ? `bg-${getTabColor(tab)} text-white shadow-md` 
-              : `bg-gray-100 text-gray-700 hover:bg-gray-200`}
-          `}
           onClick={() => onTabChange(tab)}
+          className={`flex-1 py-3 font-medium text-sm relative z-10 ${
+            activeTab === tab ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+          }`}
         >
           {tab}
+          {activeTab === tab && (
+            <motion.div
+              layoutId="activeTab"
+              className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            />
+          )}
         </button>
       ))}
     </div>
