@@ -1,5 +1,4 @@
 // src/components/Notificaciones.tsx
-import React from "react";
 import { useNotificacionesStore } from "../components/store/useNotificacionesStore";
 
 const Notificaciones = () => {

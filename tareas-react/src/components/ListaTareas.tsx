@@ -7,16 +7,7 @@ import { useMatch } from "@tanstack/react-router";
 import { tableroRoute } from "../routes/routes"; // ajusta según tu estructura
 import { useNotificacionesStore } from "../components/store/useNotificacionesStore"; // ajusta la ruta si es necesario
 import { useConfigStore } from "./store/useConfigStore"; // NUEVO: store para configuración
-
-type Tarea = {
-  id: string;
-  texto: string;
-  completada: boolean;
-  fecha_creacion?: string;
-  fecha_modificacion?: string;
-  fecha_realizada?: string;
-  tableroId?: string;
-};
+import type { Tarea } from "../types";
 
 const TAREAS_POR_PAGINA = 3;
 

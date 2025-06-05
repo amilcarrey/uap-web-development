@@ -3,13 +3,7 @@ import React, { useState } from "react";
 import ListaTareas from "./ListaTareas";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-
-type Tarea = {
-  id: string;
-  texto: string;
-  completada: boolean;
-  listaId: string;
-};
+import type { Tarea } from "../types";
 
 const TableroDeListas = () => {
   const [listas, setListas] = useState<string[]>(["personal"]);

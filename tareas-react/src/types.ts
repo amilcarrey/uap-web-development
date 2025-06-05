@@ -1,5 +1,9 @@
 export type Tarea = {
-    texto: string;
-    completada: boolean;
-  };
-  
+  id: string;
+  texto: string;
+  completada: boolean;
+  fecha_creacion?: string;
+  fecha_modificacion?: string;
+  fecha_realizada?: string | null;
+  tableroId?: string;
+};
