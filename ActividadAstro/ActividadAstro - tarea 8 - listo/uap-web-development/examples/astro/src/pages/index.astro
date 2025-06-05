@@ -1,0 +1,310 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { state } from "../state";
+
+let filtro = Astro.url.searchParams.get('filter') || state.filter;
+let modo = Astro.url.searchParams.get('mode') || state.mode;
+
+function obtenerFiltradoTareas() {
+  let tareasFiltradas = state.tareas.filter(t => t.tablero === modo);
+
+  if (filtro === 'active') {
+    tareasFiltradas = tareasFiltradas.filter((t) => !t.completada);
+  } else if (filtro === 'completed') {
+    tareasFiltradas = tareasFiltradas.filter((t) => t.completada);
+  }
+
+  return tareasFiltradas;
+}
+---
+
+<Layout>
+  <body class="bg-gray-100 min-h-screen">
+    <header class="bg-blue-500 text-white w-full py-5 text-center">
+      <h1 class="text-2xl font-bold">APP TAREAS :)</h1>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex flex-col items-center">
+      <div class="w-full max-w-md">
+
+        {/* Modos Personal/Profesional */}
+        <div class="flex justify-center mb-5 bg-white p-3 rounded-lg shadow gap-10">
+          <button 
+            id="btn-personal"
+            class={`font-bold px-4 py-1 ${modo === 'personal' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+          >
+            Personal
+          </button>
+          <button 
+            id="btn-profesional"
+            class={`font-bold px-4 py-1 ${modo === 'profesional' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+          >
+            Profesional
+          </button>
+        </div>
+
+        {/* Formulario para agregar tarea */}
+        <form method="POST" class="bg-white p-4 rounded-lg shadow flex items-center w-full" id="form-add">
+          <input type="hidden" name="action" value="add" />
+          <input 
+            type="text" 
+            name="task" 
+            placeholder="Nueva tarea" 
+            required
+            class="border-none bg-transparent outline-none text-sm px-2 flex-1"
+          />
+          <button type="submit" class="bg-blue-500 text-white px-5 py-2 rounded ml-3 hover:bg-blue-700">
+            Agregar
+          </button>
+        </form>
+          
+        {/* Contenedor de tareas */}
+        <section class="bg-white p-4 rounded-lg shadow w-full mt-6">
+          {/* Filtros */}
+          <div class="flex justify-center gap-3 mb-4" id="filters">
+            <a 
+              href={`?filter=all&mode=${modo}`}
+              data-filter="all"
+              class={`text-blue-600 px-3 py-1 text-sm ${filtro === 'all' ? 'font-bold border-b-2 border-blue-600' : ''}`}
+            >
+              Todas
+            </a>
+            <a 
+              href={`?filter=active&mode=${modo}`}
+              data-filter="active"
+              class={`text-blue-600 px-3 py-1 text-sm ${filtro === 'active' ? 'font-bold border-b-2 border-blue-600' : ''}`}
+            >
+              Activas
+            </a>
+            <a 
+              href={`?filter=completed&mode=${modo}`}
+              data-filter="completed"
+              class={`text-blue-600 px-3 py-1 text-sm ${filtro === 'completed' ? 'font-bold border-b-2 border-blue-600' : ''}`}
+            >
+              Completadas
+            </a>
+          </div>
+
+          {/* Lista de tareas */}
+          <section id="tareas" class="mt-6 bg-white p-4 rounded-lg">
+            {obtenerFiltradoTareas().length === 0 ? 
+              <p class="text-gray-500 text-base my-5 text-center">No hay tareas</p> 
+            : null}
+            {obtenerFiltradoTareas().map((tarea) => (
+              <div class="flex items-center justify-between py-2 border-b last:border-b-0">
+                <form method="POST" class="flex items-center flex-1 gap-3">
+                  <input type="hidden" name="action" value="toggle" />
+                  <input type="hidden" name="id" value={tarea.id} />
+                  <input type="hidden" name="mode" value={modo} />
+                  <button type="submit" class="text-xl">
+                    {tarea.completada ? "✓" : "◯"}
+                  </button>
+                  <span class={`${tarea.completada ? 'line-through text-gray-400' : ''}`}>{tarea.text}</span>
+                </form>
+
+                <form method="POST">
+                  <input type="hidden" name="action" value="delete" />
+                  <input type="hidden" name="id" value={tarea.id} />
+                  <input type="hidden" name="mode" value={modo} />
+                  <button type="submit" class="text-red-500 hover:text-red-700">
+                    🗑️
+                  </button>
+                </form>
+              </div>
+            ))}
+          </section>
+        </section>
+
+        <div class="flex justify-center mt-4 gap-3" id="paginacion"></div>
+
+        {/* Botones de borrar */}
+        <div class="flex justify-between mt-4">
+          <form method="POST">
+            <input type="hidden" name="action" value="clear-completed" />
+            <input type="hidden" name="mode" value={modo} />
+            <button type="submit" class="text-blue-500 hover:underline">Borrar completadas</button>
+          </form>
+          <form method="POST">
+            <input type="hidden" name="action" value="clear-all" />
+            <input type="hidden" name="mode" value={modo} />
+            <button type="submit" class="text-blue-500 hover:underline">Borrar todo</button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      const tareasContainer = document.getElementById('tareas');
+      const filters = document.getElementById('filters');
+      const paginacion = document.getElementById('paginacion');
+      const btnPersonal = document.getElementById('btn-personal');
+      const btnProfesional = document.getElementById('btn-profesional');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      let currentFilter = urlParams.get('filter') || 'all';
+      let currentMode = urlParams.get('mode') || 'personal';
+      let currentPage = parseInt(urlParams.get('page') || "1");
+      const limit = 5;
+
+      // Actualizar botones de modo
+      function actualizarModoActivo() {
+        btnPersonal.classList.toggle('text-blue-600', currentMode === 'personal');
+        btnPersonal.classList.toggle('border-b-2', currentMode === 'personal');
+        btnPersonal.classList.toggle('text-gray-500', currentMode !== 'personal');
+        
+        btnProfesional.classList.toggle('text-blue-600', currentMode === 'profesional');
+        btnProfesional.classList.toggle('border-b-2', currentMode === 'profesional');
+        btnProfesional.classList.toggle('text-gray-500', currentMode !== 'profesional');
+      }
+
+      async function cargarTareasFiltradas(filter = currentFilter, page = currentPage, mode = currentMode) {
+        currentFilter = filter;
+        currentPage = page;
+        currentMode = mode;
+
+        try {
+          const response = await fetch(`/api/tareas?filter=${filter}&page=${page}&limit=${limit}&mode=${mode}`);
+          if (!response.ok) throw new Error('Error al cargar tareas');
+
+          const data = await response.json();
+          renderizarTareas(data.tasks);
+          renderizarPaginacion(data.totalPages, data.currentPage);
+          actualizarFiltroActivo(filter);
+          actualizarModoActivo();
+          actualizarURL(filter, page, mode);
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+
+      function renderizarTareas(tareas) {
+        if (tareas.length === 0) {
+          tareasContainer.innerHTML = '<p class="text-gray-500 text-base my-5 text-center">No hay tareas</p>';
+          return;
+        }
+
+        tareasContainer.innerHTML = tareas.map(tarea => `
+          <div class="flex items-center justify-between py-2 border-b last:border-b-0">
+            <form method="POST" class="flex items-center flex-1 gap-3">
+              <input type="hidden" name="action" value="toggle" />
+              <input type="hidden" name="id" value="${tarea.id}" />
+              <input type="hidden" name="mode" value="${currentMode}" />
+              <button type="submit" class="text-xl">
+                ${tarea.completada ? "✓" : "◯"}
+              </button>
+              <span class="${tarea.completada ? 'line-through text-gray-400' : ''}">${tarea.text}</span>
+            </form>
+            <form method="POST">
+              <input type="hidden" name="action" value="delete" />
+              <input type="hidden" name="id" value="${tarea.id}" />
+              <input type="hidden" name="mode" value="${currentMode}" />
+              <button type="submit" class="text-red-500 hover:text-red-700">🗑️</button>
+            </form>
+          </div>
+        `).join('');
+      }
+
+      function renderizarPaginacion(totalPages, currentPage) {
+        paginacion.innerHTML = '';
+
+        for (let i = 1; i <= totalPages; i++) {
+          const btn = document.createElement('button');
+          btn.textContent = i;
+          btn.className = `px-3 py-1 rounded ${i === currentPage ? 'bg-blue-500 text-white font-bold' : 'bg-gray-200'}`;
+          btn.addEventListener('click', () => cargarTareasFiltradas(currentFilter, i));
+          paginacion.appendChild(btn);
+        }
+      }
+
+      function actualizarFiltroActivo(filter) {
+        const filterLinks = filters.querySelectorAll('a');
+        filterLinks.forEach(link => {
+          const linkFilter = link.dataset.filter;
+          if (linkFilter === filter) {
+            link.classList.add('font-bold', 'border-b-2', 'border-blue-600');
+          } else {
+            link.classList.remove('font-bold', 'border-b-2', 'border-blue-600');
+          }
+        });
+      }
+
+      function actualizarURL(filter, page, mode) {
+        const url = new URL(window.location);
+        url.searchParams.set('filter', filter);
+        url.searchParams.set('page', page);
+        url.searchParams.set('mode', mode);
+        window.history.pushState({}, '', url);
+      }
+
+      // Event listeners
+      filters.addEventListener('click', (event) => {
+        const filterLink = event.target.closest('a');
+        if (!filterLink) return;
+
+        event.preventDefault();
+        const filter = filterLink.dataset.filter;
+        cargarTareasFiltradas(filter, 1);
+      });
+
+      btnPersonal.addEventListener('click', () => {
+        cargarTareasFiltradas(currentFilter, 1, 'personal');
+      });
+
+      btnProfesional.addEventListener('click', () => {
+        cargarTareasFiltradas(currentFilter, 1, 'profesional');
+      });
+
+      window.addEventListener('popstate', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const filter = urlParams.get('filter') || 'all';
+        const mode = urlParams.get('mode') || 'personal';
+        const page = parseInt(urlParams.get('page') || "1");
+        cargarTareasFiltradas(filter, page, mode);
+      });
+
+      async function enviarFormulario(form) {
+        const formData = new FormData(form);
+        const action = formData.get('action');
+        const id = formData.get('id');
+        const task = formData.get('task');
+        const mode = formData.get('mode') || currentMode;
+
+        const body = { action, id, task, mode };
+
+        const res = await fetch(`/api/tareas/${id || 'nuevo'}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        if (!res.ok) {
+          console.error('Error en el servidor');
+          return;
+        }
+
+        const data = await res.json();
+
+        if (action === 'toggle') {
+          cargarTareasFiltradas(currentFilter, currentPage, currentMode);
+        } else {
+          cargarTareasFiltradas(currentFilter, 1, currentMode);
+        }
+
+        if (form.id === 'form-add') {
+          form.reset();
+        }
+      }
+
+      document.addEventListener('submit', async (event) => {
+        const form = event.target.closest('form');
+        if (!form) return;
+
+        event.preventDefault();
+        await enviarFormulario(form);
+      });
+
+      // Cargar tareas al iniciar
+      cargarTareasFiltradas(currentFilter, currentPage, currentMode);
+    </script>
+  </body>
+</Layout>

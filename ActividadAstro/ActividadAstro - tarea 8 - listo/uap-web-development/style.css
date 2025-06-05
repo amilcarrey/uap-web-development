@@ -1,0 +1,192 @@
+body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+header {
+    background-color: #4a90e2;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+}
+
+header h1 {
+    font-size: 28px;
+}
+
+.modos {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modo {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #4a90e2;
+}
+
+.modo.activo {
+    border-bottom: 2px solid #4a90e2;
+}
+.contenedorinput {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.formulario {
+    background-color: #fff;
+    color: #333;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.formulario input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    padding: 5px;
+    flex: 1;
+}
+
+.formulario button {
+    background: #4a90e2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.formulario button:hover {
+    background: #357ab7;
+}
+
+.filtros {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.filtro {
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #4a90e2;
+    font-size: 14px;
+}
+
+.filtro.activo {
+    font-weight: bold;
+    border-bottom: 2px solid #4a90e2;
+}
+
+.contenedorlista {
+    padding: 15px;
+    text-align: center;
+    background-color: #fff;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.lista {
+    padding: 0px;
+    list-style: none;
+}
+
+.lista li {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border-bottom: 1px solid #eee;
+    padding: 10px;
+}
+
+.lista li:last-child {
+    border-bottom: none;
+}
+
+.lista li.completada .texto-tarea {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.lista li button.check {
+    margin-right: 10px;
+}
+
+.lista li button.eliminar {
+    margin-left: auto;
+}
+
+.lista li button:hover {
+    transform: scale(1.1);
+}
+
+.check, .eliminar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    transition: transform 0.2s ease;
+}
+
+.check {
+    color: #dc3545;
+}
+
+.check.completada {
+    color: #28a745;
+}
+
+.eliminar {
+    color: #dc3545;
+}
+
+.acciones {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0 0;
+}
+
+.acciones button {
+    background: none;
+    color: #4a90e2;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 5px 10px;
+}
+
+.acciones button:hover {
+    color: #357ab7;
+    text-decoration: underline;
+}
