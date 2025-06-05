@@ -3,46 +3,50 @@ import { tasks } from "../data.js";
 const crearTarea = async (req, res) => {
   const nuevaTarea = {
     nombre: req.body.nombre,
+    tableroId: req.body.tableroId,
     completada: false,
   };
   try {
-    if (nuevaTarea.nombre) {
+    if (nuevaTarea.nombre && nuevaTarea.tableroId) {
       tasks.push(nuevaTarea);
       res.json({
         message: "Tarea creada con éxito",
         tarea: nuevaTarea,
       });
+    } else {
+      res.status(400).json({ message: "Faltan campos requeridos" });
     }
   } catch (error) {
     res.status(500).json({
       message: "Error al crear la tarea",
       error: error.message,
     });
-    console.error("Error al crear la tarea:", error.message);
   }
 };
 
 const obtenerTareas = async (req, res) => {
   try {
     const filtro = req.query.filtro || "todos";
-    let tareasFiltered = [...tasks];
+    const tableroId = req.query.tableroId;
 
-    if (filtro === "pendientes") {
-      tareasFiltered = tasks.filter((tarea) => !tarea.completada);
-    } else if (filtro === "completadas") {
-      tareasFiltered = tasks.filter((tarea) => tarea.completada);
+    if (!tableroId) {
+      return res.status(400).json({ message: "Falta el tableroId" });
     }
 
-    res.json({
-      message: "Tareas obtenidas con éxito",
-      tareas: tareasFiltered,
-    });
+    let tareasFiltered = tasks.filter((t) => t.tableroId === tableroId);
+
+    if (filtro === "pendientes") {
+      tareasFiltered = tareasFiltered.filter((t) => !t.completada);
+    } else if (filtro === "completadas") {
+      tareasFiltered = tareasFiltered.filter((t) => t.completada);
+    }
+
+    res.json({ message: "Tareas obtenidas con éxito", tareas: tareasFiltered });
   } catch (error) {
     res.status(500).json({
       message: "Error al obtener las tareas",
       error: error.message,
     });
-    console.error("Error al obtener las tareas:", error.message);
   }
 };
 
@@ -51,18 +55,14 @@ const eliminarTarea = async (req, res) => {
   try {
     if (!isNaN(index) && tasks[index]) {
       tasks.splice(index, 1);
-      res.redirect("/");
+      res.json({ message: "Tarea eliminada con éxito" });
     } else {
-      res.status(400).json({
-        message: "Índice inválido",
-      });
+      res.status(400).json({ message: "Índice inválido" });
     }
   } catch (error) {
-    res.status(500).json({
-      message: "Error al eliminar la tarea",
-      error: error.message,
-    });
-    console.error("Error al eliminar la tarea:", error.message);
+    res
+      .status(500)
+      .json({ message: "Error al eliminar la tarea", error: error.message });
   }
 };
 
@@ -71,45 +71,62 @@ const toggleTarea = async (req, res) => {
   try {
     if (!isNaN(index) && tasks[index]) {
       tasks[index].completada = !tasks[index].completada;
-      res.redirect("/");
+      res.json({ message: "Tarea actualizada con éxito", tarea: tasks[index] });
     } else {
-      res.status(400).json({
-        message: "Índice inválido",
-      });
+      res.status(400).json({ message: "Índice inválido" });
     }
   } catch (error) {
-    res.status(500).json({
-      message: "Error al actualizar la tarea",
-      error: error.message,
-    });
-    console.error("Error al actualizar la tarea:", error.message);
+    res
+      .status(500)
+      .json({ message: "Error al actualizar la tarea", error: error.message });
   }
 };
 
 const eliminarCompletadas = async (req, res) => {
   try {
-    const cantidadAntes = tasks.length;
-    const nuevasTareas = tasks.filter((tarea) => !tarea.completada);
-    const tareasEliminadas = cantidadAntes - nuevasTareas.length;
+    const tableroId = req.query.tableroId;
+    if (!tableroId) {
+      return res.status(400).json({ message: "Falta el tableroId" });
+    }
+
+    const antes = tasks.length;
+    const nuevasTareas = tasks.filter(
+      (t) => !t.completada || t.tableroId !== tableroId
+    );
+    const eliminadas = antes - nuevasTareas.length;
 
     tasks.length = 0;
     tasks.push(...nuevasTareas);
 
-    if (tareasEliminadas > 0) {
-      res.json({
-        message: `${tareasEliminadas} tareas completadas eliminadas con éxito`,
-      });
+    res.json({
+      message:
+        eliminadas > 0
+          ? `${eliminadas} tareas completadas eliminadas con éxito`
+          : "No hay tareas completadas para eliminar",
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al eliminar las tareas", error: error.message });
+  }
+};
+
+const actualizarTarea = async (req, res) => {
+  const index = parseInt(req.params.index);
+  const { nombre, completada } = req.body;
+
+  try {
+    if (!isNaN(index) && tasks[index]) {
+      if (nombre !== undefined) tasks[index].nombre = nombre;
+      if (completada !== undefined) tasks[index].completada = completada;
+      res.json({ message: "Tarea actualizada con éxito", tarea: tasks[index] });
     } else {
-      res.status(200).json({
-        message: "No hay tareas completadas para eliminar",
-      });
+      res.status(400).json({ message: "Índice inválido" });
     }
   } catch (error) {
-    res.status(500).json({
-      message: "Error al eliminar las tareas completadas",
-      error: error.message,
-    });
-    console.error("Error al eliminar las tareas completadas:", error.message);
+    res
+      .status(500)
+      .json({ message: "Error al actualizar la tarea", error: error.message });
   }
 };
 
@@ -119,4 +136,5 @@ export {
   eliminarTarea,
   toggleTarea,
   eliminarCompletadas,
+  actualizarTarea,
 };
