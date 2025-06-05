@@ -1,43 +1,26 @@
-import {
-    createRouter,
-    RouterProvider,
-    createRootRoute,
-    createRoute,
-    Outlet,
-    Navigate,
-  } from '@tanstack/react-router'
-  import App from './App'
-  import Settings from './Settings'
-  import React from 'react'
-  
-  const rootRoute = createRootRoute({
-    component: () => <Outlet />,
-  })
-  
-  const homeRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/home',
-    component: App,
-  })
-  
-  const settingsRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/settings',
-    component: Settings,
-  })
-  
-  const redirectRoute = createRoute({
-    getParentRoute: () => rootRoute,
+import { createBrowserRouter } from 'react-router-dom';
+import Home from './pages/Home';
+import Boards from './pages/Boards';
+import BoardDetail from './pages/BoardDetail';
+import Settings from './pages/Settings';
+
+const router = createBrowserRouter([
+  {
     path: '/',
-    component: () => <Navigate to="/home" />,
-  })
-  
-  const routeTree = rootRoute.addChildren([
-    homeRoute,
-    settingsRoute,
-    redirectRoute,
-  ])
-  
-  const router = createRouter({ routeTree })
-  
-  export { router, RouterProvider }
+    element: <Home />,
+  },
+  {
+    path: '/boards',
+    element: <Boards />,
+  },
+  {
+    path: '/board/:boardName',
+    element: <BoardDetail />,
+  },
+  {
+    path: '/settings',
+    element: <Settings />,
+  }
+]);
+
+export default router;
