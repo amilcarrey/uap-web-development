@@ -37,29 +37,19 @@ export default function CategoryButtons({
         Configuraciones
       </button>
 
-      <button
-        onClick={() => {
-          const name = prompt("Nombre de la nueva categoría:");
-          if (categorias.some((categoria) => categoria.name === name)) {
-            alert("Ya existe una categoría con ese nombre.");
-            return;
-          }
-          if (name) onAddCategoria(name);
-        }}
-        className="text-[20px] text-white bg-orange-400 px-2.5 py-1.5 rounded border-none cursor-pointer hover:bg-[rgb(139,90,0)]"
-      >
-        +
-      </button>
+     <button
+  onClick={() => onAddCategoria("")} 
+  className="text-[20px] text-white bg-orange-400 px-2.5 py-1.5 rounded border-none cursor-pointer hover:bg-[rgb(139,90,0)]"
+>
+  +
+</button>
 
       <button
-        onClick={() => {
-          const id = prompt("ID de la categoría a eliminar:");
-          if (id) onDeleteCategoria(id);
-        }}
-        className="text-[20px] text-white bg-orange-400 px-2.5 py-1.5 rounded border-none cursor-pointer hover:bg-red-600"
-      >
-        -
-      </button>
+  onClick={() => onDeleteCategoria("")} // Llama a la función para abrir el modal de confirmación
+  className="text-[20px] text-white bg-orange-400 px-2.5 py-1.5 rounded border-none cursor-pointer hover:bg-red-600"
+>
+  -
+</button>
     </div>
   );
 }
