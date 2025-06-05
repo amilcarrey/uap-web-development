@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { loadTasks, saveTasks } from './utils/storage';
+import { useState } from 'react';
 import Tabs from './components/Tabs';
 import TaskList from './components/TaskList';
 import AddTask from './components/AddTask';
@@ -7,55 +6,7 @@ import TaskFilters from './components/TaskFilters';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('Personal');
-  const [tasks, setTasks] = useState(loadTasks() || {
-    Personal: [],
-    Universidad: [],
-    Work: []
-  });
   const [filter, setFilter] = useState('all');
-
-  useEffect(() => saveTasks(tasks), [tasks]);
-
-  const addTask = (text) => {
-    if (!text.trim()) return;
-    const newTask = { id: Date.now(), text, completed: false };
-    setTasks(prev => ({
-      ...prev,
-      [activeTab]: [...(prev[activeTab] || []), newTask]
-    }));
-  };
-
-  const toggleTask = (id) => {
-    setTasks(prev => ({
-      ...prev,
-      [activeTab]: prev[activeTab].map(task => 
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    }));
-  };
-
-  const deleteTask = (id) => {
-    setTasks(prev => ({
-      ...prev,
-      [activeTab]: prev[activeTab].filter(task => task.id !== id)
-    }));
-  };
-
-  const clearCompleted = () => {
-    setTasks(prev => ({
-      ...prev,
-      [activeTab]: prev[activeTab].filter(task => !task.completed)
-    }));
-  };
-
-  const getFilteredTasks = () => {
-    const currentTasks = tasks[activeTab] || [];
-    switch(filter) {
-      case 'active': return currentTasks.filter(task => !task.completed);
-      case 'completed': return currentTasks.filter(task => task.completed);
-      default: return currentTasks;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
@@ -69,19 +20,17 @@ export default function App() {
             tabs={['Personal', 'Universidad', 'Work']}
           />
           
-          <AddTask onAddTask={addTask} />
+          <AddTask category={activeTab} />
           
           <TaskFilters 
             currentFilter={filter}
             onFilterChange={setFilter}
-            onClearCompleted={clearCompleted}
-            activeCount={getFilteredTasks().filter(t => !t.completed).length}
+            category={activeTab}
           />
           
           <TaskList 
-            tasks={getFilteredTasks()}
-            onToggle={toggleTask}
-            onDelete={deleteTask}
+            category={activeTab}
+            filter={filter}
           />
         </div>
       </div>

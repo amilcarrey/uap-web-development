@@ -1,10 +1,11 @@
+// utils/storage.js
 export const loadTasks = () => {
   try {
     const saved = localStorage.getItem('tasks');
-    return saved ? JSON.parse(saved) : null;
+    return saved ? JSON.parse(saved) : []; // Devuelve array vacío si no hay datos
   } catch (error) {
     console.error('Error loading tasks:', error);
-    return null;
+    return []; // Devuelve array vacío en caso de error
   }
 };
 
