@@ -7,22 +7,14 @@ import TaskFilters from './components/TaskFilters';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('Personal');
-  const [tasks, setTasks] = useState(() => {
-    const loaded = loadTasks();
-    return loaded && loaded.Personal ? loaded : {
-      Personal: [],
-      Universidad: [],
-      Work: []
-    };
+  const [tasks, setTasks] = useState(loadTasks() || {
+    Personal: [],
+    Universidad: [],
+    Work: []
   });
   const [filter, setFilter] = useState('all');
 
-  useEffect(() => {
-    console.log('--- DEBUG ---');
-    console.log('Todas las tareas:', tasks);
-    console.log('Categoría activa:', activeTab);
-    console.log('Tareas filtradas:', getFilteredTasks());
-  }, [tasks, activeTab, filter]);
+  useEffect(() => saveTasks(tasks), [tasks]);
 
   const addTask = (text) => {
     if (!text.trim()) return;
@@ -58,21 +50,12 @@ export default function App() {
 
   const getFilteredTasks = () => {
     const currentTasks = tasks[activeTab] || [];
-    
-    if (!currentTasks.length) {
-      console.warn(`No hay tareas en ${activeTab}`);
+    switch(filter) {
+      case 'active': return currentTasks.filter(task => !task.completed);
+      case 'completed': return currentTasks.filter(task => task.completed);
+      default: return currentTasks;
     }
-
-    return currentTasks.filter(task => {
-      if (filter === 'active') return !task.completed;
-      if (filter === 'completed') return task.completed;
-      return true;
-    });
   };
-
-  useEffect(() => {
-    saveTasks(tasks);
-  }, [tasks]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
@@ -83,7 +66,7 @@ export default function App() {
           <Tabs 
             activeTab={activeTab} 
             onTabChange={setActiveTab} 
-            tabs={['Personal', 'Universidad', 'Work']} 
+            tabs={['Personal', 'Universidad', 'Work']}
           />
           
           <AddTask onAddTask={addTask} />
@@ -96,7 +79,7 @@ export default function App() {
           />
           
           <TaskList 
-            tasks={getFilteredTasks()} 
+            tasks={getFilteredTasks()}
             onToggle={toggleTask}
             onDelete={deleteTask}
           />
