@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 export default function TodoList({ todos, onToggle, onDelete, onEdit, editingId, onSaveEdit, onCancelEdit, uppercase }) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 5;
 
   if (!todos.length) {
     return <div className="text-center text-white/80 py-8">No hay tareas.</div>;

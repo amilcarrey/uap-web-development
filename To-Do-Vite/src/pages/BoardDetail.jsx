@@ -167,6 +167,11 @@ const BoardDetail = () => {
     return true;
   }) || [];
 
+  // PAGINACIÓN
+  const itemsPerPage = 5;
+  const totalPages = Math.max(1, Math.ceil(filteredTasks.length / itemsPerPage));
+  const paginatedTasks = filteredTasks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <PageLayout title={`Tablero: ${boardName}`}>
       {error && (
@@ -237,7 +242,7 @@ const BoardDetail = () => {
       </div>
 
       <div className="space-y-3">
-        {filteredTasks.map(task => (
+        {paginatedTasks.map(task => (
           <div
             key={task.id}
             className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-lg rounded-lg"
@@ -305,7 +310,7 @@ const BoardDetail = () => {
         ))}
       </div>
 
-      {tasksData.totalPages > 1 && (
+      {totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-6">
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -315,11 +320,11 @@ const BoardDetail = () => {
             Anterior
           </button>
           <span className="px-3 py-1 text-white">
-            Página {currentPage} de {tasksData.totalPages}
+            Página {currentPage} de {totalPages}
           </span>
           <button
-            onClick={() => setCurrentPage(p => Math.min(tasksData.totalPages, p + 1))}
-            disabled={currentPage === tasksData.totalPages}
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
             className="px-3 py-1 rounded-lg bg-white/20 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/30 transition-colors"
           >
             Siguiente
