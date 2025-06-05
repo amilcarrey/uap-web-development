@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@astrojs/react": "^4.2.7",
+    "@tanstack/react-router": "^1.120.12",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
