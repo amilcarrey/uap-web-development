@@ -2,6 +2,9 @@ import type { APIRoute } from "astro";
 import { listarTareas } from "../../lib/tareas";
 
 export const GET: APIRoute = async ({ url }) => {
+  // verifico el refetch
+  console.log(`🔄 [${new Date().toLocaleTimeString()}] GET /api/tareas - Refetch automático`);
+  
   const params = new URLSearchParams(url.search);
   const idTablero = params.get("idTablero");
   const pagina = parseInt(params.get("pagina") || "1");

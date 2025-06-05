@@ -67,6 +67,15 @@ export function agregarTarea(descripcion: string, idTablero: string): Tarea | nu
     return tableros;
   }
 
+  export function eliminarTablero(id: string): boolean {
+    const tableroExiste = tableros.find(t => t.id === id);
+    if (!tableroExiste) return false;
+    // Eliminar todas las tareas asociadas al tablero
+    tareas = tareas.filter(t => t.idTablero !== id);
+    tableros = tableros.filter(t => t.id !== id);
+    return true;
+  }
+
   export function obtenerTablero(alias: string): Tablero | null {
     return tableros.find(t => t.alias === alias) || null;
   }

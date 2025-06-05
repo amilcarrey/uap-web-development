@@ -42,8 +42,33 @@ export const useCrearTablero = () => {
       return response.json();
     },
     onSuccess: () => {
-      // Refrescar la lista de tableros
       queryClient.invalidateQueries({ queryKey: ['tableros'] });
+    },
+  });
+};
+
+// Hook para eliminar tablero
+export const useEliminarTablero = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (alias: string) => {
+      const response = await fetch(`http://localhost:4321/api/eliminarTablero`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alias }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Error al eliminar tablero');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tableros'] });
+      queryClient.invalidateQueries({ queryKey: ['tablero'] });
     },
   });
 };
@@ -57,6 +82,6 @@ export const useTablero = (alias: string) => {
       if (!response.ok) throw new Error('Error al obtener tablero');
       return response.json();
     },
-    enabled: !!alias, // Solo ejecutar si tenemos alias
+    enabled: !!alias,
   });
 };

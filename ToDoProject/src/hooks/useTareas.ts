@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { TareaType } from '../types/Tarea';
+import { useConfiguraciones } from "./useConfiguraciones";
 
 export interface PaginatedResponse {
   tareas: TareaType[];
@@ -10,7 +11,7 @@ export interface PaginatedResponse {
 
 // Función helper para convertir alias a ID de tablero
 const getTableroIdFromAlias = async (alias: string | undefined): Promise<string> => {
-  if (!alias) return "tb-1"; // fallback
+  if (!alias) return "tb-1"; 
   
   try {
     const response = await fetch(`http://localhost:4321/api/tablero/${alias}`);
@@ -22,27 +23,32 @@ const getTableroIdFromAlias = async (alias: string | undefined): Promise<string>
     console.error('Error al obtener tablero:', error);
   }
   
-  return "tb-1"; // fallback
+  return "tb-1";
 };
 
-export const useTareasQuery = (pagina: number, filtro: string, limite: number, tableroAlias: string | undefined) => {
-  return useQuery<PaginatedResponse>({
-    queryKey: ["tareas", tableroAlias, filtro, pagina, limite],
+export const useTareas = (tableroAlias?: string, filtro?: 'todas' | 'completadas' | 'pendientes') => {
+  const { data: configData } = useConfiguraciones();
+  const intervaloRefetch = configData?.configuraciones?.intervaloRefetch ?? 10;
+  return useQuery({
+    queryKey: ['tareas', tableroAlias, filtro],
     queryFn: async () => {
-      const idTablero = await getTableroIdFromAlias(tableroAlias);
+      // Convertir alias a ID
+      const tableroId = await getTableroIdFromAlias(tableroAlias);
       
-      const params = new URLSearchParams({
-        idTablero,
-        pagina: pagina.toString(),
-        filtro: filtro === "todas" ? "" : filtro,
-        limite: limite.toString(),
-      });
-
-      const response = await fetch(`http://localhost:4321/api/tareas?${params}`);
-      if (!response.ok) throw new Error("Error al obtener tareas");
+      let url = `http://localhost:4321/api/tareas`;
+      const params = new URLSearchParams();
+      
+      params.append('idTablero', tableroId);
+      if (filtro && filtro !== 'todas') params.append('filtro', filtro);
+      
+      url += `?${params.toString()}`;
+      
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Error al obtener tareas');
       return response.json();
     },
-    enabled: !!tableroAlias, // Solo ejecutar si tenemos alias
+    refetchInterval: intervaloRefetch * 1000, 
+    enabled: !!tableroAlias,
   });
 };
 

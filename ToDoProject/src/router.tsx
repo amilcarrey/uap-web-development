@@ -32,7 +32,6 @@ const tableroRoute = createRoute({
     
     // Si es el tablero de configuración, mostrar componente especial
     if (alias === 'configuracion') {
-      const { data: tableroData } = useTablero(alias)
       
       return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-pink-200 h-screen w-screen">
@@ -45,7 +44,7 @@ const tableroRoute = createRoute({
       )
     }
     
-    // Resto del código existente para tableros normales...
+    // Resto del código existente para tableros normales
     const { data: tableroData, isLoading, error } = useTablero(alias)
 
     if (isLoading) {

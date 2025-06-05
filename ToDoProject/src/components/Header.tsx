@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { useTableros, useCrearTablero } from '../hooks/useTableros';
+import { useNavigate, useParams } from '@tanstack/react-router';
+import { useTableros, useCrearTablero, useEliminarTablero } from '../hooks/useTableros';
 import { useClientStore } from '../store/clientStore';
 
 interface HeaderProps {
@@ -13,7 +13,12 @@ const Header = ({ tableroNombre }: HeaderProps) => {
   const { data: tablerosData } = useTableros();
   const { mostrarToast } = useClientStore();
   const crearTableroMutation = useCrearTablero();
+  const eliminarTableroMutation = useEliminarTablero();
   const navigate = useNavigate();
+  
+  // Obtener el alias actual de la URL
+  const params = useParams({ strict: false });
+  const aliasActual = params?.alias as string;
 
   const handleCrearTablero = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +38,28 @@ const Header = ({ tableroNombre }: HeaderProps) => {
       },
       onError: (error) => {
         mostrarToast(error.message || 'Error al crear tablero', 'error');
+      },
+    });
+  };
+
+  const handleEliminarTablero = () => {
+    if (!aliasActual) {
+      mostrarToast('No hay tablero seleccionado para eliminar', 'error');
+      return;
+    }
+
+    if (aliasActual === 'configuracion') {
+      mostrarToast('No se puede eliminar el tablero de configuración', 'error');
+      return;
+    }
+
+    eliminarTableroMutation.mutate(aliasActual, {
+      onSuccess: (data) => {
+        mostrarToast(data.mensaje || 'Tablero eliminado correctamente', 'exito');
+        navigate({ to: '/' });
+      },
+      onError: (error) => {
+        mostrarToast(error.message || 'Error al eliminar tablero', 'error');
       },
     });
   };
@@ -72,9 +99,22 @@ const Header = ({ tableroNombre }: HeaderProps) => {
         >
           +
         </button>
+
+        {/* eliminar tablero actual */}
+        {aliasActual && (
+          <button 
+            type="button" 
+            className="boton-estilo bg-red-500 hover:bg-red-600"
+            onClick={handleEliminarTablero}
+            disabled={eliminarTableroMutation.isPending || aliasActual === 'configuracion'}
+            title={`Eliminar tablero: ${tableroNombre || aliasActual}`}
+          >
+            {eliminarTableroMutation.isPending ? '⏳' : '-'}
+          </button>
+        )}
       </div>
 
-      {/* Formulario para crear tablero */}
+      {/* crear tablero */}
       {mostrarFormulario && (
         <div className="mt-4 bg-pink-400 p-4 rounded-lg shadow-md max-w-md mx-auto">
           <h3 className="text-lg font-semibold mb-3 text-center">Crear Nuevo Tablero</h3>
