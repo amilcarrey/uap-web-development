@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Board } from '../store/useBoardStore';
 import { BASE_URL } from '../hooks/useTasks';
 import { showToast } from '../utils/showToast';
+import { useNavigate } from '@tanstack/react-router';
 
 type BoardItemProps = {
   board: Board;
@@ -10,6 +11,8 @@ type BoardItemProps = {
 export function BoardItem({ board }: BoardItemProps) {
   const queryClient = useQueryClient();
   const queryKey = ['boards'];
+
+  const navigate = useNavigate();
   
   const { mutate: deleteBoard } = useMutation({
     mutationFn: async (id: string) => {
@@ -36,8 +39,11 @@ export function BoardItem({ board }: BoardItemProps) {
     onSuccess: () => {
       showToast('Board deleted successfully', 'success');
       queryClient.invalidateQueries({ queryKey });
+      navigate({ to: '/' });
     },
   });
+
+  if (board.id === "general") return null;
   
   return (
     <button
