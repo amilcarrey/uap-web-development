@@ -1,0 +1,17 @@
+{
+  "name": "mechanical-meteorite",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.80.5",
+    "astro": "^5.8.2",
+    "react-router-dom": "^7.6.2",
+    "zustand": "^5.0.5"
+  }
+}
