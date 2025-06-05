@@ -6,7 +6,6 @@ import AddTask from './components/AddTask';
 import TaskFilters from './components/TaskFilters';
 
 export default function App() {
-  // 1. Inicialización del estado con estructura garantizada
   const [activeTab, setActiveTab] = useState('Personal');
   const [tasks, setTasks] = useState(() => {
     const loaded = loadTasks();
@@ -18,7 +17,6 @@ export default function App() {
   });
   const [filter, setFilter] = useState('all');
 
-  // 2. Debugging esencial (mantener hasta confirmar que funciona)
   useEffect(() => {
     console.log('--- DEBUG ---');
     console.log('Todas las tareas:', tasks);
@@ -26,7 +24,6 @@ export default function App() {
     console.log('Tareas filtradas:', getFilteredTasks());
   }, [tasks, activeTab, filter]);
 
-  // 3. Funciones principales (sin cambios)
   const addTask = (text) => {
     if (!text.trim()) return;
     const newTask = { id: Date.now(), text, completed: false };
@@ -59,11 +56,9 @@ export default function App() {
     }));
   };
 
-  // 4. Función de filtrado mejorada
   const getFilteredTasks = () => {
     const currentTasks = tasks[activeTab] || [];
     
-    // Debug específico
     if (!currentTasks.length) {
       console.warn(`No hay tareas en ${activeTab}`);
     }
@@ -75,7 +70,6 @@ export default function App() {
     });
   };
 
-  // 5. Persistencia
   useEffect(() => {
     saveTasks(tasks);
   }, [tasks]);

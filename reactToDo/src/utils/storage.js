@@ -5,7 +5,7 @@ export const loadTasks = () => {
       Personal: [],
       Universidad: [],
       Work: []
-    }; // Estructura inicial
+    };
   } catch (error) {
     console.error('Error loading tasks:', error);
     return {

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'; // Asegúrate de instalar framer-motion
+import { motion } from 'framer-motion';
 
 export default function Tabs({ activeTab, onTabChange, tabs }) {
   return (
