@@ -1,9 +1,19 @@
 import type { APIRoute } from "astro";
-import { tareas } from "../../lib/tareas";
+import { tableros } from "../../lib/tareas";
 
 export const POST: APIRoute = async ({ request }) => {
   const formData = await request.formData();
+  const board = formData.get("board")?.toString() || "default";
   const id = Number(formData.get("id"));
+
+  if (!tableros[board]) {
+    return new Response(JSON.stringify({ success: false, error: "Tablero no encontrado" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const tareas = tableros[board];
 
   if (!isNaN(id) && id >= 0 && id < tareas.length) {
     tareas.splice(id, 1);

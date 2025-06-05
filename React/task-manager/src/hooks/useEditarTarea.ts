@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Tarea } from "../types";
 import { useToastStore } from "../store/toastStore";
+import { useConfigStore } from "../store/configStore";
 
 export function useEditarTarea() {
   const queryClient = useQueryClient();
   const { showToast } = useToastStore();
+  const board = useConfigStore((s) => s.board); // Obtener el board actual desde el store
  
 
   return useMutation({
@@ -12,6 +14,7 @@ export function useEditarTarea() {
       const formData = new FormData();
       formData.append("id", id.toString());
       formData.append("texto", texto);
+      formData.append("board", board); // Agregar el board al FormData
 
       const res = await fetch("http://localhost:4321/api/editar", {
         method: "POST",
@@ -24,7 +27,7 @@ export function useEditarTarea() {
       return data.tarea as Tarea;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tareas"] });
+      queryClient.invalidateQueries({ queryKey: ["tareas", board] }); // Invalidar la cache de tareas para el board actual
       showToast("Tarea editada correctamente", "success");
     },
     onError: () => {

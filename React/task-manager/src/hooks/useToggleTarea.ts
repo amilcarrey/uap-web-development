@@ -1,14 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastStore } from "../store/toastStore";
+import { useConfigStore } from "../store/configStore";
 
 export function useToggleTarea() {
   const queryClient = useQueryClient();
   const { showToast } = useToastStore();
+  const board = useConfigStore((s) => s.board); // Obtener el board actual desde el store
 
   return useMutation({
     mutationFn: async (id: number) => {
 
       const formData = new FormData();
+      formData.append("board", board); // Agregar el board al FormData
       formData.append("id", id.toString());
 
       const res = await fetch(`http://localhost:4321/api/toggle/${id}`, {
@@ -27,7 +30,7 @@ export function useToggleTarea() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tareas"] });
+      queryClient.invalidateQueries({ queryKey: ["tareas", board] });
       showToast("Estado de la tarea actualizado correctamente", "success");
     },
     onError: () => {

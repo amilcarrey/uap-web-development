@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAgregarTarea } from "../hooks/useAgregarTarea";
 import { useEditarTarea } from "../hooks/useEditarTarea";
 import type { Tarea } from "../types";
+import { useConfigStore } from "../store/configStore";
 
 type Props = {
   tareaEditando?: Tarea;
@@ -14,10 +15,13 @@ export function NuevaTareaForm({ tareaEditando, cancelarEdicion }: Props) {
   const { mutate: agregarTarea, isPending: agregando } = useAgregarTarea();
   const { mutate: editarTarea, isPending: editando } = useEditarTarea();
 
-  // Prellenar el input si estamos editando
+  const mayusculas = useConfigStore((s) => s.mayusculas); // ← aplicar formato si está activado
+
   useEffect(() => {
     if (tareaEditando) {
       setTexto(tareaEditando.texto);
+    } else {
+      setTexto("");
     }
   }, [tareaEditando]);
 
@@ -41,7 +45,7 @@ export function NuevaTareaForm({ tareaEditando, cancelarEdicion }: Props) {
       <input
         type="text"
         placeholder="What do you need to do?"
-        value={texto}
+        value={mayusculas ? texto.toUpperCase() : texto}
         onChange={(e) => setTexto(e.target.value)}
         className="flex-1 rounded-full border border-gray-300 px-6 py-3 text-lg
                    placeholder-gray-400 focus:outline-none focus:border-pink-300"

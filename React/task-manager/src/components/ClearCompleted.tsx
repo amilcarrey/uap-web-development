@@ -9,15 +9,22 @@ export function ClearCompleted({ tareas }: Props) {
   const hasCompleted = tareas.some((t) => t.completada);
   const { mutate: limpiarCompletadas, isPending } = useLimpiarTareas();
 
+  const handleClick = () => {
+    if (!isPending && hasCompleted) {
+      limpiarCompletadas();
+    }
+  };
+
   return (
     <button
-      onClick={() => limpiarCompletadas()}
+      onClick={handleClick}
       disabled={!hasCompleted || isPending}
-      className={`mx-auto block text-green-300 hover:underline font-medium ${
+      title="Eliminar todas las tareas completadas"
+      className={`mx-auto block text-green-300 hover:underline font-medium transition ${
         hasCompleted && !isPending ? "" : "opacity-40 cursor-not-allowed"
       }`}
     >
-      {isPending ? "Limpiando..." : "Clear Completed"}
+      {isPending ? "Limpiando..." : "Limpiar completadas"}
     </button>
   );
 }

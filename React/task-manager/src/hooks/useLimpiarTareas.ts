@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastStore } from "../store/toastStore";
+import { useConfigStore } from "../store/configStore";
 
 export function useLimpiarTareas() {
   const queryClient = useQueryClient();
   const { showToast } = useToastStore();
+  const board = useConfigStore((s) => s.board); // Obtener el board actual desde el store
 
   return useMutation({
     mutationFn: async () => {
@@ -20,7 +22,7 @@ export function useLimpiarTareas() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tareas"] });
+      queryClient.invalidateQueries({ queryKey: ["tareas", board] });
       showToast("Tareas completadas eliminadas correctamente", "success");
     },
     onError: () => {

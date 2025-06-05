@@ -4,4 +4,7 @@ type Tarea = {
   completada: boolean;
 };
 
-export const tareas: Tarea[] = [];
+export const tableros: Record<string, Tarea[]> = {
+  default: [],
+};
+

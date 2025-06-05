@@ -1,17 +1,27 @@
 import type { APIRoute } from "astro";
-import { tareas } from "../../lib/tareas";
+import { tableros } from "../../lib/tareas";
 
 export const POST: APIRoute = async ({ request }) => {
   const formData = await request.formData();
   const id = Number(formData.get("id"));
-  const texto = formData.get("texto");
+  const texto = formData.get("texto")?.toString().trim();
+  const board = formData.get("board")?.toString() || "default";
 
-  if (!Number.isInteger(id) || typeof texto !== "string" || texto.trim() === "") {
+  if (!tableros[board]) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Tablero no encontrado" }),
+      { status: 404, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  if (!Number.isInteger(id) || !texto) {
     return new Response(
       JSON.stringify({ success: false, error: "Datos inválidos" }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
+
+  const tareas = tableros[board];
 
   if (id < 0 || id >= tareas.length) {
     return new Response(
@@ -20,9 +30,11 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  tareas[id].texto = texto.trim();
+  tareas[id].texto = texto;
 
-  return new Response(JSON.stringify({ success: true, tarea: { ...tareas[id], id } }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return new Response(
+    JSON.stringify({ success: true, tarea: { ...tareas[id], id } }), 
+    {
+    headers: { "Content-Type": "application/json" }, }
+  );
 };

@@ -1,19 +1,25 @@
 import type { APIRoute } from "astro";
-import { tareas } from "../../lib/tareas";
+import { tableros } from "../../lib/tareas";
 
 export const POST: APIRoute = async ({ request }) => {
   const formData = await request.formData();
-  const texto = formData.get("texto");
+  const texto = formData.get("texto")?.toString().trim();
+  const board = formData.get("board")?.toString() || "default";
 
-  if (typeof texto === "string" && texto.trim() !== "") {
+  if (!tableros[board]) {
+    tableros[board] = [];
+  }
+
+  if (texto) {
     // Generar ID único incremental
+    const tareas = tableros[board];
     const nuevoId = tareas.length > 0
       ? Math.max(...tareas.map(t => t.id)) + 1
       : 0;
 
     const nuevaTarea = {
       id: nuevoId,
-      texto: texto.trim(),
+      texto,
       completada: false,
     };
 

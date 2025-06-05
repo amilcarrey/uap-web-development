@@ -1,6 +1,7 @@
 import type { Tarea } from "../types";
 import { useEliminarTarea } from "../hooks/useEliminarTarea";
 import { useToggleTarea } from "../hooks/useToggleTarea";
+import { useConfigStore } from "../store/configStore";
 
 type TareaListProps = {
   tareas: Tarea[];
@@ -10,6 +11,7 @@ type TareaListProps = {
 export function TareaList({ tareas, onEditar }: TareaListProps) {
   const { mutate: eliminarTarea, isPending: eliminando } = useEliminarTarea();
   const { mutate: toggleTarea, isPending: cambiando } = useToggleTarea();
+  const mayusculas = useConfigStore((s) => s.mayusculas); // ← obtener desde config
 
   if (!tareas.length) {
     return <p className="text-gray-500 text-center">No hay tareas</p>;
@@ -37,7 +39,7 @@ export function TareaList({ tareas, onEditar }: TareaListProps) {
               t.completada ? "line-through text-gray-400" : ""
             }`}
           >
-            {t.texto}
+            {mayusculas ? t.texto.toUpperCase() : t.texto}
           </span>
 
           <div className="flex gap-2">

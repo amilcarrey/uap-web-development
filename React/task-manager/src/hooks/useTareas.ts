@@ -1,12 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Tarea } from "../types";
+import { useConfigStore } from "../store/configStore";
 
 export function useTareas(page: number, filtro: string = "todas") {
+  const board = useConfigStore((s) => s.board); // Obtener el board actual desde el store
+  const refetchInterval = useConfigStore((s) => s.refetchInterval);
+
   return useQuery({
-    queryKey: ["tareas", page, filtro],
+    queryKey: ["tareas", board, page, filtro], // Incluir el board, page y filtro en la clave de la query
     queryFn: async () => {
       const res = await fetch(
-        `http://localhost:4321/api/listar?page=${page}&limit=5&filtro=${filtro}`,
+        `http://localhost:4321/api/listar?board=${board}&page=${page}&limit=5&filtro=${filtro}`,
         {
           headers: {
             Accept: "application/json",
@@ -37,5 +41,6 @@ export function useTareas(page: number, filtro: string = "todas") {
         totalPages: number;
       };
     },
+    refetchInterval, // Usar el intervalo de refetch del store de configuración
   });
 }

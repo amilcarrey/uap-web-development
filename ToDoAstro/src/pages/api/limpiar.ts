@@ -1,8 +1,20 @@
 // src/pages/api/limpiar.ts
 import type { APIRoute } from "astro";
-import { tareas } from "../../lib/tareas";
+import { tableros } from "../../lib/tareas";
 
 export const POST: APIRoute = async ({ request }) => {
+  const formData = await request.formData();
+  const board = formData.get("board")?.toString() || "default";
+  
+  if (!tableros[board]) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Tablero no encontrado" }),
+        { status: 404, headers: { "Content-Type": "application/json" } }
+      );
+  }
+
+  const tareas = tableros[board];
+
   for (let i = tareas.length - 1; i >= 0; i--) {
     if (tareas[i].completada) {
       tareas.splice(i, 1);
@@ -16,7 +28,7 @@ export const POST: APIRoute = async ({ request }) => {
     return Response.redirect(location.toString(), 303);
   }
 
-  //devuelve JSON correctamente para fetch/AJAX
+  //devuelve JOSN para fetch/AJAX
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
