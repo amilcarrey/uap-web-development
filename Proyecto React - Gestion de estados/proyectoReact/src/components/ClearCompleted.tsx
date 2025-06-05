@@ -2,11 +2,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "../hooks/useTasks";
 import type { Task } from "../types";
 import { useFilterStore } from "../store/useFilterStore";
+import { useBoardStore } from "../store/useBoardStore";
 
-export function ClearCompleted({ boardId }: { boardId: string }) {
+export function ClearCompleted() {
   const filter = useFilterStore((state) => state.filter);
+  const activeBoardId = useBoardStore((state) => state.activeBoardId)
   const queryClient = useQueryClient();
-  const queryKey = ["tasks", filter, boardId];
+  const queryKey = ["tasks", filter, activeBoardId];
   
   const { mutate: clearCompleted } = useMutation({
     mutationFn: async () => {
@@ -15,6 +17,7 @@ export function ClearCompleted({ boardId }: { boardId: string }) {
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ activeBoardId })
       });
       const data: Task[] = await response.json();
       return data;

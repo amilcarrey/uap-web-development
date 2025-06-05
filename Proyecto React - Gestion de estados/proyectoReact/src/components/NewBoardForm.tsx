@@ -57,7 +57,7 @@ export function NewBoardForm() {
     <form method="POST" action="/api/agregarTablero" id="board-input" onSubmit={handleSubmit}>
       <input
         type="text"
-        className="border px-2 py-1 rounded placeholder:text-[13px] placeholder:text-[#888]"
+        className="w-40 border px-2 py-1 rounded mr-2 placeholder:text-[13px] placeholder:text-[#888]"
         name="board"
         placeholder="Board name"
         required

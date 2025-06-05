@@ -1,8 +1,7 @@
 import { createRouter, createRootRoute, createRoute } from "@tanstack/react-router";
 import { App } from "./App";
 import { Index } from "./pages";
-import { TasksDetails } from "./pages/TasksDetails";
-import { Configuration } from "./pages/Configuration";
+import { Settings } from "./pages/Settings";
 
 const rootRoute = createRootRoute({
   component: App,
@@ -20,23 +19,16 @@ const boardsRoute = createRoute({
   component: Index,
 });
 
-const tasksDetailsRoute = createRoute({
+const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/tasks/$taskId",
-  component: TasksDetails,
-});
-
-const configurationRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/configuration",
-  component: Configuration,
+  path: "/settings",
+  component: Settings,
 });
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
   boardsRoute,
-  tasksDetailsRoute,
-  configurationRoute,
+  settingsRoute,
 ]);
 
 export const router = createRouter({ routeTree });

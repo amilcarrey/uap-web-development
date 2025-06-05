@@ -9,6 +9,7 @@ import { useFilterStore } from "../store/useFilterStore";
 import { useParams } from '@tanstack/react-router';
 import { BoardsNav } from '../components/BoardsNav';
 import { useBoardStore } from '../store/useBoardStore';
+import { Link } from '@tanstack/react-router';
 
 
 export function Index() {
@@ -28,13 +29,20 @@ export function Index() {
 
   return (
     <>
+      <Link
+        to="/settings"
+        className="fixed top-4 right-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition"
+        title="Settings"
+      >
+        ⚙️
+      </Link>
       <BoardsNav />
       <FiltersForm />
 
       <main>
         <NewTaskForm page={page} setPage={setPage} taskEditing={taskEditing} setTaskEditing={setTaskEditing} />
-        <TaskList boardId={boardId} page={page} setPage={setPage} setTaskEditing={setTaskEditing} />
-        <ClearCompleted boardId={boardId} />
+        <TaskList page={page} setPage={setPage} setTaskEditing={setTaskEditing} />
+        <ClearCompleted />
       </main>
     </> 
   );

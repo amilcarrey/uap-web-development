@@ -2,6 +2,7 @@ import type { Task } from "../types";
 import { useQuery } from "@tanstack/react-query";
 import { useFilterStore } from "../store/useFilterStore";
 import { useBoardStore } from "../store/useBoardStore";
+import { useSettingsStore } from "../store/useSettingsStore";
 
 export type TaskFilter = "all" | "completed" | "incomplete";
 export const BASE_URL = "http://localhost:4321/api";
@@ -15,6 +16,8 @@ export function useTasks( page: number, limit = 5) {
   const filter = useFilterStore((state) => state.filter);
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
   const queryKey = ["tasks", filter, activeBoardId, page];
+
+  const { refetchInterval } = useSettingsStore();
 
   return useQuery<UseTasksResult>({
     queryKey,
@@ -30,7 +33,7 @@ export function useTasks( page: number, limit = 5) {
       const data: UseTasksResult = await response.json();
       return data;
     },
-    // initialData: [],
     staleTime: 0,
+    refetchInterval,
   });
 }

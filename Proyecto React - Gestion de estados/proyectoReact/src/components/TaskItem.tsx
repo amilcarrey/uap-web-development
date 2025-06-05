@@ -4,6 +4,7 @@ import { BASE_URL } from '../hooks/useTasks';
 import { useFilterStore } from '../store/useFilterStore';
 import { showToast } from '../utils/showToast';
 import { useBoardStore } from '../store/useBoardStore';
+import { useSettingsStore } from '../store/useSettingsStore';
 
 type TaskItemProps = {
 	task: Task;
@@ -16,6 +17,8 @@ export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
   const boardId = useBoardStore((state) => state.activeBoardId);
 	const queryClient = useQueryClient();
 	const queryKey = ['tasks', filter, boardId];
+
+  const uppercase = useSettingsStore((state) => state.uppercaseDescriptions);
 
 	const { mutate: toggleTask } = useMutation({
 		mutationFn: async (id: string) => {
@@ -88,7 +91,7 @@ export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
 							e.preventDefault()
 							toggleTask(task.id);
 						}}>{task.done ? "✅" : "⬜"}</button>
-						<span>{ task.text }</span>
+						<span>{uppercase ? task.text.toUpperCase() : task.text }</span>
 					</label>
 				</div>
 			</form>

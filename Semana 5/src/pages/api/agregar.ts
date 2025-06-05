@@ -12,11 +12,11 @@ export const POST: APIRoute = async ({ request, redirect }) => {
         : await parseJson(request);
 
     const text = data?.text;
-    const boardId = data?.boardId;
+    const boardId = data?.activeBoardId;
 
     if (typeof text === "string" && text.trim() !== "") {
       const validBoardId = typeof boardId === "string" && boardId.trim() !== "" ? boardId.trim() : "general"; // Default to "general" if no boardId is provided
-      const newTask = { id: generateId(), text: text.trim(), done: false, boardId: validBoardId };
+      const newTask = { id: generateId(), text: text.trim(), done: false, activeBoardId: validBoardId };
       tasks.push(newTask);
     
       if (contentType === "application/json") {

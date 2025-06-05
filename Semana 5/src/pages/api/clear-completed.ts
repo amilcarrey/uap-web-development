@@ -11,9 +11,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
         ? Object.fromEntries(await request.formData())
         : await parseJson(request);
 
-    const boardId = data.boardId;
+    const boardId = data.activeBoardId;
     
-    const filteredTasks = tasks.filter((task) => !(task.done && task.boardId === boardId)); // Filtra las tareas completadas del tablero específico
+    const filteredTasks = tasks.filter((task) => !(task.done && task.activeBoardId === boardId)); // Filtra las tareas completadas del tablero específico
     tasks.splice(0, tasks.length, ...filteredTasks); // Reemplaza el contenido de tasks con las tareas no completadas
     
     if (contentType === "application/json") {

@@ -2,6 +2,7 @@ import { useBoardStore } from '../store/useBoardStore';
 import { NewBoardForm } from './NewBoardForm';
 import { BoardItem } from './BoardItem';
 import { useBoards } from '../hooks/useBoards';
+import { Link } from '@tanstack/react-router';
 
 export function BoardsNav() {
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
@@ -12,18 +13,25 @@ export function BoardsNav() {
   const boards = data ?? [];
 
   return (
-    <nav className="flex justify-between bg-white p-2 border-b-[2px] border-[#ddd] w-full">
+    <nav className="flex gap-2 bg-white p-2 border-b-[2px] border-[#ddd] w-full">
       {boards.map((board) => (
-        <div key={board.id} className={`relative px-3 py-1 rounded ${board.id === activeBoardId ? 'bg-blue-200' : 'bg-gray-200'}`}>
-          <button onClick={() => setActiveBoardId(board.id)} className="font-medium cursor-pointer">
-            {board.name}
-          </button>
+        <Link 
+          key={board.id}
+          to="/boards/$boardId"
+          params={{ boardId: board.id}}
+          onClick={() => setActiveBoardId(board.id)}
+          className={`relative px-3 py-1 rounded font-medium ${board.id === activeBoardId ? 'bg-blue-200' : 'bg-gray-200'}`}
+        >
+          {board.name}
           {board.id === activeBoardId && (
             <BoardItem board={board} />
           )}
-        </div>
+        </Link>
       ))}
-      <NewBoardForm />
+      <div className='flex items-center gat-4 ml-auto'>
+        <NewBoardForm />
+      </div>
+      
     </nav>
   );
 }
