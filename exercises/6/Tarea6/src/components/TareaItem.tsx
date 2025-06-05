@@ -1,27 +1,54 @@
-import React from "react";
+import React from 'react';
+import { useToggleTarea, useEliminarTarea } from '../hooks/useTareas';
+import { useAppStore } from '../store/appStore';
+import { type Tarea } from '../types/types';
 
-// Componente funcional TareaItem, que recibe como props una tarea y dos funciones: toggleTarea y eliminarTarea
-const TareaItem: React.FC<{
-  tarea: { id: number; title: string; completed: boolean }; // Prop "tarea" con id, título y estado de completado
-  toggleTarea: (id: number) => void; // Función para alternar estado de la tarea
-  eliminarTarea: (id: number) => void; // Función para eliminar la tarea
-}> = ({ tarea, toggleTarea, eliminarTarea }) => (
-  <li className="task-item">
-    <div>
-      {/* Checkbox para marcar como completada o no */}
-      <input
-        type="checkbox"
-        checked={tarea.completed} // Muestra el estado de completado de la tarea
-        onChange={() => toggleTarea(tarea.id)} // Al cambiar, llama a toggleTarea con el id
-      />
-      {/* Texto de la tarea, con estilo si está completada */}
-      <span className={`task-text ${tarea.completed ? "completed" : ""}`}>
-        {tarea.title} // Muestra el título de la tarea
-      </span>
-    </div>
-    {/* Botón para eliminar la tarea */}
-    <button onClick={() => eliminarTarea(tarea.id)}>Eliminar</button>
-  </li>
-);
+interface Props {
+  tarea: Tarea;
+}
 
-export default TareaItem; // Exporta el componente para usarlo en otros archivos
+const TareaItem: React.FC<Props> = ({ tarea }) => {
+  const toggleTarea = useToggleTarea();
+  const eliminarTarea = useEliminarTarea();
+  const { setEditingTarea, showToast } = useAppStore();
+
+  return (
+    <li className="task-item">
+      <div>
+        <input
+          type="checkbox"
+          checked={tarea.completed}
+          onChange={() =>
+            toggleTarea.mutate(
+              { id: tarea.id, completed: tarea.completed },
+              {
+                onSuccess: () => showToast('Tarea actualizada', 'success'),
+                onError: () => showToast('Error al actualizar tarea', 'error'),
+              }
+            )
+          }
+        />
+        <span className={`task-text ${tarea.completed ? 'completed' : ''}`}>
+          {tarea.content}
+        </span>
+      </div>
+      <button
+        onClick={() => setEditingTarea({ id: tarea.id, content: tarea.content })}
+      >
+        Editar
+      </button>
+      <button
+        onClick={() =>
+          eliminarTarea.mutate(tarea.id, {
+            onSuccess: () => showToast('Tarea eliminada', 'success'),
+            onError: () => showToast('Error al eliminar tarea', 'error'),
+          })
+        }
+      >
+        Eliminar
+      </button>
+    </li>
+  );
+};
+
+export default TareaItem;

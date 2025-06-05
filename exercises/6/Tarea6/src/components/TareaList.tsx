@@ -1,37 +1,33 @@
-import React from "react";
+import React from 'react';
+import { useTareas } from '../hooks/useTareas';
+import { useAppStore } from '../store/appStore';
+import TareaItem from './TareaItem';
 
-interface Tarea {
-  id: number | string;
-  title: string;
-  completed: boolean;
+interface Props {
+  page: number;
 }
 
-// Componente que renderiza la lista de tareas
-const TareaList: React.FC<{
-  tareas: Tarea[];
-  toggleTarea: (id: number | string) => void;
-  eliminarTarea: (id: number | string) => void;
-}> = ({ tareas, toggleTarea, eliminarTarea }) => (
-  <ul className="task-list">
-    {tareas.map((t) => (
-      <li key={t.id} className="task-item">
-        <div>
-          {/* Casilla de verificación para marcar completada */}
-          <input
-            type="checkbox"
-            checked={t.completed}
-            onChange={() => toggleTarea(t.id)}
-          />
-          {/* Texto de la tarea, con clase condicional si está completada */}
-          <span className={`task-text ${t.completed ? "completed" : ""}`}>
-            {t.title}
-          </span>
-        </div>
-        {/* Botón para eliminar la tarea */}
-        <button onClick={() => eliminarTarea(t.id)}>Eliminar</button>
-      </li>
-    ))}
-  </ul>
-);
+const TareaList: React.FC<Props> = ({ page }) => {
+  const { filtro } = useAppStore();
+  const { data, isLoading, error } = useTareas(page);
+
+  console.log(`TareaList page ${page} data:`, data?.tareas);
+
+  if (isLoading && !data) return <div>Cargando...</div>;
+  if (error) return <div>Error: {(error as Error).message}</div>;
+  if (!data?.tareas || data.tareas.length === 0) return <div>No hay tareas</div>;
+
+  const tareasFiltradas = data.tareas.filter((t) =>
+    filtro === 'all' ? true : filtro === 'completed' ? t.completed : !t.completed
+  );
+
+  return (
+    <ul className="task-list">
+      {tareasFiltradas.map((t) => (
+        <TareaItem key={t.id} tarea={t} />
+      ))}
+    </ul>
+  );
+};
 
 export default TareaList;

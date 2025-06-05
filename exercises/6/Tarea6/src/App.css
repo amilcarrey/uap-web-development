@@ -1,17 +1,28 @@
-/* App.css */
-.app-container {
-  max-width: 600px;
-  margin: 30px auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
+:root {
+  --primary: #007bff;
+  --gray-light: #f5f5f5;
+  --gray: #ccc;
+  --text-light: #666;
+  --text-dark: #333;
+  --border-radius: 8px;
+  --transition: all 0.2s ease-in-out;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--gray-light);
+  color: var(--text-dark);
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
 .input-container {
@@ -22,80 +33,116 @@ h1 {
 
 .input-container input {
   flex: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px;
+  border: 1px solid var(--gray);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
 }
 
 .input-container button {
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: #fff;
+  padding: 10px 20px;
+  background-color: var(--primary);
   border: none;
-  border-radius: 4px;
+  color: white;
+  border-radius: var(--border-radius);
   cursor: pointer;
+  transition: var(--transition);
 }
 
 .input-container button:hover {
   background-color: #0056b3;
 }
 
-.filters {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.filters button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.filters button.active {
-  background-color: #007bff;
-  color: #fff;
-}
-
 .task-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .task-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 8px;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--gray);
+  transition: var(--transition);
 }
 
-.task-item .task-text.completed {
+.task-item:hover {
+  background-color: #f0f8ff;
+}
+
+.task-text {
+  flex: 1;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.task-text.completed {
   text-decoration: line-through;
-  color: #999;
+  color: var(--text-light);
 }
 
 .task-item button {
-  background: none;
+  background: transparent;
   border: none;
-  color: red;
+  color: #dc3545;
+  font-size: 1rem;
   cursor: pointer;
+  transition: var(--transition);
 }
 
-.delete-completed {
-  margin-top: 20px;
+.task-item button:hover {
+  color: #a71d2a;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.filters button {
   padding: 8px 16px;
-  background-color: #dc3545;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
+  border: 1px solid var(--gray);
+  background-color: white;
+  border-radius: var(--border-radius);
   cursor: pointer;
+  transition: var(--transition);
 }
 
-.delete-completed:hover {
-  background-color: #a71d2a;
+.filters button:hover {
+  background-color: var(--gray-light);
+}
+
+.filters button.active {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.pagination {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border: 1px solid var(--gray);
+  background-color: white;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: var(--gray-light);
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

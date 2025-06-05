@@ -1,38 +1,43 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { useAgregarTarea } from '../hooks/useTareas';
+import { useAppStore } from '../store/appStore';
 
-// Componente que permite ingresar y agregar una nueva tarea
-const NuevaTareaInput: React.FC<{ onAgregar: (title: string) => void }> = ({
-  onAgregar,
-}) => {
-  // Estado para almacenar el texto del input
-  const [texto, setTexto] = useState("");
+interface Props {
+  onTareaAgregada?: () => void;
+}
 
-  // Función que se llama al presionar el botón "Agregar" o Enter
-  const agregar = () => {
-    if (texto.trim()) {
-      onAgregar(texto); // Llama a la función del padre para agregar la tarea
-      setTexto(""); // Limpia el input
+const NuevaTareaInput: React.FC<Props> = ({ onTareaAgregada }) => {
+  const [content, setContent] = useState('');
+  const agregarTarea = useAgregarTarea();
+  const { showToast } = useAppStore();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!content.trim()) {
+      showToast('La tarea no puede estar vacía', 'error');
+      return;
     }
-  };
-
-  // Maneja la tecla presionada en el input
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      agregar(); // Si es Enter, agrega la tarea
-    }
+    agregarTarea.mutate(content, {
+      onSuccess: () => {
+        setContent('');
+        if (onTareaAgregada) onTareaAgregada();
+      },
+      onError: () => {
+        showToast('Error al agregar tarea', 'error');
+      },
+    });
   };
 
   return (
-    <div className="input-container">
+    <form onSubmit={handleSubmit} className="new-task-input">
       <input
         type="text"
-        value={texto}
-        onChange={(e) => setTexto(e.target.value)} // Actualiza el estado texto
-        onKeyDown={handleKeyDown} // Detecta tecla Enter
-        placeholder="Nueva tarea"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        placeholder="Añadir nueva tarea..."
       />
-      <button onClick={agregar}>Agregar</button>
-    </div>
+      <button type="submit">Agregar</button>
+    </form>
   );
 };
 
