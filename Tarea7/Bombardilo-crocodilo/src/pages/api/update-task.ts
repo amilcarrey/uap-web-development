@@ -1,4 +1,3 @@
-// src/pages/update-task.ts
 import type { APIRoute } from "astro";
 import { state } from "./state";
 
@@ -19,6 +18,16 @@ export const POST: APIRoute = async ({ request }) => {
     task.completed = !task.completed;
   } else if (action === "delete") {
     state.tasks = state.tasks.filter((t) => t.id !== id);
+  } else if (action === "edit") {
+    const newContent = formData.get("task_content");
+    if (typeof newContent === "string" && newContent.trim() !== "") {
+      task.task_content = newContent.trim();
+    } else {
+      return new Response(JSON.stringify({ error: "Contenido inválido" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
   }
 
   return new Response(JSON.stringify(state.tasks), {

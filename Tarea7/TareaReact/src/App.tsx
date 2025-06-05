@@ -1,8 +1,106 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTasks, type Filter, type Task } from './hooks/useTasks'
+import { useEditTask } from './hooks/useEditTask'
+import { toast } from 'react-hot-toast'
+
+
 
 const BACKEND_URL = 'http://localhost:4321/api'
+
+
+
+function TaskItem({ task }: { task: Task }) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [value, setValue] = useState(task.task_content)
+  const editTask = useEditTask()
+
+  const handleSave = () => {
+  const trimmed = value.trim()
+
+  
+
+  if (!trimmed) {
+    toast.error('La tarea no puede estar vacía')
+    return
+  }
+
+  if (trimmed === task.task_content) {
+    setIsEditing(false)
+    return
+  }
+
+  editTask.mutate(
+    { id: task.id, content: trimmed },
+    {
+      onSuccess: () => {
+        toast.success('Tarea editada')
+        setIsEditing(false)
+      },
+      onError: () => {
+        toast.error('Error al editar la tarea')
+      },
+    }
+  )
+}
+
+
+  return (
+    <div className="flex-1 flex justify-center items-center">
+      {isEditing ? (
+        <div className="flex items-center gap-2">
+          <input
+            className="flex-1 border border-gray-300 rounded px-2 py-1 text-base"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSave()
+              if (e.key === 'Escape') {
+                setIsEditing(false)
+                setValue(task.task_content)
+              }
+            }}
+            autoFocus
+          />
+          <button
+            onClick={handleSave}
+            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+            aria-label="Guardar edición"
+          >
+            ✔
+          </button>
+          <button
+            onClick={() => {
+              setIsEditing(false)
+              setValue(task.task_content)
+            }}
+            className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
+            aria-label="Cancelar edición"
+          >
+            ✖
+          </button>
+        </div>
+      ) : (
+        <span
+          className={`text-center cursor-pointer select-none ${task.completed ? 'line-through text-gray-500' : ''}`}
+          onClick={() => setIsEditing(true)}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              setIsEditing(true)
+            }
+          }}
+          aria-label={`Tarea: ${task.task_content}`}
+        >
+          {task.task_content}
+        </span>
+      )}
+    </div>
+  )
+}
+
+
 
 function App() {
   const [newTask, setNewTask] = useState('')
@@ -98,6 +196,9 @@ function App() {
     setPage(1)
   }
 
+  if (isLoading) return <p className="text-center">Cargando tareas...</p>
+  if (isError) return <p className="text-red-500 text-center">Error: {(error as Error).message}</p>
+
   return (
     <div className="min-h-screen bg-purple-100 p-6">
       <div className="max-w-2xl mx-auto mt-24 p-8 bg-purple-200 rounded-2xl shadow-lg">
@@ -132,73 +233,66 @@ function App() {
             <button
               key={f}
               onClick={() => handleFilterChange(f)}
-              className={`px-4 py-2 rounded-lg border transition-colors duration-200 ${
-                filter === f
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300 border-transparent'
-              }`}
+              className={`px-4 py-2 rounded-lg border transition-colors duration-200 ${filter === f
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300 border-transparent'
+                }`}
             >
               {f === 'all' ? 'Todas' : f === 'active' ? 'Incompletas' : 'Completadas'}
             </button>
           ))}
         </div>
 
-        {isLoading ? (
-          <p className="text-center text-gray-600">Cargando tareas...</p>
-        ) : isError ? (
-          <p className="text-red-500 text-center">
-            Error al cargar tareas: {(error as Error).message}
-          </p>
-        ) : (
-          <>
-            <ul id="task-list" className="list-none p-0 m-0">
-              {tasks.map((task) => (
-                <li
-                  key={task.id}
-                  className="bg-gray-100 mb-2 p-5 rounded-lg flex items-center justify-between"
-                >
-                  <button
-                    onClick={() => toggleTaskMutation.mutate(task.id)}
-                    className="text-xl cursor-pointer transition-transform transform hover:scale-110"
-                  >
-                    {task.completed ? '✅' : '⬜'}
-                  </button>
-
-                  <span className={task.completed ? 'line-through text-gray-500' : ''}>
-                    {task.task_content}
-                  </span>
-
-                  <button
-                    onClick={() => deleteTaskMutation.mutate(task.id)}
-                    className="text-xl text-red-500 hover:text-red-700 transition-colors"
-                  >
-                    🗑
-                  </button>
-                </li>
-              ))}
-            </ul>
-
-            <div className="flex justify-center gap-4 mt-6">
-              <button
-                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
-              >
-                ⬅ Anterior
-              </button>
-              <span className="self-center text-gray-800 font-semibold">
-                Página {page} de {totalPages}
-              </span>
-              <button
-                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                disabled={page === totalPages}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
-              >
-                Siguiente ➡
-              </button>
-            </div>
-          </>
+        {tasks.length === 0 && (
+          <p className="text-center text-gray-500">No hay tareas para mostrar</p>
         )}
+        <>
+          <ul id="task-list" className="list-none p-0 m-0">
+            {tasks.map((task) => (
+              <li
+                key={task.id}
+                className="bg-gray-100 mb-2 p-5 rounded-lg flex items-center gap-4"
+              >
+                <button
+                  onClick={() => toggleTaskMutation.mutate(task.id)}
+                  className="text-xl cursor-pointer transition-transform transform hover:scale-110"
+                >
+                  {task.completed ? '✅' : '⬜'}
+                </button>
+
+                <TaskItem task={task} />
+
+                <button
+                  onClick={() => deleteTaskMutation.mutate(task.id)}
+                  className="text-xl text-red-500 hover:text-red-700 transition-colors"
+                >
+                  🗑
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex justify-center gap-4 mt-6">
+            <button
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
+            >
+              ⬅ Anterior
+            </button>
+            <span className="self-center text-gray-800 font-semibold">
+              Página {page} de {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={page === totalPages}
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
+            >
+              Siguiente ➡
+            </button>
+          </div>
+        </>
+
 
         <div className="mt-8 text-center">
           <button
