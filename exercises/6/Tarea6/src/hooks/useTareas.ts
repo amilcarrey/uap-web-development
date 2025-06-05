@@ -14,29 +14,32 @@ export const useTareas = (page: number, limit: number = 10) => {
   return useQuery<TareasData>({
     queryKey: ['tareas', page],
     queryFn: async (): Promise<TareasData> => {
-      // Obtener todas las tareas
+      console.time('useTareas fetch');
       const url = API_URL;
       console.log(`Fetching URL: ${url}`);
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Error al cargar tareas: ${res.statusText}`);
-      
+
       const allTareas: Tarea[] = await res.json();
       console.log(`Fetched all tareas (${allTareas.length} tareas):`, allTareas);
-      
-      // Ordenar y paginar en el cliente
+
+      // Retraso artificial para depuración (descomentar solo para pruebas)
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
+
       const tareas = allTareas
         .sort((a: Tarea, b: Tarea) => parseInt(a.id) - parseInt(b.id))
         .slice((page - 1) * limit, page * limit);
       console.log(`Paginated tareas for page ${page} (${tareas.length} tareas):`, tareas);
-      
-      // Calcular total
+
       const total = allTareas.length;
       console.log(`Total tareas: ${total}`);
-      
+      console.timeEnd('useTareas fetch');
+
       return { tareas, total };
     },
     retry: 1,
     refetchOnWindowFocus: false,
+    staleTime: 60 * 1000, // 1 minuto
   });
 };
 
@@ -54,10 +57,7 @@ export const useAgregarTarea = () => {
       return await res.json();
     },
     onMutate: async (content) => {
-      // Cancelar consultas en curso
       await queryClient.cancelQueries({ queryKey: ['tareas'] });
-      
-      // Obtener datos actuales de todas las páginas
       const previousData: { [page: number]: TareasData } = {};
       const pages = queryClient.getQueriesData({ queryKey: ['tareas'] });
       pages.forEach(([queryKey, data]) => {
@@ -66,15 +66,13 @@ export const useAgregarTarea = () => {
           previousData[page] = data as TareasData;
         }
       });
-      
-      // Crear tarea optimista
+
       const newTarea: Tarea = {
-        id: `${Object.keys(previousData).length * 10 + 1}`, // Estimación temporal
+        id: `${Object.keys(previousData).length * 10 + 1}`,
         content,
         completed: false,
       };
-      
-      // Actualizar todas las páginas
+
       Object.keys(previousData).forEach((page) => {
         const pageNum = parseInt(page);
         queryClient.setQueryData(['tareas', pageNum], (old: TareasData | undefined) => {
@@ -85,18 +83,17 @@ export const useAgregarTarea = () => {
           return { tareas: newTareas, total: old.total + 1 };
         });
       });
-      
+
       return { previousData };
     },
     onError: (err, content, context) => {
-      // Revertir cambios optimistas
       Object.keys(context?.previousData || {}).forEach((page) => {
         queryClient.setQueryData(['tareas', parseInt(page)], context?.previousData[parseInt(page)]);
       });
     },
     onSettled: () => {
-      // Invalidar todas las consultas de tareas
-      queryClient.invalidateQueries({ queryKey: ['tareas'], exact: false });
+      console.log('Invalidating queries after agregarTarea');
+      queryClient.invalidateQueries({ queryKey: ['tareas', 1] }); // Invalidar solo la página 1
     },
   });
 };
@@ -115,7 +112,8 @@ export const useToggleTarea = () => {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tareas'], exact: false });
+      console.log('Invalidating queries after toggleTarea');
+      queryClient.invalidateQueries({ queryKey: ['tareas'] }); // Invalidar todas las páginas
     },
   });
 };
@@ -131,7 +129,8 @@ export const useEliminarTarea = () => {
       if (!res.ok) throw new Error('Error al eliminar tarea');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tareas'], exact: false });
+      console.log('Invalidating queries after eliminarTarea');
+      queryClient.invalidateQueries({ queryKey: ['tareas'] }); // Invalidar todas las páginas
     },
   });
 };
@@ -152,7 +151,8 @@ export const useEliminarCompletadas = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tareas'], exact: false });
+      console.log('Invalidating queries after eliminarCompletadas');
+      queryClient.invalidateQueries({ queryKey: ['tareas'] }); // Invalidar todas las páginas
     },
   });
 };
@@ -171,7 +171,8 @@ export const useEditarTarea = () => {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tareas'], exact: false });
+      console.log('Invalidating queries after editarTarea');
+      queryClient.invalidateQueries({ queryKey: ['tareas'] }); // Invalidar todas las páginas
     },
   });
 };

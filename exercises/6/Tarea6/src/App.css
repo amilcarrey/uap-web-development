@@ -1,148 +1,281 @@
-:root {
-  --primary: #007bff;
-  --gray-light: #f5f5f5;
-  --gray: #ccc;
-  --text-light: #666;
-  --text-dark: #333;
-  --border-radius: 8px;
-  --transition: all 0.2s ease-in-out;
+/* Estilos generales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--gray-light);
-  color: var(--text-dark);
-  margin: 0;
-  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+  line-height: 1.6;
 }
 
+/* Contenedor principal */
 .app-container {
   max-width: 600px;
-  margin: 40px auto;
-  padding: 30px;
+  margin: 2rem auto;
+  padding: 1.5rem;
   background-color: white;
-  border-radius: var(--border-radius);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.input-container {
+.app-container h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+/* Formulario para nueva tarea */
+.new-task-input {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.input-container input {
+.new-task-input input {
   flex: 1;
-  padding: 10px;
-  border: 1px solid var(--gray);
-  border-radius: var(--border-radius);
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
   font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
-.input-container button {
-  padding: 10px 20px;
-  background-color: var(--primary);
-  border: none;
+.new-task-input input:focus {
+  border-color: #3498db;
+}
+
+.new-task-input button {
+  padding: 0.5rem 1rem;
+  background-color: #3498db;
   color: white;
-  border-radius: var(--border-radius);
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: var(--transition);
+  font-size: 1rem;
+  transition: background-color 0.2s;
 }
 
-.input-container button:hover {
-  background-color: #0056b3;
+.new-task-input button:hover {
+  background-color: #2980b9;
 }
 
+/* Filtros */
+.filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+}
+
+.filters button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.filters button.active,
+.filters button:hover {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+/* Lista de tareas */
 .task-list {
   list-style: none;
-  padding: 0;
-  margin: 0;
+  margin-bottom: 1.5rem;
 }
 
 .task-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 10px;
-  border-bottom: 1px solid var(--gray);
-  transition: var(--transition);
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
 }
 
-.task-item:hover {
-  background-color: #f0f8ff;
+.task-item div {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.task-item input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
 }
 
 .task-text {
   flex: 1;
   font-size: 1rem;
-  transition: var(--transition);
 }
 
 .task-text.completed {
   text-decoration: line-through;
-  color: var(--text-light);
+  color: #7f8c8d;
+}
+
+/* Modo edición en TareaItem */
+.task-item input[type="text"] {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.task-item input[type="text"]:focus {
+  border-color: #3498db;
 }
 
 .task-item button {
-  background: transparent;
+  padding: 0.5rem 1rem;
   border: none;
-  color: #dc3545;
-  font-size: 1rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: var(--transition);
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+  transition: background-color 0.2s;
 }
 
-.task-item button:hover {
-  color: #a71d2a;
-}
-
-.filters {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  justify-content: center;
-}
-
-.filters button {
-  padding: 8px 16px;
-  border: 1px solid var(--gray);
-  background-color: white;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.filters button:hover {
-  background-color: var(--gray-light);
-}
-
-.filters button.active {
-  background-color: var(--primary);
+.task-item button:nth-of-type(1) {
+  background-color: #3498db;
   color: white;
-  border-color: var(--primary);
 }
 
+.task-item button:nth-of-type(1):hover {
+  background-color: #2980b9;
+}
+
+.task-item button:nth-of-type(2) {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.task-item button:nth-of-type(2):hover {
+  background-color: #c0392b;
+}
+
+/* Botones de edición (Guardar y Cancelar) */
+.task-item button:first-of-type:not(:nth-of-type(1)) {
+  background-color: #2ecc71;
+}
+
+.task-item button:first-of-type:not(:nth-of-type(1)):hover {
+  background-color: #27ae60;
+}
+
+.task-item button:last-of-type:not(:nth-of-type(2)) {
+  background-color: #95a5a6;
+}
+
+.task-item button:last-of-type:not(:nth-of-type(2)):hover {
+  background-color: #7f8c8d;
+}
+
+/* Paginación */
 .pagination {
   display: flex;
-  gap: 10px;
+  align-items: center;
   justify-content: center;
-  margin: 20px 0;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .pagination button {
-  padding: 6px 12px;
-  border: 1px solid var(--gray);
-  background-color: white;
-  border-radius: var(--border-radius);
+  padding: 0.5rem 1rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: var(--transition);
-}
-
-.pagination button:hover:not(:disabled) {
-  background-color: var(--gray-light);
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
 }
 
 .pagination button:disabled {
-  opacity: 0.5;
+  background-color: #bdc3c7;
   cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.pagination span {
+  font-size: 0.9rem;
+  color: #2c3e50;
+}
+
+/* Botón Clear Completed */
+.app-container > button {
+  display: block;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.app-container > button:hover {
+  background-color: #c0392b;
+}
+
+/* Estilos para ToastContainer (react-toastify) */
+.Toastify__toast {
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.Toastify__toast--success {
+  background-color: #2ecc71;
+}
+
+.Toastify__toast--error {
+  background-color: #e74c3c;
+}
+
+/* Spinner de carga */
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  color: #3498db;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.loading-spinner::before {
+  content: '';
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 3px solid #3498db;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
