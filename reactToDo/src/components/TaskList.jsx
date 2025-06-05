@@ -1,11 +1,10 @@
-import { useState } from 'react';
-import ConfirmationModal from './ConfirmationModal';
 import { useTasksByCategory, useTaskMutations } from '../hooks/useTasks';
+import { useClientStore } from '../stores/clientStore';
 
 export default function TaskList({ category, filter }) {
-  const [taskToDelete, setTaskToDelete] = useState(null);
   const { data: tasks = [], isLoading, error } = useTasksByCategory(category);
   const { toggleTask, deleteTask } = useTaskMutations();
+  const { modals, openDeleteModal, closeDeleteModal } = useClientStore();
 
   const filteredTasks = () => {
     switch(filter) {
@@ -47,7 +46,7 @@ export default function TaskList({ category, filter }) {
               </span>
             </label>
             <button
-              onClick={() => setTaskToDelete(task)}
+              onClick={() => openDeleteModal(task)}
               disabled={deleteTask.isPending}
               className="w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
             >
@@ -57,19 +56,40 @@ export default function TaskList({ category, filter }) {
         ))}
       </ul>
 
-      <ConfirmationModal
-        isOpen={taskToDelete !== null}
-        onConfirm={() => {
-          deleteTask.mutate(
-            { id: taskToDelete.id, category },
-            {
-              onSuccess: () => setTaskToDelete(null)
-            }
-          );
-        }}
-        onCancel={() => setTaskToDelete(null)}
-        isLoading={deleteTask.isPending}
-      />
+      {/* Modal de confirmación (gestionado por Zustand) */}
+      {modals.isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full">
+            <h3 className="text-lg font-bold mb-4">Delete Task</h3>
+            <p>Are you sure you want to delete "{modals.taskToDelete?.text}"?</p>
+            <div className="flex justify-end space-x-2 mt-4">
+              <button
+                onClick={closeDeleteModal}
+                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  deleteTask.mutate(
+                    { id: modals.taskToDelete.id, category },
+                    {
+                      onSuccess: () => {
+                        closeDeleteModal();
+                        useClientStore.getState().addNotification('Task deleted!', 'error');
+                      },
+                    }
+                  );
+                }}
+                disabled={deleteTask.isPending}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
+              >
+                {deleteTask.isPending ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
