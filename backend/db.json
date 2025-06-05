@@ -12,28 +12,19 @@
   "tareas": [
     {
       "id": "3fc98d85-01ea-478c-b1fd-c77e08679205",
-      "texto": "asd",
+      "texto": "asdasd",
       "completada": false,
       "fecha_creacion": "2025-06-04T20:48:17.585Z",
-      "fecha_modificacion": "2025-06-04T20:48:17.585Z",
+      "fecha_modificacion": "2025-06-05T20:47:24.550Z",
       "fecha_realizada": null,
       "tableroId": "69e7"
     },
     {
-      "id": "a12462ed-e445-4f99-9c71-16196b6807b6",
-      "texto": "mnlk",
-      "completada": true,
-      "fecha_creacion": "2025-06-04T21:01:01.427Z",
-      "fecha_modificacion": "2025-06-04T22:15:01.623Z",
-      "fecha_realizada": "2025-06-04T22:14:57.981Z",
-      "tableroId": "1"
-    },
-    {
-      "id": "a6ea7cbf-5861-4783-8dc5-b8589d972580",
-      "texto": "jo+",
+      "id": "b2364c1c-747d-4232-a6fd-e893f922a97a",
+      "texto": "asd",
       "completada": false,
-      "fecha_creacion": "2025-06-04T21:14:23.487Z",
-      "fecha_modificacion": "2025-06-04T21:38:30.198Z",
+      "fecha_creacion": "2025-06-05T21:25:21.231Z",
+      "fecha_modificacion": "2025-06-05T21:25:21.231Z",
       "fecha_realizada": null,
       "tableroId": "1"
     }
