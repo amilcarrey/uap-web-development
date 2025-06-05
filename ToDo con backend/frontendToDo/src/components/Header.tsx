@@ -8,6 +8,7 @@ export const Header = () => {
         <h1 className="text-2xl font-bold text-gray-800 ">
           <span className="text-blue-400">Atareado</span>.com
         </h1>
+
         <Link
           to="/settings"
           className="text-gray-800 hover:text-blue-500 transition-colors duration-300"

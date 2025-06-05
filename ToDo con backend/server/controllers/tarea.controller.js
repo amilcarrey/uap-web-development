@@ -82,35 +82,6 @@ const toggleTarea = async (req, res) => {
   }
 };
 
-const eliminarCompletadas = async (req, res) => {
-  try {
-    const tableroId = req.query.tableroId;
-    if (!tableroId) {
-      return res.status(400).json({ message: "Falta el tableroId" });
-    }
-
-    const antes = tasks.length;
-    const nuevasTareas = tasks.filter(
-      (t) => !t.completada || t.tableroId !== tableroId
-    );
-    const eliminadas = antes - nuevasTareas.length;
-
-    tasks.length = 0;
-    tasks.push(...nuevasTareas);
-
-    res.json({
-      message:
-        eliminadas > 0
-          ? `${eliminadas} tareas completadas eliminadas con éxito`
-          : "No hay tareas completadas para eliminar",
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al eliminar las tareas", error: error.message });
-  }
-};
-
 const actualizarTarea = async (req, res) => {
   const index = parseInt(req.params.index);
   const { nombre, completada } = req.body;

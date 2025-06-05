@@ -1,8 +1,8 @@
+// Tareas.tsx
 import api from "../api";
-import { useQuery } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import { useConfiguracion } from "./Configuraciones";
 import toast from "react-hot-toast";
 
 export interface Tarea {
@@ -11,7 +11,9 @@ export interface Tarea {
   tableroId: string;
   completada: boolean;
 }
-export const useTareas = (tableroId: String, filtro: string = "todos") => {
+
+export const useTareas = (tableroId: string, filtro: string = "todos") => {
+  const { refetchInterval } = useConfiguracion();
   return useQuery({
     queryKey: ["tareas", tableroId, filtro],
     queryFn: async () => {
@@ -20,6 +22,7 @@ export const useTareas = (tableroId: String, filtro: string = "todos") => {
       });
       return response.data.tareas;
     },
+    refetchInterval,
   });
 };
 
@@ -29,6 +32,8 @@ interface ListarTareasProps {
 
 export const ListarTareas = ({ tableroId }: ListarTareasProps) => {
   const [filtro, setFiltro] = useState("todos");
+  const { descripcionMayusculas } = useConfiguracion();
+
   const {
     data: tareas = [],
     isLoading,
@@ -41,6 +46,8 @@ export const ListarTareas = ({ tableroId }: ListarTareasProps) => {
       duration: 2000,
     });
   };
+
+  if (!tableroId) return null;
 
   if (isLoading) {
     return <div className="text-center text-gray-500">Cargando tareas...</div>;
@@ -75,6 +82,7 @@ export const ListarTareas = ({ tableroId }: ListarTareasProps) => {
             index={index}
             nombre={tarea.nombre}
             completada={tarea.completada}
+            descripcionMayusculas={descripcionMayusculas}
           />
         ))}
       </ul>
@@ -82,7 +90,16 @@ export const ListarTareas = ({ tableroId }: ListarTareasProps) => {
   );
 };
 
-export const TareaItem = ({ nombre, completada, index }: Tarea) => {
+interface TareaItemProps extends Tarea {
+  descripcionMayusculas: boolean;
+}
+
+export const TareaItem = ({
+  nombre,
+  completada,
+  index,
+  descripcionMayusculas,
+}: TareaItemProps) => {
   const queryClient = useQueryClient();
   const [editando, setEditando] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState(nombre);
@@ -95,9 +112,7 @@ export const TareaItem = ({ nombre, completada, index }: Tarea) => {
       queryClient.invalidateQueries({ queryKey: ["tareas"] });
       toast.success(
         `Tarea ${completada ? "desmarcada" : "marcada"} como completada`,
-        {
-          duration: 2000,
-        }
+        { duration: 2000 }
       );
     },
   });
@@ -108,9 +123,7 @@ export const TareaItem = ({ nombre, completada, index }: Tarea) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tareas"] });
-      toast.success("Tarea eliminada correctamente", {
-        duration: 2000,
-      });
+      toast.success("Tarea eliminada correctamente", { duration: 2000 });
     },
   });
 
@@ -141,7 +154,7 @@ export const TareaItem = ({ nombre, completada, index }: Tarea) => {
             completada ? "line-through text-gray-500" : ""
           }`}
         >
-          {nombre}
+          {descripcionMayusculas ? nombre.toUpperCase() : nombre}
         </span>
       )}
 

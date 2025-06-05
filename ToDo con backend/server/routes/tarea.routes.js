@@ -13,7 +13,6 @@ export default function tareaRoutes() {
   router.put("/tareas/:index", actualizarTarea);
   router.delete("/tareas/:index", eliminarTarea);
   router.patch("/tareas/:index/toggle", toggleTarea);
-  router.delete("/tareas/completadas", eliminarCompletadas);
 
   return router;
 }
