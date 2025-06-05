@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function TodoItem({ todo, onToggle, onDelete, onEdit, isEditing, onSaveEdit, onCancelEdit }) {
+export default function TodoItem({ todo, onToggle, onDelete, onEdit, isEditing, onSaveEdit, onCancelEdit, uppercase }) {
   const [editText, setEditText] = useState(todo.text);
 
   if (isEditing) {
@@ -58,7 +58,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit, isEditing, 
           todo.completed ? 'line-through opacity-60' : ''
         }`}
       >
-        {todo.text}
+        {uppercase ? todo.text.toUpperCase() : todo.text}
       </span>
       <button
         className="p-2 rounded-full bg-white/60 hover:bg-purple-100 text-purple-900 ml-1 transition-colors"

@@ -1,6 +1,6 @@
 import TodoItem from './TodoItem'
 
-export default function TodoList({ todos, onToggle, onDelete, onEdit, editingId, onSaveEdit, onCancelEdit }) {
+export default function TodoList({ todos, onToggle, onDelete, onEdit, editingId, onSaveEdit, onCancelEdit, uppercase }) {
   if (!todos.length) {
     return <div className="text-center text-white/80 py-8">No hay tareas.</div>;
   }
@@ -16,6 +16,7 @@ export default function TodoList({ todos, onToggle, onDelete, onEdit, editingId,
           isEditing={editingId === todo.id}
           onSaveEdit={text => onSaveEdit(todo.id, text)}
           onCancelEdit={onCancelEdit}
+          uppercase={uppercase}
         />
       ))}
     </ul>

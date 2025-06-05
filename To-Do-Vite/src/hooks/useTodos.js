@@ -53,12 +53,13 @@ const clearCompleted = async () => {
   return true;
 };
 
-export function useTodos() {
+export function useTodos(refetchInterval) {
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ['todos'],
     queryFn: fetchTodos,
-    keepPreviousData: true
+    keepPreviousData: true,
+    refetchInterval: refetchInterval ? refetchInterval * 1000 : false,
   });
 
   const add = useMutation({

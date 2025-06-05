@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import TodoList from './components/TodoList'
 import TodoForm from './components/TodoForm'
 import TodoFilters from './components/TodoFilters'
@@ -8,6 +8,8 @@ import ErrorMessage from './components/ErrorMessage'
 import Toast from './components/Toast'
 import useUIStore from './stores/uiStore'
 import { useTodos } from './hooks/useTodos'
+import { SettingsContext } from './context/SettingsContext'
+import { Link } from '@tanstack/react-router'
 
 const PAGE_SIZE = 5
 
@@ -16,6 +18,7 @@ function App() {
   const [page, setPage] = useState(1)
   const [editingId, setEditingId] = useState(null)
   const { setNotification, clearNotification } = useUIStore()
+  const { uppercase, refetchInterval } = useContext(SettingsContext)
 
   const {
     data,
@@ -31,7 +34,7 @@ function App() {
     isToggling,
     isDeleting,
     clearCompleted,
-  } = useTodos(page, PAGE_SIZE)
+  } = useTodos(refetchInterval, page, PAGE_SIZE)
 
   const todos = data || []
   const total = data?.total || 0
@@ -119,6 +122,10 @@ function App() {
           />
         ))}
       </div>
+      {/* Botón de Configuraciones */}
+      <div className="fixed top-6 right-8 z-20">
+        <Link to="/settings" className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition-colors font-semibold">Configuraciones</Link>
+      </div>
       {/* Contenido principal */}
       <div className="fixed inset-0 flex items-center justify-center z-10">
         <div className="w-full max-w-xl bg-white/40 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/30 animate-fadeIn">
@@ -144,6 +151,7 @@ function App() {
                 editingId={editingId}
                 onSaveEdit={handleSaveEdit}
                 onCancelEdit={handleCancelEdit}
+                uppercase={uppercase}
               />
               <Pagination page={page} total={total} limit={PAGE_SIZE} setPage={setPage} />
             </>
