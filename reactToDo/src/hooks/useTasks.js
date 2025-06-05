@@ -4,7 +4,11 @@ import { loadTasks, saveTasks } from '../utils/storage';
 export const useTasksByCategory = (category) => {
   return useQuery({
     queryKey: ['tasks', category],
-    queryFn: () => {
+    queryFn: async () => {
+      // Simula un retardo de 2 segundos
+      //await new Promise(res => setTimeout(res, 2000));
+      // Simula un error descomentando la siguiente línea:
+      // throw new Error('Error simulado para probar el estado de error');
       const allTasks = loadTasks();
       return allTasks.filter(task => task.category === category);
     },
