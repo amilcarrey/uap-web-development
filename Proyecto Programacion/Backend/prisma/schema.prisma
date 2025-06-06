@@ -1,0 +1,64 @@
+// Este archivo define los modelos de tu base de datos para Prisma y SQLite
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Ejemplo sencillo de modelo de usuario
+model Usuario {
+  id          Int         @id @default(autoincrement())
+  nombre      String
+  apellido    String
+  alias       String      @unique
+  password    String
+  tableros    Tablero[]   // Relación 1:N
+  permisos    PermisoTablero[]
+  preferencia Preferencia?
+}
+
+model Tablero {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  estado      Boolean
+  propietario Usuario  @relation(fields: [propietarioId], references: [id])
+  propietarioId Int
+  tareas      Tarea[]  // Relación 1:N
+  permisos    PermisoTablero[]
+}
+
+model PermisoTablero {
+  id         Int      @id @default(autoincrement())
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId  Int
+  tablero    Tablero  @relation(fields: [tableroId], references: [id])
+  tableroId  Int
+  nivel      NivelPermiso
+}
+
+enum NivelPermiso {
+  PROPIETARIO
+  EDITOR
+  LECTURA
+}
+
+model Preferencia {
+  id                     Int      @id @default(autoincrement())
+  usuario                Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId              Int      @unique
+  elementosPagina        Int
+  IntevaloActualizacion  Int
+  UpperCase              Boolean
+}
+
+model Tarea {
+  id        Int     @id @default(autoincrement())
+  tablero   Tablero @relation(fields: [tableroId], references: [id])
+  tableroId Int
+  contenido String
+  estado    Boolean
+}
