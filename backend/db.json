@@ -1,0 +1,32 @@
+{
+  "tableros": [
+    {
+      "id": "1",
+      "nombre": "Personal"
+    },
+    {
+      "id": "69e7",
+      "nombre": "Profesional"
+    }
+  ],
+  "tareas": [
+    {
+      "id": "4f145d12-e7ee-469f-a8f4-daf9fb1b18ce",
+      "texto": "asd",
+      "completada": false,
+      "fecha_creacion": "2025-06-05T21:34:26.884Z",
+      "fecha_modificacion": "2025-06-05T21:34:26.884Z",
+      "fecha_realizada": null,
+      "tableroId": "69e7"
+    },
+    {
+      "id": "a18c1aec-9415-46dc-9b0a-962cddd78327",
+      "texto": "asd",
+      "completada": false,
+      "fecha_creacion": "2025-06-05T21:34:36.996Z",
+      "fecha_modificacion": "2025-06-05T21:35:33.183Z",
+      "fecha_realizada": null,
+      "tableroId": "1"
+    }
+  ]
+}
