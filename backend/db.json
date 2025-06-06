@@ -27,6 +27,24 @@
       "fecha_modificacion": "2025-06-05T21:35:33.183Z",
       "fecha_realizada": null,
       "tableroId": "1"
+    },
+    {
+      "id": "6b07b0e6-b5d2-4a3c-9b65-ae24e91e8bda",
+      "texto": "asd",
+      "completada": false,
+      "fecha_creacion": "2025-06-06T00:23:46.419Z",
+      "fecha_modificacion": "2025-06-06T00:23:46.419Z",
+      "fecha_realizada": null,
+      "tableroId": "1"
+    },
+    {
+      "id": "a4b692e3-671c-4e8a-816c-5b6b05f7b837",
+      "texto": "hola",
+      "completada": false,
+      "fecha_creacion": "2025-06-06T00:24:47.596Z",
+      "fecha_modificacion": "2025-06-06T00:24:47.596Z",
+      "fecha_realizada": null,
+      "tableroId": "1"
     }
   ]
 }
