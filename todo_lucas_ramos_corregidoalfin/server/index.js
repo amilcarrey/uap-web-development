@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { itsvzs } from "./data.js";
+
 
 const app = express();
 const PORT = 3000;
@@ -11,7 +11,7 @@ app.use(express.json());
 
 import tareaRoutes from "./routes/tarea.routes.js";
 import tableroRoutes from "./routes/tableros.routes.js";
-app.use("/api", tareaRoutes(xbmkws));
+app.use("/api", tareaRoutes());
 app.use("/api", tableroRoutes());
 
 app.listen(PORT, () => {
