@@ -1,6 +1,7 @@
-import React from "react";
+// manejo de filtros segun estado de las tareas
 
-type Filter = "all" | "done" | "undone";
+import React from "react";
+import type { Filter } from "../type";
 
 type Props = {
   currentFilter: Filter;
@@ -23,6 +24,7 @@ const TaskFilters: React.FC<Props> = ({ currentFilter, onChange }) => (
       ))}
     </div>
   </div>
+  
 );
 
 export default TaskFilters;

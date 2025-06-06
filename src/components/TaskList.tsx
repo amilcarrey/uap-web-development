@@ -1,11 +1,9 @@
+// usado para renderizar y gestionar las tareas individuales
+
 import React from "react";
 import TaskItem from "./TaskItem";
+import type { Task } from "../type";
 
-type Task = {
-  id: string;
-  text: string;
-  completed: boolean;
-};
 
 type Props = {
   tasks: Task[];
@@ -20,5 +18,7 @@ const TaskList: React.FC<Props> = ({ tasks, onToggle, onDelete }) => (
     ))}
   </ul>
 );
+
+
 
 export default TaskList;

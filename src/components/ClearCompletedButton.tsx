@@ -1,3 +1,5 @@
+// logica de boton para borrar tareas completadas
+
 import React from "react";
 
 type Props = {
@@ -10,9 +12,10 @@ const ClearCompletedButton: React.FC<Props> = ({ onClear }) => (
       onClick={onClear}
       className="bg-[#e49d89dc] px-6 py-3 rounded-md text-lg hover:bg-[#cc7a5a]"
     >
-      Limpiar completadas
+      Limpiar
     </button>
   </div>
+  
 );
 
 export default ClearCompletedButton;

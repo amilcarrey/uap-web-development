@@ -1,21 +1,23 @@
 @tailwind base;
-@tailwind components;
+/* @tailwind components; */
 @tailwind utilities;
 
 @layer base {
   * {
-    margin: 0;
-    padding: 0;
+    padding: 2px;
     box-sizing: border-box;
+    border-radius: 10px;
+    border-style: none;
     font-family: "Courier New", Courier, monospace;
   }
 
   body {
-    background-color: #f5f5dc;
+    background-color: #f5f5dc; 
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    width: 100vw;
+    /* height: 90vh;
+    width: 95vw; */
   }
 }
+
