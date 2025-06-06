@@ -1,0 +1,13 @@
+{
+  "name": "todo-express-backend",
+  "version": "1.0.0",
+  "description": "Backend Express para Todo App",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestor de tareas</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <h1><span class="TO">TO</span><span class="DO">DO</span></h1>
+</header>
+
+<nav>
+  <ul class="menu">
+    <li><a href="#">Personal</a></li>
+    <li><a href="#trabajo">Trabajo</a></li>
+    <li><button class="mas">+</button></li>
+  </ul>
+</nav>
+
+<div class="inicio">
+  <h2>Gestor de tareas</h2>
+</div>
+
+<div class="agregartareas">
+  <h2>Agregar tareas</h2>
+  <input class="escribir-tarea" type="text" placeholder="Escribe una tarea" id="tareaInput" />
+  <button type="submit" class="agregar" id="agregarBtn">Agregar</button>
+</div>
+
+<div class="tareas-pendientes">
+  <h2>Tareas pendientes</h2>
+  <ul class="lista-tareas" id="listaTareas">
+    <!-- Las tareas se agregarán aquí -->
+  </ul>
+
+  <div class="filtros">
+    <button onclick="filtrar('todas')">Todas</button>
+    <button onclick="filtrar('hechas')">Hechas</button>
+    <button onclick="filtrar('pendientes')">No Hechas</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
