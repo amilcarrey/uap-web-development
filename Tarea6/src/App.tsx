@@ -1,51 +1,25 @@
-import { useEffect, useState } from 'react';
-import type { Tarea } from './types/tarea';
+import Filtros from './components/Filtros';
 import ListaTarea from './components/ListaTarea';
 import TareaNueva from './components/TareaNueva';
-import Filtros from './components/Filtros';
+import { useTareas } from './hooks/useTareas';
+import { useTareaStore } from './store/tareaStore';
 import './App.css';
 
-type Filtro = 'todas' | 'completas' | 'incompletas';
-
 function App() {
-  const [tareas, setTareas] = useState<Tarea[]>([]);
-  const [filtro, setFiltro] = useState<Filtro>('todas');
+  const { filtro, setFiltro } = useTareaStore();
 
-  useEffect(() => {
-    const guardarTareas = localStorage.getItem('tareas');
-    if (guardarTareas) {
-      setTareas(JSON.parse(guardarTareas));
-    }
-  }, []);
+  // 👉 tableroId fijo por ahora y página 1
+  const tableroId = '1';
+  const page = 1;
 
-  useEffect(() => {
-    localStorage.setItem('tareas', JSON.stringify(tareas));
-  }, [tareas]);
+  const {
+    tareasQuery: { data: tareas = [], isLoading, isError },
+    addTarea,
+  } = useTareas(tableroId, page);
 
-  const agregoTarea = (texto: string) => {
+  const agregarTarea = (texto: string) => {
     if (!texto.trim()) return;
-    const nueva: Tarea = {
-      id: Date.now(),
-      content: texto,
-      completed: false,
-    };
-    setTareas([...tareas, nueva]);
-  };
-
-  const tareaCompletada = (id: number) => {
-    setTareas(
-      tareas.map((t) =>
-        t.id === id ? { ...t, completed: !t.completed } : t
-      )
-    );
-  };
-
-  const tareaEliminada = (id: number) => {
-    setTareas(tareas.filter((t) => t.id !== id));
-  };
-
-  const eliminarCompletadas = () => {
-    setTareas(tareas.filter((t) => !t.completed));
+    addTarea.mutate(texto);
   };
 
   const filtrarTareas = tareas.filter((t) => {
@@ -54,7 +28,7 @@ function App() {
     return true;
   });
 
- return (
+  return (
     <>
       <header>
         <h1 className="encabezado">TO-DO</h1>
@@ -65,23 +39,22 @@ function App() {
         <h4 id="subencabezado">Professional</h4>
       </div>
 
-      <TareaNueva onAgregar={agregoTarea} />
+      <TareaNueva onAgregar={agregarTarea} />
 
       <Filtros filtro={filtro} setFiltro={setFiltro} />
 
       <div className="to-do">
-        <ListaTarea
-          tareas={filtrarTareas}
-          onToggle={tareaCompletada}
-          onDelete={tareaEliminada}
-        />
+        {isLoading && <p>Cargando tareas...</p>}
+        {isError && <p>Error al cargar tareas</p>}
 
-        <p className="clear-completed" onClick={eliminarCompletadas}>
-          Clear Completed
-        </p>
+        {!isLoading && !isError && (
+          <ListaTarea tareas={filtrarTareas} />
+        )}
+
+        <p className="clear-completed">Clear Completed</p>
       </div>
     </>
-  )
+  );
 }
 
 export default App;

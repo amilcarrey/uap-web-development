@@ -1,20 +1,24 @@
-import type { Tarea } from '../../types/tarea'
+import React from "react"
+import type { Tarea } from "../../types/tarea"
+import { useTareasStore } from "../../store/TareasStore"
+import { useSettingsStore } from "../../store/Configuraciones"
 
-type Props = {
+interface Props {
   tarea: Tarea
-  onToggle: (id: number) => void
+  onUpdate: (tarea: Tarea) => void
   onDelete: (id: number) => void
 }
 
-export default function TareaItem({ tarea, onToggle, onDelete }: Props) {
+export const TareaItem = ({ tarea, onUpdate, onDelete }: Props) => {
+  const { startEditing } = useTareasStore()
+  const { uppercase } = useSettingsStore()
+  
   return (
-    <li className={tarea.completed ? 'completada' : ''}>
-      <input
-        type="checkbox"
-        checked={tarea.completed}
-        onChange={() => onToggle(tarea.id)}
-      />
-      <span>{tarea.content}</span>
+    <li>
+      <span>
+        {uppercase ? tarea.content.toUpperCase() : tarea.content}
+      </span>
+      <button onClick={() => startEditing(tarea.id, tarea.content)}>Editar</button>
       <button onClick={() => onDelete(tarea.id)}>Eliminar</button>
     </li>
   )

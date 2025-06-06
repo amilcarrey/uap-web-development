@@ -1,72 +1,54 @@
-import React, { useState } from 'react'
-import type { Tarea } from '../../types/tarea'
+import React from "react";
+import { useTareas } from "../../hooks/useTareas";
+import { useTareasStore } from "../../store/TareasStore";
+import { NuevaTareaForm } from "./TareaNueva";
+import { TareaItem } from "./TareaItem";
 
 interface Props {
-  tareas: Tarea[]
-  onEditar: (id: number) => void
-  onEliminar: (id: number) => void
-  editandoTareaId: number | null
-  onCancelarEdicion: () => void
-  onGuardar: (tarea: { id: number; content: string; completed: boolean }) => void
+  tableroId: string;
 }
 
-export default function ListaTarea({
-  tareas,
-  onEditar,
-  onEliminar,
-  editandoTareaId,
-  onCancelarEdicion,
-  onGuardar,
-}: Props) {
-  const [contenidoEdit, setContenidoEdit] = useState('')
+export const ListaTareas = ({ tableroId }: Props) => {
+  const { tareasQuery, addTarea, updateTarea, deleteTarea } = useTareas(tableroId, useTareasStore((s) => s.page));
+  const { editing, startEditing, cancelEditing, setEditingContent, setPage } = useTareasStore();
 
-  React.useEffect(() => {
-    if (editandoTareaId !== null) {
-      const tarea = tareas.find((t) => t.id === editandoTareaId)
-      setContenidoEdit(tarea ? tarea.content : '')
-    }
-  }, [editandoTareaId, tareas])
+  const tareas = tareasQuery.data || [];
+  const isEditing = editing.id !== null;
 
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (editandoTareaId !== null) {
-      onGuardar({
-        id: editandoTareaId,
-        content: contenidoEdit,
-        completed: tareas.find((t) => t.id === editandoTareaId)?.completed ?? false,
-      })
+  const handleSave = (content: string) => {
+    if (isEditing) {
+      updateTarea.mutate({ id: editing.id!, content, completed: false, tableroId });
+      cancelEditing();
+    } else {
+      addTarea.mutate(content);
     }
-  }
+  };
 
   return (
-    <ul>
-      {tareas.map((t) =>
-        editandoTareaId === t.id ? (
-          <li key={t.id}>
-            <form onSubmit={onSubmit}>
-              <input
-                value={contenidoEdit}
-                onChange={(e) => setContenidoEdit(e.target.value)}
-                autoFocus
-              />
-              <button type="submit">Guardar</button>
-              <button type="button" onClick={onCancelarEdicion}>
-                Cancelar
-              </button>
-            </form>
-          </li>
-        ) : (
-          <li key={t.id}>
-            <span
-              style={{ textDecoration: t.completed ? 'line-through' : 'none' }}
-            >
-              {t.content}
-            </span>
-            <button onClick={() => onEditar(t.id)}>Editar</button>
-            <button onClick={() => onEliminar(t.id)}>Eliminar</button>
-          </li>
-        )
-      )}
-    </ul>
-  )
-}
+    <div className="to-do">
+      <NuevaTareaForm
+        onSave={handleSave}
+        editingContent={editing.content}
+        setEditingContent={setEditingContent}
+        isEditing={isEditing}
+        onCancel={cancelEditing}
+      />
+      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        {tareas.map((t) => (
+          <TareaItem
+            key={t.id}
+            tarea={t}
+            onUpdate={updateTarea.mutate}
+            onDelete={deleteTarea.mutate}
+          />
+        ))}
+      </ul>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
+        <button disabled={useTareasStore.getState().page === 1} onClick={() => setPage(useTareasStore.getState().page - 1)}>
+          Anterior
+        </button>
+        <button onClick={() => setPage(useTareasStore.getState().page + 1)}>Siguiente</button>
+      </div>
+    </div>
+  );
+};

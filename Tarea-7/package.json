@@ -10,14 +10,17 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",
-    "@tanstack/react-query": "^5.80.5",
+    "@tanstack/react-query": "^5.80.6",
     "astro": "^5.8.1",
+    "axios": "^1.9.0",
+    "next": "^15.3.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
+    "@types/next": "^9.0.0",
     "@types/react-router-dom": "^5.3.3"
   }
 }

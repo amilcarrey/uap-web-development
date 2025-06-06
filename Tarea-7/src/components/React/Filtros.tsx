@@ -1,30 +1,18 @@
-import React from 'react'
-import { useUIStore } from '../../store/UIStore'
+import { useTareasStore } from "../../store/TareasStore";
 
-export default function Filtros() {
-  const filtro = useUIStore((state) => state.filtro)
-  const setFiltro = useUIStore((state) => state.setFiltro)
+export const FilterForm = () => {
+  const search = useTareasStore((s) => s.search);
+  const setSearch = useTareasStore((s) => s.setSearch);
 
   return (
-    <div>
-      <button
-        onClick={() => setFiltro('todas')}
-        disabled={filtro === 'todas'}
-      >
-        Todas
-      </button>
-      <button
-        onClick={() => setFiltro('completas')}
-        disabled={filtro === 'completas'}
-      >
-        Completas
-      </button>
-      <button
-        onClick={() => setFiltro('incompletas')}
-        disabled={filtro === 'incompletas'}
-      >
-        Incompletas
-      </button>
+    <div className="buscador">
+      <input
+        type="text"
+        id="search"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Buscar tareas..."
+      />
     </div>
-  )
-}
+  );
+};
