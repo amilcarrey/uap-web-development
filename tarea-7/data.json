@@ -1,0 +1,43 @@
+{
+    "boards": {
+        "e0bb48d6-241d-4e10-9559-e896afd2de72": {
+            "name": "Mi Primer Tablero",
+            "tasks": [
+                {
+                    "id": "6dfbbbd0-055c-49c5-a529-f3dc5b0f835a",
+                    "text": "Bienvenido a tu primer tablero",
+                    "completed": false
+                },
+                {
+                    "id": "bee84da1-ec57-4175-a4d5-d3eb1a323414",
+                    "text": "Haz click en 'Editar' para cambiar esta tarea",
+                    "completed": false
+                },
+                {
+                    "id": "b9314a36-7c12-4334-8a80-3cc8e7b96484",
+                    "text": "Usa 'Eliminar' para borrarla",
+                    "completed": false
+                },
+                {
+                    "id": "0c6c3c32-c354-4278-89ec-09c8a47babf1",
+                    "text": "Crea m\u00e1s tareas con el formulario de arriba",
+                    "completed": true
+                },
+                {
+                    "id": "64045c57-9a6f-4a91-bd80-de03f8c9f0c1",
+                    "text": "Explora la paginaci\u00f3n para ver m\u00e1s tareas",
+                    "completed": false
+                },
+                {
+                    "id": "8df9f5d7-f823-4eea-ae3f-0e70d324eeec",
+                    "text": "\u00a1Disfruta organizando tus ideas!",
+                    "completed": false
+                }
+            ]
+        }
+    },
+    "global_config": {
+        "refetch_interval": 10000,
+        "uppercase_description": false
+    }
+}
