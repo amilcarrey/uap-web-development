@@ -1,147 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTasks, type Filter, type Task } from './hooks/useTasks'
-import { useEditTask } from './hooks/useEditTask'
 import { toast } from 'react-hot-toast'
 import { useSettingsStore } from "./stores/settings";
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
-
-
-
+import { TaskItem } from './components/TaskItem'
+import { SettingsModal } from './components/SettingsModal'
 
 const BACKEND_URL = 'http://localhost:4321/api'
-
-
-
-function SettingsModal({ open, onClose }: { open: boolean, onClose: () => void }) {
-  const { refetchInterval, setRefetchInterval, uppercaseDescriptions, toggleUppercaseDescriptions } = useSettingsStore()
-
-  if (!open) return null
-
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg min-w-[300px]">
-        <h2 className="text-xl font-bold mb-4">Configuración</h2>
-        <div className="mb-4">
-          <label className="block mb-1 font-semibold">Intervalo de refresco (ms):</label>
-          <input
-            type="number"
-            value={refetchInterval}
-            min={1000}
-            step={1000}
-            onChange={e => setRefetchInterval(Number(e.target.value))}
-            className="border rounded px-2 py-1 w-full"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={uppercaseDescriptions}
-              onChange={toggleUppercaseDescriptions}
-            />
-            Descripciones en mayúsculas
-          </label>
-        </div>
-        <button
-          onClick={onClose}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Cerrar
-        </button>
-      </div>
-    </div>
-  )
-}
-
-
-
-function TaskItem({
-  task,
-  isEditing,
-  setIsEditing,
-}: {
-  task: Task
-  isEditing: boolean
-  setIsEditing: (val: boolean) => void
-}) {
-  const [value, setValue] = useState(task.task_content)
-  const editTask = useEditTask()
-  const { uppercaseDescriptions } = useSettingsStore()
-
-  const handleSave = () => {
-    const trimmed = value.trim()
-    if (!trimmed) {
-      toast.error('La tarea no puede estar vacía')
-      return
-    }
-    if (trimmed === task.task_content) {
-      setIsEditing(false)
-      return
-    }
-    editTask.mutate(
-      { id: task.id, content: trimmed },
-      {
-        onSuccess: () => {
-          toast.success('Tarea editada')
-          setIsEditing(false)
-        },
-        onError: () => {
-          toast.error('Error al editar la tarea')
-        },
-      }
-    )
-  }
-
-  if (isEditing) {
-    return (
-      <div className="flex items-center gap-2 flex-1">
-        <input
-          className="flex-1 border border-gray-300 rounded px-2 py-1 text-base"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleSave()
-            if (e.key === 'Escape') {
-              setIsEditing(false)
-              setValue(task.task_content)
-            }
-          }}
-          autoFocus
-        />
-        <button
-          onClick={handleSave}
-          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-          aria-label="Guardar edición"
-        >
-          ✔
-        </button>
-        <button
-          onClick={() => {
-            setIsEditing(false)
-            setValue(task.task_content)
-          }}
-          className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
-          aria-label="Cancelar edición"
-        >
-          ✖
-        </button>
-      </div>
-    )
-  }
-
-  return (
-    <span
-      className={`text-center select-none flex-1 ${task.completed ? 'line-through text-gray-500' : ''}`}
-      tabIndex={0}
-      aria-label={`Tarea: ${task.task_content}`}
-    >
-      {uppercaseDescriptions ? task.task_content.toUpperCase() : task.task_content}
-    </span>
-  )
-}
-
 
 function App() {
   const [newTask, setNewTask] = useState('')
@@ -188,7 +55,11 @@ function App() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', filter, page, limit] })
-      setNewTask('') 
+      setNewTask('')
+      toast.success('Tarea agregada')
+    },
+    onError: () => {
+      toast.error('Error al agregar la tarea')
     },
   })
   const handleSubmit = (e: FormEvent) => {
@@ -214,6 +85,10 @@ function App() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', filter, page, limit] })
+      toast.success('Estado de tarea cambiado')
+    },
+    onError: () => {
+      toast.error('Error al cambiar el estado de la tarea')
     },
   })
 
@@ -233,6 +108,10 @@ function App() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', filter, page, limit] })
+      toast.success('Tarea eliminada')
+    },
+    onError: () => {
+      toast.error('Error al eliminar la tarea')
     },
   })
 
@@ -248,6 +127,10 @@ function App() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', filter, page, limit] })
+      toast.success('Tareas completadas borradas')
+    },
+    onError: () => {
+      toast.error('Error al borrar tareas completadas')
     },
   })
 
@@ -332,6 +215,7 @@ function App() {
                   task={task}
                   isEditing={editingTaskId === task.id}
                   setIsEditing={(val) => setEditingTaskId(val ? task.id : null)}
+                  boardId={boardId}
                 />
 
                 <button

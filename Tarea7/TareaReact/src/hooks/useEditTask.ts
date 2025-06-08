@@ -1,10 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+const BACKEND_URL = 'http://localhost:4321/api';
 
-const BACKEND_URL = 'http://localhost:4321/api'; // <-- Agrega esta línea
-
-
-export function useEditTask() {
+export function useEditTask(boardId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -13,6 +11,7 @@ export function useEditTask() {
       formData.append("id", id.toString());
       formData.append("action", "edit");
       formData.append("task_content", content);
+      formData.append("boardId", boardId); 
 
       const res = await fetch(`${BACKEND_URL}/update-task`, {
         method: "POST",
