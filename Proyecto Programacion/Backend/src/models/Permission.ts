@@ -9,25 +9,25 @@ export enum PermissionLevel {
 
 export class Permission {
   #id: number;
-  #user: User;
-  #board: Board;
+  #userId: number;
+  #boardId: number;
   #level: PermissionLevel;
 
-  constructor(id: number, user: User, board: Board, level: PermissionLevel) {
+  constructor(id: number, userId: number, boardId: number, level: PermissionLevel) {
     this.#id = id;
-    this.#user = user;
-    this.#board = board;
+    this.#userId = userId;
+    this.#boardId = boardId;
     this.#level = level;
   }
 
   get id() { return this.#id; }
   set id(value: number) { this.#id = value; }
 
-  get user() { return this.#user; }
-  set user(value: User) { this.#user = value; }
+  get userId() { return this.#userId; }
+  set userId(value: number) { this.#userId = value; }
 
-  get board() { return this.#board; }
-  set board(value: Board) { this.#board = value; }
+  get boardId() { return this.#boardId; }
+  set boardId(value: number) { this.#boardId = value; }
 
   get level() { return this.#level; }
   set level(value: PermissionLevel) { this.#level = value; }
