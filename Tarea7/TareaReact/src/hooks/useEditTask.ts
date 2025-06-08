@@ -23,7 +23,6 @@ export function useEditTask() {
       return res.json();
     },
     onSuccess: () => {
-      // Invalida todas las queries que empiezan con "tasks"
       queryClient.invalidateQueries({
         predicate: (query) =>
           Array.isArray(query.queryKey) && query.queryKey[0] === "tasks",
