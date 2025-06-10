@@ -16,7 +16,7 @@ export const useTaskActions = () => {
       const response = await fetch(`${API_BASE}/api/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task: taskText, boardId: parseInt(tableroId) }),
+        body: JSON.stringify({ text: taskText, boardId: parseInt(tableroId) }),
       });
 
       if (!response.ok) {

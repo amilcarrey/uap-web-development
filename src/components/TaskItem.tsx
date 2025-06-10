@@ -6,9 +6,10 @@ type Props = {
   task: Task;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  uppercase?: boolean;
 };
 
-const TaskItem: React.FC<Props> = ({ task, onToggle, onDelete }) => {
+const TaskItem: React.FC<Props> = ({ task, onToggle, onDelete, uppercase }) => {
   const { editTask } = useTaskActions();
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.text);
@@ -46,7 +47,7 @@ const TaskItem: React.FC<Props> = ({ task, onToggle, onDelete }) => {
               task.completed ? "line-through opacity-50 text-gray-500" : "text-gray-800"
             }`}
           >
-            {task.text}
+        {uppercase ? task.text.toUpperCase() : task.text}
           </span>
           <div className="flex gap-2">
             <button type="button" onClick={() => setIsEditing(true)} className="text-blue-500">

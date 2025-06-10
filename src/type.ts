@@ -4,4 +4,10 @@ export type Task = {
   completed: boolean;
 };
 
+export type Board = {
+  id: string;
+  name: string;
+  description: string;
+};
+
 export type Filter = "all" | "done" | "undone";

@@ -4,7 +4,8 @@
 
 @layer base {
   * {
-    padding: 2px;
+    padding: 3px;
+    /* gap: 10px; */
     box-sizing: border-box;
     border-radius: 10px;
     border-style: none;
