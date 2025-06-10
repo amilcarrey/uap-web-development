@@ -1,35 +1,50 @@
-// src/hooks/useBoards.js  (React Query v5)
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+// src/hooks/useBoards.js
+import axios from 'axios';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { BOARDS_URL } from '../api/endpoints';
+import { toast } from 'react-toastify';
 
-const API_BASE = 'http://localhost:4000';
-
+/**
+ * useQuery en v5 espera un único objeto con { queryKey, queryFn, ...opciones }.
+ */
 export function useBoards() {
   return useQuery({
     queryKey: ['boards'],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/boards`);
-      if (!res.ok) throw new Error('Error al obtener tableros');
-      return res.json();
+      const { data } = await axios.get(BOARDS_URL);
+      return data;
     },
-    staleTime: 1000 * 60 * 5, // opcional: cuán frescos consideras los datos (5 minutos)
-    keepPreviousData: false,  // opcional
+    onError: (err) => {
+      toast.error('Error al cargar tableros');
+      console.error(err);
+    },
+    // Opcionalmente podrías agregar staleTime, etc.
+    // staleTime: 1000 * 60 * 2, // 2 minutos, por ejemplo
   });
 }
 
-export function useAddBoard() {
+/**
+ * useMutation en v5 también usa un objeto:
+ *  - mutationFn, onSuccess, onError, etc.
+ */
+export function useCreateBoard() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ name }) => {
-      const res = await fetch(`${API_BASE}/boards`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
-      });
-      if (!res.ok) throw new Error('Error al crear tablero');
-      return res.json();
+    mutationFn: async (name) => {
+      const { data } = await axios.post(BOARDS_URL, { name });
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (newBoard) => {
+      toast.success(`Tablero "${newBoard.name}" creado`);
       queryClient.invalidateQueries({ queryKey: ['boards'] });
+    },
+    onError: (err) => {
+      toast.error('Error al crear tablero');
+      console.error(err);
     },
   });
 }
@@ -37,13 +52,17 @@ export function useAddBoard() {
 export function useDeleteBoard() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id) => {
-      const res = await fetch(`${API_BASE}/boards/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Error al eliminar tablero');
-      return id;
+    mutationFn: async (boardId) => {
+      await axios.delete(`${BOARDS_URL}/${boardId}`);
+      return boardId;
     },
     onSuccess: () => {
+      toast.success('Tablero eliminado');
       queryClient.invalidateQueries({ queryKey: ['boards'] });
+    },
+    onError: (err) => {
+      toast.error('Error al eliminar tablero');
+      console.error(err);
     },
   });
 }

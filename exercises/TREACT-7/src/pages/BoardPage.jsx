@@ -1,139 +1,111 @@
 // src/pages/BoardPage.jsx
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+
+import NavTableros from '../components/NavTableros';
 import TaskInput from '../components/TaskInput';
 import TaskList from '../components/TaskList';
 import FilterButtons from '../components/FilterButtons';
 import ClearCompletedButton from '../components/ClearCompletedButton';
-import { useTasks, useAddTask, useUpdateTask, useDeleteTask, useClearCompleted } from '../hooks/useTasks';
-import { useSettingsStore } from '../stores/settingsStore';
-import { useToastStore } from '../stores/toastStore';
+import Pagination from '../components/Pagination';
+
+import {
+  useTasks,
+  useCreateTask,
+  useToggleTask,
+  useDeleteTask,
+  useClearCompleted,
+} from '../hooks/useTasks';
 
 export default function BoardPage() {
-  const { boardId } = useParams(); // extrae el :boardId de la URL
-  const [filter, setFilter] = useState('all');
+  const { boardId } = useParams();
   const [page, setPage] = useState(1);
-  const limit = 5; // cantidad de tareas por página
+  const limit = 5;
 
-  // 1. Obtener configuraciones globales (refetchInterval y uppercase)
-// DESPUÉS, cada uno por su cuenta:
-const refetchInterval = useSettingsStore(state => state.refetchInterval);
-const uppercase       = useSettingsStore(state => state.uppercase);
+  // Nuevo estado local para "filtros": all | active | completed
+  const [filter, setFilter] = useState('all');
 
-
-  // 2. Toasts
-  const addToast = useToastStore(state => state.addToast);
-
-  // 3. Cargar tareas con React Query
+  // React Query para obtener tareas (paginadas)
   const {
     data: tasksData,
     isLoading,
     isError,
-    error,
-  } = useTasks(boardId, { page, limit, refetchInterval: refetchInterval * 1000 });
+    isFetching,
+  } = useTasks(boardId, page, limit);
 
-  // 4. Mutations
-  const addTaskMutation = useAddTask(boardId);
-  const updateTaskMutation = useUpdateTask(boardId);
+  const createTaskMutation = useCreateTask(boardId);
+  const toggleTaskMutation = useToggleTask(boardId);
   const deleteTaskMutation = useDeleteTask(boardId);
   const clearCompletedMutation = useClearCompleted(boardId);
 
-  // Al hacer una mutación, mostrar toast
-  const handleAdd = async (title) => {
-    try {
-      await addTaskMutation.mutateAsync({ title, completed: false });
-      addToast({ message: 'Tarea agregada', type: 'success' });
-    } catch (err) {
-      addToast({ message: err.message, type: 'error' });
-    }
-  };
+  function handleAddTask(title) {
+    createTaskMutation.mutate(title);
+  }
+  function handleToggle(task) {
+    toggleTaskMutation.mutate({ id: task.id, completed: task.completed });
+  }
+  function handleDelete(task) {
+    deleteTaskMutation.mutate(task.id);
+  }
+  function handleClearCompleted() {
+    clearCompletedMutation.mutate();
+  }
 
-  const handleToggle = async (id, current) => {
-    try {
-      await updateTaskMutation.mutateAsync({ id, updates: { completed: !current } });
-      addToast({ message: 'Tarea actualizada', type: 'success' });
-    } catch (err) {
-      addToast({ message: err.message, type: 'error' });
-    }
-  };
+  if (isError) return <p>Error al cargar tareas</p>;
+  if (isLoading) return <p>Cargando tareas…</p>;
 
-  const handleDelete = async (id) => {
-    try {
-      await deleteTaskMutation.mutateAsync(id);
-      addToast({ message: 'Tarea eliminada', type: 'success' });
-    } catch (err) {
-      addToast({ message: err.message, type: 'error' });
-    }
-  };
+  // extraemos datos de la respuesta paginada
+  const { data: tasks, totalPages, page: currentPage } = tasksData;
 
-  const handleClearCompleted = async () => {
-    try {
-      await clearCompletedMutation.mutateAsync();
-      addToast({ message: 'Completadas eliminadas', type: 'success' });
-    } catch (err) {
-      addToast({ message: err.message, type: 'error' });
-    }
-  };
-
-  // 5. Filtrar tareas según Estado
-  const tasks = tasksData?.tasks || []; // suponemos que el endpoint devuelve { tasks: [...], totalPages: n }
-  const totalPages = tasksData?.totalPages || 1;
-  let filtered = tasks;
-  if (filter === 'active') filtered = tasks.filter(t => !t.completed);
-  if (filter === 'completed') filtered = tasks.filter(t => t.completed);
+  // Filtrar en front-end según filtro seleccionado
+  const filteredTasks = tasks.filter((t) => {
+    if (filter === 'active') return !t.completed;
+    if (filter === 'completed') return t.completed;
+    return true; // "all"
+  });
 
   return (
     <div className="py-8 bg-amber-50 min-h-screen">
       <div className="max-w-xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4 text-center">Tablero: {boardId}</h1>
+        {/* ===== Barra de tableros (misma que filtros) ===== */}
+        <NavTableros />
 
-        {/* 1) Sección de agregado */}
-        <TaskInput onAdd={handleAdd} />
+        {/* Título y enlace a Configuraciones */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Tablero #{boardId}</h2>
+          <Link to="/settings" className="text-blue-600 hover:underline">
+            Configuraciones
+          </Link>
+        </div>
 
-        {/* 2) Botones de filtro */}
+        {/* ===== TaskInput + Botón “Agregar” ===== */}
+        <TaskInput onAdd={handleAddTask} />
+
+        {/* ===== Indicador “fetching” ===== */}
+        {isFetching && (
+          <p className="text-sm text-gray-500 mb-2">Actualizando…</p>
+        )}
+
+        {/* ===== Botones de filtro (All / Active / Completed) ===== */}
         <FilterButtons filter={filter} onChangeFilter={setFilter} />
 
-        {/* 3) Estados de loading / error */}
-        {isLoading && <p className="text-center">Cargando tareas...</p>}
-        {isError && <p className="text-center text-red-500">{error.message}</p>}
+        {/* ===== Lista de tareas ya filtrada ===== */}
+        <TaskList
+          tasks={filteredTasks}
+          onToggle={handleToggle}
+          onDelete={handleDelete}
+          boardId={boardId}
+        />
 
-        {/* 4) Listado de tareas */}
-        {!isLoading && !isError && (
-          <TaskList
-            tasks={filtered.map(task => ({
-              ...task,
-              title: uppercase ? task.title.toUpperCase() : task.title
-            }))}
-            onToggle={(id, completed) => handleToggle(id, completed)}
-            onDelete={handleDelete}
-          />
-        )}
+        {/* ===== Botón “Limpiar completadas” ===== */}
+        <ClearCompletedButton onClear={handleClearCompleted} />
 
-        {/* 5) Clear Completed */}
-        {!isLoading && !isError && filtered.length > 0 && (
-          <ClearCompletedButton onClear={handleClearCompleted} />
-        )}
-
-        {/* 6) Paginación */}
-        {!isLoading && !isError && (
-          <div className="flex justify-center mt-6 space-x-2">
-            <button
-              onClick={() => setPage(old => Math.max(old - 1, 1))}
-              disabled={page === 1}
-              className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-            >
-              Anterior
-            </button>
-            <span className="px-3 py-1">{page} / {totalPages}</span>
-            <button
-              onClick={() => setPage(old => Math.min(old + 1, totalPages))}
-              disabled={page === totalPages}
-              className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-            >
-              Siguiente
-            </button>
-          </div>
-        )}
+        {/* ===== Paginación ===== */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );

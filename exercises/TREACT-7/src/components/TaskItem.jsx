@@ -1,81 +1,86 @@
 // src/components/TaskItem.jsx
 import React, { useState } from 'react';
+import { useEditTask } from '../hooks/useTasks';
 
-export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
+export default function TaskItem({ task, onToggle, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [draft, setDraft] = useState(task.title);
+  const [editText, setEditText] = useState(task.title);
 
-  const startEdit = () => {
-    setDraft(task.title);
-    setIsEditing(true);
-  };
+  const editTaskMutation = useEditTask(task.boardId);
 
-  const cancelEdit = () => {
+  function handleSaveEdit() {
+    if (!editText.trim()) return;
+    editTaskMutation.mutate(
+      { id: task.id, title: editText.trim() },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+        },
+      }
+    );
+  }
+
+  function handleCancelEdit() {
+    setEditText(task.title);
     setIsEditing(false);
-    setDraft(task.title);
-  };
-
-  const saveEdit = () => {
-    if (draft.trim() && draft.trim() !== task.title) {
-      onEdit(task.id, draft.trim());
-    }
-    setIsEditing(false);
-  };
+  }
 
   return (
     <li className="flex items-center mb-2 bg-amber-100 p-2 rounded shadow-sm">
       <input
         type="checkbox"
         checked={task.completed}
-        onChange={() => onToggle(task.id, task.completed)}
+        onChange={() => onToggle(task)}
         className="mr-2"
       />
 
-      {/* 1) Modo “lectura” vs Modo “editar” */}
-      {!isEditing ? (
-        <span className={`flex-1 ${task.completed ? 'line-through text-gray-500' : ''}`}>
-          {task.title}
-        </span>
-      ) : (
+      {isEditing ? (
         <input
           type="text"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          value={editText}
+          onChange={(e) => setEditText(e.target.value)}
           className="flex-1 border p-1 rounded mr-2"
         />
+      ) : (
+        <span
+          className={`flex-1 ${
+            task.completed ? 'line-through text-gray-500' : ''
+          }`}
+        >
+          {task.title}
+        </span>
       )}
 
-      {/* 2) Botones según modo */}
-      {!isEditing ? (
-        <>
+      {isEditing ? (
+        <div className="space-x-2">
           <button
-            onClick={startEdit}
-            className="text-blue-500 hover:text-blue-700 px-2"
-          >
-            Editar
-          </button>
-          <button
-            onClick={() => onDelete(task.id)}
-            className="text-red-500 hover:text-red-700 px-2"
-          >
-            Eliminar
-          </button>
-        </>
-      ) : (
-        <>
-          <button
-            onClick={saveEdit}
-            className="text-green-500 hover:text-green-700 px-2"
+            onClick={handleSaveEdit}
+            className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
           >
             Guardar
           </button>
           <button
-            onClick={cancelEdit}
-            className="text-gray-500 hover:text-gray-700 px-2"
+            onClick={handleCancelEdit}
+            className="bg-gray-300 text-gray-700 px-2 py-1 rounded hover:bg-gray-400"
           >
             Cancelar
           </button>
-        </>
+        </div>
+      ) : (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-blue-500 hover:text-blue-700 px-2"
+          >
+            ✎
+          </button>
+          <button
+            onClick={() => onDelete(task)}
+            className="text-red-500 hover:text-red-700 px-2"
+          >
+            🗑
+          </button>
+        </div>
       )}
     </li>
   );

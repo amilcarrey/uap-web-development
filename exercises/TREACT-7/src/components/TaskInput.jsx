@@ -23,12 +23,12 @@ export default function TaskInput({ onAdd }) {
         className="flex-1 p-2 border rounded-l focus:outline-none focus:ring"
         placeholder="Nueva tarea..."
         value={text}
-        onChange={e => setText(e.target.value)}
+        onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
       />
       <button
         onClick={handleAddClick}
-        className="bg-amber-500 text-white px-4 rounded-r hover:bg-amber-600 "
+        className="bg-amber-500 text-white px-4 rounded-r hover:bg-amber-600"
       >
         Agregar
       </button>

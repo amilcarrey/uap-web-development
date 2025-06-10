@@ -1,68 +1,87 @@
 // src/pages/SettingsPage.jsx
 import React, { useState, useEffect } from 'react';
-import { useSettingsStore } from '../stores/settingsStore';
-import { useToastStore } from '../stores/toastStore';
+import { useSettings } from '../store/useStore';
+import NavTableros from '../components/NavTableros';
 
 export default function SettingsPage() {
-  const { refetchInterval, uppercase, setRefetchInterval, toggleUppercase } = useSettingsStore(
-    (state) => ({
-      refetchInterval: state.refetchInterval,
-      uppercase: state.uppercase,
-      setRefetchInterval: state.setRefetchInterval,
-      toggleUppercase: state.toggleUppercase,
-    })
-  );
-  const addToast = useToastStore((state) => state.addToast);
+  const {
+    refetchInterval,
+    uppercase,
+    setRefetchInterval,
+    toggleUppercase,
+  } = useSettings();
 
-  const [localInterval, setLocalInterval] = useState(refetchInterval);
-  const [localUppercase, setLocalUppercase] = useState(uppercase);
+  const [intervalInput, setIntervalInput] = useState(refetchInterval / 1000);
 
-  // Cuando se monte, sincronizamos valores locales con el store
   useEffect(() => {
-    setLocalInterval(refetchInterval);
-    setLocalUppercase(uppercase);
-  }, [refetchInterval, uppercase]);
+    setIntervalInput(refetchInterval / 1000);
+  }, [refetchInterval]);
 
-  const handleSave = () => {
-    setRefetchInterval(Number(localInterval));
-    if (localUppercase !== uppercase) toggleUppercase();
-    addToast({ message: 'Configuración guardada', type: 'success' });
-  };
+  function handleIntervalChange(e) {
+    const value = Number(e.target.value);
+    if (!isNaN(value) && value >= 1) {
+      setIntervalInput(value);
+    }
+  }
+
+  function handleSaveInterval() {
+    setRefetchInterval(intervalInput * 1000);
+  }
+
+  function handleToggleUppercase() {
+    toggleUppercase();
+  }
 
   return (
     <div className="py-8 bg-amber-50 min-h-screen">
-      <div className="max-w-md mx-auto">
-        <h1 className="text-2xl font-bold mb-6 text-center">Configuraciones</h1>
+      <div className="max-w-xl mx-auto">
+        <NavTableros />
 
-        {/* 1) Intervalo de Refetch */}
-        <div className="mb-4">
-          <label className="block mb-2 font-medium">Intervalo de Refetch (segundos)</label>
-          <input
-            type="number"
-            value={localInterval}
-            onChange={(e) => setLocalInterval(e.target.value)}
-            className="w-full border p-2 rounded"
-            min={1}
-          />
+        <h2 className="text-xl font-semibold mb-4 text-center">Configuraciones</h2>
+
+        <div className="bg-white p-6 rounded shadow mb-6">
+          <div className="mb-4">
+            <label className="block mb-1 font-medium">
+              Intervalo de Refetch (segundos):
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={intervalInput}
+              onChange={handleIntervalChange}
+              className="border p-2 rounded w-24"
+            />
+            <button
+              onClick={handleSaveInterval}
+              className="ml-4 bg-amber-500 text-white px-4 py-2 rounded hover:bg-amber-600"
+            >
+              Guardar
+            </button>
+          </div>
+
+          <div className="mb-4 flex items-center">
+            <input
+              type="checkbox"
+              checked={uppercase}
+              onChange={handleToggleUppercase}
+              className="mr-2"
+            />
+            <label>Mostrar tareas en mayúsculas</label>
+          </div>
+
+          <p className="text-gray-600 text-sm">
+            Al activar “Mayúsculas”, todos los títulos de tareas se mostrarán en mayúsculas.
+          </p>
         </div>
 
-        {/* 2) Descripción en Mayúsculas */}
-        <div className="flex items-center mb-6">
-          <label className="mr-4 font-medium">Mostrar en mayúsculas</label>
-          <input
-            type="checkbox"
-            checked={localUppercase}
-            onChange={(e) => setLocalUppercase(e.target.checked)}
-            className="h-5 w-5"
-          />
+        <div className="text-center">
+          <button
+            onClick={() => window.history.back()}
+            className="text-blue-600 hover:underline"
+          >
+            ← Volver al tablero
+          </button>
         </div>
-
-        <button
-          onClick={handleSave}
-          className="w-full bg-amber-500 text-white py-2 rounded hover:bg-amber-600"
-        >
-          Guardar Configuración
-        </button>
       </div>
     </div>
   );
