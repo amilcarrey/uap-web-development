@@ -1,0 +1,38 @@
+{
+  "name": "backend-todo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ToDo.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "ts-node src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FrancoUribe2003/uap-web-development.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FrancoUribe2003/uap-web-development/issues"
+  },
+  "homepage": "https://github.com/FrancoUribe2003/uap-web-development#readme",
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.23",
+    "@types/node": "^20.19.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "sqlite3": "^5.1.7"
+  }
+}
