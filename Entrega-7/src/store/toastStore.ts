@@ -2,7 +2,7 @@
 import { create } from "zustand";
 
 interface Toast {
-  id: string;
+  id: number; // ⬅️ cambiado a number
   mensaje: string;
   tipo: "exito" | "error";
 }
@@ -10,13 +10,13 @@ interface Toast {
 interface ToastStore {
   toasts: Toast[];
   agregarToast: (mensaje: string, tipo: "exito" | "error") => void;
-  eliminarToast: (id: string) => void;
+  eliminarToast: (id: number) => void; // ⬅️ también cambiado a number
 }
 
 export const useToastStore = create<ToastStore>((set) => ({
   toasts: [],
   agregarToast: (mensaje, tipo) => {
-    const id = crypto.randomUUID();
+    const id = Date.now(); // ID numérico basado en timestamp
     const nuevoToast = { id, mensaje, tipo };
     set((state) => ({ toasts: [...state.toasts, nuevoToast] }));
 

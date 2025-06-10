@@ -1,6 +1,6 @@
-// src/types.ts
-export interface Tarea {
+export type Tarea = {
   id: number;
-  titulo: string;
+  descripcion: string;
   completada: boolean;
-}
+  tableroId: string;
+};

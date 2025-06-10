@@ -1,30 +1,25 @@
+// src/hooks/useBorrarCompletadas.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tarea } from "../types";
-import { useToastStore } from "../store/toastStore";
 
-export function useBorrarCompletadas() {
+export const useBorrarCompletadas = (tableroId: string) => {
   const queryClient = useQueryClient();
-  const agregarToast = useToastStore((s) => s.agregarToast);
 
   return useMutation({
     mutationFn: async () => {
-      const tareasCompletadas: Tarea[] =
-        queryClient.getQueryData<Tarea[]>(["tareas"])?.filter((t) => t.completada) || [];
+      const res = await fetch(
+        `http://localhost:3000/tasks?tableroId=${tableroId}&completada=true`
+      );
+      const completadas = await res.json();
 
       await Promise.all(
-        tareasCompletadas.map((tarea) =>
-          fetch(`http://localhost:3000/tasks/${tarea.id}`, {
-            method: "DELETE",
-          })
+        completadas.map((t: any) =>
+          fetch(`http://localhost:3000/tasks/${t.id}`, { method: "DELETE" })
         )
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tareas"] });
-      agregarToast("Tareas completadas eliminadas", "exito");
-    },
-    onError: () => {
-      agregarToast("Error al borrar tareas completadas", "error");
+      queryClient.invalidateQueries({ queryKey: ["tareas", tableroId] });
     },
   });
-}
+};

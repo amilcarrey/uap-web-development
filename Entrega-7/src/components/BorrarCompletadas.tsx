@@ -1,14 +1,19 @@
 // src/components/BorrarCompletadas.tsx
 import { useBorrarCompletadas } from "../hooks/useBorrarCompletadas";
-import { useTareas } from "../hooks/useTareas";
+import { useTodasLasTareas } from "../hooks/useTodasLasTareas";
+import React from "react";
 
-const BorrarCompletadas = () => {
-  const { data: tareas = [] } = useTareas();
-  const borrarCompletadas = useBorrarCompletadas();
+type Props = { tableroId: string };
 
-  const hayCompletadas = tareas.some((t) => t.completada);
 
-  if (!hayCompletadas) return null;
+const BorrarCompletadas: React.FC<Props> = ({ tableroId }) => {
+  const { data: tareas, isLoading } = useTodasLasTareas();
+  const borrarCompletadas = useBorrarCompletadas(tableroId); //
+
+  if (isLoading || !tareas) return null;
+
+  const tareasCompletadas = tareas.filter((t) => t.completada);
+  if (tareasCompletadas.length === 0) return null;
 
   return (
     <button

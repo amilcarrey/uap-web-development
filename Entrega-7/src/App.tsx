@@ -1,29 +1,24 @@
-// src/App.tsx
-import FormularioAgregarTarea from "./components/FormularioAgregarTarea";
-import ListaDeTareas from "./components/ListaDeTareas";
-import Filtros from "./components/Filtros";
-import BorrarCompletadas from "./components/BorrarCompletadas";
-import ToastContainer from "./components/ToastContainer";
+//src/App.tsx
+import { Route, Routes, Navigate } from "react-router-dom";
+import Layout from "./components/Layout";
+import Tablero from "./pages/Tablero";
+import Home from "./pages/Home";
+import AdminTableros from "./pages/AdminTableros";
+import ConfiguracionPage from "./pages/Configuracion";
 
 
 const App = () => {
   return (
-    <main className="min-h-screen bg-pink-50 py-8 px-4">
-      <h1 className="text-3xl font-bold text-center mb-6 text-pink-600">
-        Lista de Tareas
-      </h1>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="tablero/:tableroId" element={<Tablero />} />
+        <Route path="admin" element={<AdminTableros />} />
+        <Route path="configuracion" element={<ConfiguracionPage />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Route>
+    </Routes>
 
-      <FormularioAgregarTarea />
-
-      <Filtros />
-
-      <ListaDeTareas />
-
-      <BorrarCompletadas />
-
-      <ToastContainer />
-
-    </main>
   );
 };
 

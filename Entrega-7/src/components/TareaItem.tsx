@@ -1,17 +1,20 @@
-// src/components/TareaItem.tsx
 import { Tarea } from "../types";
+import { useParams } from "react-router-dom";
 import { useToggleTarea } from "../hooks/useToggleTarea";
 import { useBorrarTarea } from "../hooks/useBorrarTarea";
 import { useTareaEnEdicionStore } from "../store/useTareaEnEdicionStore";
+import { useConfiguracionStore } from "../store/configuracionStore";
 
 interface Props {
   tarea: Tarea;
 }
 
 const TareaItem = ({ tarea }: Props) => {
-  const toggleTarea = useToggleTarea();
-  const borrarTarea = useBorrarTarea();
+  const { tableroId } = useParams();
+  const toggleTarea = useToggleTarea(tableroId!);
+  const borrarTarea = useBorrarTarea(tableroId!);
   const { setTarea } = useTareaEnEdicionStore();
+  const descripcionMayusculas = useConfiguracionStore((s) => s.descripcionMayusculas);
 
   return (
     <li
@@ -28,10 +31,12 @@ const TareaItem = ({ tarea }: Props) => {
         />
         <span
           className={`text-lg ${
-            tarea.completada ? "line-through text-gray-500" : ""
+            tarea.completada ? "line-through text-gray-500" : "text-black"
           }`}
         >
-          {tarea.titulo}
+          {descripcionMayusculas
+            ? tarea.descripcion.toUpperCase()
+            : tarea.descripcion}
         </span>
       </label>
 

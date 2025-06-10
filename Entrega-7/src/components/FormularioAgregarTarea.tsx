@@ -1,16 +1,19 @@
+//src/components/FormularioAgregarTarea.tsx
 import { useState, useEffect } from "react";
 import { useAgregarTarea } from "../hooks/useAgregarTarea";
 import { useEditarTarea } from "../hooks/useEditarTarea";
 import { useTareaEnEdicionStore } from "../store/useTareaEnEdicionStore";
+import React from "react";
 
-const FormularioAgregarTarea = () => {
+type Props = { tableroId: string };
+
+const FormularioAgregarTarea: React.FC<Props> = ({ tableroId }) => {
   const [titulo, setTitulo] = useState("");
-  const agregarTarea = useAgregarTarea();
-  const editarTarea = useEditarTarea();
+  const agregarTarea = useAgregarTarea(tableroId);  const editarTarea = useEditarTarea();
   const { tarea, cancelar } = useTareaEnEdicionStore();
 
   useEffect(() => {
-    if (tarea) setTitulo(tarea.titulo);
+    if (tarea) setTitulo(tarea.descripcion);
   }, [tarea]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -19,7 +22,7 @@ const FormularioAgregarTarea = () => {
 
     if (tarea) {
       editarTarea.mutate(
-        { ...tarea, titulo },
+        { ...tarea, descripcion: titulo },
         {
           onSuccess: () => {
             setTitulo("");
@@ -77,3 +80,6 @@ const FormularioAgregarTarea = () => {
 };
 
 export default FormularioAgregarTarea;
+
+
+//no hay errores pero no anda el host
