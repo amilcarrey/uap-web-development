@@ -1,0 +1,68 @@
+{
+  "tableros": [
+    {
+      "id": "1",
+      "nombre": "Personal"
+    },
+    {
+      "id": "2",
+      "nombre": "Trabajo"
+    }
+  ],
+  "tareas": [
+    {
+      "id": "a1",
+      "descripcion": "Comprar pan",
+      "completada": false,
+      "tableroId": "1"
+    },
+    {
+      "id": "a2",
+      "descripcion": "Estudiar React",
+      "completada": false,
+      "tableroId": "1"
+    },
+    {
+      "id": "a3",
+      "descripcion": "Salir a correr",
+      "completada": false,
+      "tableroId": "1"
+    },
+    {
+      "id": "a6",
+      "descripcion": "Cocinar",
+      "completada": false,
+      "tableroId": "1"
+    },
+    {
+      "id": "a7",
+      "descripcion": "Ir al médico",
+      "completada": false,
+      "tableroId": "1"
+    },
+    {
+      "id": "b1",
+      "descripcion": "Revisar mails",
+      "completada": false,
+      "tableroId": "2"
+    },
+    {
+      "id": "b2",
+      "descripcion": "Entregar informe",
+      "completada": false,
+      "tableroId": "2"
+    },
+    {
+      "id": "b3",
+      "descripcion": "Llamar a cliente",
+      "completada": false,
+      "tableroId": "2"
+    },
+    {
+      "descripcion": "hi",
+      "completada": false,
+      "tableroId": "1",
+      "id": "jFkYysu"
+    }
+  ]
+}
