@@ -16,8 +16,8 @@ export default function useFilters() {
       const response = await fetch(`${API_URL}/api/filter`);
       if (!response.ok) throw new Error(`Error: ${response.status}`);
 
-      const data = await response.json();
-      const apiFilter = data.filter;
+      const result = await response.json();
+      const apiFilter = result.data?.filter || result.filter;
 
       if (apiFilter === "complete") setFilterState("completed");
       else if (apiFilter === "incomplete") setFilterState("active");

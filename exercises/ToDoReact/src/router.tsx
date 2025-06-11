@@ -7,7 +7,9 @@ import {
 import App from "./App";
 import TabPage from "./pages/TabPage";
 import SettingsPage from "./pages/SettingsPage";
+import AuthPage from "./pages/AuthPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -17,21 +19,40 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: () => <App redirectTo="/tab/today" />,
+  component: () => (
+    <ProtectedRoute>
+      <App redirectTo="/tab/today" />
+    </ProtectedRoute>
+  ),
+});
+
+//AUTH ROUTES
+const authRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/auth",
+  component: AuthPage,
 });
 
 //PATH DEL ID DE LA PESTANIA QUE CORRESPONDE
 const tabRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/tab/$tabId",
-  component: TabPage,
+  component: () => (
+    <ProtectedRoute>
+      <TabPage />
+    </ProtectedRoute>
+  ),
 });
 
 //SETTINGS PAGE
 const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/settings",
-  component: SettingsPage,
+  component: () => (
+    <ProtectedRoute>
+      <SettingsPage />
+    </ProtectedRoute>
+  ),
 });
 
 //ERROR 404 PAGE
@@ -44,6 +65,7 @@ const notFoundRoute = createRoute({
 //NEW INSTANCE OF THE ROUTE TREE
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  authRoute,
   tabRoute,
   settingsRoute,
   notFoundRoute,

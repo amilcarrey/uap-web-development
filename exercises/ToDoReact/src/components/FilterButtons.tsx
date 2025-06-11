@@ -1,19 +1,33 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { useClientStore } from "../store/clientStore";
 import { useClearCompleted } from "../hooks/useTasks";
+import useFilters from "../hooks/useFilters";
 import GorgeousButton from "./GorgeousButton";
 
 const FilterButtons: React.FC = () => {
-  const { setFilter, activeTab } = useClientStore();
+  const { setFilter: setLocalFilter, activeTab } = useClientStore();
+  const { filter, setFilter: setGlobalFilter } = useFilters();
   const clearCompletedMutation = useClearCompleted();
   const dialogRef = useRef<HTMLDialogElement>(null);
+
+  // Sync local filter with global filter
+  useEffect(() => {
+    setLocalFilter(filter);
+  }, [filter, setLocalFilter]);
+
+  const handleFilterChange = async (
+    newFilter: "all" | "active" | "completed"
+  ) => {
+    await setGlobalFilter(newFilter);
+    setLocalFilter(newFilter);
+  };
 
   const openDialog = () => {
     dialogRef.current?.showModal();
   };
 
   function handleConfirm() {
-    clearCompletedMutation.mutate(activeTab);
+    clearCompletedMutation.mutate();
     dialogRef.current?.close();
   }
 
@@ -37,13 +51,15 @@ const FilterButtons: React.FC = () => {
 
   return (
     <div className="flex flex-wrap justify-center gap-2 p-4">
-      <GorgeousButton onClick={() => setFilter("all")}>All</GorgeousButton>
+      <GorgeousButton onClick={() => handleFilterChange("all")}>
+        All
+      </GorgeousButton>
 
-      <GorgeousButton onClick={() => setFilter("active")}>
+      <GorgeousButton onClick={() => handleFilterChange("active")}>
         Pending
       </GorgeousButton>
 
-      <GorgeousButton onClick={() => setFilter("completed")}>
+      <GorgeousButton onClick={() => handleFilterChange("completed")}>
         Completed
       </GorgeousButton>
 

@@ -1,116 +1,110 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiGet, apiPost, apiPut, apiDelete } from "../lib/api";
 import { useClientStore } from "../store/clientStore";
 import { useNotifications } from "../store/clientStore";
 import { useConfigStore } from "../store/configStore";
+import { useBoardMapping } from "./useBoardMapping";
+import type {
+  ApiResponse,
+  Task,
+  BackendTasksResponse,
+  LegacyTask,
+  LegacyTasksResponse,
+} from "../types/api";
+import {
+  transformTaskToLegacy,
+  transformPaginationToLegacy,
+} from "../types/api";
 
-export interface Task {
-  id: number;
-  text: string;
-  completed: boolean;
-}
-
-export interface TasksResponse {
-  tasks: Task[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    itemsPerPage: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    startItem: number;
-    endItem: number;
-  };
-}
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4322";
+// Export legacy types for backward compatibility
+export type { LegacyTask as Task, LegacyTasksResponse as TasksResponse };
 
 //QUERY KEYS WITH CACHE MANAGEMENT
 export const taskKeys = {
   all: ["tasks"] as const,
   lists: () => [...taskKeys.all, "list"] as const,
-  list: (tab: string, page: number, filter: string) =>
-    [...taskKeys.lists(), { tab, page, filter }] as const,
+  list: (boardId: string, page: number, filter: string) =>
+    [...taskKeys.lists(), { boardId, page, filter }] as const,
 };
 
-//API CALLS FROM THE AJAX ASTRO PROJECT
+//API CALLS - Updated to use new backend endpoints
 const fetchTasks = async (
-  tab: string,
+  boardId: string,
   page: number,
   filter: string,
   itemsPerPage: number
-): Promise<TasksResponse> => {
+): Promise<LegacyTasksResponse> => {
   const params = new URLSearchParams({
-    tab,
     page: page.toString(),
-    filter:
-      filter === "all"
-        ? "all"
-        : filter === "active"
-          ? "incomplete"
-          : "complete",
     limit: itemsPerPage.toString(),
   });
 
-  const response = await fetch(`${API_URL}/api/tasks?${params}`);
-  if (!response.ok) throw new Error(`Error: ${response.status}`);
-  return response.json();
+  // Add status filter if not "all"
+  if (filter !== "all") {
+    params.append("status", filter === "active" ? "pending" : "completed");
+  }
+
+  const response = await apiGet<ApiResponse<BackendTasksResponse>>(
+    `/api/tasks/board/${boardId}?${params}`
+  );
+
+  // Transform backend response to legacy format
+  return {
+    tasks: response.data.items.map(transformTaskToLegacy),
+    pagination: transformPaginationToLegacy(response.data.pagination),
+  };
 };
 
 const addTaskAPI = async (data: {
   text: string;
-  tab: string;
-}): Promise<Task> => {
-  const response = await fetch(`${API_URL}/api/tasks`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) throw new Error(`Error: ${response.status}`);
-  const result = await response.json();
-  return result.task;
+  boardId: string;
+}): Promise<LegacyTask> => {
+  const response = await apiPost<ApiResponse<Task>>(
+    `/api/tasks/board/${data.boardId}`,
+    {
+      text: data.text,
+    }
+  );
+  return transformTaskToLegacy(response.data);
 };
 
 const updateTaskAPI = async (data: {
   id: number;
   text?: string;
   completed?: boolean;
-}): Promise<Task> => {
-  const response = await fetch(`${API_URL}/api/tasks/${data.id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) throw new Error(`Error: ${response.status}`);
-  const result = await response.json();
-  return result.task;
+}): Promise<LegacyTask> => {
+  const updateData: Partial<{ text: string; completed: boolean }> = {};
+  if (data.text !== undefined) updateData.text = data.text;
+  if (data.completed !== undefined) updateData.completed = data.completed;
+
+  const response = await apiPut<ApiResponse<Task>>(
+    `/api/tasks/${data.id}`,
+    updateData
+  );
+  return transformTaskToLegacy(response.data);
 };
 
 const deleteTaskAPI = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/api/tasks/${id}`, {
-    method: "DELETE",
-  });
-  if (!response.ok) throw new Error(`Error: ${response.status}`);
+  await apiDelete(`/api/tasks/${id}`);
 };
 
-const clearCompletedAPI = async (tab: string): Promise<void> => {
-  const response = await fetch(`${API_URL}/api/tasks/clear`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tab }),
-  });
-  if (!response.ok) throw new Error(`Error: ${response.status}`);
+const clearCompletedAPI = async (boardId: string): Promise<void> => {
+  await apiPost(`/api/tasks/board/${boardId}/clear-completed`);
 };
 
 //CUSTOM HOOKS
 export const useTasks = () => {
   const { activeTab, filter, currentPage, itemsPerPage } = useClientStore();
   const { config } = useConfigStore();
+  const { getBoardIdByName, getFirstBoardId } = useBoardMapping();
+
+  // Get board ID from active tab name, or use first board if no match
+  const boardId = getBoardIdByName(activeTab) || getFirstBoardId();
 
   return useQuery({
-    queryKey: taskKeys.list(activeTab, currentPage, filter),
-    queryFn: () => fetchTasks(activeTab, currentPage, filter, itemsPerPage),
-    enabled: !!activeTab,
+    queryKey: taskKeys.list(boardId || "", currentPage, filter),
+    queryFn: () => fetchTasks(boardId || "", currentPage, filter, itemsPerPage),
+    enabled: !!boardId,
     staleTime: 30 * 1000,
     refetchInterval: config.taskRefetchInterval * 1000,
   });
@@ -120,16 +114,21 @@ export const useAddTask = () => {
   const queryClient = useQueryClient();
   const { resetPage } = useClientStore();
   const { showSuccess, showError } = useNotifications();
+  const { getBoardIdByName, getFirstBoardId } = useBoardMapping();
 
   return useMutation({
-    mutationFn: addTaskAPI,
+    mutationFn: (data: { text: string; tab: string }) => {
+      const boardId = getBoardIdByName(data.tab) || getFirstBoardId();
+      if (!boardId) throw new Error("No board available");
+      return addTaskAPI({ text: data.text, boardId });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       resetPage();
       showSuccess("Head to the counter", "Task added successfully!");
     },
-    onError: (error) => {
-      showError("Shut!", `${error.message}`);
+    onError: (error: Error) => {
+      showError("Shut!", error.message);
     },
   });
 };
@@ -144,8 +143,8 @@ export const useUpdateTask = () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       showSuccess("Sound!', Let's do it again!");
     },
-    onError: (error) => {
-      showError("¡!", `It couldn't be deleted: ${error.message}`);
+    onError: (error: Error) => {
+      showError("¡!", `It couldn't be updated: ${error.message}`);
     },
   });
 };
@@ -160,24 +159,30 @@ export const useDeleteTask = () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       showSuccess("Task deleted!");
     },
-    onError: (error) => {
-      showError("It couldn't be deleted", `${error.message}`);
+    onError: (error: Error) => {
+      showError("It couldn't be deleted", error.message);
     },
   });
 };
 
 export const useClearCompleted = () => {
   const queryClient = useQueryClient();
+  const { activeTab } = useClientStore();
   const { showSuccess, showError } = useNotifications();
+  const { getBoardIdByName, getFirstBoardId } = useBoardMapping();
 
   return useMutation({
-    mutationFn: clearCompletedAPI,
+    mutationFn: () => {
+      const boardId = getBoardIdByName(activeTab) || getFirstBoardId();
+      if (!boardId) throw new Error("No board available");
+      return clearCompletedAPI(boardId);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       showSuccess("All right folks, last orders!", "Time for last orders");
     },
-    onError: (error) => {
-      showError("Fuck off!", `${error.message}`);
+    onError: (error: Error) => {
+      showError("Fuck off!", error.message);
     },
   });
 };
