@@ -69,7 +69,7 @@ const addTaskAPI = async (data: {
 };
 
 const updateTaskAPI = async (data: {
-  id: number;
+  id: string;
   text?: string;
   completed?: boolean;
 }): Promise<LegacyTask> => {
@@ -84,7 +84,7 @@ const updateTaskAPI = async (data: {
   return transformTaskToLegacy(response.data);
 };
 
-const deleteTaskAPI = async (id: number): Promise<void> => {
+const deleteTaskAPI = async (id: string): Promise<void> => {
   await apiDelete(`/api/tasks/${id}`);
 };
 

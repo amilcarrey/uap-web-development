@@ -11,7 +11,7 @@ export interface Notification {
 }
 
 interface EditingTask {
-  id: number;
+  id: string;
   text: string;
 }
 
@@ -67,8 +67,6 @@ export const useClientStore = create<ClientState>()(
       setEditingTask: (task) => set({ editingTask: task }),
       setIsAddingTab: (isAdding) => set({ isAddingTab: isAdding }),
       resetPage: () => set({ currentPage: 1 }),
-
-
 
       addNotification: (notification) => {
         const id =

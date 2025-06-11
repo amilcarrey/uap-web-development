@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import type { Task } from "./useTasks";
+import { apiGet, apiPut } from "../lib/api";
 
 type FilterType = "all" | "active" | "completed";
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 export default function useFilters() {
   const [filter, setFilterState] = useState<FilterType>("all");
@@ -13,11 +12,8 @@ export default function useFilters() {
   const fetchFilter = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/filter`);
-      if (!response.ok) throw new Error(`Error: ${response.status}`);
-
-      const result = await response.json();
-      const apiFilter = result.data?.filter || result.filter;
+      const result = await apiGet<{ data: { filter: string } }>("/api/filter");
+      const apiFilter = result.data?.filter;
 
       if (apiFilter === "complete") setFilterState("completed");
       else if (apiFilter === "incomplete") setFilterState("active");
@@ -40,13 +36,9 @@ export default function useFilters() {
       if (newFilter === "completed") apiFilter = "complete";
       if (newFilter === "active") apiFilter = "incomplete";
 
-      const response = await fetch(`${API_URL}/api/filter`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filter: apiFilter }),
+      await apiPut<{ data: { filter: string } }>("/api/filter", {
+        filter: apiFilter,
       });
-
-      if (!response.ok) throw new Error(`Error: ${response.status}`);
 
       setFilterState(newFilter);
     } catch (err) {

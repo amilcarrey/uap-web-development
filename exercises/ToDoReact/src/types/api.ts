@@ -61,7 +61,7 @@ export interface BackendTasksResponse {
 
 // Legacy Task interface for backward compatibility with existing components
 export interface LegacyTask {
-  id: number;
+  id: string; // Changed to string to match backend UUID
   text: string;
   completed: boolean;
 }
@@ -83,7 +83,7 @@ export interface LegacyTasksResponse {
 
 // Transform functions to convert between backend and frontend formats
 export const transformTaskToLegacy = (task: Task): LegacyTask => ({
-  id: parseInt(task.id),
+  id: task.id, // Keep original UUID string
   text: task.text,
   completed: task.completed === 1,
 });
