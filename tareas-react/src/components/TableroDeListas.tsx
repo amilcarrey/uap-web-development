@@ -1,43 +1,27 @@
-// TableroDeListas.tsx
-import React, { useState } from "react";
+import React from "react";
 import ListaTareas from "./ListaTareas";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useTableros } from "./hooks/useTableros";
+import { usePaginatedTareas } from "./hooks/usePaginatedTareas";
 import type { Tarea } from "../types";
 
 const TableroDeListas = () => {
-  const [listas, setListas] = useState<string[]>(["personal"]);
+  // Hook personalizado para obtener los tableros/listas
+  const { data: tableros = [], isLoading: loadingTableros, isError: errorTableros } = useTableros();
 
-  const { data: tareas = [], isLoading, isError } = useQuery({
-    queryKey: ["tareas"],
-    queryFn: () =>
-      axios.get("http://localhost:8008/tareas").then((res) => res.data),
-  });
-
-  const agregarLista = () => {
-    const nuevaLista = prompt("Nombre de la nueva lista:");
-    if (nuevaLista && !listas.includes(nuevaLista)) {
-      setListas((prev) => [...prev, nuevaLista]);
-    }
-  };
-
-  if (isLoading) return <p>Cargando tareas...</p>;
-  if (isError) return <p>Error al cargar tareas</p>;
+  if (loadingTableros) return <p>Cargando tableros...</p>;
+  if (errorTableros) return <p>Error al cargar tableros</p>;
 
   return (
     <div className="p-6 flex flex-col items-center gap-8">
-      <button
-        onClick={agregarLista}
-        className="px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700"
-      >
-        + Nueva Lista
-      </button>
-
+      {/* Aquí podrías agregar lógica para crear tableros usando un hook/mutación */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 w-full">
-        {listas.map((listaId) => (
-          <div key={listaId} className="w-full">
-            <h2 className="text-xl font-bold text-white mb-2 text-center capitalize">{listaId}</h2>
-            <ListaTareas listaId={listaId} tareas={tareas.filter((t: Tarea) => t.listaId === listaId)} />
+        {tableros.map((tablero: { id: string; nombre: string }) => (
+          <div key={tablero.id} className="w-full">
+            <h2 className="text-xl font-bold text-white mb-2 text-center capitalize">
+              {tablero.nombre}
+            </h2>
+            {/* Hook personalizado para obtener tareas paginadas/filtradas por tablero */}
+            <ListaTareas tableroId={tablero.id} />
           </div>
         ))}
       </div>

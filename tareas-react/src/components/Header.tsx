@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Link, useMatch } from "@tanstack/react-router";
 import { tableroRoute } from "../routes/routes";
 import { useUIStore } from "./store/useUIstore";
-import { useNotificacionesStore } from "../components/store/useNotificacionesStore";
+import { useNotificacionesStore } from "./store/useNotificacionesStore";
+import { useTableros } from "./hooks/useTableros";
+import axios from "axios";
 
 type Tablero = {
   id: string;
@@ -15,22 +16,24 @@ const Header = () => {
   const queryClient = useQueryClient();
   const [nuevoNombre, setNuevoNombre] = useState("");
 
-  const { setTableroActivo } = useUIStore();
-  const { agregar: notificar } = useNotificacionesStore(); // ✅ Este es el hook de notificaciones
+  // Zustand: store de UI y notificaciones
+  const setTableroActivo = useUIStore((s) => s.setTableroActivo);
+  const tableroActivoStore = useUIStore((s) => s.tableroActivo);
+  const { agregar: notificar } = useNotificacionesStore();
 
+  // Obtener el tablero activo desde la URL
   const match = useMatch({ to: tableroRoute.id });
-  const tableroActivo = match?.params.tableroId ?? "";
+  const tableroActivo = match?.params.tableroId ?? tableroActivoStore;
 
+  // Sincronizar el store con la URL
   useEffect(() => {
     setTableroActivo(tableroActivo);
   }, [tableroActivo, setTableroActivo]);
 
-  const { data: tableros = [] } = useQuery({
-    queryKey: ["tableros"],
-    queryFn: () =>
-      axios.get("http://localhost:8008/tableros").then((res) => res.data),
-  });
+  // Usar hook personalizado para obtener tableros
+  const { data: tableros = [] } = useTableros();
 
+  // Mutación para crear tablero
   const crearTableroMutation = useMutation({
     mutationFn: async () => {
       if (!nuevoNombre.trim()) return;
@@ -47,6 +50,7 @@ const Header = () => {
     },
   });
 
+  // Mutación para eliminar tablero
   const eliminarTableroMutation = useMutation({
     mutationFn: async (id: string) => {
       await axios.delete(`http://localhost:8008/tableros/${id}`);
@@ -54,7 +58,7 @@ const Header = () => {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["tableros"] });
       if (tableroActivo === id) {
-        queryClient.setQueryData(["tableroActivo"], "");
+        setTableroActivo("");
       }
       notificar("Tablero eliminado", "error");
     },
@@ -79,7 +83,7 @@ const Header = () => {
     <header className="bg-white text-gray-800 w-full z-50 p-4 fixed top-0 left-0 text-center shadow-sm h-[80px] flex flex-col justify-center respiro-static">
       <h1 className="text-xl font-light tracking-wide select-none">2.DO</h1>
       <nav className="flex justify-center mt-2 space-x-4">
-        {tableros.map((t) => (
+        {tableros.map((t: Tablero) => (
           <div
             key={t.id}
             className="relative group flex items-center space-x-1"
@@ -121,7 +125,6 @@ const Header = () => {
         </button>
       </nav>
       <nav className="flex mt-2 space-x-4">
-        {/* ...tableros... */}
         <Link
           to="/configuracion"
           className="text-sm text-gray-400 ml-4 -mt-12"
