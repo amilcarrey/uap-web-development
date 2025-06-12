@@ -18,14 +18,20 @@ export function TareaList({ tableroId }: Props) {
     setPage(1);
   }, [tableroId]);
 
-  const { data, isLoading, isError } = useTareas(tableroId, page, PAGE_SIZE, refetchInterval, { keepPreviousData: true });
+  const { data, isLoading, isError } = useTareas(tableroId, page, PAGE_SIZE, refetchInterval);
+
+  // Ajustar página si supera totalPages (por ejemplo, tras eliminar)
+  useEffect(() => {
+    if (data && page > Math.ceil(data.total / PAGE_SIZE)) {
+      setPage(Math.max(1, Math.ceil(data.total / PAGE_SIZE)));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   if (isLoading) return <div style={{ textAlign: "center", padding: "1.5em" }}>Cargando tareas...</div>;
   if (isError) return <div style={{ color: "#e33", textAlign: "center" }}>Error al cargar tareas.</div>;
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
-
-  console.log("TareaList:", { total: data?.total, page, totalPages, tareasCount: data?.tareas.length });
 
   return (
     <div>

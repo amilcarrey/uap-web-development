@@ -13,8 +13,7 @@ export function useTareas(
   tableroId: string,
   page: number,
   pageSize: number,
-  refetchInterval: number,
-  options = {}
+  refetchInterval: number
 ) {
   return useQuery<TareasResponse, Error>({
     queryKey: ["tareas", tableroId, page, pageSize],
@@ -26,16 +25,16 @@ export function useTareas(
       return { tareas: res.data, total };
     },
     refetchInterval,
-    ...options,
+    // keepPreviousData: true, // Si tu versión de react-query lo soporta, activa para mejor UX en paginación
   });
 }
-
 
 export function useCrearTarea() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: Omit<Tarea, "id">) => axios.post(API, data),
-    onSuccess: (_, variables) => {
+    onSuccess: (_data, variables) => {
+      // Invalidar solo las tareas del tablero afectado
       queryClient.invalidateQueries({ queryKey: ["tareas", variables.tableroId] });
     },
   });
@@ -45,8 +44,8 @@ export function useActualizarTarea() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (tarea: Tarea) => axios.put(`${API}/${tarea.id}`, tarea),
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: ["tareas", response.data.tableroId] });
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["tareas", data.data.tableroId] });
     },
   });
 }
@@ -54,11 +53,10 @@ export function useActualizarTarea() {
 export function useEliminarTarea() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { id: number; tableroId: string }) => axios.delete(`${API}/${payload.id}`),
-    onSuccess: (_, variables) => {
+    mutationFn: (payload: { id: number; tableroId: string }) =>
+      axios.delete(`${API}/${payload.id}`),
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["tareas", variables.tableroId] });
     },
   });
 }
-
-

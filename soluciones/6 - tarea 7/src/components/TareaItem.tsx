@@ -17,11 +17,12 @@ export function TareaItem({ tarea }: { tarea: Tarea }) {
     });
   }
 
-  // En la función handleEliminar:
   function handleEliminar() {
-    eliminarTarea.mutate({ id: tarea.id, tableroId: tarea.tableroId });
-  }
-
+  eliminarTarea.mutate({ id: tarea.id, tableroId: tarea.tableroId }, {
+    onSuccess: () => toast.success("Tarea eliminada"),
+    onError: () => toast.error("Error al eliminar tarea"),
+  });
+}
 
 
   return (

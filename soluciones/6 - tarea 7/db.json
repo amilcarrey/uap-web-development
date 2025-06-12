@@ -11,30 +11,6 @@
   ],
   "tareas": [
     {
-      "id": "a1",
-      "descripcion": "Comprar pan",
-      "completada": false,
-      "tableroId": "1"
-    },
-    {
-      "id": "a2",
-      "descripcion": "Estudiar React",
-      "completada": false,
-      "tableroId": "1"
-    },
-    {
-      "id": "a3",
-      "descripcion": "Salir a correr",
-      "completada": false,
-      "tableroId": "1"
-    },
-    {
-      "id": "a6",
-      "descripcion": "Cocinar",
-      "completada": false,
-      "tableroId": "1"
-    },
-    {
       "id": "a7",
       "descripcion": "Ir al médico",
       "completada": false,
@@ -59,10 +35,34 @@
       "tableroId": "2"
     },
     {
-      "descripcion": "hi",
+      "descripcion": "uno",
       "completada": false,
       "tableroId": "1",
-      "id": "jFkYysu"
+      "id": "OxkJRRf"
+    },
+    {
+      "descripcion": "dos",
+      "completada": false,
+      "tableroId": "1",
+      "id": "ZofAR1u"
+    },
+    {
+      "descripcion": "tres",
+      "completada": false,
+      "tableroId": "1",
+      "id": "7nDI4cz"
+    },
+    {
+      "descripcion": "cuatro",
+      "completada": false,
+      "tableroId": "1",
+      "id": "4jIAjJ5"
+    },
+    {
+      "descripcion": "cinco",
+      "completada": false,
+      "tableroId": "1",
+      "id": "PZq_dak"
     }
   ]
 }
