@@ -1,6 +1,5 @@
 // src/components/TaskItem.jsx
-import React from 'react';
-
+/* recibe id directamente para facilitar */
 export default function TaskItem({ task, onToggle, onDelete }) {
   return (
     <li>
@@ -8,16 +7,14 @@ export default function TaskItem({ task, onToggle, onDelete }) {
         <input
           type="checkbox"
           checked={task.completed}
-          onChange={e => onToggle(task.id, e.target.checked)}
+          onChange={() => onToggle(task.id, task.completed)}
         />
-        <span className="checkmark"></span>
+        <span className="checkmark" />
       </label>
       <span className="task-text" style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>
-        {task.text}
+        {task.description}
       </span>
-      <button className="delete-btn" onClick={() => onDelete(task.id)}>
-        🗑️
-      </button>
+      <button className="delete-btn" onClick={() => onDelete(task.id)}>🗑️</button>
     </li>
   );
 }

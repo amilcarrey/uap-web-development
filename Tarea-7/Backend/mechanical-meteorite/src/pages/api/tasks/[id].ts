@@ -1,27 +1,29 @@
-import type { APIContext } from "astro";
+import type { APIRoute } from "astro";
 import { updateTask, deleteTask } from "../../../db/tasks";
 
-export async function PUT({ params, request }: APIContext) {
-  const idStr = params.id;
-  if (!idStr) {
-    return new Response("Missing ID", { status: 400 });
+export const PATCH: APIRoute = async ({ params, request }) => {
+  const id = params.id!;
+  try {
+    const { completed } = await request.json();
+    const updated = updateTask(id, completed);
+    if (!updated) {
+      return new Response(JSON.stringify({ error: "Tarea no encontrada" }), {
+        status: 404
+      });
+    }
+
+    return new Response(JSON.stringify(updated), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch {
+    return new Response(JSON.stringify({ error: "Error al actualizar" }), {
+      status: 400
+    });
   }
+};
 
-  const id = parseInt(idStr, 10);
-  const updates = await request.json();
-  const updated = updateTask(id, updates);
-  return new Response(JSON.stringify(updated), {
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-export async function DELETE({ params }: APIContext) {
-  const idStr = params.id;
-  if (!idStr) {
-    return new Response("Missing ID", { status: 400 });
-  }
-
-  const id = parseInt(idStr, 10);
-  const ok = deleteTask(id);
-  return new Response(null, { status: ok ? 204 : 404 });
-}
+export const DELETE: APIRoute = async ({ params }) => {
+  const id = params.id!;
+  deleteTask(id);
+  return new Response(null, { status: 204 });
+};

@@ -1,86 +1,50 @@
 // src/App.jsx
-import React, { useState } from "react";
-import "./styles/main.css";
+import React from 'react';
+import { useTasks } from './hooks/useTasks';
+import { useUIStore } from './store/useUIStore';
+import TaskForm from './components/TaskForm';
+import TaskList from './components/TaskList';
+import './styles/main.css';
 
-function App() {
-  const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = useState("all");
-  const [input, setInput] = useState("");
+export default function App() {
+  const filter = useUIStore((s) => s.filter);
+  const setFilter = useUIStore((s) => s.setFilter);
 
-  const filteredTasks = tasks.filter(task => {
-    if (filter === "complete") return task.completed;
-    if (filter === "incomplete") return !task.completed;
-    return true;
-  });
+  const {
+    tasks, isLoading, error,
+    addTask, toggleTask, deleteTask
+  } = useTasks();
 
-  const handleAddTask = (e) => {
-    e.preventDefault();
-    if (input.trim()) {
-      setTasks([...tasks, { text: input.trim(), completed: false }]);
-      setInput("");
-    }
-  };
-
-  const handleToggle = (index) => {
-    const updated = [...tasks];
-    updated[index].completed = !updated[index].completed;
-    setTasks(updated);
-  };
-
-  const handleDelete = (index) => {
-    const updated = [...tasks];
-    updated.splice(index, 1);
-    setTasks(updated);
-  };
-
-  const handleClearCompleted = () => {
-    setTasks(tasks.filter(task => !task.completed));
-  };
+  const filtered = tasks.filter(t =>
+    filter === 'all' ? true :
+    filter === 'complete' ? t.completed :
+    !t.completed
+  );
 
   return (
     <div className="app-container">
       <h1>Antes de Ameri</h1>
-      <img src="/duki.jpg" alt="Duki" />
+      {/* <img src="/duki.jpg" alt="Duki" /> */}
+      {/* O usa una imagen online temporalmente */}
+      <img src="duki.jpg" alt="Duki" />
 
-      <form onSubmit={handleAddTask} className="form-tarea">
-        <input
-          type="text"
-          placeholder="What do you want to add?"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          required
-        />
-        <button type="submit">Agregar</button>
-      </form>
+      <TaskForm onAdd={(text) => addTask.mutate(text)} />
 
       <div className="filtros">
-        <button onClick={() => setFilter("all")}>Todas</button>
-        <button onClick={() => setFilter("incomplete")}>Incompletas</button>
-        <button onClick={() => setFilter("complete")}>Completadas</button>
+        <button onClick={() => setFilter('all')}>Todas</button>
+        <button onClick={() => setFilter('incomplete')}>Incompletas</button>
+        <button onClick={() => setFilter('complete')}>Completadas</button>
       </div>
 
-      <ul id="lista-tareas">
-        {filteredTasks.map((task, index) => (
-          <li key={index}>
-            <label className="checkbox">
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => handleToggle(index)}
-              />
-              <span className="checkmark" />
-            </label>
-            <span className="task-text" style={{ textDecoration: task.completed ? "line-through" : "none" }}>
-              {task.text}
-            </span>
-            <button className="delete-btn" onClick={() => handleDelete(index)}>🗑️</button>
-          </li>
-        ))}
-      </ul>
-
-      <button id="clear-btn" onClick={handleClearCompleted}>Clear Completed</button>
+      {isLoading && <p>Cargando…</p>}
+      {error && <p>Error al cargar tareas</p>}
+      {!isLoading &&
+        <TaskList
+          tasks={filtered}
+          onToggle={(id, completed) => toggleTask.mutate({ id, completed })}
+          onDelete={(id) => deleteTask.mutate(id)}
+        />
+      }
     </div>
   );
 }
-
-export default App;
