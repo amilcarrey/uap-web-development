@@ -1,0 +1,10 @@
+{
+  "tareas": [
+    {
+      "id": 1,
+      "content": "Ejemplo de tarea",
+      "completed": false,
+      "tableroId": "1"
+    }
+  ]
+}
