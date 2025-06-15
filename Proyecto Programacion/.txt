@@ -100,3 +100,32 @@ Usa herramientas como Postman o Insomnia para probar los endpoints de tu API.
 ---
 
 **¿Quieres que te ayude a crear un ejemplo de servicio y controlador para uno de tus modelos? ¿O prefieres que te ayude a definir las rutas?**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MÁs:
+Hashing para la contraseña del usuraio (campo en la BD)
+Utilizar cookies para la validación del usuario. Utilizar JWT y cookies al mismo tiempo

@@ -6,7 +6,7 @@ export class Board {
   #id: number;
   #name: string;
   #active: boolean; //El estado cambia cuando el usuaio lo selecciona
-  #owner: User;
+  #ownerId: number;
   #tasks: Task[];
   #permissions: Permission[];
 
@@ -14,14 +14,14 @@ export class Board {
     id: number,
     name: string,
     active: boolean,
-    owner: User,
+    ownerId: number,
     tasks: Task[],
     permissions: Permission[]
   ) {
     this.#id = id;
     this.#name = name;
     this.#active = active;
-    this.#owner = owner;
+    this.#ownerId = ownerId;
     this.#tasks = tasks;
     this.#permissions = permissions;
   }
@@ -35,8 +35,8 @@ export class Board {
   get active() { return this.#active; }
   set active(value: boolean) { this.#active = value; }
 
-  get owner() { return this.#owner; }
-  set owner(value: User) { this.#owner = value; }
+  get ownerId() { return this.#ownerId; }
+  set ownerId(value: number) { this.#ownerId = value; }
 
   get tasks() { return this.#tasks; }
   set tasks(value: Task[]) { this.#tasks = value; }

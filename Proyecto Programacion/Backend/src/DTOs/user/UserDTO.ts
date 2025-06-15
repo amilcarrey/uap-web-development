@@ -1,9 +1,12 @@
-export interface UserDTO{
+import { Permission } from '../../models/Permission';
+import { BoardDTO } from '../board/BoardDTO';
+import { UserSettingsDTO } from '../settings/UserSettingsDTO'; 
+
+export interface UserDTO {
     firstName: string;
     lastName: string;
     alias: string;
-    password: string;
-    boardId: number[];
-    permissionsId: number[];
-    settingsId: number[];
+    boards: BoardDTO[];
+    permissions: Permission[];
+    settings: UserSettingsDTO | null;
 }

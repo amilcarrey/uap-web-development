@@ -11,6 +11,7 @@ export interface IUserService {
     loginUser(credentials: LoginDTO): Promise<AuthResponseDTO>;
     logoutUser(userId: number): Promise<void>;
     getCurrentUser(userId: number): Promise<UserDTO>;
+    getAllUsers(): Promise<UserDTO[]>;
     getUserById(userId: number): Promise<UserDTO>;
     updateUserSettings(userId: number, settings: UpdateSettingsDTO): Promise<UserDTO>;
 }

@@ -1,48 +1,77 @@
 import { prisma } from '../prisma';
 import { CreateBoardDTO } from '../DTOs/board/CreateBoardDTO';
 import { Board } from '../models/Board';
-import { User } from '../models/User';
-import { Task } from '../models/Task';
-import { Permission } from '../models/Permission';
-import { PermissionLevel } from '../models/Permission';
+import { Permission, PermissionLevel } from '../models/Permission';
+import { IBoardService } from '../Interfaces/IBoardService';
+import { BoardDTO } from '../DTOs/board/BoardDTO';
+import { updateBoardDTO } from '../DTOs/board/updateBoardDTO';
+import { UserPermissionDTO } from '../DTOs/permission/UserPermissionDTO';
 
-export class BoardService {
+export class BoardService implements IBoardService{
+    getBoardsForUser(userId: number): Promise<BoardDTO[]> {
+        throw new Error('Method not implemented.');
+    }
+    getBoardById(userId: number, boardId: number): Promise<BoardDTO> {
+        throw new Error('Method not implemented.');
+    }
+    updateBoard(boardId: number, data: updateBoardDTO): Promise<BoardDTO> {
+        throw new Error('Method not implemented.');
+    }
+    deleteBoard(userId: number, boardId: number): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+    shareBoard(boardId: number, targetUserId: number, accessLevel: 'read' | 'edit' | 'owner'): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+    getBoardPermissions(boardId: number): Promise<UserPermissionDTO[]> {
+        throw new Error('Method not implemented.');
+    }
+
     async createBoard(userId: number, data: CreateBoardDTO): Promise<Board> {
+        // 1. Crear el tablero (sin tareas asociadas)
         const board = await prisma.board.create({
             data: {
                 name: data.name,
                 active: data.active,
                 ownerId: userId,
             },
+        });
+
+        // 2. Crear el permiso OWNER para el usuario creador
+        await prisma.boardPermission.create({
+            data: {
+                userId: userId,
+                boardId: board.id,
+                level: 'OWNER',
+            },
+        });
+
+        // 3. Consultar el tablero con tareas y permisos (tasks estará vacío)
+        const boardWithRelations = await prisma.board.findUnique({
+            where: { id: board.id },
             include: {
-                owner: true,
                 tasks: true,
                 permissions: true,
             },
         });
 
-        const owner = new User(
-            board.owner.id,
-            board.owner.firstName,
-            board.owner.lastName,
-            board.owner.username,
-            board.owner.password,
-            [], // boards
-            [], // permissions
-            null // preference
-        );
+        // 4. Mapear a modelo de dominio
+        return this.mapToBoard(boardWithRelations);
+    }
 
-        // Mapear tasks y permissions a instancias de clase
-        const tasks = board.tasks.map(
-            t => new Task(t.id, t.content, t.active)
-        );
-
+    /**
+     * Convierte el objeto plano de la base de datos en una instancia de Board.
+     * 
+     * Al crear un tablero, tasks será un array vacío porque no hay tareas asociadas aún.
+     * permissions tendrá solo el permiso OWNER para el usuario creador.
+     */
+    private mapToBoard(board: any): Board {
         const permissions = board.permissions.map(
-            p => new Permission(
+            (p: any) => new Permission(
                 p.id,
                 p.userId,
                 p.boardId,
-                PermissionLevel[p.level as keyof typeof PermissionLevel]
+                p.level as PermissionLevel
             )
         );
 
@@ -50,8 +79,8 @@ export class BoardService {
             board.id,
             board.name,
             board.active,
-            owner,
-            tasks,
+            board.ownerId,
+            [], // tasks: array vacío porque el tablero recién creado no tiene tareas
             permissions
         );
     }
