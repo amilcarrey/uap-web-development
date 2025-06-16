@@ -50,7 +50,7 @@ export const useTareas = (tableroAlias?: string, filtro?: 'todas' | 'completadas
       const response = await fetch(url);
       if (!response.ok) throw new Error('Error al obtener tareas');
       const data = await response.json();
-      console.log(`✅ Frontend - Refetch completado: ${data.tareas?.length || 0} tareas recibidas`); // 👈 AGREGAR
+      console.log(`✅ Frontend - Refetch completado: ${data.tareas?.length || 0} tareas recibidas`); 
       
       return data;
     },

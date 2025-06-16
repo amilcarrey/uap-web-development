@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import tareasRoutes from './routes/tareas';
 import tablerosRoutes from './routes/tableros';
 import configuracionesRoutes from './routes/configuraciones';
+import usuariosRoutes from './routes/usuarios';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 
 // Cargar variables de entorno
@@ -34,11 +35,12 @@ if (process.env.NODE_ENV !== 'production') {
 app.use('/api/tareas', tareasRoutes);
 app.use('/api/tableros', tablerosRoutes);
 app.use('/api/configuraciones', configuracionesRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 // Middleware para rutas no encontradas 
 app.use('/api/*', notFoundHandler);
 
-// Middleware de manejo de errores (debe ir al final)
+// Middleware de manejo de errores
 app.use(errorHandler);
 
 // Iniciar servidor

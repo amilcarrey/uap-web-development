@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireAuth } from '../middleware/error.middleware';
 import { 
   getConfiguraciones, 
   updateConfiguraciones, 
@@ -7,6 +8,7 @@ import {
 
 const router = express.Router();
 
+router.use(requireAuth); // Asegurar que todas las rutas necesiten autenticación
 // GET /configuraciones - Obtener configuraciones actuales
 router.get('/', getConfiguraciones);
 

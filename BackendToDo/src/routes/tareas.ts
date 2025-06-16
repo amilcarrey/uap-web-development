@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireAuth } from '../middleware/error.middleware';
 import { 
   getTareas, 
   createTarea, 
@@ -11,6 +12,7 @@ import {
 
 const router = express.Router();
 
+router.use(requireAuth); // Asegurar que todas las rutas necesiten autenticación
 // GET /tareas - Listar tareas con filtros y paginación
 router.get('/', getTareas);
 

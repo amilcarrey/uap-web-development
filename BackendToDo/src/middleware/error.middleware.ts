@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 
 // Tipo para errores personalizados
 export interface CustomError extends Error {
@@ -61,4 +62,26 @@ export const createError = (message: string, statusCode: number = 500): CustomEr
 // Wrapper para funciones async (evita try-catch repetitivos)
 export const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
   Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+export interface AuthRequest extends Request {
+  userId?: string;
+}
+
+export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '') || req.cookies?.token;
+    
+    if (!token) {
+      res.status(401).json({ error: 'Token de acceso requerido' });
+      return;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: string };
+    req.userId = decoded.id;
+    next();
+  } catch (error) {
+    console.error('Error de autenticación:', error);
+    res.status(401).json({ error: 'Token inválido' });
+  }
 };

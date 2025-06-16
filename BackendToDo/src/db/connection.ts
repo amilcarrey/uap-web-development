@@ -21,7 +21,16 @@ export class Database {
                 idTablero TEXT NOT NULL
             )
         `);
-        
+
+        await this.run(`
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id TEXT PRIMARY KEY,
+                nombre TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL
+            )
+        `);
+
         await this.run(`
             CREATE TABLE IF NOT EXISTS tableros (
                 id TEXT PRIMARY KEY,

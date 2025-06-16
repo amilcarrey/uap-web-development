@@ -1,8 +1,10 @@
 import express from 'express';
+import { requireAuth } from '../middleware/error.middleware';
 import { getTableroPorAlias, createTablero, getTableros, deleteTablero } from '../controllers/tablerosController';
 
 const router = express.Router();
 
+router.use(requireAuth); // Asegurar que todas las rutas necesiten autenticación
 // GET /tableros - Listar todos los tableros
 router.get('/', getTableros);
 
