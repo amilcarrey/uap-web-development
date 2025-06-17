@@ -11,6 +11,7 @@ type TasksResponse =
 };
 
 export function useTasks(filtro?: "completadas" | "pendientes", page = 1, pageSize = 7, categoriaId?: string) {
+   console.log("Parámetros enviados a /api/tasks:", { filtro, categoriaId, page, pageSize });
   const refetchInterval = useSettingsStore((state) => state.refetchInterval);
 
   return useQuery<TasksResponse>({

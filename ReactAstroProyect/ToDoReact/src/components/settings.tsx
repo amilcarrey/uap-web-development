@@ -14,17 +14,22 @@ export default function Settings() {
   const uppercaseDescriptions = useSettingsStore((state) => state.uppercaseDescriptions);
   const toggleUppercaseDescriptions = useSettingsStore((state) => state.toggleUppercaseDescriptions);
 
-  const handleAddCategoria = (name: string) => {
-    if (categoriasQuery.data?.some((categoria: Categoria) => categoria.name.toLowerCase() === name.toLowerCase())) {
-      useModalStore.getState().openModal("El nombre de la categoría ya está en uso", "error");
-      return;
-    }
+const handleAddCategoria = (name: string) => {
+  // Verificar si el nombre ya está en uso
+  if (categoriasQuery.data?.some((categoria: Categoria) => categoria.name.toLowerCase() === name.toLowerCase())) {
+    useModalStore.getState().openModal("El nombre de la categoría ya está en uso", "error");
+    return;
+  }
 
-    addCategoriaMutation.mutate(name, {
-      onSuccess: () => useModalStore.getState().openModal("Categoría creada", "success"),
-      onError: () => useModalStore.getState().openModal("Error al crear la categoría", "error"),
-    });
-  };
+  // Generar un ID único basado en el nombre
+  const id = name.toLowerCase().replace(/\s+/g, "-");
+
+  // Enviar la solicitud al backend con el ID y el nombre
+  addCategoriaMutation.mutate({ id, name }, {
+    onSuccess: () => useModalStore.getState().openModal("Categoría creada", "success"),
+    onError: () => useModalStore.getState().openModal("Error al crear la categoría", "error"),
+  });
+};
 
   const handleDeleteCategoria = (id: string) => {
     deleteCategoriaMutation.mutate(id, {

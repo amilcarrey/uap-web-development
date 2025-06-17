@@ -5,22 +5,25 @@ const API_URL = import.meta.env.VITE_API_URL;
 export function useDeleteCompletedTasks() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+return useMutation({
     mutationFn: async ({ categoriaId }: { categoriaId: string }) => {
-      const res = await fetch(`${API_URL}/api/tasks/completed`, {
+      console.log("categoriaId enviado desde el frontend:", categoriaId);
+
+      const res = await fetch(`${API_URL}/api/tasks/completed?categoriaId=${categoriaId}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ categoriaId }),
       });
+
       if (!res.ok) throw new Error("Error al eliminar las tareas completadas");
       return res.json();
     },
+
     onError: (_, { categoriaId }) => {
       const previousTasks = queryClient.getQueryData(["tasks", undefined, categoriaId]);
       if (previousTasks) {
         queryClient.setQueryData(["tasks", undefined, categoriaId], previousTasks);
       }
     },
+
     onSuccess: (_, { categoriaId }) => {
       queryClient.invalidateQueries({ queryKey: ["tasks", undefined, categoriaId] });
       //undefined porque no estamos filtrando por completadas o pendientes

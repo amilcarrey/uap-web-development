@@ -12,7 +12,7 @@ const app = express();
 
 // Middlewares
 app.use(cors());
-app.use(bodyParser.json());
+
 
 // Inicializar tablas en la base de datos
 (async () => {
@@ -22,9 +22,10 @@ app.use(bodyParser.json());
 })();
 
 // Rutas
-app.use("/api/categories", categoryRoutes); // Usando las rutas importadas
+app.use(express.json()); // Middleware para parsear JSON
+app.use("/api/categorias", categoryRoutes); // Usando las rutas importadas
 app.use("/api/tasks", taskRoutes); // Usando las rutas importadas
 
 // Iniciar servidor
-const PORT = process.env.PORT || 5173;
+const PORT = process.env.PORT || 4000; 
 app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));

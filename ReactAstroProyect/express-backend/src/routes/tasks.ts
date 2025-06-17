@@ -16,14 +16,16 @@ router.get("/", getTasksHandler);
 // Agregar una nueva tarea
 router.post("/", addTaskHandler);
 
+// Eliminar tareas completadas
+router.delete("/completed", deleteCompletedTasksHandler);
+
 // Eliminar una tarea
 router.delete("/:id", deleteTaskHandler);
 
 // Alternar el estado de una tarea
 router.patch("/:id/toggle", toggleTaskHandler);
 
-// Eliminar tareas completadas
-router.delete("/completed", deleteCompletedTasksHandler);
+
 
 // Editar una tarea
 router.put("/", editTaskHandler);

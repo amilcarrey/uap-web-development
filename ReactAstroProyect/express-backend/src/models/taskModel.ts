@@ -78,9 +78,37 @@ export async function listarTareasPaginadas(
   );
 }
 
+export async function contarTareasFiltradas(
+  categoriaId?: string,
+  filtro?: "completadas" | "pendientes"
+): Promise<number> {
+  let whereClause = "";
+  const params: any[] = [];
+
+  if (categoriaId) {
+    whereClause += "WHERE categoriaId = ?";
+    params.push(categoriaId);
+  }
+
+  if (filtro === "completadas") {
+    whereClause += whereClause ? " AND completed = 1" : "WHERE completed = 1";
+  } else if (filtro === "pendientes") {
+    whereClause += whereClause ? " AND completed = 0" : "WHERE completed = 0";
+  }
+
+  const result = await database.get<{ count: number }>(
+    `SELECT COUNT(*) as count FROM tasks ${whereClause}`,
+    params
+  );
+
+  return result?.count ?? 0;
+}
+
+
 export async function editTask(id: number, text: string, categoriaId: string): Promise<void> {
   await database.run(
     "UPDATE tasks SET text = ?, categoriaId = ? WHERE id = ?",
     [text, categoriaId, id]
   );
 }
+

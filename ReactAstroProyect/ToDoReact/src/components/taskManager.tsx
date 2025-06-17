@@ -19,7 +19,7 @@ import Title from "./title";
 
 function TaskManager() {
   const search = useSearch({ from: "/categorias/$categoriaId" });
- const filtro = search.filtro === "completadas" || search.filtro === "pendientes" ? search.filtro : undefined;
+  const filtro = search.filtro === "completadas" || search.filtro === "pendientes" ? search.filtro : "todas";
   const [page, setPage] = useState(1);
   const [pageSize] = useState(7);
   const { categoriaId } = useParams({ from: "/categorias/$categoriaId" });
@@ -45,7 +45,7 @@ function TaskManager() {
 // Funciones para tareas
 const handleAddTask = (text: string) => {
   addTaskMutation.mutate(
-    { text, categoriaId, page },
+    { text, categoriaId},
     {
       onSuccess: () => useModalStore.getState().openModal("Tarea agregada", "success"),
       onError: () => useModalStore.getState().openModal("Error al agregar tarea", "error"),
@@ -92,7 +92,7 @@ const handleDeleteCompleted = () => {
     return;
   }
   deleteCompletedMutation.mutate(
-    { categoriaId, page}, 
+    { categoriaId}, 
     {
     // No necesitamos pasar un id porque estamos eliminando todas las completadas
     onSuccess: () => useModalStore.getState().openModal("Tareas completadas eliminadas", "success"),
@@ -111,19 +111,22 @@ const handleEditTask = (id: number, text: string) => {
 };
 
 // Funciones para categorias
-  const handleAddCategoria = (name: string) => {
-    // verificacion si el nombre ya está en uso
-    if (categoriasQuery.data?.some((categoria:Categoria) => categoria.name.toLowerCase() === name.toLowerCase())) {
-      useModalStore.getState().openModal("El nombre de la categoria ya está en uso", "error");
-      return;
-    }
+const handleAddCategoria = (name: string) => {
+  if (categoriasQuery.data?.some((categoria: Categoria) => categoria.name.toLowerCase() === name.toLowerCase())) {
+    useModalStore.getState().openModal("El nombre de la categoría ya está en uso", "error");
+    return;
+  }
 
-    // Si no está en uso agregmo
-    addCategoriaMutation.mutate(name, {
-      onSuccess: () => useModalStore.getState().openModal("Categoria creada", "success"),
-      onError: () => useModalStore.getState().openModal("Error al crear la categoria", "error"),
-    });
-  };
+  const id = name.toLowerCase().replace(/\s+/g, "-"); // Generar un ID único basado en el nombre
+
+  addCategoriaMutation.mutate(
+    { id, name }, // Pasa un objeto con `id` y `name`
+    {
+      onSuccess: () => useModalStore.getState().openModal("Categoría creada", "success"),
+      onError: () => useModalStore.getState().openModal("Error al crear la categoría", "error"),
+    }
+  );
+};
 
  const confirmDeleteCategoria = (id: string) => {
   setCategoryToDelete(id); 

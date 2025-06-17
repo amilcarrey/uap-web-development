@@ -22,11 +22,11 @@ export function useCategorias() {
 
   // Agregar
   const addCategoriaMutation = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
       const res = await fetch(`${API_URL}/api/categorias`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ _method: "ADD_CATEGORIA", name }),
+        body: JSON.stringify({ id, name }),
       });
       if (!res.ok) throw new Error("Error al agregar categoría");
       return res.json();
