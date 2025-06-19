@@ -27,7 +27,7 @@ const TaskList: React.FC = () => {
   }
 
   return (
-    <div className="bg-dark-wood">
+    <div className="bg-amber-950">
       {/* Lista de tareas */}
       <div className="divide-y divide-amber-200/20">
         {data.tasks.map((task) => (

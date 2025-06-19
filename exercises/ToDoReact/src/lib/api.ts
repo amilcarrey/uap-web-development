@@ -93,18 +93,18 @@ export const apiDelete = async <T>(endpoint: string): Promise<T> => {
     const error = await response.json();
     throw new Error(error.error || `HTTP ${response.status}`);
   }
-  
+
   // Handle empty responses (204 No Content)
   if (response.status === 204) {
     return {} as T;
   }
-  
+
   // Try to parse JSON, but handle empty responses
   const text = await response.text();
   if (!text) {
     return {} as T;
   }
-  
+
   try {
     return JSON.parse(text);
   } catch (error) {

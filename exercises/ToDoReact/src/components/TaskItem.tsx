@@ -59,7 +59,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
 
   return (
     <>
-      <li className="flex items-center justify-between p-3 border-b border-amber-700 bg-dark-wood hover:bg-medium-wood transition-colors">
+      <li className="flex items-center justify-between p-3 border-b border-amber-700 bg-amber-950 hover:bg-medium-wood transition-colors">
         <div className="flex items-center flex-1">
           <input
             type="checkbox"

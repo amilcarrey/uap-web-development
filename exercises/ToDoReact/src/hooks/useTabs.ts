@@ -78,24 +78,42 @@ const deleteTabAPI = async (name: string): Promise<{ message: string }> => {
     });
 
     // Delete the board (this will also delete associated tasks due to CASCADE)
-    const deleteResponse = await apiDelete<{ success: boolean; message: string }>(`/api/boards/${board.id}`);
-    console.log(`🗑️ Successfully deleted board "${name}" with ID: ${board.id}`, deleteResponse);
+    const deleteResponse = await apiDelete<{
+      success: boolean;
+      message: string;
+    }>(`/api/boards/${board.id}`);
+    console.log(
+      `🗑️ Successfully deleted board "${name}" with ID: ${board.id}`,
+      deleteResponse
+    );
 
-    return { message: deleteResponse.message || "Board and all its tasks deleted successfully" };
+    return {
+      message:
+        deleteResponse.message ||
+        "Board and all its tasks deleted successfully",
+    };
   } catch (error) {
     console.error("❌ Error deleting board:", error);
 
     if (error instanceof Error) {
       // Check if it's a JSON parsing error but the deletion might have succeeded
-      if (error.message.includes("Unexpected end of JSON input") || 
-          error.message.includes("Failed to execute 'json'")) {
-        console.log("⚠️ JSON parsing error detected, but deletion might have succeeded");
-        
+      if (
+        error.message.includes("Unexpected end of JSON input") ||
+        error.message.includes("Failed to execute 'json'")
+      ) {
+        console.log(
+          "⚠️ JSON parsing error detected, but deletion might have succeeded"
+        );
+
         // Verify if the board was actually deleted by refetching
         try {
-          const verifyResponse = await apiGet<ApiResponse<Board[]>>("/api/boards");
-          const stillExists = verifyResponse.data.find((b: Board) => b.name === name);
-          
+          const verifyResponse = await apiGet<ApiResponse<Board[]>>(
+            "/api/boards"
+          );
+          const stillExists = verifyResponse.data.find(
+            (b: Board) => b.name === name
+          );
+
           if (!stillExists) {
             console.log("✅ Board was successfully deleted despite JSON error");
             return { message: "Board and all its tasks deleted successfully" };
@@ -107,7 +125,7 @@ const deleteTabAPI = async (name: string): Promise<{ message: string }> => {
           throw new Error(`Failed to delete board "${name}": ${error.message}`);
         }
       }
-      
+
       // Re-throw with more specific error message
       throw new Error(`Failed to delete board "${name}": ${error.message}`);
     }

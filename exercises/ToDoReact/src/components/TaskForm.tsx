@@ -53,17 +53,20 @@ const TaskForm: React.FC = () => {
   const isLoading = addTaskMutation.isPending || updateTaskMutation.isPending;
 
   return (
-    <form onSubmit={handleSubmit} className="w-full p-4 bg-dark-wood">
+    <form onSubmit={handleSubmit} className="w-full p-4 bg-amber-950">
       <div className="flex flex-col gap-2">
         <div className="flex w-full items-center">
           <input
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={isEditing ? "Editar tarea..." : "Enter a new task..."}
+            placeholder={isEditing ? "Edit task..." : "Enter a new task..."}
             className="bg-amber-200 flex-grow p-2 rounded-md focus:outline-none"
             autoComplete="off"
             disabled={isLoading}
+            ref={(input) => {
+              if (!isEditing && input) input.focus();
+            }}
           />
           <div className="mx-2" />
           <GorgeousButton

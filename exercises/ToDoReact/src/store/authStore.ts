@@ -33,7 +33,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4322";
 export const useAuthStore = create<AuthState>()(
   devtools(
     persist(
-      (set, get) => ({
+      (set) => ({
         user: null,
         token: null,
         isAuthenticated: false,

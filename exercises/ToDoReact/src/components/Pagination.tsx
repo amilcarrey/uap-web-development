@@ -37,7 +37,7 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-center p-4 bg-dark-wood border-t border-amber-200/20 gap-4">
+    <div className="flex flex-col sm:flex-row justify-between items-center p-4 bg-amber-950 border-t border-amber-200/20 gap-4">
       <div className="text-amber-100 text-sm">
         Showing {startItem}-{endItem} of {totalItems} tasks
       </div>
