@@ -24,7 +24,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear errors when user starts typing
+    // Clear errors when user starts typingNo
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }

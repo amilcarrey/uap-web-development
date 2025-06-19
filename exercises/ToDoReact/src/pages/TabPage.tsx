@@ -42,12 +42,6 @@ const TabPage: React.FC = () => {
           <div className="bg-orange-950 border-4 border-amber-200 rounded-lg overflow-hidden">
             <Header />
             <div className="p-8 text-center">
-              <h2 className="text-2xl font-bold text-amber-200 mb-4">
-                Tab Not Found
-              </h2>
-              <p className="text-slate-100 mb-4">
-                The tab "{tabId}" doesn't exist.
-              </p>
               <TabList tabs={tabsData?.tabs || []} />
             </div>
             <Footer />

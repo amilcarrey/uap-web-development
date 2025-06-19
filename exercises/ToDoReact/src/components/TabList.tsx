@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useParams } from "@tanstack/react-router";
+import { Link, useParams, useNavigate } from "@tanstack/react-router";
 import { useClientStore } from "../store/clientStore";
 import { useAddTab, useDeleteTab } from "../hooks/useTabs";
 import { Bolt } from "lucide-react";
@@ -12,28 +12,79 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
   const { tabId } = useParams({ from: "/tab/$tabId" }) || {
     tabId: "today",
   };
+  const navigate = useNavigate();
   const { isAddingTab, setIsAddingTab } = useClientStore();
   const [newTabName, setNewTabName] = useState("");
+  const [validationError, setValidationError] = useState<string>("");
   const addTabMutation = useAddTab();
   const deleteTabMutation = useDeleteTab();
 
   const handleAddTab = (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError(""); // Clear previous errors
 
     if (newTabName.trim()) {
-      const tabId = newTabName.trim().toLowerCase().replace(/\s+/g, "-");
-      addTabMutation.mutate(tabId, {
+      const trimmedName = newTabName.trim();
+
+      // Validate minimum length
+      if (trimmedName.length < 2) {
+        setValidationError("Board name must be at least 2 characters long");
+        return;
+      }
+
+      // Validate maximum length
+      if (trimmedName.length > 50) {
+        setValidationError("Board name must be less than 50 characters");
+        return;
+      }
+
+      // Check if a tab with this name already exists (case-insensitive)
+      const existingTab = tabs.find(
+        (tab) => tab.toLowerCase() === trimmedName.toLowerCase()
+      );
+
+      if (existingTab) {
+        setValidationError(
+          `A board with the name "${trimmedName}" already exists. Please choose a different name.`
+        );
+        return;
+      }
+
+      // Use the original name, not transformed
+      addTabMutation.mutate(trimmedName, {
         onSuccess: () => {
           setNewTabName("");
           setIsAddingTab(false);
+          setValidationError("");
+        },
+        onError: (error: Error) => {
+          // Handle backend validation errors
+          if (error.message.includes("already exists")) {
+            setValidationError(
+              `A board with the name "${trimmedName}" already exists. Please choose a different name.`
+            );
+          } else {
+            setValidationError(error.message || "Failed to create board");
+          }
         },
       });
+    } else {
+      setValidationError("Please enter a board name");
     }
   };
 
   const handleCancelAdd = () => {
     setNewTabName("");
     setIsAddingTab(false);
+    setValidationError("");
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTabName(e.target.value);
+    // Clear validation error when user starts typing
+    if (validationError) {
+      setValidationError("");
+    }
   };
 
   const handleDeleteTab = (tabName: string) => {
@@ -45,7 +96,24 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
         `Are you sure you want to delete the "${tabName}" tab? This action cannot be undone.`
       )
     ) {
-      deleteTabMutation.mutate(tabName);
+      // If we're deleting the currently active tab, navigate to another tab
+      const isCurrentTab = tabId === tabName;
+      const remainingTabs = tabs.filter((tab) => tab !== tabName);
+
+      deleteTabMutation.mutate(tabName, {
+        onSuccess: () => {
+          console.log("✅ Tab deleted successfully, checking navigation...");
+
+          // If we deleted the current tab, navigate to the first remaining tab
+          if (isCurrentTab && remainingTabs.length > 0) {
+            console.log(`🔄 Navigating to: ${remainingTabs[0]}`);
+            navigate({
+              to: "/tab/$tabId",
+              params: { tabId: remainingTabs[0] },
+            });
+          }
+        },
+      });
     }
   };
 
@@ -85,11 +153,14 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
         </ul>
 
         {isAddingTab ? (
-          <form onSubmit={handleAddTab} className="flex items-center gap-2">
+          <form
+            onSubmit={handleAddTab}
+            className="relative flex items-center gap-2"
+          >
             <input
               type="text"
               value={newTabName}
-              onChange={(e) => setNewTabName(e.target.value)}
+              onChange={handleInputChange}
               placeholder="Tab name..."
               className="bg-amber-100 px-2 py-1 text-sm rounded focus:outline-none focus:ring focus:ring-amber-500"
               autoFocus
@@ -109,6 +180,12 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
             >
               ✕
             </button>
+            {/* Validation Error Message */}
+            {validationError && (
+              <div className="absolute top-full left-0 mt-1 bg-red-100 border border-red-400 text-red-700 px-2 py-1 rounded text-xs z-10 whitespace-nowrap">
+                {validationError}
+              </div>
+            )}
           </form>
         ) : (
           <button

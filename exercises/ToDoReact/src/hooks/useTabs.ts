@@ -22,21 +22,98 @@ const fetchTabs = async (): Promise<{ tabs: string[]; activeTab: string }> => {
 };
 
 const addTabAPI = async (name: string): Promise<{ tab: string }> => {
-  const response = await apiPost<ApiResponse<Board>>("/api/boards", { name });
-  return { tab: response.data.name };
+  try {
+    console.log(`➕ Creating new board with name: "${name}"`);
+
+    // Validate name is not empty
+    if (!name.trim()) {
+      throw new Error("Board name cannot be empty");
+    }
+
+    const response = await apiPost<ApiResponse<Board>>("/api/boards", {
+      name: name.trim(),
+    });
+    console.log(`✅ Board "${name}" created successfully`);
+
+    return { tab: response.data.name };
+  } catch (error) {
+    console.error("❌ Error creating board:", error);
+
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+
+    throw new Error("Failed to create board");
+  }
 };
 
 const deleteTabAPI = async (name: string): Promise<{ message: string }> => {
-  // First, find the board by name
-  const boardsResponse = await apiGet<ApiResponse<Board[]>>("/api/boards");
-  const board = boardsResponse.data.find((b: Board) => b.name === name);
+  try {
+    console.log(`🗑️ Attempting to delete board with name: "${name}"`);
 
-  if (!board) {
-    throw new Error(`Board "${name}" not found`);
+    // First, find the board by name
+    const boardsResponse = await apiGet<ApiResponse<Board[]>>("/api/boards");
+    console.log(
+      "📋 Available boards:",
+      boardsResponse.data.map((b) => ({ id: b.id, name: b.name }))
+    );
+
+    const board = boardsResponse.data.find((b: Board) => b.name === name);
+
+    if (!board) {
+      console.error(
+        `❌ Board "${name}" not found in:`,
+        boardsResponse.data.map((b) => b.name)
+      );
+      throw new Error(
+        `Board "${name}" not found. Available boards: ${boardsResponse.data
+          .map((b) => b.name)
+          .join(", ")}`
+      );
+    }
+
+    console.log(`✅ Found board to delete:`, {
+      id: board.id,
+      name: board.name,
+    });
+
+    // Delete the board (this will also delete associated tasks due to CASCADE)
+    const deleteResponse = await apiDelete<{ success: boolean; message: string }>(`/api/boards/${board.id}`);
+    console.log(`🗑️ Successfully deleted board "${name}" with ID: ${board.id}`, deleteResponse);
+
+    return { message: deleteResponse.message || "Board and all its tasks deleted successfully" };
+  } catch (error) {
+    console.error("❌ Error deleting board:", error);
+
+    if (error instanceof Error) {
+      // Check if it's a JSON parsing error but the deletion might have succeeded
+      if (error.message.includes("Unexpected end of JSON input") || 
+          error.message.includes("Failed to execute 'json'")) {
+        console.log("⚠️ JSON parsing error detected, but deletion might have succeeded");
+        
+        // Verify if the board was actually deleted by refetching
+        try {
+          const verifyResponse = await apiGet<ApiResponse<Board[]>>("/api/boards");
+          const stillExists = verifyResponse.data.find((b: Board) => b.name === name);
+          
+          if (!stillExists) {
+            console.log("✅ Board was successfully deleted despite JSON error");
+            return { message: "Board and all its tasks deleted successfully" };
+          } else {
+            console.log("❌ Board still exists, deletion failed");
+            throw new Error(`Failed to delete board "${name}": Server error`);
+          }
+        } catch (verifyError) {
+          throw new Error(`Failed to delete board "${name}": ${error.message}`);
+        }
+      }
+      
+      // Re-throw with more specific error message
+      throw new Error(`Failed to delete board "${name}": ${error.message}`);
+    }
+
+    throw new Error(`Failed to delete board "${name}": Unknown error`);
   }
-
-  await apiDelete(`/api/boards/${board.id}`);
-  return { message: "Board deleted successfully" };
 };
 
 export const useTabs = () => {
@@ -70,11 +147,34 @@ export const useDeleteTab = () => {
   return useMutation({
     mutationFn: deleteTabAPI,
     onSuccess: () => {
+      console.log("🔄 Starting cache invalidation after board deletion...");
+
+      // Remove all cached data to force a fresh fetch
+      queryClient.removeQueries({ queryKey: tabKeys.all });
+
+      // Invalidate all tabs-related queries
       queryClient.invalidateQueries({ queryKey: tabKeys.all });
-      showSuccess("Tab deleted!", "One less board to manage!");
+
+      // Also invalidate any task-related queries since tasks might be deleted too
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+
+      // Force refetch tabs immediately to update the UI
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: tabKeys.all });
+        console.log("✅ Cache invalidated and refetched after board deletion");
+      }, 100);
+
+      showSuccess(
+        "Board deleted!",
+        "The board and all its tasks have been removed successfully!"
+      );
     },
     onError: (error: Error) => {
-      showError("Failed to delete tab!", error.message);
+      console.error("❌ Delete tab error:", error);
+      showError(
+        "Failed to delete board!",
+        error.message || "An unknown error occurred while deleting the board"
+      );
     },
   });
 };
