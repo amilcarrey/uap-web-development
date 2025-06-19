@@ -3,18 +3,25 @@ import { Tablero } from "../models/types";
 
 const db = new Database();
 
-export async function agregarTablero(nombre: string, alias: string): Promise<Tablero | null> {
-  // Verificar si ya existe
-  const existe = await db.query("SELECT * FROM tableros WHERE alias = ?", [alias]);
-  if (existe.length > 0) return null;
+export async function agregarTablero(nombre: string, alias: string, propietarioId?: string): Promise<Tablero | null> {
+  try {
+    // Verificar si ya existe
+    const existe = await db.query("SELECT * FROM tableros WHERE alias = ?", [alias]);
+    if (existe.length > 0) return null;
 
-  const id = `tb-${Date.now()}`;
-  const query = "INSERT INTO tableros (id, nombre, alias) VALUES (?, ?, ?)";
-  await db.run(query, [id, nombre, alias]);
-  
-  // Retornar el tablero creado
-  const tableros = await db.query("SELECT * FROM tableros WHERE id = ?", [id]);
-  return tableros.length > 0 ? tableros[0] as Tablero : null;
+    const id = `tb-${Date.now()}`;
+    
+    // Incluir propietarioId en la inserción
+    const query = "INSERT INTO tableros (id, nombre, alias, propietarioId) VALUES (?, ?, ?, ?)";
+    await db.run(query, [id, nombre, alias, propietarioId || null]);
+    
+    // Retornar el tablero creado
+    const tableros = await db.query("SELECT * FROM tableros WHERE id = ?", [id]);
+    return tableros.length > 0 ? tableros[0] as Tablero : null;
+  } catch (error) {
+    console.error('❌ Error en agregarTablero:', error); 
+    throw error;
+  }
 }
 
 export async function listarTableros(): Promise<Tablero[]> {

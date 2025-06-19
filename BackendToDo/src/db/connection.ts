@@ -35,17 +35,32 @@ export class Database {
             CREATE TABLE IF NOT EXISTS tableros (
                 id TEXT PRIMARY KEY,
                 nombre TEXT NOT NULL,
-                alias TEXT UNIQUE NOT NULL
+                alias TEXT UNIQUE NOT NULL,
+                propietarioId TEXT,
+                publico BOOLEAN DEFAULT FALSE,
+                FOREIGN KEY (propietarioId) REFERENCES usuarios(id)
+            )
+        `);
+
+        await this.run(`
+            CREATE TABLE IF NOT EXISTS accesos_tablero (    
+                id TEXT PRIMARY KEY,
+                idTablero TEXT NOT NULL,
+                idUsuario TEXT NOT NULL,
+                rol TEXT DEFAULT 'editor' CHECK (rol IN ('propietario', 'editor', 'lector')), 
+                FOREIGN KEY (idTablero) REFERENCES tableros(id),
+                FOREIGN KEY (idUsuario) REFERENCES usuarios(id),
+                UNIQUE (idTablero, idUsuario)
             )
         `);
 
         // Poblar datos iniciales si no existen
         const tableros = await this.query("SELECT COUNT(*) as count FROM tableros");
         if (tableros[0].count === 0) {
-            await this.run("INSERT INTO tableros (id, nombre, alias) VALUES (?, ?, ?)", 
-                ["tb-1", "Personal", "personal"]);
-            await this.run("INSERT INTO tableros (id, nombre, alias) VALUES (?, ?, ?)", 
-                ["tb-2", "Configuracion", "configuracion"]);
+            await this.run("INSERT INTO tableros (id, nombre, alias, publico) VALUES (?, ?, ?, ?)", 
+                ["tb-1", "Personal", "personal", true]);
+            await this.run("INSERT INTO tableros (id, nombre, alias, publico) VALUES (?, ?, ?, ?)", 
+                ["tb-2", "Configuracion", "configuracion", true]);
         }
 
         const tareas = await this.query("SELECT COUNT(*) as count FROM tareas");

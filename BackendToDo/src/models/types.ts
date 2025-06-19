@@ -2,6 +2,8 @@ export type Tablero = {
   id: string;
   nombre: string;
   alias: string;
+  propietarioId?: string;
+  publico?: boolean;
 }
 
 export type Tarea = {
@@ -16,4 +18,11 @@ export type Usuario = {
   nombre: string;
   email: string;
   password: string;
+};
+
+export type AccesoTablero = {
+  id: string; 
+  idTablero: string;
+  idUsuario: string;
+  rol: 'propietario' | 'editor' | 'lector';
 };

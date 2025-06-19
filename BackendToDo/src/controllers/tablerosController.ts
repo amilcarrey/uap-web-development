@@ -1,5 +1,13 @@
 import { Request, Response } from 'express';
 import { agregarTablero, listarTableros, eliminarTablero, obtenerTablero, obtenerTableroPorId} from '../services/tablerosService';
+import { 
+  compartirTablero as compartirTableroService, 
+  obtenerUsuariosConAcceso, 
+  revocarAcceso, 
+  esPropietarioTablero,
+  obtenerUsuarioPorEmail
+} from '../services/permisosService';
+
 
 // GET /tableros - Listar todos los tableros
 export async function getTableros(req: Request, res: Response) {
@@ -17,6 +25,7 @@ export async function getTableros(req: Request, res: Response) {
 export async function createTablero(req: Request, res: Response) {
   try {
     const { nombre, alias } = req.body;
+    const userId = (req as any).userId; 
     
     if (!nombre || !alias) {
       return res.status(400).json({ 
@@ -24,17 +33,24 @@ export async function createTablero(req: Request, res: Response) {
       });
     }
 
-    const nuevoTablero = await agregarTablero(nombre.trim(), alias.trim());
+    if (!userId) {
+      return res.status(401).json({ 
+        error: "Usuario no autenticado" 
+      });
+    }
+
+    // Pasar userId como propietario
+    const nuevoTablero = await agregarTablero(nombre.trim(), alias.trim(), userId);
     
     if (!nuevoTablero) {
       return res.status(400).json({ 
-        error: "El tablero ya existe" 
+        error: "El tablero ya existe o error en creación" 
       });
     }
 
     res.status(201).json({ success: true, tablero: nuevoTablero });
   } catch (error) {
-    console.error('Error al crear tablero:', error);
+    console.error('❌ Error al crear tablero:', error); 
     res.status(500).json({ error: "Error al crear tablero" });
   }
 }
@@ -164,5 +180,110 @@ export async function deleteTableroPorId(req: Request, res: Response) {
   } catch (error) {
     console.error('Error al eliminar tablero por ID:', error);
     res.status(500).json({ error: "Error al eliminar tablero" });
+  }
+}
+
+// POST /tableros/:id/compartir - Compartir tablero con otro usuario
+export async function compartirTablero(req: Request, res: Response) {
+  try {
+    const { id: tableroId } = req.params;
+    const { emailUsuario } = req.body;
+    
+    if (!emailUsuario) {
+      return res.status(400).json({ 
+        error: "Email del usuario es requerido" 
+      });
+    }
+
+    // Buscar el usuario por email
+    const usuario = await obtenerUsuarioPorEmail(emailUsuario.trim());
+    
+    if (!usuario) {
+      return res.status(404).json({ 
+        error: "Usuario no encontrado" 
+      });
+    }
+
+    // Verificar que no sea el mismo propietario
+    if (usuario.id === (req as any).userId) {
+      return res.status(400).json({ 
+        error: "No puedes compartir contigo mismo" 
+      });
+    }
+
+    // Compartir el tablero
+    const compartido = await compartirTableroService(tableroId, usuario.id);
+    
+    if (!compartido) {
+      return res.status(500).json({ 
+        error: "Error al compartir tablero" 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      mensaje: `Tablero compartido con ${usuario.nombre} (${usuario.email})`,
+      usuario: {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        email: usuario.email
+      }
+    });
+  } catch (error) {
+    console.error('Error al compartir tablero:', error);
+    res.status(500).json({ error: "Error al compartir tablero" });
+  }
+}
+
+// GET /tableros/:id/usuarios - Listar usuarios con acceso al tablero
+export async function obtenerUsuariosTablero(req: Request, res: Response) {
+  try {
+    const { id: tableroId } = req.params;
+    
+    const usuarios = await obtenerUsuariosConAcceso(tableroId);
+    
+    res.json({ 
+      success: true, 
+      usuarios: usuarios.map(u => ({
+        id: u.id,
+        nombre: u.nombre,
+        email: u.email,
+        esPropietario: u.esPropietario
+      }))
+    });
+  } catch (error) {
+    console.error('Error al obtener usuarios del tablero:', error);
+    res.status(500).json({ error: "Error al obtener usuarios" });
+  }
+}
+
+// DELETE /tableros/:id/acceso/:usuarioId - Revocar acceso a usuario
+export async function revocarAccesoTablero(req: Request, res: Response) {
+  try {
+    const { id: tableroId, usuarioId } = req.params;
+    
+    // No permitir revocar acceso al propietario
+    const esPropietario = await esPropietarioTablero(usuarioId, tableroId);
+    if (esPropietario) {
+      return res.status(400).json({ 
+        error: "No se puede revocar acceso al propietario" 
+      });
+    }
+
+    const revocado = await revocarAcceso(tableroId, usuarioId);
+    
+    if (!revocado) {
+      return res.status(404).json({ 
+        error: "Usuario no tenía acceso al tablero" 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      mensaje: "Acceso revocado correctamente" 
+    });
+  } catch (error) {
+    console.error('Error al revocar acceso:', error);
+    res.status(500).json({ error: "Error al revocar acceso" });
   }
 }

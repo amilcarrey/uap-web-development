@@ -10,12 +10,25 @@ export async function registrarUsuario(nombre: string, email: string, password: 
   const existe = await db.query("SELECT * FROM usuarios WHERE email = ?", [email]);
   if (existe.length > 0) return null;
 
+  // Generar ID único
+  const id = `usr-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
   // Hashear la contraseña
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Crear el nuevo usuario
-  const nuevoUsuario = await db.run("INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)", [nombre, email, hashedPassword]);
-  return { id: nuevoUsuario.lastID, nombre, email, password: hashedPassword };  
+  // Incluir el ID en la inserción
+  const nuevoUsuario = await db.run(
+    "INSERT INTO usuarios (id, nombre, email, password) VALUES (?, ?, ?, ?)", 
+    [id, nombre, email, hashedPassword] // AGREGAR el ID aquí
+  );
+
+  // Retornar con el ID generado
+  return { 
+    id: id, // Usar el ID generado, no lastID
+    nombre, 
+    email, 
+    password: hashedPassword 
+  };  
 }
 
 export async function autenticarUsuario(email: string, password: string): Promise<{ token: string } | null> {
@@ -40,4 +53,4 @@ export async function obtenerUsuarioPorId(id: string): Promise<Usuario | null> {
 
 export async function obtenerUsuarios(): Promise<Usuario[]> {
   return db.query("SELECT * FROM usuarios");
-}   
+}

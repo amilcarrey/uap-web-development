@@ -1,5 +1,6 @@
 import express from 'express';
 import { requireAuth } from '../middleware/error.middleware';
+import { requirePermission } from '../middleware/authorization.middleware'; 
 import { 
   getTareas, 
   createTarea, 
@@ -11,27 +12,27 @@ import {
 } from '../controllers/tareasController';
 
 const router = express.Router();
+router.use(requireAuth);
 
-router.use(requireAuth); // Asegurar que todas las rutas necesiten autenticación
-// GET /tareas - Listar tareas con filtros y paginación
-router.get('/', getTareas);
+// GET /tareas - Solo requiere lectura
+router.get('/', requirePermission('leer'), getTareas); 
 
-// POST /tareas - Agregar nueva tarea
-router.post('/', createTarea);
+// POST /tareas - Requiere escritura
+router.post('/', requirePermission('escribir'), createTarea); 
 
-// POST /tareas/filtro - Filtrar tareas
-router.post('/filtro', filtrarTareas);
+// POST /tareas/filtro - Solo lectura
+router.post('/filtro', requirePermission('leer'), filtrarTareas);
 
-// DELETE /tareas/completadas - Eliminar todas las tareas completadas
-router.delete('/completadas', deleteCompletadas);
+// DELETE /tareas/completadas - Requiere escritura
+router.delete('/completadas', requirePermission('escribir'), deleteCompletadas); 
 
-// PUT /tareas/:id/toggle - Cambiar estado completada/pendiente
-router.put('/:id/toggle', toggleTarea);
+// PUT /tareas/:id/toggle - Requiere escritura
+router.put('/:id/toggle', requirePermission('escribir'), toggleTarea); 
 
-// PUT /tareas/:id - Actualizar descripción de tarea
-router.put('/:id', updateDescripcionTarea);
+// PUT /tareas/:id - Requiere escritura
+router.put('/:id', requirePermission('escribir'), updateDescripcionTarea); 
 
-// DELETE /tareas/:id - Eliminar tarea específica (DEBE IR DESPUÉS de /completadas)
-router.delete('/:id', deleteTarea);
+// DELETE /tareas/:id - Requiere escritura
+router.delete('/:id', requirePermission('escribir'), deleteTarea); 
 
 export default router;
