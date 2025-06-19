@@ -26,3 +26,6 @@ export async function categoryExists(id: string): Promise<boolean> {
   return !!row;
 }
 
+export async function getCategoriesByUserId(userId: string) {
+  return database.all("SELECT * FROM categories WHERE user_id = ?", [userId]);
+}

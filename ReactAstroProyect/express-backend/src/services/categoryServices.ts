@@ -3,7 +3,8 @@ import {
   addCategory, 
   deleteCategory, 
   getCategories, 
-  categoryExists 
+  categoryExists,
+  getCategoriesByUserId as getCategoriesByUserIdModel
 } from "../models/categoryModel.js";
 
 export async function getAllCategories() {
@@ -26,4 +27,8 @@ export async function removeCategory(id: string) {
 
 export async function checkCategoryExists(id: string): Promise<boolean> {
   return await categoryExists(id);
+}
+
+export async function getCategoriesByUserId(userId: string) {
+  return await getCategoriesByUserIdModel(userId);
 }

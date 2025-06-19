@@ -4,24 +4,39 @@ import {
   getAllCategories, 
   createCategory, 
   removeCategory, 
-  checkCategoryExists 
+  checkCategoryExists, 
+  getCategoriesByUserId
 } from "../services/categoryServices.js";
+
+
 
 export const getCategoriesHandler = async (req: Request, res: Response) => {
   try {
-    const categorias = await getAllCategories();// Llama al servicio
-    res.status(200).json(categorias);
+    // req.user viene del authMiddleware, con el payload del JWT
+    const user = req.user as { id: string; role: string };
+
+    let categories;
+
+    if (user.role === "admin") {
+      // Si es admin, trae todas
+      categories = await getAllCategories();
+    } else {
+      // Si es usuario normal, trae solo las que pertenecen a su id
+      categories = await getCategoriesByUserId(user.id);
+    }
+
+    res.json(categories);
   } catch (error) {
-    const err = error as Error;
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: (error as Error).message });
   }
 };
 
 export const addCategoryHandler = async (req: Request, res: Response) => {
-  const { id, name } = req.body;
+  const { name } = req.body;
+  const user = req.user as { id: string };
 
   try {
-    await createCategory(id, name);
+    await createCategory(name, user.id);
     res.status(201).json({ message: "Categoría agregada exitosamente" });
   } catch (error) {
     const err = error as Error;

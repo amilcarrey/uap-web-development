@@ -6,6 +6,7 @@ import categoryRoutes from "./routes/category.js"; // Cambiado a import
 import taskRoutes from "./routes/tasks.js"; // Cambiado a import
 import { createCategoryTable } from "./models/categoryModel.js";
 import { createTaskTable } from "./models/taskModel.js";
+import authRoutes from "./routes/userRoutes.js"; 
 
 dotenv.config();
 const app = express();
@@ -25,6 +26,7 @@ app.use(cors());
 app.use(express.json()); // Middleware para parsear JSON
 app.use("/api/categorias", categoryRoutes); // Usando las rutas importadas
 app.use("/api/tasks", taskRoutes); // Usando las rutas importadas
+app.use("/api/auth", authRoutes); // Usando las rutas de autenticación
 
 // Iniciar servidor
 const PORT = process.env.PORT || 4000; 
