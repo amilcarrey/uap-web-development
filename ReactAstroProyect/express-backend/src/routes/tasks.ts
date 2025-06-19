@@ -25,9 +25,7 @@ router.delete("/:id", deleteTaskHandler);
 // Alternar el estado de una tarea
 router.patch("/:id/toggle", toggleTaskHandler);
 
-
-
 // Editar una tarea
-router.put("/", editTaskHandler);
+router.put("/:id", editTaskHandler); // Ruta para editar una tarea
 
 export default router;

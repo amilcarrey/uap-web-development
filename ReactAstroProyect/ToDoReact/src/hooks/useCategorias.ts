@@ -39,10 +39,8 @@ export function useCategorias() {
   // Eliminar
 const deleteCategoriaMutation = useMutation({
   mutationFn: async (id: string) => {
-    const res = await fetch(`${API_URL}/api/categorias`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ _method: "DELETE_CATEGORIA", id }),
+    const res = await fetch(`${API_URL}/api/categorias/${id}`, {
+      method: "DELETE",
     });
     if (!res.ok) throw new Error("Error al eliminar categoría");
     return res.json();
@@ -57,6 +55,7 @@ const deleteCategoriaMutation = useMutation({
     }
   },
 });
+
 
   return { categoriasQuery, addCategoriaMutation, deleteCategoriaMutation };
 }

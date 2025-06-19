@@ -22,7 +22,15 @@ export function useAddTask() {
       }
     },
     onSuccess: (_, { categoriaId }) => {
-      queryClient.invalidateQueries({ queryKey: ["tasks", categoriaId] });
+      queryClient.invalidateQueries({
+        //Querés invalidar múltiples variantes de una misma base ("tasks") cuando queryKey es dinámica o compleja
+        //La opción predicate en invalidateQueries es simplemente una función que recibe cada Query activa y devuelve true
+        //  o false dependiendo de si querés invalidarla o no.
+        predicate: (query) => // predicate se usa para filtrar las queries que queremos invalidar
+          Array.isArray(query.queryKey) && // Verifica que queryKey sea un array
+          query.queryKey[0] === "tasks" && //buscamos que el primer elemento sea tasks
+          query.queryKey.includes(categoriaId), // 
+      });
     },
   });
 }

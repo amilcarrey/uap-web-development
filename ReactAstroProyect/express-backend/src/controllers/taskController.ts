@@ -86,7 +86,8 @@ export const deleteCompletedTasksHandler = async (
 };
 
 export const editTaskHandler = async (req: Request, res: Response) => {
-  const { id, text, categoriaId } = req.body;
+   const { id } = req.params; // Obtener el ID de la tarea desde la URL
+  const { text, categoriaId } = req.body; // Obtener los datos del cuerpo de la solicitud
 
   try {
     await updateTask(Number(id), text, categoriaId);

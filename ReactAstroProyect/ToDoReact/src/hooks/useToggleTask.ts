@@ -19,8 +19,13 @@ export function useToggleTask() {
         queryClient.setQueryData(["tasks", undefined, categoriaId,page, 7,], previousTasks);
       }
     },
-    onSuccess: (_, { categoriaId, page}) => {
-      queryClient.invalidateQueries({ queryKey: ["tasks", undefined, categoriaId,page, 7,] }); 
+    onSuccess: (_, { categoriaId }) => {
+      queryClient.invalidateQueries({
+        predicate: (query) => // predicate se usa para filtrar las queries que queremos invalidar
+          Array.isArray(query.queryKey) && // Verifica que queryKey sea un array
+          query.queryKey[0] === "tasks" && //buscamos que el primer elemento sea tasks
+          query.queryKey.includes(categoriaId), // 
+      });
     },
   });
 }

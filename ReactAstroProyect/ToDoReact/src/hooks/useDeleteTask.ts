@@ -20,8 +20,13 @@ export function useDeleteTask() {
         queryClient.setQueryData(["tasks", undefined, categoriaId, page, 7], previousTasks);
       }
     },
-    onSuccess: (_, { categoriaId, page }) => {
-      queryClient.invalidateQueries({ queryKey: ["tasks", undefined, categoriaId, page, 7] });
+    onSuccess: (_, { categoriaId }) => {
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          Array.isArray(query.queryKey) &&
+          query.queryKey[0] === "tasks" &&
+          query.queryKey.includes(categoriaId),
+     });
     },
   });
 }
