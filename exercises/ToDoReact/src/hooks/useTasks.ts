@@ -4,6 +4,7 @@ import { useClientStore } from "../store/clientStore";
 import { useNotifications } from "../store/clientStore";
 import { useConfigStore } from "../store/configStore";
 import { useBoardMapping } from "./useBoardMapping";
+import { useEffect } from "react";
 import type {
   ApiResponse,
   Task,
@@ -92,21 +93,100 @@ const clearCompletedAPI = async (boardId: string): Promise<void> => {
   await apiPost(`/api/tasks/board/${boardId}/clear-completed`);
 };
 
+// Custom hook to handle tab changes and cache invalidation
+export const useTabChangeEffect = () => {
+  const { activeTab } = useClientStore();
+  const queryClient = useQueryClient();
+  const { getBoardIdByName } = useBoardMapping();
+
+  useEffect(() => {
+    console.log(`🔄 Tab change detected: ${activeTab}`);
+
+    // First, invalidate the boards query to get fresh board data
+    queryClient.invalidateQueries({ queryKey: ["boards"] });
+
+    // Wait a bit for the boards to be refetched, then get boardId
+    setTimeout(() => {
+      const boardId = getBoardIdByName(activeTab);
+
+      console.log(
+        `🔄 Processing tab change to: ${activeTab} (boardId: ${boardId})`
+      );
+
+      // Always invalidate all task queries to force fresh data
+      queryClient.invalidateQueries({ queryKey: taskKeys.all });
+
+      // Remove stale data from other boards to prevent cache confusion
+      queryClient.removeQueries({
+        queryKey: taskKeys.lists(),
+        predicate: (query) => {
+          const queryData = query.queryKey[2] as
+            | { boardId: string }
+            | undefined;
+          return queryData?.boardId !== boardId;
+        },
+      });
+
+      // If we have a valid boardId, force refetch tasks for this board
+      if (boardId) {
+        queryClient.refetchQueries({
+          queryKey: taskKeys.lists(),
+          predicate: (query) => {
+            const queryData = query.queryKey[2] as
+              | { boardId: string }
+              | undefined;
+            return queryData?.boardId === boardId;
+          },
+        });
+      }
+    }, 150); // Give time for boards query to complete
+  }, [activeTab, queryClient, getBoardIdByName]);
+};
+
 //CUSTOM HOOKS
 export const useTasks = () => {
   const { activeTab, filter, currentPage, itemsPerPage } = useClientStore();
   const { config } = useConfigStore();
-  const { getBoardIdByName, getFirstBoardId } = useBoardMapping();
+  const { getBoardIdByName, getFirstBoardId, boards } = useBoardMapping();
+
+  // Handle tab changes and cache invalidation
+  useTabChangeEffect();
 
   // Get board ID from active tab name, or use first board if no match
   const boardId = getBoardIdByName(activeTab) || getFirstBoardId();
 
+  console.log(
+    `📋 useTasks: activeTab="${activeTab}", boardId="${boardId}", filter="${filter}", page=${currentPage}`
+  );
+  console.log(
+    `📋 Available boards:`,
+    boards.map((b) => ({ id: b.id, name: b.name }))
+  );
+
   return useQuery({
     queryKey: taskKeys.list(boardId || "", currentPage, filter),
-    queryFn: () => fetchTasks(boardId || "", currentPage, filter, itemsPerPage),
-    enabled: !!boardId,
-    staleTime: 30 * 1000,
+    queryFn: () => {
+      console.log(
+        `🔄 Fetching tasks for board: ${boardId}, filter: ${filter}, page: ${currentPage}`
+      );
+      if (!boardId) {
+        throw new Error("No board ID available");
+      }
+      return fetchTasks(boardId, currentPage, filter, itemsPerPage);
+    },
+    enabled: !!boardId && boards.length > 0, // Ensure we have boards data before fetching tasks
+    staleTime: 0, // Always fetch fresh data when switching boards
+    gcTime: 2 * 60 * 1000, // Keep data in cache for 2 minutes
     refetchInterval: config.taskRefetchInterval * 1000,
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    retry: (failureCount, error) => {
+      // If board not found, retry a few times as it might be a new board
+      if (error.message.includes("No board ID available") && failureCount < 3) {
+        return true;
+      }
+      return false;
+    },
+    retryDelay: 500, // Wait 500ms between retries
   });
 };
 

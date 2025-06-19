@@ -138,7 +138,9 @@ export const useTabs = () => {
   return useQuery({
     queryKey: tabKeys.all,
     queryFn: fetchTabs,
-    staleTime: 30 * 1000,
+    staleTime: 0, // Always refetch to ensure fresh tab data
+    gcTime: 1 * 60 * 1000, // Keep data in cache for 1 minute
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 };
 
@@ -149,11 +151,34 @@ export const useAddTab = () => {
   return useMutation({
     mutationFn: addTabAPI,
     onSuccess: () => {
+      console.log("🔄 Starting cache invalidation after board creation...");
+
+      // Remove all cached data to force fresh fetch
+      queryClient.removeQueries({ queryKey: tabKeys.all });
+      queryClient.removeQueries({ queryKey: ["boards"] });
+      queryClient.removeQueries({ queryKey: ["tasks"] });
+
+      // Invalidate and refetch all related queries
       queryClient.invalidateQueries({ queryKey: tabKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["boards"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+
+      // Force immediate refetch to update the UI
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: tabKeys.all });
+        queryClient.refetchQueries({ queryKey: ["boards"] });
+        console.log("✅ Cache invalidated and refetched after board creation");
+      }, 100);
+
       showSuccess("New tab!", "More jobs to do!");
+
+      // Note: We don't handle UI state here to avoid conflicts with component state management
+      // The component should handle setIsAddingTab(false) in its own onSuccess callback
     },
     onError: (error: Error) => {
       showError("¡No tab added!", error.message);
+      // Note: We don't handle UI state here to avoid conflicts with component state management
+      // The component should handle validation errors in its own onError callback
     },
   });
 };

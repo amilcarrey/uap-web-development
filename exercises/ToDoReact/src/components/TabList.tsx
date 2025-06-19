@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams, useNavigate } from "@tanstack/react-router";
 import { useClientStore } from "../store/clientStore";
 import { useAddTab, useDeleteTab } from "../hooks/useTabs";
 import { Bolt } from "lucide-react";
+import GorgeousButton from "./GorgeousButton";
 
 interface TabListProps {
   tabs: string[];
@@ -16,8 +17,75 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
   const { isAddingTab, setIsAddingTab } = useClientStore();
   const [newTabName, setNewTabName] = useState("");
   const [validationError, setValidationError] = useState<string>("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [tabToDelete, setTabToDelete] = useState<string>("");
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const addTabMutation = useAddTab();
   const deleteTabMutation = useDeleteTab();
+
+  // Effect to close input when mutation succeeds
+  useEffect(() => {
+    if (addTabMutation.isSuccess && isAddingTab) {
+      console.log("🔄 Mutation success detected, closing input...");
+      setNewTabName("");
+      setIsAddingTab(false);
+      setValidationError("");
+    }
+  }, [addTabMutation.isSuccess, isAddingTab]);
+
+  // Effect to close dialog when delete mutation succeeds
+  useEffect(() => {
+    if (deleteTabMutation.isSuccess && deleteDialogOpen) {
+      console.log("🔄 Delete mutation success detected, closing dialog...");
+      handleCancel();
+    }
+  }, [deleteTabMutation.isSuccess, deleteDialogOpen]);
+
+  // Dialog handlers
+  const handleDialogClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target === e.currentTarget) {
+      handleCancel();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
+    if (e.key === "Escape") {
+      handleCancel();
+    }
+  };
+
+  const handleCancel = () => {
+    setDeleteDialogOpen(false);
+    setTabToDelete("");
+  };
+
+  const handleConfirm = () => {
+    if (tabToDelete) {
+      performDeleteTab(tabToDelete);
+    }
+    handleCancel();
+  };
+
+  const performDeleteTab = (tabName: string) => {
+    // If we're deleting the currently active tab, navigate to another tab
+    const isCurrentTab = tabId === tabName;
+    const remainingTabs = tabs.filter((tab) => tab !== tabName);
+
+    deleteTabMutation.mutate(tabName, {
+      onSuccess: () => {
+        console.log("✅ Tab deleted successfully, checking navigation...");
+
+        // If we deleted the current tab, navigate to the first remaining tab
+        if (isCurrentTab && remainingTabs.length > 0) {
+          console.log(`🔄 Navigating to: ${remainingTabs[0]}`);
+          navigate({
+            to: "/tab/$tabId",
+            params: { tabId: remainingTabs[0] },
+          });
+        }
+      },
+    });
+  };
 
   const handleAddTab = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,12 +120,8 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
 
       // Use the original name, not transformed
       addTabMutation.mutate(trimmedName, {
-        onSuccess: () => {
-          setNewTabName("");
-          setIsAddingTab(false);
-          setValidationError("");
-        },
         onError: (error: Error) => {
+          console.log("❌ Error creating tab:", error.message);
           // Handle backend validation errors
           if (error.message.includes("already exists")) {
             setValidationError(
@@ -77,6 +141,8 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
     setNewTabName("");
     setIsAddingTab(false);
     setValidationError("");
+    // Reset mutation state
+    addTabMutation.reset();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,36 +151,24 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
     if (validationError) {
       setValidationError("");
     }
+    // Reset mutation state when user starts typing again
+    if (addTabMutation.isSuccess || addTabMutation.isError) {
+      addTabMutation.reset();
+    }
   };
 
   const handleDeleteTab = (tabName: string) => {
     if (tabs.length <= 1) {
       return;
     }
-    if (
-      confirm(
-        `Are you sure you want to delete the "${tabName}" tab? This action cannot be undone.`
-      )
-    ) {
-      // If we're deleting the currently active tab, navigate to another tab
-      const isCurrentTab = tabId === tabName;
-      const remainingTabs = tabs.filter((tab) => tab !== tabName);
-
-      deleteTabMutation.mutate(tabName, {
-        onSuccess: () => {
-          console.log("✅ Tab deleted successfully, checking navigation...");
-
-          // If we deleted the current tab, navigate to the first remaining tab
-          if (isCurrentTab && remainingTabs.length > 0) {
-            console.log(`🔄 Navigating to: ${remainingTabs[0]}`);
-            navigate({
-              to: "/tab/$tabId",
-              params: { tabId: remainingTabs[0] },
-            });
-          }
-        },
-      });
-    }
+    
+    setTabToDelete(tabName);
+    setDeleteDialogOpen(true);
+    
+    // Use setTimeout to ensure state is updated before opening dialog
+    setTimeout(() => {
+      dialogRef.current?.showModal();
+    }, 0);
   };
 
   return (
@@ -208,6 +262,45 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
           <Bolt />
         </Link>
       </div>
+
+      {/* Delete Tab Confirmation Dialog */}
+      <dialog
+        ref={dialogRef}
+        onClick={handleDialogClick}
+        onKeyDown={handleKeyDown}
+        className="irish-pub-dialog backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+      >
+        <div className="bg-orange-950 border-4 border-amber-300 rounded-lg p-6 max-w-md shadow-2xl">
+          <div className="text-center mb-6">
+            <p className="text-amber-100 mb-3">
+              Are you sure you want to delete this tab?
+            </p>
+            <div className="bg-amber-900/50 p-4 rounded border border-amber-600">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <p className="text-amber-200 font-bold">Tab: "{tabToDelete}"</p>
+              </div>
+              <p className="text-amber-300 text-sm">
+                All tasks in this tab will be permanently deleted.
+              </p>
+            </div>
+            <p className="text-amber-300 text-sm mt-3">
+              This action cannot be undone. Are you sure?
+            </p>
+          </div>
+
+          {/*BUTTONS*/}
+          <div className="flex gap-3 justify-center">
+            <GorgeousButton onClick={handleCancel}>Cancel</GorgeousButton>
+            <GorgeousButton
+              onClick={handleConfirm}
+              disabled={deleteTabMutation.isPending}
+              variant="red"
+            >
+              {deleteTabMutation.isPending ? "Deleting..." : "Delete"}
+            </GorgeousButton>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 };

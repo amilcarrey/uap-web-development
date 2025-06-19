@@ -58,6 +58,9 @@ export const useAuthStore = create<AuthState>()(
             const data = await response.json();
             const { user, token } = data.data;
 
+            // Add a 3-second delay to show loading spinner
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+
             set({
               user,
               token,
@@ -88,6 +91,9 @@ export const useAuthStore = create<AuthState>()(
 
             const data = await response.json();
             const { user, token } = data.data;
+
+            // Add a 3-second delay to show loading spinner
+            await new Promise((resolve) => setTimeout(resolve, 3000));
 
             set({
               user,

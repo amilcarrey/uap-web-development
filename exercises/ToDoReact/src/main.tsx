@@ -15,7 +15,14 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
-      retry: 3,
+      retry: (failureCount, error) => {
+        // Don't retry on network errors after first attempt to show error immediately
+        if (error.message.toLowerCase().includes('network') || 
+            error.message.toLowerCase().includes('fetch')) {
+          return failureCount < 1;
+        }
+        return failureCount < 3;
+      },
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
     mutations: {

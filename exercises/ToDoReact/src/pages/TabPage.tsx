@@ -24,12 +24,13 @@ const TabPage: React.FC = () => {
     }
   }, [tabId, setActiveTab]);
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
+  // Priority: show error first (especially connection errors), then loading
   if (error) {
     return <ErrorMessage error={error.message} />;
+  }
+
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
 
   //DEAR TAB, DO YOU EXIST? SURE YOU DOOOOOO. JK, THIS IS THE CHECK TO SEE IF THE TAB EXISTS.

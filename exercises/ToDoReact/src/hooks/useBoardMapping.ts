@@ -7,7 +7,9 @@ export const useBoardMapping = () => {
   const { data: boardsResponse } = useQuery({
     queryKey: ["boards"],
     queryFn: () => apiGet<ApiResponse<Board[]>>("/api/boards"),
-    staleTime: 30 * 1000,
+    staleTime: 0, // Always refetch to ensure fresh board data
+    gcTime: 1 * 60 * 1000, // Keep data in cache for 1 minute
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   const boards = boardsResponse?.data || [];

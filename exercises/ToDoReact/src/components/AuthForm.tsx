@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useNotifications } from "../store/clientStore";
 import GorgeousButton from "./GorgeousButton";
+import LoadingSpinner from "./LoadingSpinner";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 
 interface AuthFormProps {
@@ -20,6 +21,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
 
   const { login, register, isLoading } = useAuthStore();
   const { showSuccess, showError } = useNotifications();
+
+  // Show loading spinner during authentication
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
