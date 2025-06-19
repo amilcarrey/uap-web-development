@@ -51,15 +51,27 @@ const FilterButtons: React.FC = () => {
 
   return (
     <div className="flex flex-wrap justify-center gap-2 p-4">
-      <GorgeousButton onClick={() => handleFilterChange("all")}>
+      <GorgeousButton 
+        onClick={() => handleFilterChange("all")}
+        variant={filter === "all" ? "amber-400" : "amber"}
+        className={filter === "all" ? "ring-2 ring-amber-400 shadow-lg" : ""}
+      >
         All
       </GorgeousButton>
 
-      <GorgeousButton onClick={() => handleFilterChange("active")}>
+      <GorgeousButton 
+        onClick={() => handleFilterChange("active")}
+        variant={filter === "active" ? "amber-400" : "amber"}
+        className={filter === "active" ? "ring-2 ring-amber-400 shadow-lg" : ""}
+      >
         Pending
       </GorgeousButton>
 
-      <GorgeousButton onClick={() => handleFilterChange("completed")}>
+      <GorgeousButton 
+        onClick={() => handleFilterChange("completed")}
+        variant={filter === "completed" ? "amber-400" : "amber"}
+        className={filter === "completed" ? "ring-2 ring-amber-400 shadow-lg" : ""}
+      >
         Completed
       </GorgeousButton>
 

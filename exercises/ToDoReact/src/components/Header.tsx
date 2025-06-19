@@ -7,9 +7,7 @@ const Header: React.FC = () => {
   const { user, logout } = useAuthStore();
 
   const handleLogout = () => {
-    if (confirm("Are you sure you want to sign out?")) {
-      logout();
-    }
+    logout();
   };
 
   return (
@@ -31,8 +29,7 @@ const Header: React.FC = () => {
                   variant="red"
                   className="flex items-center gap-1 text-xs px-2 py-1"
                 >
-                  <LogOut className="w-3 h-3" />
-                  Sign Out
+                  <LogOut className="w-5 h-5" />
                 </GorgeousButton>
               </div>
             )}

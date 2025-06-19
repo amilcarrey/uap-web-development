@@ -4,7 +4,7 @@ import React from "react";
 type GorgeousButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode;
   className?: string;
-  variant?: "amber" | "red" | "green";
+  variant?: "amber" | "red" | "green" | "amber-400";
 };
 
 const baseStyles =
@@ -14,6 +14,7 @@ const variantStyles = {
   amber: "bg-amber-800 hover:bg-amber-700 border-amber-400 text-amber-100",
   red: "bg-red-800 hover:bg-red-700 border-red-400 text-red-100",
   green: "bg-green-800 hover:bg-green-700 border-green-400 text-green-100",
+  "amber-400": "bg-amber-400 hover:bg-amber-300 border-amber-200 text-amber-800",
 };
 
 const GorgeousButton: React.FC<GorgeousButtonProps> = ({
