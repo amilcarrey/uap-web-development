@@ -1,8 +1,6 @@
 import TaskItem from './taskItem';
 import type { Task } from '../types'; // Conservamos el tipo
 
-
-
 type TaskListProps = {
   tasks: Task[];
   onDeleteTask: (id: number) => void;
