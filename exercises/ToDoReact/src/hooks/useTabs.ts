@@ -7,17 +7,34 @@ export const tabKeys = {
   all: ["tabs"] as const,
 };
 
-// Transform board data to legacy tab format
+// Get board information by tab name
+export const useBoardByTabName = (tabName: string) => {
+  const { data: tabsData } = useTabs();
+
+  if (!tabsData?.boards) return null;
+
+  return tabsData.boards.find((board) => board.name === tabName) || null;
+};
+
+// Transform board data to legacy tab format with permission info
 const transformBoardsToTabs = (boards: Board[]): string[] => {
   return boards.map((board) => board.name);
 };
 
-const fetchTabs = async (): Promise<{ tabs: string[]; activeTab: string }> => {
+// Extended interface to include board information with permissions
+interface TabsData {
+  tabs: string[];
+  activeTab: string;
+  boards: Board[];
+}
+
+const fetchTabs = async (): Promise<TabsData> => {
   const response = await apiGet<ApiResponse<Board[]>>("/api/boards");
   const tabs = transformBoardsToTabs(response.data);
   return {
     tabs,
     activeTab: tabs[0] || "today", // Default to first board or "today"
+    boards: response.data, // Include full board data with permissions
   };
 };
 

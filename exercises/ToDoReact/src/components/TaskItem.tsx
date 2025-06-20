@@ -2,7 +2,9 @@ import React, { useRef } from "react";
 import { useUpdateTask, useDeleteTask, type Task } from "../hooks/useTasks";
 import { useClientStore } from "../store/clientStore";
 import { useConfigStore } from "../store/configStore";
-import { SquarePen, Trash } from "lucide-react";
+import { useBoardByTabName } from "../hooks/useTabs";
+import { useParams } from "@tanstack/react-router";
+import { SquarePen, Trash, Eye, Lock } from "lucide-react";
 import GorgeousButton from "./GorgeousButton";
 
 interface TaskItemProps {
@@ -15,6 +17,16 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
   const dialogRef = useRef<HTMLDialogElement>(null);
+
+  // Get current board's permission level
+  const { tabId } = useParams({ from: "/tab/$tabId" }) || { tabId: "today" };
+  const currentBoard = useBoardByTabName(tabId);
+  const permissionLevel = currentBoard?.permission_level || "owner";
+
+  // Permission checks
+  const canEdit = permissionLevel === "owner" || permissionLevel === "editor";
+  const canDelete = permissionLevel === "owner" || permissionLevel === "editor";
+  const isViewer = permissionLevel === "viewer";
 
   const handleToggleComplete = () => {
     updateTaskMutation.mutate({
@@ -59,42 +71,81 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
 
   return (
     <>
-      <li className="flex items-center justify-between p-3 border-b border-amber-700 bg-amber-950 hover:bg-medium-wood transition-colors">
+      <li
+        className={`flex items-center justify-between p-3 border-b border-amber-700 transition-colors ${
+          isViewer
+            ? "bg-purple-950 hover:bg-purple-900"
+            : "bg-amber-950 hover:bg-medium-wood"
+        }`}
+      >
         <div className="flex items-center flex-1">
           <input
             type="checkbox"
             checked={task.completed}
             onChange={handleToggleComplete}
             disabled={isLoading}
-            className="w-5 h-5 mr-3 accent-amber-500"
+            className={`w-5 h-5 mr-3 ${
+              isViewer ? "accent-purple-500" : "accent-amber-500"
+            }`}
           />
           <span
             className={`flex-1 ${
-              task.completed ? "line-through text-amber-500" : "text-slate-100"
+              task.completed
+                ? isViewer
+                  ? "line-through text-purple-400"
+                  : "line-through text-amber-500"
+                : "text-slate-100"
             }`}
           >
             {config.uppercaseDescriptions ? task.text.toUpperCase() : task.text}
           </span>
+          {isViewer && (
+            <span className="text-xs text-purple-400 bg-purple-900 px-2 py-1 rounded ml-2">
+              View Only
+            </span>
+          )}
         </div>
 
         <div className="flex gap-2">
-          <button
-            onClick={handleEdit}
-            disabled={isLoading}
-            className="text-amber-500 hover:text-amber-300 transition-colors"
-            aria-label="Edit task"
-          >
-            <SquarePen className="h-5 w-5 mt-0.5" />
-          </button>
+          {canEdit ? (
+            <button
+              onClick={handleEdit}
+              disabled={isLoading}
+              className="text-amber-500 hover:text-amber-300 transition-colors"
+              aria-label="Edit task"
+            >
+              <SquarePen className="h-5 w-5 mt-0.5" />
+            </button>
+          ) : (
+            <button
+              disabled
+              className="text-gray-500 cursor-not-allowed"
+              aria-label="Edit not allowed (view only)"
+              title="You can only view this board"
+            >
+              <Eye className="h-5 w-5 mt-0.5" />
+            </button>
+          )}
 
-          <button
-            onClick={handleDelete}
-            disabled={isLoading}
-            className="text-red-500 hover:text-red-300 transition-colors"
-            aria-label="Delete task"
-          >
-            <Trash className="h-5 w-5" />
-          </button>
+          {canDelete ? (
+            <button
+              onClick={handleDelete}
+              disabled={isLoading}
+              className="text-red-500 hover:text-red-300 transition-colors"
+              aria-label="Delete task"
+            >
+              <Trash className="h-5 w-5" />
+            </button>
+          ) : (
+            <button
+              disabled
+              className="text-gray-500 cursor-not-allowed"
+              aria-label="Delete not allowed (view only)"
+              title="You can only view this board"
+            >
+              <Lock className="h-5 w-5" />
+            </button>
+          )}
         </div>
       </li>
 

@@ -40,6 +40,7 @@ export const useAuthStore = create<AuthState>()(
         isLoading: false,
 
         login: async (email: string, password: string) => {
+          console.log("🔄 Starting login process...", { email });
           set({ isLoading: true });
           try {
             const response = await fetch(`${API_URL}/api/users/login`, {
@@ -50,16 +51,25 @@ export const useAuthStore = create<AuthState>()(
               body: JSON.stringify({ email, password }),
             });
 
+            console.log("📡 Login response status:", response.status);
+
             if (!response.ok) {
               const error = await response.json();
+              console.error("❌ Login failed:", error);
               throw new Error(error.error || "Login failed");
             }
 
             const data = await response.json();
             const { user, token } = data.data;
 
-            // Add a 3-second delay to show loading spinner
-            await new Promise((resolve) => setTimeout(resolve, 3000));
+            console.log("✅ Login data received:", {
+              user: user.username,
+              tokenLength: token.length,
+            });
+
+            // Store token in localStorage manually
+            localStorage.setItem("token", token);
+            console.log("💾 Token stored in localStorage");
 
             set({
               user,
@@ -67,7 +77,13 @@ export const useAuthStore = create<AuthState>()(
               isAuthenticated: true,
               isLoading: false,
             });
+
+            console.log("🎯 Store state updated", {
+              isAuthenticated: true,
+              userName: user.username,
+            });
           } catch (error) {
+            console.error("💥 Login error:", error);
             set({ isLoading: false });
             throw error;
           }
@@ -91,9 +107,6 @@ export const useAuthStore = create<AuthState>()(
 
             const data = await response.json();
             const { user, token } = data.data;
-
-            // Add a 3-second delay to show loading spinner
-            await new Promise((resolve) => setTimeout(resolve, 3000));
 
             set({
               user,

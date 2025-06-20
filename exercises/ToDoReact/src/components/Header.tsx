@@ -2,6 +2,7 @@ import React from "react";
 import { useAuthStore } from "../store/authStore";
 import { LogOut, User } from "lucide-react";
 import GorgeousButton from "./GorgeousButton";
+import { NotificationBell } from "./NotificationBell";
 
 const Header: React.FC = () => {
   const { user, logout } = useAuthStore();
@@ -24,13 +25,16 @@ const Header: React.FC = () => {
                     Welcome back, <strong>{user.username}</strong>!
                   </span>
                 </div>
-                <GorgeousButton
-                  onClick={handleLogout}
-                  variant="red"
-                  className="flex items-center gap-1 text-xs px-2 py-1"
-                >
-                  <LogOut className="w-5 h-5" />
-                </GorgeousButton>
+                <div className="flex items-center gap-2">
+                  <NotificationBell />
+                  <GorgeousButton
+                    onClick={handleLogout}
+                    variant="red"
+                    className="flex items-center gap-1 text-xs px-2 py-1"
+                  >
+                    <LogOut className="w-5 h-5" />
+                  </GorgeousButton>
+                </div>
               </div>
             )}
 

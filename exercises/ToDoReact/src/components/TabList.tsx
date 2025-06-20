@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams, useNavigate } from "@tanstack/react-router";
 import { useClientStore } from "../store/clientStore";
-import { useAddTab, useDeleteTab } from "../hooks/useTabs";
+import { useAddTab, useDeleteTab, useTabs } from "../hooks/useTabs";
 import { Bolt } from "lucide-react";
 import GorgeousButton from "./GorgeousButton";
+import TabItem from "./TabItem";
 
 interface TabListProps {
   tabs: string[];
@@ -22,6 +23,10 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const addTabMutation = useAddTab();
   const deleteTabMutation = useDeleteTab();
+
+  // Get board data for enhanced tab functionality
+  const { data: tabsData } = useTabs();
+  const boards = tabsData?.boards || [];
 
   // Effect to close input when mutation succeeds
   useEffect(() => {
@@ -161,10 +166,10 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
     if (tabs.length <= 1) {
       return;
     }
-    
+
     setTabToDelete(tabName);
     setDeleteDialogOpen(true);
-    
+
     // Use setTimeout to ensure state is updated before opening dialog
     setTimeout(() => {
       dialogRef.current?.showModal();
@@ -176,34 +181,36 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
       <div className="flex overflow-x-auto items-center gap-2">
         {/*MAPPING OF ALL THE EXISTING TABS*/}
         <ul className="flex space-x-1">
-          {tabs.map((tab) => (
-            <li key={tab} className="flex items-center">
-              <Link
-                to="/tab/$tabId"
-                params={{ tabId: tab }}
-                className={`px-3 py-1 rounded text-sm font-bold border whitespace-nowrap flex items-center gap-2 ${
-                  tabId === tab
-                    ? "bg-amber-700 text-slate-100 border-amber-500"
-                    : "bg-amber-900 text-slate-100 border-amber-600 hover:bg-amber-800"
-                }`}
-              >
-                {tab}
-                {tabs.length > 1 && (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleDeleteTab(tab);
-                    }}
-                    className="ml-1 text-red-300 hover:text-red-100 text-xs"
-                    title={`Delete ${tab} tab`}
-                  >
-                    ✕
-                  </button>
-                )}
-              </Link>
-            </li>
-          ))}
+          {tabs.map((tab) => {
+            const board = boards.find((b) => b.name === tab);
+            return (
+              <li key={tab} className="flex items-center relative">
+                <div className="flex items-center">
+                  <TabItem
+                    name={tab}
+                    isActive={tabId === tab}
+                    onClick={() =>
+                      navigate({ to: "/tab/$tabId", params: { tabId: tab } })
+                    }
+                    board={board}
+                  />
+                  {tabs.length > 1 && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDeleteTab(tab);
+                      }}
+                      className="ml-1 px-1 text-red-300 hover:text-red-100 text-xs bg-red-600 bg-opacity-20 hover:bg-opacity-40 rounded"
+                      title={`Delete ${tab} tab`}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
 
         {isAddingTab ? (

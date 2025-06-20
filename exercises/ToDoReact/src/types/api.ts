@@ -14,6 +14,28 @@ export interface Board {
   description?: string;
   created_at: string;
   updated_at: string;
+  // Additional fields for shared boards
+  permission_level?: "owner" | "editor" | "viewer";
+  owner_username?: string;
+}
+
+export interface BoardPermission {
+  id: string;
+  board_id: string;
+  user_id: string;
+  permission_level: "owner" | "editor" | "viewer";
+  created_at: string;
+}
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: "board_shared" | "board_access_revoked" | "task_added";
+  title: string;
+  message: string;
+  data?: string; // JSON string with additional context
+  read: boolean;
+  created_at: string;
 }
 
 export interface Task {

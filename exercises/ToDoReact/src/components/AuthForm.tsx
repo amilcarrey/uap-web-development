@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useNotifications } from "../store/clientStore";
+import { useNavigate } from "@tanstack/react-router";
 import GorgeousButton from "./GorgeousButton";
 import LoadingSpinner from "./LoadingSpinner";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
@@ -21,6 +22,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
 
   const { login, register, isLoading } = useAuthStore();
   const { showSuccess, showError } = useNotifications();
+  const navigate = useNavigate();
 
   // Show loading spinner during authentication
   if (isLoading) {
@@ -68,9 +70,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
       if (mode === "login") {
         await login(formData.email, formData.password);
         showSuccess("Welcome back!", "Successfully logged in");
+        // Redirect to dashboard after successful login
+        navigate({ to: "/tab/$tabId", params: { tabId: "today" } });
       } else {
         await register(formData.username, formData.email, formData.password);
         showSuccess("Account created!", "Welcome to The Old Stand");
+        // Redirect to dashboard after successful registration
+        navigate({ to: "/tab/$tabId", params: { tabId: "today" } });
       }
     } catch (error) {
       showError(
