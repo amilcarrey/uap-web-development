@@ -4,15 +4,61 @@ import { Board } from '../models/Board';
 import { Permission, PermissionLevel } from '../models/Permission';
 import { IBoardService } from '../Interfaces/IBoardService';
 import { BoardDTO } from '../DTOs/board/BoardDTO';
-import { updateBoardDTO } from '../DTOs/board/updateBoardDTO';
+import { updateBoardDTO } from '../DTOs/board/UpdateBoardDTO';
 import { UserPermissionDTO } from '../DTOs/permission/UserPermissionDTO';
+import { Task } from '../models/Task';
+import { permission } from 'process';
 
 export class BoardService implements IBoardService{
-    getBoardsForUser(userId: number): Promise<BoardDTO[]> {
-        throw new Error('Method not implemented.');
+    async getBoardsForUser(userId: number): Promise<BoardDTO[]> {
+        //Busco los tableros en donde el usuario es el dueño
+        const ownedBoards = await prisma.board.findMany({
+            where: {ownerId: userId},
+            include: {tasks: true, permissions: true}
+        });
+
+        //Tableros en donde el usuario tienen permisos pero no es el dueño
+        const permissionBoards = await prisma.board.findMany({
+            where: {
+                permissions: {
+                    some: {userId}
+                }
+            },
+            include: {tasks: true, permissions: true}
+        });
+
+        //Unifico y elimino tableros duplicados (en el caso de que sea dueño y tenga permisos)
+        const allBoards = [...ownedBoards, ...permissionBoards]
+            .filter((board, index, self) =>
+                index === self.findIndex(b => b.id === board.id)
+            );
+
+        //Devuelvo el DTO
+        return allBoards.map(board => ({
+            name: board.name,
+            active: board.active,
+            ownerId : board.ownerId,
+            tasks: board.tasks,
+            permissionsId: board.permissions.map(P => P.id)
+        }));
+
     }
-    getBoardById(userId: number, boardId: number): Promise<BoardDTO> {
-        throw new Error('Method not implemented.');
+
+    async getBoardById(boardId: number): Promise<BoardDTO | null> {
+        const board = await prisma.board.findUnique({
+            where: { id: boardId },
+            include: { tasks: true, permissions: true }
+        });
+
+        if(!board){return null}
+
+        return {
+            name: board.name,
+            active: board.active,
+            ownerId: board.ownerId,
+            tasks: board.tasks,
+            permissionsId: board.permissions.map(p => p.id)
+        };
     }
     updateBoard(boardId: number, data: updateBoardDTO): Promise<BoardDTO> {
         throw new Error('Method not implemented.');
@@ -27,7 +73,7 @@ export class BoardService implements IBoardService{
         throw new Error('Method not implemented.');
     }
 
-    async createBoard(userId: number, data: CreateBoardDTO): Promise<Board> {
+    async createBoard(userId: number, data: CreateBoardDTO): Promise<BoardDTO> {
         // 1. Crear el tablero (sin tareas asociadas)
         const board = await prisma.board.create({
             data: {
@@ -42,7 +88,7 @@ export class BoardService implements IBoardService{
             data: {
                 userId: userId,
                 boardId: board.id,
-                level: 'OWNER',
+                level: PermissionLevel.OWNER,
             },
         });
 
@@ -56,7 +102,7 @@ export class BoardService implements IBoardService{
         });
 
         // 4. Mapear a modelo de dominio
-        return this.mapToBoard(boardWithRelations);
+        return this.mapToBoardDTO(boardWithRelations);
     }
 
     /**
@@ -65,23 +111,17 @@ export class BoardService implements IBoardService{
      * Al crear un tablero, tasks será un array vacío porque no hay tareas asociadas aún.
      * permissions tendrá solo el permiso OWNER para el usuario creador.
      */
-    private mapToBoard(board: any): Board {
-        const permissions = board.permissions.map(
-            (p: any) => new Permission(
-                p.id,
-                p.userId,
-                p.boardId,
-                p.level as PermissionLevel
-            )
-        );
-
-        return new Board(
-            board.id,
-            board.name,
-            board.active,
-            board.ownerId,
-            [], // tasks: array vacío porque el tablero recién creado no tiene tareas
-            permissions
-        );
+    private mapToBoardDTO(board: any): BoardDTO {
+        return{
+            name: board.name,
+            active: board.active,
+            ownerId: board.ownerId,
+            tasks: board.tasks ? board.tasks.map((task: any) => ({
+                content: task.content,
+                active: task.active,
+                boardId: task.boardId
+            })) : [],
+            permissionsId: board.permissions ? board.permissions.map((perm: any) => perm.id) : [],
+        };
     }
 }

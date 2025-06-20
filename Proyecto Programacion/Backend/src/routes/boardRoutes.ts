@@ -4,5 +4,7 @@ import { BoardController } from '../controllers/BoardController'; // Corrige el 
 const router = Router();
 
 router.post('/', BoardController.createBoard);
+router.get('/user/:userId', BoardController.getBoardsByuser);
+router.get('/:boardId', BoardController.getBoardById);
 
 export default router;

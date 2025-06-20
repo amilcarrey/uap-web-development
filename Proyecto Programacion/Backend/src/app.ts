@@ -15,6 +15,7 @@ app.use(express.json());
 app.use('/api/boards', boardRoutes);
 app.use('/api/users', userRoutes);
 
+
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',

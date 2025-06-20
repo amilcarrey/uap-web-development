@@ -34,6 +34,7 @@ export class UserDbService implements IUserService {
             null // settings/preference vacío al crear
         );
     }
+    
     loginUser(credentials: LoginDTO): Promise<AuthResponseDTO> {
         throw new Error('Method not implemented.');
     }
