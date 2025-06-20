@@ -29,7 +29,7 @@ const SettingsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[url('/img/wood-pattern.png')] flex flex-col">
-      <div className="flex-1 max-w-4xl mx-auto py-2 w-full">
+      <div className="flex-1 max-w-7xl mx-auto py-2 w-full px-4">
         <div className="bg-orange-950 border-4 border-amber-200 rounded-lg overflow-hidden">
           <Header />
 
@@ -104,7 +104,7 @@ const SettingsPage: React.FC = () => {
               </p>
             </div>
 
-            {/*RESTORE INTO FACTORY weeeeeeeee*/}  
+            {/*RESTORE INTO FACTORY weeeeeeeee*/}
             <div className="bg-amber-900 p-4 rounded-lg">
               <h3 className="text-lg font-semibold text-amber-200 mb-2">
                 Reset Settings

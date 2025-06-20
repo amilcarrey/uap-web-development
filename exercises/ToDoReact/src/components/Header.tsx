@@ -12,12 +12,12 @@ const Header: React.FC = () => {
 
   return (
     <header>
-      <div className="max-w-4xl mx-auto py-2">
+      <div className="w-full">
         <div className="bg-orange-950">
           <div className="text-center p-6 border-b-2 border-amber-200">
             {/* User Info Bar */}
             {user && (
-              <div className="flex justify-between items-center mb-4 bg-amber-900/30 p-3 rounded border border-amber-600">
+              <div className="flex justify-between items-center mb-4 bg-amber-900/30 p-2 rounded border border-amber-600">
                 <div className="flex items-center gap-2 text-amber-200">
                   <User className="w-4 h-4" />
                   <span className="text-sm">

@@ -39,7 +39,7 @@ const TabPage: React.FC = () => {
   if (!tabExists && !isLoading) {
     return (
       <div className="min-h-screen bg-[url('/img/wood-pattern.png')] flex flex-col">
-        <div className="flex-1 max-w-4xl mx-auto py-2 w-full">
+        <div className="flex-1 max-w-7xl mx-auto py-2 w-full px-4">
           <div className="bg-orange-950 border-4 border-amber-200 rounded-lg overflow-hidden">
             <Header />
             <div className="p-8 text-center">
@@ -55,7 +55,7 @@ const TabPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[url('/img/wood-pattern.png')] flex flex-col">
-      <div className="flex-1 max-w-4xl mx-auto py-2 w-full">
+      <div className="flex-1 max-w-7xl mx-auto py-2 w-full px-4">
         <div className="bg-orange-950 border-4 border-amber-200 rounded-lg overflow-hidden">
           <Header />
           <TaskForm />

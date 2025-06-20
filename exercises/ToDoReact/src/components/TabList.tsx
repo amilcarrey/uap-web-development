@@ -417,7 +417,10 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
 
           {/*BUTTONS*/}
           <div className="flex gap-3 justify-center">
-            <GorgeousButton onClick={handleCancel}>Cancel</GorgeousButton>
+            <GorgeousButton onClick={() => {
+              handleCancel();
+              dialogRef.current?.close();
+            }}>Cancel</GorgeousButton>
             <GorgeousButton
               onClick={handleConfirm}
               disabled={deleteTabMutation.isPending}

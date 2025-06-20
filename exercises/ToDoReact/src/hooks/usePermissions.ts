@@ -62,9 +62,20 @@ export const usePermissions = () => {
         ApiResponse<{ shared: BoardPermission[]; notFound: string[] }>
       >;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      console.log("✅ Share board mutation successful", { data, variables });
+
       // Invalidate board list to refresh shared boards
       queryClient.invalidateQueries({ queryKey: ["boards"] });
+
+      // Invalidate specific board permissions to refresh the permissions list
+      queryClient.invalidateQueries({
+        queryKey: ["board-permissions", variables.boardId],
+        exact: true,
+      });
+
+      // Also invalidate general board permissions query
+      queryClient.invalidateQueries({ queryKey: ["board-permissions"] });
     },
   });
 
@@ -95,8 +106,18 @@ export const usePermissions = () => {
 
       return response.json() as Promise<ApiResponse<null>>;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      console.log("✅ Revoke access mutation successful", { data, variables });
+
       queryClient.invalidateQueries({ queryKey: ["boards"] });
+
+      // Invalidate specific board permissions
+      queryClient.invalidateQueries({
+        queryKey: ["board-permissions", variables.boardId],
+        exact: true,
+      });
+
+      // Also invalidate general board permissions query
       queryClient.invalidateQueries({ queryKey: ["board-permissions"] });
     },
   });

@@ -43,17 +43,10 @@ const TabItem: React.FC<TabItemProps> = ({
           >
             <div className="flex items-center gap-1">
               <span>{name}</span>
-              {isSharedBoard && (
-                <div className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
-                  <span className="text-xs opacity-75">
-                    {board.permission_level}
-                  </span>
-                </div>
-              )}
+              {isSharedBoard && <div className="flex items-center gap-1"></div>}
               {isSharedBoard && board.owner_username && (
-                <span className="text-xs opacity-60">
-                  | {board.owner_username}
+                <span className="text-xs opacity-60 italic">
+                  {board.owner_username}
                 </span>
               )}
             </div>

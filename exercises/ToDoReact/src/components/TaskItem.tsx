@@ -4,7 +4,7 @@ import { useClientStore } from "../store/clientStore";
 import { useConfigStore } from "../store/configStore";
 import { useBoardByTabName } from "../hooks/useTabs";
 import { useParams } from "@tanstack/react-router";
-import { SquarePen, Trash, Eye, Lock } from "lucide-react";
+import { SquarePen, Trash } from "lucide-react";
 import GorgeousButton from "./GorgeousButton";
 
 interface TaskItemProps {
@@ -26,12 +26,23 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
   // Permission checks
   const canEdit = permissionLevel === "owner" || permissionLevel === "editor";
   const canDelete = permissionLevel === "owner" || permissionLevel === "editor";
-  const canToggleComplete =
-    permissionLevel === "owner" || permissionLevel === "editor";
+  const canToggleComplete = true; // All users can toggle completion status
   const isViewer = permissionLevel === "viewer";
 
   const handleToggleComplete = () => {
-    if (!canToggleComplete) return;
+    console.log("🔄 Toggling task completion:", {
+      taskId: task.id,
+      currentCompleted: task.completed,
+      newCompleted: !task.completed,
+      permissionLevel,
+      canToggleComplete,
+    });
+
+    if (!canToggleComplete) {
+      console.warn("❌ Cannot toggle completion - insufficient permissions");
+      return;
+    }
+
     updateTaskMutation.mutate({
       id: task.id,
       completed: !task.completed,
@@ -125,9 +136,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
               className="text-gray-500 cursor-not-allowed"
               aria-label="Edit not allowed (view only)"
               title="You can only view this board"
-            >
-              <Eye className="h-5 w-5 mt-0.5" />
-            </button>
+            ></button>
           )}
 
           {canDelete ? (
@@ -145,9 +154,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
               className="text-gray-500 cursor-not-allowed"
               aria-label="Delete not allowed (view only)"
               title="You can only view this board"
-            >
-              <Lock className="h-5 w-5" />
-            </button>
+            ></button>
           )}
         </div>
       </li>

@@ -78,10 +78,18 @@ const updateTaskAPI = async (data: {
   if (data.text !== undefined) updateData.text = data.text;
   if (data.completed !== undefined) updateData.completed = data.completed;
 
+  console.log("🔄 API call - updateTask:", {
+    taskId: data.id,
+    updateData,
+    endpoint: `/api/tasks/${data.id}`,
+  });
+
   const response = await apiPut<ApiResponse<Task>>(
     `/api/tasks/${data.id}`,
     updateData
   );
+
+  console.log("✅ API response - updateTask:", response);
   return transformTaskToLegacy(response.data);
 };
 
@@ -218,12 +226,22 @@ export const useUpdateTask = () => {
   const { showSuccess, showError } = useNotifications();
 
   return useMutation({
-    mutationFn: updateTaskAPI,
+    mutationFn: async (data: {
+      id: string;
+      text?: string;
+      completed?: boolean;
+    }) => {
+      console.log("🔄 Updating task:", data);
+      const result = await updateTaskAPI(data);
+      console.log("✅ Task update successful:", result);
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       showSuccess("Sound!', Let's do it again!");
     },
     onError: (error: Error) => {
+      console.error("❌ Task update failed:", error);
       showError("¡!", `It couldn't be updated: ${error.message}`);
     },
   });
