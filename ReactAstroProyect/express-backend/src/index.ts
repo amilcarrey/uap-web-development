@@ -2,11 +2,16 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import categoryRoutes from "./routes/category.js"; // Cambiado a import
-import taskRoutes from "./routes/tasks.js"; // Cambiado a import
+// Importar rutas y modelos
+import categoryRoutes from "./routes/category.js"; 
+import taskRoutes from "./routes/tasks.js";
+import userSettingsRoutes from "./routes/userSettings.js";
+import authRoutes from "./routes/userRoutes.js"; 
 import { createCategoryTable } from "./models/categoryModel.js";
 import { createTaskTable } from "./models/taskModel.js";
-import authRoutes from "./routes/userRoutes.js"; 
+import { createUserSettingsTable } from "./models/userSettingsModel.js"; 
+
+
 
 dotenv.config();
 const app = express();
@@ -19,6 +24,7 @@ app.use(cors());
 (async () => {
   await createCategoryTable();
   await createTaskTable();
+  await createUserSettingsTable()
   console.log("Tablas inicializadas correctamente");
 })();
 
@@ -27,6 +33,7 @@ app.use(express.json()); // Middleware para parsear JSON
 app.use("/api/categorias", categoryRoutes); // Usando las rutas importadas
 app.use("/api/tasks", taskRoutes); // Usando las rutas importadas
 app.use("/api/auth", authRoutes); // Usando las rutas de autenticación
+app.use("/api/userSettings", userSettingsRoutes); // Usando las rutas de configuración de usuario
 
 // Iniciar servidor
 const PORT = process.env.PORT || 4000; 

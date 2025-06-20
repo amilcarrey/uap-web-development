@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "astro": "^5.8.1"
+    "astro": "^5.8.1",
+    "sqlite3": "^5.1.7"
   }
 }

@@ -6,7 +6,8 @@ import {
   deleteCompletedTasks,
   editTask,
   listarTareasPaginadas,
-  contarTareasFiltradas
+  contarTareasFiltradas,
+  getTaskById as getTaskByIdModel,
 } from "../models/taskModel.js";
 
 export async function getAllTasks(categoriaId?: string, filtro?: string) {
@@ -58,4 +59,15 @@ export async function listarTareasPaginadasService(
   const tasks = await listarTareasPaginadas(page, pageSize, categoriaId, filtro);
   const totalCount = await contarTareasFiltradas(categoriaId, filtro);
   return { tasks, totalCount };
+}
+
+export async function getTaskById(id: number): Promise<ReturnType<typeof getTaskByIdModel>> {
+  if (!id) {
+    throw new Error("El ID de la tarea es requerido");
+  }
+  const task = await getTaskByIdModel(id);
+  if (!task) {
+    throw new Error("Tarea no encontrada");
+  }
+  return task;
 }

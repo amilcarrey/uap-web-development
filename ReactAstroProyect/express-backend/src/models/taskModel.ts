@@ -112,3 +112,6 @@ export async function editTask(id: number, text: string, categoriaId: string): P
   );
 }
 
+export async function getTaskById(id: number): Promise<{ id: number; text: string; completed: boolean; categoriaId: string } | undefined> {
+  return await database.get("SELECT * FROM tasks WHERE id = ?", [id]);
+}

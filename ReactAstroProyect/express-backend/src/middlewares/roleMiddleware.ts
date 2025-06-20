@@ -1,11 +1,18 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
-import { JwtPayload } from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import { checkCategoryPermission } from "../models/categoryModel.js";
 
+export const authorizeCategoryAccess = (requiredRole: string) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as { id: string };
+    const { categoriaId } = req.params;
 
-export const requireAdmin: RequestHandler = (req, res, next) => {
-  if (!req.user || typeof req.user === "string" || (req.user as JwtPayload).role !== "admin") {
-    res.status(403).json({ error: "Acceso denegado: solo administradores" });
-    return;
-  }
-  next(); // Llama a la siguiente función de la ruta
+    const hasPermission = await checkCategoryPermission(categoriaId, user.id, requiredRole);
+
+    if (!hasPermission) {
+      res.status(403).json({ error: `Acceso denegado: se requiere el rol ${requiredRole}` });
+      return;
+    }
+
+    next();
+  };
 };
