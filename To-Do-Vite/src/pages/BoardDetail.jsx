@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSettings } from '../context/SettingsContext';
 import { useToast } from '../context/ToastContext';
-import { fetchTasks, createTask, updateTask, deleteTask, deleteCompletedTasks, fetchBoards } from '../config/api';
+import { fetchTasks, createTask, updateTask, deleteTask, deleteCompletedTasks } from '../config/api';
 import { FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
 import PageLayout from '../components/PageLayout';
 
@@ -12,7 +12,6 @@ const BoardDetail = () => {
   const { settings } = useSettings();
   const { addToast } = useToast();
   const [tasksData, setTasksData] = useState({ tasks: [], total: 0, page: 1, totalPages: 1 });
-  const [boardCategory, setBoardCategory] = useState('');
   const [newTask, setNewTask] = useState('');
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -21,25 +20,10 @@ const BoardDetail = () => {
   const [editingTaskText, setEditingTaskText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const loadBoardCategory = async () => {
-    try {
-      const boards = await fetchBoards();
-      const board = boards.find(b => b.name === boardName);
-      if (board) {
-        setBoardCategory(board.category);
-      }
-    } catch (err) {
-      console.error('Error al cargar la categoría del tablero:', err);
-      addToast('Error al cargar la categoría del tablero', 'error');
-    }
-  };
-
   const loadTasks = async () => {
-    if (!boardCategory) return;
-    
     try {
       setLoading(true);
-      const data = await fetchTasks(boardName, boardCategory);
+      const data = await fetchTasks(boardName);
       setTasksData({ tasks: data, total: data.length, page: 1, totalPages: 1 });
       setError(null);
     } catch (err) {
@@ -52,16 +36,10 @@ const BoardDetail = () => {
   };
 
   useEffect(() => {
-    loadBoardCategory();
-  }, [boardName]);
-
-  useEffect(() => {
-    if (boardCategory) {
-      loadTasks();
-      const interval = setInterval(loadTasks, settings.refetchInterval * 1000);
-      return () => clearInterval(interval);
-    }
-  }, [boardName, boardCategory, settings.refetchInterval, currentPage]);
+    loadTasks();
+    const interval = setInterval(loadTasks, settings.refetchInterval * 1000);
+    return () => clearInterval(interval);
+  }, [boardName, settings.refetchInterval, currentPage]);
 
   const handleAddTask = async (e) => {
     e.preventDefault();
@@ -241,81 +219,87 @@ const BoardDetail = () => {
         )}
       </div>
 
-      <div className="space-y-3">
-        {paginatedTasks.map(task => (
+      <div className="space-y-2">
+        {paginatedTasks.map((task) => (
           <div
             key={task.id}
-            className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-lg rounded-lg"
+            className={`flex items-center justify-between p-3 rounded-lg border ${
+              task.completed
+                ? 'bg-green-500/20 border-green-500/30'
+                : 'bg-white/10 border-white/20'
+            }`}
           >
-            {editingTaskId === task.id ? (
-              <div className="flex-1 flex gap-2">
-                <input
-                  type="text"
-                  value={editingTaskText}
-                  onChange={(e) => setEditingTaskText(e.target.value)}
-                  className="flex-1 p-2 rounded-lg bg-white/20 text-white border border-white/30 focus:border-purple-400 focus:outline-none"
-                  autoFocus
-                />
-                <button
-                  onClick={() => handleSaveEdit(task.id)}
-                  className="text-green-400 hover:text-green-300 transition-colors"
+            <div className="flex items-center gap-3 flex-1">
+              <button
+                onClick={() => handleToggleTask(task.id)}
+                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                  task.completed
+                    ? 'bg-green-500 border-green-500 text-white'
+                    : 'border-white/50 hover:border-green-500'
+                }`}
+              >
+                {task.completed && <FaCheck size={12} />}
+              </button>
+              
+              {editingTaskId === task.id ? (
+                <div className="flex-1 flex gap-2">
+                  <input
+                    type="text"
+                    value={editingTaskText}
+                    onChange={(e) => setEditingTaskText(e.target.value)}
+                    className="flex-1 p-1 rounded bg-white/20 text-white border border-white/30 focus:border-purple-400 focus:outline-none"
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => handleSaveEdit(task.id)}
+                    className="text-green-400 hover:text-green-300"
+                  >
+                    <FaCheck size={16} />
+                  </button>
+                  <button
+                    onClick={() => setEditingTaskId(null)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <FaTimes size={16} />
+                  </button>
+                </div>
+              ) : (
+                <span
+                  className={`flex-1 ${
+                    task.completed ? 'line-through text-white/60' : 'text-white'
+                  }`}
                 >
-                  <FaCheck />
+                  {task.text}
+                </span>
+              )}
+            </div>
+            
+            {editingTaskId !== task.id && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEditTask(task)}
+                  className="text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <FaEdit size={16} />
                 </button>
                 <button
-                  onClick={() => setEditingTaskId(null)}
+                  onClick={() => handleDeleteTask(task.id)}
                   className="text-red-400 hover:text-red-300 transition-colors"
                 >
-                  <FaTimes />
+                  <FaTimes size={16} />
                 </button>
               </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => handleToggleTask(task.id)}
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                      task.completed 
-                        ? 'border-green-500 bg-green-100' 
-                        : 'border-purple-500 bg-white'
-                    }`}
-                  >
-                    {task.completed && (
-                      <FaCheck className="w-3 h-3 text-green-600" />
-                    )}
-                  </button>
-                  <span className={`text-lg ${
-                    task.completed ? 'line-through text-gray-400' : 'text-white'
-                  }`}>
-                    {settings.uppercase ? task.text.toUpperCase() : task.text}
-                  </span>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEditTask(task)}
-                    className="text-blue-400 hover:text-blue-300 transition-colors"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTask(task.id)}
-                    className="text-red-400 hover:text-red-300 transition-colors"
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-              </>
             )}
           </div>
         ))}
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-6">
+        <div className="flex justify-center mt-6 gap-2">
           <button
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1 rounded-lg bg-white/20 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/30 transition-colors"
+            className="px-3 py-1 bg-white/20 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/30 transition-colors"
           >
             Anterior
           </button>
@@ -323,12 +307,18 @@ const BoardDetail = () => {
             Página {currentPage} de {totalPages}
           </span>
           <button
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded-lg bg-white/20 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/30 transition-colors"
+            className="px-3 py-1 bg-white/20 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/30 transition-colors"
           >
             Siguiente
           </button>
+        </div>
+      )}
+
+      {paginatedTasks.length === 0 && (
+        <div className="text-center text-white/60 py-8">
+          {filter === 'all' ? 'No hay tareas en este tablero' : 'No hay tareas con este filtro'}
         </div>
       )}
     </PageLayout>
