@@ -2,7 +2,6 @@ import React from "react";
 import { useAuthStore } from "../store/authStore";
 import { LogOut, User } from "lucide-react";
 import GorgeousButton from "./GorgeousButton";
-import { NotificationBell } from "./NotificationBell";
 
 const Header: React.FC = () => {
   const { user, logout } = useAuthStore();
@@ -26,7 +25,6 @@ const Header: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <NotificationBell />
                   <GorgeousButton
                     onClick={handleLogout}
                     variant="red"

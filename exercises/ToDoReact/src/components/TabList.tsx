@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams, useNavigate } from "@tanstack/react-router";
 import { useClientStore } from "../store/clientStore";
 import { useAddTab, useDeleteTab, useTabs } from "../hooks/useTabs";
-import { Bolt } from "lucide-react";
+import { Settings, Share2, UserRoundSearch } from "lucide-react";
 import GorgeousButton from "./GorgeousButton";
 import TabItem from "./TabItem";
+import { ShareBoardDialog } from "./ShareBoardDialog";
+import { BoardPermissions } from "./BoardPermissions";
 
 interface TabListProps {
   tabs: string[];
@@ -20,7 +22,10 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
   const [validationError, setValidationError] = useState<string>("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [tabToDelete, setTabToDelete] = useState<string>("");
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showPermissions, setShowPermissions] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const permissionsDialogRef = useRef<HTMLDialogElement>(null);
   const addTabMutation = useAddTab();
   const deleteTabMutation = useDeleteTab();
 
@@ -62,6 +67,22 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
   const handleCancel = () => {
     setDeleteDialogOpen(false);
     setTabToDelete("");
+  };
+
+  const handlePermissionsDialogClick = (
+    e: React.MouseEvent<HTMLDialogElement>
+  ) => {
+    if (e.target === e.currentTarget) {
+      setShowPermissions(false);
+    }
+  };
+
+  const handlePermissionsKeyDown = (
+    e: React.KeyboardEvent<HTMLDialogElement>
+  ) => {
+    if (e.key === "Escape") {
+      setShowPermissions(false);
+    }
   };
 
   const handleConfirm = () => {
@@ -185,29 +206,16 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
             const board = boards.find((b) => b.name === tab);
             return (
               <li key={tab} className="flex items-center relative">
-                <div className="flex items-center">
-                  <TabItem
-                    name={tab}
-                    isActive={tabId === tab}
-                    onClick={() =>
-                      navigate({ to: "/tab/$tabId", params: { tabId: tab } })
-                    }
-                    board={board}
-                  />
-                  {tabs.length > 1 && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleDeleteTab(tab);
-                      }}
-                      className="ml-1 px-1 text-red-300 hover:text-red-100 text-xs bg-red-600 bg-opacity-20 hover:bg-opacity-40 rounded"
-                      title={`Delete ${tab} tab`}
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
+                <TabItem
+                  name={tab}
+                  isActive={tabId === tab}
+                  onClick={() =>
+                    navigate({ to: "/tab/$tabId", params: { tabId: tab } })
+                  }
+                  board={board}
+                  onDelete={handleDeleteTab}
+                  canDelete={tabs.length > 1}
+                />
               </li>
             );
           })}
@@ -261,14 +269,126 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
           </button>
         )}
 
-        {/*ROUTE TO THE SETTINGS */}
-        <Link
-          to="/settings"
-          className="ml-auto bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded text-sm font-medium whitespace-nowrap"
-        >
-          <Bolt />
-        </Link>
+        {/*SHARE BUTTON AND SETTINGS */}
+        <div className="ml-auto flex items-center gap-2">
+          {/* Share and Settings dropdown - only show for current board owner */}
+          {(() => {
+            const currentBoard = boards.find((b) => b.name === tabId);
+            const canShare = currentBoard?.permission_level === "owner";
+
+            if (canShare && currentBoard) {
+              return (
+                <div className="relative">
+                  <div className="flex">
+                    <button
+                      onClick={() => setShowShareDialog(true)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-l text-sm font-medium whitespace-nowrap flex items-center gap-1"
+                      title="Share board"
+                    >
+                      <Share2 className="w-6 h-6" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowPermissions(true);
+                        setTimeout(() => {
+                          permissionsDialogRef.current?.showModal();
+                        }, 0);
+                      }}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded-r text-sm border-l border-purple-800"
+                      title="Board settings"
+                    >
+                      <UserRoundSearch className="w-6 h-6" />
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
+
+          {/*ROUTE TO THE SETTINGS */}
+          <Link
+            to="/settings"
+            className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded text-sm font-medium whitespace-nowrap"
+          >
+            <Settings />
+          </Link>
+        </div>
       </div>
+
+      {/* Share Board Dialog */}
+      {(() => {
+        const currentBoard = boards.find((b) => b.name === tabId);
+        if (showShareDialog && currentBoard) {
+          return (
+            <ShareBoardDialog
+              isOpen={showShareDialog}
+              onClose={() => setShowShareDialog(false)}
+              boardId={currentBoard.id}
+              boardName={currentBoard.name}
+            />
+          );
+        }
+        return null;
+      })()}
+
+      {/* Board Permissions Management Modal */}
+      {(() => {
+        const currentBoard = boards.find((b) => b.name === tabId);
+        if (showPermissions && currentBoard) {
+          return (
+            <dialog
+              ref={permissionsDialogRef}
+              onClick={handlePermissionsDialogClick}
+              onKeyDown={handlePermissionsKeyDown}
+              className="irish-pub-dialog backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+            >
+              <div className="bg-orange-950 border-4 border-amber-300 rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+                {/* Header decorativo */}
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center gap-2 bg-amber-800/30 px-4 py-2 rounded-full border border-amber-400">
+                    <UserRoundSearch className="w-5 h-5 text-amber-200" />
+                    <h2 className="text-lg font-bold text-amber-200">
+                      Board Settings
+                    </h2>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="bg-amber-900/20 p-4 rounded border border-amber-600 mb-6">
+                  <div className="text-center mb-4">
+                    <p className="text-amber-200 font-medium">
+                      "{currentBoard.name}"
+                    </p>
+                    <p className="text-amber-300 text-sm mt-1">
+                      Manage permissions and access for this board
+                    </p>
+                  </div>
+
+                  {/* Permissions component */}
+                  <div className="bg-amber-950/50 p-4 rounded border border-amber-700">
+                    <BoardPermissions
+                      boardId={currentBoard.id}
+                      boardName={currentBoard.name}
+                      currentUserPermission={
+                        currentBoard.permission_level || "owner"
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* Close button */}
+                <div className="flex justify-center">
+                  <GorgeousButton onClick={() => setShowPermissions(false)}>
+                    Close
+                  </GorgeousButton>
+                </div>
+              </div>
+            </dialog>
+          );
+        }
+        return null;
+      })()}
 
       {/* Delete Tab Confirmation Dialog */}
       <dialog

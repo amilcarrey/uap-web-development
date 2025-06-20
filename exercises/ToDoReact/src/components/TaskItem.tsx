@@ -26,9 +26,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
   // Permission checks
   const canEdit = permissionLevel === "owner" || permissionLevel === "editor";
   const canDelete = permissionLevel === "owner" || permissionLevel === "editor";
+  const canToggleComplete =
+    permissionLevel === "owner" || permissionLevel === "editor";
   const isViewer = permissionLevel === "viewer";
 
   const handleToggleComplete = () => {
+    if (!canToggleComplete) return;
     updateTaskMutation.mutate({
       id: task.id,
       completed: !task.completed,
@@ -83,10 +86,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
             type="checkbox"
             checked={task.completed}
             onChange={handleToggleComplete}
-            disabled={isLoading}
+            disabled={isLoading || !canToggleComplete}
             className={`w-5 h-5 mr-3 ${
               isViewer ? "accent-purple-500" : "accent-amber-500"
-            }`}
+            } ${!canToggleComplete ? "opacity-50 cursor-not-allowed" : ""}`}
           />
           <span
             className={`flex-1 ${

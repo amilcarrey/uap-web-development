@@ -19,7 +19,6 @@ const TaskForm: React.FC = () => {
 
   // Permission checks
   const canEdit = permissionLevel === "owner" || permissionLevel === "editor";
-  const canAddTasks = true; // All permission levels can add tasks
   const isViewer = permissionLevel === "viewer";
 
   const isEditing = !!editingTask;

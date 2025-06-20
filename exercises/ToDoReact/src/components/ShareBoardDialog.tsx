@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import type { User } from "../types/api";
 import { usePermissions } from "../hooks/usePermissions";
+import { useNotifications } from "../store/clientStore";
+import GorgeousButton from "./GorgeousButton";
+import { PermissionsList } from "./PermissionsList";
 
 interface ShareBoardDialogProps {
   isOpen: boolean;
@@ -17,11 +20,10 @@ export const ShareBoardDialog: React.FC<ShareBoardDialogProps> = ({
 }) => {
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const { shareBoard, getAllUsers } = usePermissions();
-  const {
-    data: users = [],
-    isLoading: usersLoading,
-    error: usersError,
-  } = getAllUsers();
+  const { showSuccess } = useNotifications();
+
+  // Get users data
+  const { data: users = [], isLoading: usersLoading } = getAllUsers();
 
   const handleShare = async () => {
     if (selectedUsers.length === 0) return;
@@ -33,13 +35,16 @@ export const ShareBoardDialog: React.FC<ShareBoardDialogProps> = ({
         userEmails,
       });
 
-      // Reset form and close dialog
+      const userNames = selectedUsers.map((user) => user.username).join(", ");
+      showSuccess(
+        "Board compartido con éxito",
+        `El board "${boardName}" se compartió con: ${userNames}`
+      );
+
       setSelectedUsers([]);
       onClose();
     } catch (error) {
       console.error("Failed to share board:", error);
-      // Error will be displayed in the error section below
-      // The mutation error will be automatically caught by React Query
     }
   };
 
@@ -54,232 +59,70 @@ export const ShareBoardDialog: React.FC<ShareBoardDialogProps> = ({
     });
   };
 
-  const isUserSelected = (user: User) => {
-    return selectedUsers.some((u) => u.id === user.id);
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Share "{boardName}"
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-orange-950 border-4 border-amber-300 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl">
+        {/* Header decorativo */}
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center gap-2 bg-amber-800/30 px-4 py-2 rounded-full border border-amber-400">
+            <h2 className="text-lg font-bold text-amber-200">Share Tab</h2>
+          </div>
+        </div>
+
+        {/* Board name */}
+        <div className="text-center mb-6">
+          <div className="bg-amber-900/50 p-3 rounded border border-amber-600">
+            <p className="text-amber-200 font-medium">"{boardName}"</p>
+            <p className="text-amber-300 text-sm mt-1">
+              Select users to share this tab with
+            </p>
+          </div>
         </div>
 
         <div className="space-y-4">
-          {/* User selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select users to share with
-            </label>
-
-            {usersLoading && (
-              <div className="flex items-center justify-center py-8">
-                <div className="text-sm text-gray-500">Loading users...</div>
-              </div>
-            )}
-
-            {usersError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600">
-                  {usersError instanceof Error
-                    ? usersError.message
-                    : "Failed to load users"}
-                </p>
-              </div>
-            )}
-
-            {!usersLoading && !usersError && users.length === 0 && (
-              <div className="text-center py-8">
-                <p className="text-sm text-gray-500">
-                  No other users available to share with
-                </p>
-              </div>
-            )}
-
-            {!usersLoading && !usersError && users.length > 0 && (
-              <div className="max-h-48 overflow-y-auto border border-gray-300 rounded-md">
-                {users.map((user) => (
-                  <button
-                    key={user.id}
-                    onClick={() => handleUserToggle(user)}
-                    className={`w-full px-3 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors ${
-                      isUserSelected(user)
-                        ? "bg-purple-50 border-purple-200"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {user.username}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {user.email}
-                        </div>
-                      </div>
-                      {isUserSelected(user) && (
-                        <div className="flex items-center">
-                          <svg
-                            className="w-5 h-5 text-purple-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Selected users summary */}
-          {selectedUsers.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Selected users ({selectedUsers.length})
-              </label>
-              <div className="space-y-1">
-                {selectedUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between bg-purple-50 px-3 py-2 rounded-md"
-                  >
-                    <div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {user.username}
-                      </span>
-                      <span className="text-xs text-gray-500 ml-2">
-                        ({user.email})
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => handleUserToggle(user)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* User selection using PermissionsList in select mode */}
+          <PermissionsList
+            mode="select"
+            users={users}
+            selectedUsers={selectedUsers}
+            isLoading={usersLoading}
+            onUserToggle={handleUserToggle}
+            title="Select users to share with"
+            emptyMessage="No other users available to share with"
+          />
         </div>
 
         {/* Action buttons */}
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
+        <div className="flex justify-center gap-3 mt-6">
+          <GorgeousButton onClick={onClose}>Cancel</GorgeousButton>
+          <GorgeousButton
             onClick={handleShare}
             disabled={selectedUsers.length === 0 || shareBoard.isPending}
-            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            variant="green"
           >
             {shareBoard.isPending
               ? "Sharing..."
               : `Share with ${selectedUsers.length} user${
                   selectedUsers.length !== 1 ? "s" : ""
                 }`}
-          </button>
+          </GorgeousButton>
         </div>
 
         {/* Error handling */}
         {shareBoard.error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm font-medium text-red-800 mb-1">
+          <div className="mt-4 p-3 bg-red-900/50 border border-red-400 rounded-md">
+            <p className="text-sm font-medium text-red-300 mb-1">
               Error al compartir:
             </p>
-            <p className="text-sm text-red-600">
+            <p className="text-sm text-red-200">
               {shareBoard.error instanceof Error
                 ? shareBoard.error.message
                 : "Failed to share board"}
             </p>
           </div>
         )}
-
-        {/* Development: Test invalid token */}
-        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-          <p className="text-xs text-yellow-700 mb-2">
-            🔧 Debug: Test token errors
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                const original = localStorage.getItem("token");
-                localStorage.setItem("token", "invalid-token");
-                alert("Token set to invalid for 5 seconds");
-                setTimeout(() => {
-                  if (original) localStorage.setItem("token", original);
-                  else localStorage.removeItem("token");
-                  alert("Token restored");
-                }, 5000);
-              }}
-              className="px-2 py-1 text-xs bg-yellow-200 text-yellow-800 rounded hover:bg-yellow-300"
-            >
-              Test Invalid Token (5s)
-            </button>
-            <button
-              onClick={() => {
-                const original = localStorage.getItem("token");
-                localStorage.removeItem("token");
-                alert("Token removed for 5 seconds");
-                setTimeout(() => {
-                  if (original) localStorage.setItem("token", original);
-                  alert("Token restored");
-                }, 5000);
-              }}
-              className="px-2 py-1 text-xs bg-yellow-200 text-yellow-800 rounded hover:bg-yellow-300"
-            >
-              Test Missing Token (5s)
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
