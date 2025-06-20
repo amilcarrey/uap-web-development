@@ -1,8 +1,8 @@
-import { CreateBoardDTO } from '../DTOs/board/CreateBoardDTO';
+import { CreateBoardDTO } from '../DTOs/board/CreateBoardSchema';
 import {Board} from '../models/Board';
-import {BoardDTO} from '../DTOs/board/BoardDTO';
-import { updateBoardDTO } from '../DTOs/board/UpdateBoardDTO';
-import { UserPermissionDTO } from '../DTOs/permission/UserPermissionDTO';
+import {BoardDTO} from '../DTOs/board/BoardSchema';
+import { UpdateBoardDTO } from '../DTOs/board/UpdateBoardSchema';
+import { UserPermissionDTO } from '../DTOs/permission/UserPermissionSchema';
 
 
 export interface IBoardService{
@@ -10,7 +10,7 @@ export interface IBoardService{
     createBoard(userId: number, data: CreateBoardDTO): Promise<BoardDTO>;
     getBoardsForUser(userId: number): Promise<BoardDTO[]>;
     getBoardById(boardId: number): Promise<BoardDTO | null>;
-    updateBoard(boardId: number, data: updateBoardDTO): Promise<BoardDTO>;
+    updateBoard(boardId: number, data: UpdateBoardDTO): Promise<BoardDTO>;
     deleteBoard(userId: number, boardId: number): Promise<void>;
     shareBoard(boardId: number, targetUserId: number, accessLevel: 'read' | 'edit' | 'owner'): Promise<void>;
     getBoardPermissions(boardId: number): Promise<UserPermissionDTO[]>;

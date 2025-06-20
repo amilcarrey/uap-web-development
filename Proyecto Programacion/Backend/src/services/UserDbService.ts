@@ -1,12 +1,12 @@
 import { prisma } from '../prisma';
-import { UpdateSettingsDTO } from '../DTOs/settings/UpdateSettingsDTO';
-import { AuthResponseDTO } from '../DTOs/user/AuthResponseDTO';
-import { LoginDTO } from '../DTOs/user/LoginDTO';
-import { RegistrerUserDTO } from '../DTOs/user/RegistrerUserDTO';
-import { UserDTO } from '../DTOs/user/UserDTO';
+import { UpdateSettingsDTO } from '../DTOs/settings/UpdateSettingsSchema';
+import { AuthResponseDTO } from '../DTOs/user/AuthResponseSchema';
+import { LoginDTO } from '../DTOs/user/LoginSchema';
+import { RegistrerUserDTO } from '../DTOs/user/RegistrerUserSchema';
+import { UserDTO } from '../DTOs/user/UserSchema';
 import { IUserService } from '../Interfaces/IUserService';
-import { BoardDTO } from '../DTOs/board/BoardDTO';
-import { UserSettingsDTO } from '../DTOs/settings/UserSettingsDTO';
+import { BoardDTO } from '../DTOs/board/BoardSchema';
+import { UserSettingsDTO } from '../DTOs/settings/UserSettingsSchema';
 import { Permission } from '../models/Permission'; // Adjust the path if needed
 import { User } from '../models/User';
 

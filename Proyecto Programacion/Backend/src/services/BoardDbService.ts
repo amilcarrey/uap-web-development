@@ -1,11 +1,11 @@
 import { prisma } from '../prisma';
-import { CreateBoardDTO } from '../DTOs/board/CreateBoardDTO';
+import { CreateBoardDTO } from '../DTOs/board/CreateBoardSchema';
 import { Board } from '../models/Board';
 import { Permission, PermissionLevel } from '../models/Permission';
 import { IBoardService } from '../Interfaces/IBoardService';
-import { BoardDTO } from '../DTOs/board/BoardDTO';
-import { updateBoardDTO } from '../DTOs/board/UpdateBoardDTO';
-import { UserPermissionDTO } from '../DTOs/permission/UserPermissionDTO';
+import { BoardDTO } from '../DTOs/board/BoardSchema';
+import { UpdateBoardDTO } from '../DTOs/board/UpdateBoardSchema';
+import { UserPermissionDTO } from '../DTOs/permission/UserPermissionSchema';
 import { Task } from '../models/Task';
 import { permission } from 'process';
 
@@ -60,16 +60,71 @@ export class BoardService implements IBoardService{
             permissionsId: board.permissions.map(p => p.id)
         };
     }
-    updateBoard(boardId: number, data: updateBoardDTO): Promise<BoardDTO> {
-        throw new Error('Method not implemented.');
+    
+    async updateBoard(boardId: number, data: UpdateBoardDTO): Promise<BoardDTO> {
+        // Implementa la lógica para actualizar un tablero
+        // 1. Buscar el tablero por ID
+        const board = await this.getBoardById(boardId);
+        if(!board){
+            throw new Error("Tablero no encontrado");
+        }
+
+        // 2. Actualizar los campos recibidos en `data`
+        await prisma.board.update({
+            where : {id: boardId},
+            data:{
+                name: data.name ?? board.name,
+            }
+        });
+
+        // 3. Retornar el BoardDTO actualizado
+        const updatedBoard = await this.getBoardById(boardId);
+        if (!updatedBoard) {
+            throw new Error("Error retrieving updated board");
+        }
+        return updatedBoard;
+
     }
-    deleteBoard(userId: number, boardId: number): Promise<void> {
-        throw new Error('Method not implemented.');
+    
+    async deleteBoard(userId: number, boardId: number): Promise<void> {
+        //1. Verifico si el tablero existe
+        const board = await prisma.board.findUnique({
+            where: {id: boardId}
+        });
+
+        if(!board){
+            throw new Error('Tablero no encontrado');
+        }
+
+        //2. Verifico si el usuario es el dueño
+        if(board.ownerId !== userId){
+            throw new Error('No tienes permiso para eliminar este tablero');
+        }
+
+        //3. Elimino primero las tareas asociadas (si existen)
+        await prisma.task.deleteMany({
+            where: {boardId}
+        });
+
+        //4. Elimino los permisos asociados al tablero
+        await prisma.boardPermission.deleteMany({
+            where: {boardId}
+        });
+
+        //5. Elimino el tablero
+        await prisma.board.delete({
+            where: {id: boardId}
+        });
     }
+    
     shareBoard(boardId: number, targetUserId: number, accessLevel: 'read' | 'edit' | 'owner'): Promise<void> {
         throw new Error('Method not implemented.');
     }
     getBoardPermissions(boardId: number): Promise<UserPermissionDTO[]> {
+        // Implementa la lógica para obtener los permisos de un tablero
+        // Ejemplo:
+        // 1. Buscar todos los permisos asociados al boardId
+        // 2. Mapearlos a UserPermissionDTO[]
         throw new Error('Method not implemented.');
     }
 

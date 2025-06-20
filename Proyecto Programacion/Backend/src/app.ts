@@ -3,6 +3,7 @@ require('dotenv').config();
 import express from 'express';
 import cors from 'cors';
 import boardRoutes from './routes/boardRoutes';
+import taskRoutes from './routes/taskRoutes';
 import userRoutes from './routes/userRoutes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/boards', boardRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/tasks', taskRoutes);
 
 
 const swaggerOptions = {

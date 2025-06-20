@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { UserDbService } from '../services/UserDbService';
-import { RegistrerUserDTO } from '../DTOs/user/RegistrerUserDTO';
+import { RegistrerUserDTO } from '../DTOs/user/RegistrerUserSchema';
 
 const userService = new UserDbService();
 

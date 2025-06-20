@@ -6,5 +6,7 @@ const router = Router();
 router.post('/', BoardController.createBoard);
 router.get('/user/:userId', BoardController.getBoardsByuser);
 router.get('/:boardId', BoardController.getBoardById);
+router.put('/:boardId', BoardController.updateBoard);
+router.delete('/:boardId', BoardController.deleteBoard);
 
-export default router;
+export default router; 

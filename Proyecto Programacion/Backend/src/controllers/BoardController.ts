@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { BoardService } from '../services/BoardService';
+import { BoardService } from '../services/BoardDbService';
 import { error } from 'console';
-
+import { UpdateBoardSchema } from '../DTOs/board/UpdateBoardSchema';
+import { parse } from 'dotenv';
 const boardService = new BoardService();
 
 export class BoardController {
@@ -38,11 +39,65 @@ export class BoardController {
       const boardId = Number(req.params.boardId);
       const board = await boardService.getBoardById(boardId);
       if(!board){
-        return res.status(404).json({error: 'No se encontro el tablero'});
+        res.status(404).json({error: 'No se encontro el tablero'});
+        return;
       }
       res.json(board);
     }catch(error){
       res.status(500).json({ error: 'Error al obtener el tablero', details: error instanceof Error ? error.message : error });
+    }
+  }
+
+  //Actualizar un tablero
+  static async updateBoard(req: Request, res: Response){
+
+    //Validar los datos de entrada con Zod
+    const parseResult = UpdateBoardSchema.safeParse(req.body);
+
+    if(!parseResult.success){
+       res.status(400).json({ error: "Datos inválidos", details: parseResult.error.errors });
+       return;
+    }
+
+    const boardId = Number(req.params.boardId);
+    if(isNaN(boardId)){
+        res.status(400).json({ error: "ID de tablero inválido" });
+        return;
+    }
+
+    try{
+      const updateBoard = await boardService.updateBoard(boardId, parseResult.data);
+       res.status(200).json(updateBoard);
+    }catch(error: any){
+      if (error.message === "Board not found") {
+         res.status(404).json({ error: "Tablero no encontrado" });
+      }
+       res.status(500).json({ error: "Error interno del servidor" });
+    }
+  }
+
+  //Eliminar un tablero
+  static async deleteBoard(req: Request, res: Response){
+    try{
+      const userId = Number(req.body.userId);
+      const boardId = Number(req.params.boardId);
+
+      if(isNaN(userId) || isNaN(boardId)){
+         res.status(400).json({error: 'Id invalido'});
+         return;
+      }
+
+      await boardService.deleteBoard(userId, boardId);
+       res.status(400).send();
+
+    }catch(error: any){
+      if(error.message === 'Tablero no encontrado'){
+         res.status(404).json({ error: error.message });
+      }
+      if (error.message === 'No tienes permiso para eliminar este tablero') {
+         res.status(403).json({ error: error.message });
+      }
+       res.status(500).json({ error: "Error interno del servidor", details: error.message });
     }
   }
 

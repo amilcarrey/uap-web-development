@@ -6,4 +6,4 @@ const router = Router();
 router.post('/register', UserController.register);
 router.get('/', UserController.getAll);
 
-export default router;
+export default router; 
