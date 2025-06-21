@@ -1,30 +1,88 @@
-export default function Pagination({ page, total, limit, setPage }) {
-  const totalPages = Math.ceil(total / limit);
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+
+export default function Pagination({ 
+  currentPage, 
+  totalPages, 
+  onPageChange, 
+  isLoading = false,
+  className = ""
+}) {
   if (totalPages <= 1) return null;
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
   return (
-    <div className="flex justify-center gap-2 mt-6">
+    <div className={`flex justify-center items-center gap-2 mt-6 ${className}`}>
       <button
-        className="px-3 py-1 rounded bg-white/70 text-purple-900 font-bold disabled:opacity-40"
-        onClick={() => setPage(page - 1)}
-        disabled={page === 1}
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1 || isLoading}
+        className="px-3 py-1 bg-white/20 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/30 transition-colors flex items-center gap-1"
+        title="Página anterior"
       >
-        &lt;
+        <FaChevronLeft size={12} />
+        Anterior
       </button>
-      {[...Array(totalPages)].map((_, i) => (
-        <button
-          key={i}
-          className={`px-3 py-1 rounded font-bold ${page === i + 1 ? 'bg-purple-900 text-white' : 'bg-white/70 text-purple-900'}`}
-          onClick={() => setPage(i + 1)}
-        >
-          {i + 1}
-        </button>
-      ))}
+      
+      <div className="flex gap-1">
+        {getPageNumbers().map((page, index) => (
+          <button
+            key={index}
+            onClick={() => typeof page === 'number' ? onPageChange(page) : null}
+            disabled={page === '...' || isLoading}
+            className={`px-3 py-1 rounded-lg transition-colors ${
+              page === currentPage
+                ? 'bg-purple-600 text-white'
+                : page === '...'
+                ? 'text-white/50 cursor-default'
+                : 'bg-white/20 text-white hover:bg-white/30'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
+      
       <button
-        className="px-3 py-1 rounded bg-white/70 text-purple-900 font-bold disabled:opacity-40"
-        onClick={() => setPage(page + 1)}
-        disabled={page === totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages || isLoading}
+        className="px-3 py-1 bg-white/20 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/30 transition-colors flex items-center gap-1"
+        title="Página siguiente"
       >
-        &gt;
+        Siguiente
+        <FaChevronRight size={12} />
       </button>
     </div>
   );

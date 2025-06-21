@@ -1,13 +1,22 @@
 import { useState } from 'react'
+import { FaPlus, FaSpinner } from 'react-icons/fa'
 
-function TodoForm({ onAdd }) {
+function TodoForm({ onAdd, placeholder = "Nueva tarea...", buttonText = "Agregar", isLoading = false, className = "" }) {
   const [text, setText] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (text.trim()) {
-      onAdd(text)
-      setText('')
+    if (text.trim() && !isSubmitting && !isLoading) {
+      setIsSubmitting(true)
+      try {
+        await onAdd(text.trim())
+        setText('')
+      } catch (error) {
+        console.error('Error adding task:', error)
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
@@ -17,21 +26,35 @@ function TodoForm({ onAdd }) {
     }
   }
 
+  const isDisabled = isSubmitting || isLoading || !text.trim()
+
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 mb-6">
+    <form onSubmit={handleSubmit} className={`flex gap-2 mb-6 ${className}`}>
       <input
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyPress={handleKeyPress}
-        placeholder="Agregar nueva tarea..."
-        className="flex-1 px-4 py-3 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+        placeholder={placeholder}
+        disabled={isSubmitting || isLoading}
+        className="flex-1 p-2 rounded-lg bg-white/20 text-white border border-white/30 focus:border-purple-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
       />
       <button 
         type="submit"
-        className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg"
+        disabled={isDisabled}
+        className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white px-4 py-2 rounded-lg transition-colors disabled:cursor-not-allowed flex items-center gap-2"
       >
-        Agregar
+        {(isSubmitting || isLoading) ? (
+          <>
+            <FaSpinner className="animate-spin" size={14} />
+            {isSubmitting ? 'Agregando...' : 'Cargando...'}
+          </>
+        ) : (
+          <>
+            <FaPlus size={14} />
+            {buttonText}
+          </>
+        )}
       </button>
     </form>
   )
