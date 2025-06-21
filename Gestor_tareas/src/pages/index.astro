@@ -1,0 +1,168 @@
+---
+import Layout from "../layouts/Layout.astro";
+import {
+  obtenerTareas,
+  agregarTarea,
+  eliminarTarea,
+  toggleTarea,
+  limpiarCompletadas,
+  eliminarTodas,
+  obtenerTodas,
+} from "../lib/tareas";
+
+export const prerender = false;
+
+const url = new URL(Astro.request.url);
+const filtro = url.searchParams.get("filtro") || "all";
+
+if (Astro.request.method === "POST") {
+  const contentType = Astro.request.headers.get("content-type") || "";
+
+  let accion = "";
+  let texto = "";
+  let id = "";
+
+  if (contentType.includes("application/x-www-form-urlencoded")) {
+    const formData = await Astro.request.formData();
+    accion = formData.get("accion")?.toString() || "";
+    texto = formData.get("texto")?.toString() || "";
+    id = formData.get("id")?.toString() || "";
+  } else if (contentType.includes("application/json")) {
+    const body = await Astro.request.json();
+    accion = body.accion || "";
+    texto = body.texto || "";
+    id = body.id || "";
+  }
+
+  switch (accion) {
+    case "agregar":
+      if (texto.trim()) agregarTarea(texto.trim());
+      break;
+    case "eliminar":
+      if (id) eliminarTarea(id);
+      break;
+    case "toggle":
+      if (id) toggleTarea(id);
+      break;
+    case "limpiar":
+      limpiarCompletadas();
+      break;
+    case "eliminarTodas":
+      eliminarTodas();
+      break;
+  }
+
+  return Astro.redirect(url.pathname + url.search);
+}
+
+const tareasFiltradas = obtenerTareas(filtro);
+const tareas = obtenerTodas(); // para mostrar botones si hay tareas globalmente
+---
+
+<Layout title="Gestor_de_tareas">
+  <!-- Titulo -->
+  <section class="Titulo">
+    <div class="Titulo-contenido">
+      <div class="logo">
+        <img
+          src="/img/red-bull-logo-black-and-white.png"
+          alt="Logo de Red Bull"
+          width="100"
+        />
+      </div>
+      <div class="titulo">
+        <h1 id="titulo">Gestor de Tareas</h1>
+      </div>
+      <div class="logo">
+        <img
+          src="/img/red-bull-logo-black-and-white.png"
+          alt="Logo de Red Bull"
+          width="100"
+        />
+      </div>
+    </div>
+  </section>
+  <!-- Aplicacion-->
+  <section class="Aplicacion">
+    <div class="titulo2">
+      <h2>Lista de Tareas</h2>
+      <hr />
+    </div>
+    <form method="POST" action="/" class="form1">
+      <input
+        type="text"
+        name="texto"
+        required
+        placeholder="Escribe el titulo de la nueva tarea..."
+        class="input-tarea"
+      />
+      <input type="hidden" name="accion" value="agregar" />
+      <button type="submit" class="btn">Agregar</button>
+    </form>
+    {
+      tareas.length > 0 && (
+        <div class="Filtros">
+          <a href="?filtro=all">
+            <button class={filtro === "all" ? "activo" : ""}>Todas</button>
+          </a>
+          <a href="?filtro=completed">
+            <button class={filtro === "completed" ? "activo" : ""}>
+              Completadas
+            </button>
+          </a>
+          <a href="?filtro=incomplete">
+            <button class={filtro === "incomplete" ? "activo" : ""}>
+              Incompletas
+            </button>
+          </a>
+        </div>
+      )
+    }
+    <div class="lista">
+      <ul class="listaTareas">
+        {
+          tareasFiltradas.map((tarea) => (
+            <li class="contenido">
+              <form method="POST" action="/">
+                <input type="hidden" name="accion" value="toggle" />
+                <input type="hidden" name="id" value={tarea.id} />
+                <button
+                  class="casilla"
+                  type="submit"
+                  title="Marcar como completada"
+                >
+                  {tarea.completada ? "✅" : "⬜"}
+                </button>
+              </form>
+
+              <span class="tarea-texto">{tarea.texto}</span>
+
+              <form method="POST" action="/">
+                <input type="hidden" name="accion" value="eliminar" />
+                <input type="hidden" name="id" value={tarea.id} />
+                <button class="btn-eliminar" type="submit">
+                  {" "}
+                  X{" "}
+                </button>
+              </form>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    {
+      tareas.length > 0 && (
+        <div class="botones-borrar">
+          <form method="POST" action="/">
+            <input type="hidden" name="accion" value="limpiar" />
+            <button type="submit">Eliminar tareas completadas</button>
+          </form>
+          <form method="POST" action="/">
+            <input type="hidden" name="accion" value="eliminarTodas" />
+            <button type="submit">Eliminar todas las tareas</button>
+          </form>
+        </div>
+      )
+    }
+  </section>
+</Layout>
