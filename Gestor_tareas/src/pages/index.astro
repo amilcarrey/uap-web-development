@@ -56,93 +56,87 @@ if (Astro.request.method === "POST") {
 }
 
 const tareasFiltradas = obtenerTareas(filtro);
-const tareas = obtenerTodas(); // para mostrar botones si hay tareas globalmente
+const tareas = obtenerTodas();
 ---
 
-<Layout title="Gestor_de_tareas">
-  <!-- Titulo -->
-  <section class="Titulo">
-    <div class="Titulo-contenido">
-      <div class="logo">
-        <img
-          src="/img/red-bull-logo-black-and-white.png"
-          alt="Logo de Red Bull"
-          width="100"
-        />
-      </div>
-      <div class="titulo">
-        <h1 id="titulo">Gestor de Tareas</h1>
-      </div>
-      <div class="logo">
-        <img
-          src="/img/red-bull-logo-black-and-white.png"
-          alt="Logo de Red Bull"
-          width="100"
-        />
-      </div>
+<Layout title="Gestor de Tareas">
+  <!-- Título -->
+  <section class="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg rounded-xl w-full max-w-4xl mx-auto py-2 px-4">
+    <div class="flex justify-around items-center flex-wrap gap-2">
+      <img src="/img/red-bull-logo-black-and-white.png" alt="Logo" class="w-24" />
+      <h1 class="text-4xl font-bold bg-gradient-to-r from-red-600 via-red-300 to-red-600 bg-clip-text text-transparent animate-[brilloMover_3s_ease-in-out_infinite_alternate]">
+        Gestor de Tareas
+      </h1>
+      <img src="/img/red-bull-logo-black-and-white.png" alt="Logo" class="w-24" />
     </div>
   </section>
-  <!-- Aplicacion-->
-  <section class="Aplicacion">
-    <div class="titulo2">
-      <h2>Lista de Tareas</h2>
-      <hr />
+
+  <!-- Aplicación -->
+  <section class="mt-40 w-full max-w-xl mx-auto flex flex-col items-center px-4">
+    <div class="text-center">
+      <h2 class="text-2xl font-bold text-gray-800 mb-1">Lista de Tareas</h2>
+      <hr class="border-red-600 shadow-md" />
     </div>
-    <form method="POST" action="/" class="form1">
+
+    <!-- Formulario -->
+    <form method="POST" action="/" class="flex w-full mt-8 shadow-md rounded-full overflow-hidden">
       <input
         type="text"
         name="texto"
         required
-        placeholder="Escribe el titulo de la nueva tarea..."
-        class="input-tarea"
+        placeholder="Escribe el título de la nueva tarea..."
+        class="flex-grow px-4 py-2 text-base focus:outline-none"
       />
       <input type="hidden" name="accion" value="agregar" />
-      <button type="submit" class="btn">Agregar</button>
+      <button type="submit" class="bg-red-500 text-white px-5 py-2 hover:bg-red-600 transition-all whitespace-nowrap">
+        Agregar
+      </button>
     </form>
+
+    <!-- Filtros -->
     {
       tareas.length > 0 && (
-        <div class="Filtros">
+        <div class="flex justify-center gap-4 mt-6">
           <a href="?filtro=all">
-            <button class={filtro === "all" ? "activo" : ""}>Todas</button>
+            <button class={`rounded-full px-4 py-2 ${filtro === "all" ? "bg-red-600 text-white" : "bg-white text-red-600 border border-red-300"}`}>
+              Todas
+            </button>
           </a>
           <a href="?filtro=completed">
-            <button class={filtro === "completed" ? "activo" : ""}>
+            <button class={`rounded-full px-4 py-2 ${filtro === "completed" ? "bg-red-600 text-white" : "bg-white text-red-600 border border-red-300"}`}>
               Completadas
             </button>
           </a>
           <a href="?filtro=incomplete">
-            <button class={filtro === "incomplete" ? "activo" : ""}>
+            <button class={`rounded-full px-4 py-2 ${filtro === "incomplete" ? "bg-red-600 text-white" : "bg-white text-red-600 border border-red-300"}`}>
               Incompletas
             </button>
           </a>
         </div>
       )
     }
-    <div class="lista">
-      <ul class="listaTareas">
+
+    <!-- Lista -->
+    <div class="bg-white mt-6 w-full shadow-lg rounded-xl overflow-hidden">
+      <ul class="divide-y divide-gray-200">
         {
           tareasFiltradas.map((tarea) => (
-            <li class="contenido">
-              <form method="POST" action="/">
+            <li class="flex items-center justify-between gap-4 px-4 py-3">
+              <form method="POST" action="/" class="shrink-0">
                 <input type="hidden" name="accion" value="toggle" />
                 <input type="hidden" name="id" value={tarea.id} />
-                <button
-                  class="casilla"
-                  type="submit"
-                  title="Marcar como completada"
-                >
+                <button type="submit" class="text-xl">
                   {tarea.completada ? "✅" : "⬜"}
                 </button>
               </form>
 
-              <span class="tarea-texto">{tarea.texto}</span>
+              <span class="flex-grow text-base break-words">{tarea.texto}</span>
 
-              <form method="POST" action="/">
+              <form method="POST" action="/" class="shrink-0">
                 <input type="hidden" name="accion" value="eliminar" />
                 <input type="hidden" name="id" value={tarea.id} />
-                <button class="btn-eliminar" type="submit">
-                  {" "}
-                  X{" "}
+                <button type="submit" class="text-red-700 hover:bg-red-700 hover:text-white px-3 py-1 rounded transition">
+                  X
                 </button>
               </form>
             </li>
@@ -150,19 +144,26 @@ const tareas = obtenerTodas(); // para mostrar botones si hay tareas globalmente
         }
       </ul>
     </div>
+
+    <!-- Botones de borrar -->
     {
       tareas.length > 0 && (
-        <div class="botones-borrar">
+        <div class="flex justify-center gap-4 mt-6">
           <form method="POST" action="/">
             <input type="hidden" name="accion" value="limpiar" />
-            <button type="submit">Eliminar tareas completadas</button>
+            <button type="submit" class="bg-red-500 text-white px-6 py-2 rounded-full hover:bg-red-600 transition">
+              Eliminar tareas completadas
+            </button>
           </form>
           <form method="POST" action="/">
             <input type="hidden" name="accion" value="eliminarTodas" />
-            <button type="submit">Eliminar todas las tareas</button>
+            <button type="submit" class="bg-red-500 text-white px-6 py-2 rounded-full hover:bg-red-600 transition">
+              Eliminar todas las tareas
+            </button>
           </form>
         </div>
       )
     }
   </section>
 </Layout>
+
