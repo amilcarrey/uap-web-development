@@ -3,14 +3,14 @@ import useTaskStore from '../stores/taskStore';
 import { useTasks, useCreateTask, useUpdateTask, useDeleteTask, useDeleteCompletedTasks, useToggleTask } from './useTasks';
 
 export const useTaskManager = (boardName) => {
-  // Zustand store
   const {
     filter,
+    searchTerm,
     currentPage,
     itemsPerPage,
     editingTaskId,
-    editingTaskText,
     setFilter,
+    setSearchTerm,
     setCurrentPage,
     setEditingTask,
     clearEditingTask,
@@ -19,7 +19,6 @@ export const useTaskManager = (boardName) => {
     getPaginatedTasks
   } = useTaskStore();
 
-  // Tanstack Query hooks
   const { 
     data: tasks = [], 
     isLoading: isLoadingTasks, 
@@ -33,7 +32,6 @@ export const useTaskManager = (boardName) => {
   const deleteCompletedMutation = useDeleteCompletedTasks(boardName);
   const toggleTaskMutation = useToggleTask(boardName);
 
-  // Procesamiento de datos memoizado
   const processedData = useMemo(() => {
     const filteredTasks = getFilteredTasks(tasks);
     const sortedTasks = getSortedTasks(filteredTasks);
@@ -53,7 +51,6 @@ export const useTaskManager = (boardName) => {
     };
   }, [tasks, filter, currentPage, itemsPerPage, getFilteredTasks, getSortedTasks, getPaginatedTasks]);
 
-  // Estados de carga combinados
   const isLoading = isLoadingTasks || 
     createTaskMutation.isPending || 
     updateTaskMutation.isPending || 
@@ -61,7 +58,6 @@ export const useTaskManager = (boardName) => {
     deleteCompletedMutation.isPending || 
     toggleTaskMutation.isPending;
 
-  // Handlers
   const handleAddTask = async (text) => {
     await createTaskMutation.mutateAsync({ text });
   };
@@ -104,8 +100,14 @@ export const useTaskManager = (boardName) => {
     setFilter(newFilter);
   };
 
-  // Mensaje personalizado para estado vacío
+  const handleSearchChange = (term) => {
+    setSearchTerm(term);
+  };
+
   const getEmptyMessage = () => {
+    if (searchTerm && processedData.filteredTasks.length === 0) {
+      return `No hay resultados para "${searchTerm}"`;
+    }
     if (filter === 'all') return 'No hay tareas en este tablero';
     if (filter === 'active') return 'No hay tareas pendientes';
     if (filter === 'completed') return 'No hay tareas completadas';
@@ -113,16 +115,13 @@ export const useTaskManager = (boardName) => {
   };
 
   return {
-    // Datos procesados
     ...processedData,
-    
-    // Estados
     isLoading,
     error: tasksError?.message || null,
     editingTaskId,
-    editingTaskText,
-    
-    // Handlers
+    filter,
+    searchTerm,
+    currentPage,
     handleAddTask,
     handleToggleTask,
     handleDeleteTask,
@@ -132,12 +131,9 @@ export const useTaskManager = (boardName) => {
     handleClearCompleted,
     handlePageChange,
     handleFilterChange,
-    
-    // Utilidades
+    handleSearchChange,
     getEmptyMessage,
     refetch,
-    
-    // Mutations para acceso directo si es necesario
     mutations: {
       create: createTaskMutation,
       update: updateTaskMutation,

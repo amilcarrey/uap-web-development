@@ -5,27 +5,23 @@ import TodoList from '../components/TodoList';
 import TodoFilters from '../components/TodoFilters';
 import Pagination from '../components/Pagination';
 import ErrorMessage from '../components/ErrorMessage';
+import SearchInput from '../components/SearchInput';
 import { useTaskManager } from '../hooks/useTaskManager';
 
 const BoardDetail = () => {
   const { boardName } = useParams();
   
-  // Hook personalizado que combina Zustand + Tanstack Query
   const {
-    // Datos procesados
     paginatedTasks,
     totalPages,
     completedCount,
     totalCount,
     filter,
+    searchTerm,
     currentPage,
-    
-    // Estados
     isLoading,
     error,
     editingTaskId,
-    
-    // Handlers
     handleAddTask,
     handleToggleTask,
     handleDeleteTask,
@@ -35,8 +31,7 @@ const BoardDetail = () => {
     handleClearCompleted,
     handlePageChange,
     handleFilterChange,
-    
-    // Utilidades
+    handleSearchChange,
     getEmptyMessage
   } = useTaskManager(boardName);
 
@@ -53,6 +48,12 @@ const BoardDetail = () => {
         isLoading={isLoading}
         placeholder="Nueva tarea..."
         buttonText="Agregar"
+      />
+
+      <SearchInput 
+        initialValue={searchTerm}
+        onSearchChange={handleSearchChange}
+        placeholder="Buscar por título..."
       />
 
       <TodoFilters
@@ -82,14 +83,6 @@ const BoardDetail = () => {
         onPageChange={handlePageChange}
         isLoading={isLoading}
       />
-
-      {/* Estadísticas */}
-      {totalCount > 0 && (
-        <div className="mt-6 text-center text-white/60 text-sm">
-          {paginatedTasks.length} de {totalCount} tareas mostradas
-          {filter !== 'all' && ` (filtro: ${filter})`}
-        </div>
-      )}
     </PageLayout>
   );
 };

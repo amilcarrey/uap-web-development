@@ -1,60 +1,28 @@
 import { create } from 'zustand';
 
 const useAppStore = create((set, get) => ({
-  // Configuraciones de la aplicación
   settings: {
-    refetchInterval: 30, // segundos
+    refetchInterval: 30,
     itemsPerPage: 5,
-    showCompletedTasks: true,
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
     theme: 'dark',
     language: 'es'
   },
-  
-  // Estado de toasts
   toasts: [],
-  
-  // Estado de UI
   isLoading: false,
   error: null,
-  
-  // Acciones para configuraciones
+
   updateSettings: (newSettings) => {
     set((state) => ({
       settings: { ...state.settings, ...newSettings }
     }));
   },
   
-  resetSettings: () => {
+  addToast: (message, type = 'info', duration = 4000) => {
+    const id = Date.now();
     set((state) => ({
-      settings: {
-        refetchInterval: 30,
-        itemsPerPage: 5,
-        showCompletedTasks: true,
-        sortBy: 'createdAt',
-        sortOrder: 'desc',
-        theme: 'dark',
-        language: 'es'
-      }
+      toasts: [...state.toasts, { id, message, type }]
     }));
-  },
-  
-  // Acciones para toasts
-  addToast: (message, type = 'info', duration = 5000) => {
-    const id = Date.now() + Math.random();
-    const toast = { id, message, type, duration };
-    
-    set((state) => ({
-      toasts: [...state.toasts, toast]
-    }));
-    
-    // Auto-remove toast after duration
-    setTimeout(() => {
-      get().removeToast(id);
-    }, duration);
-    
-    return id;
+    setTimeout(() => get().removeToast(id), duration);
   },
   
   removeToast: (id) => {
@@ -63,62 +31,42 @@ const useAppStore = create((set, get) => ({
     }));
   },
   
-  clearToasts: () => {
-    set({ toasts: [] });
-  },
+  setLoading: (loading) => set({ isLoading: loading }),
   
-  // Acciones para UI
-  setLoading: (loading) => {
-    set({ isLoading: loading });
-  },
+  setError: (error) => set({ error }),
   
-  setError: (error) => {
-    set({ error });
-  },
-  
-  clearError: () => {
-    set({ error: null });
-  },
-  
-  // Utilidades
-  getSetting: (key) => {
-    return get().settings[key];
-  },
-  
-  // Persistencia en localStorage
-  loadFromStorage: () => {
+  clearError: () => set({ error: null }),
+
+  // Persistencia de la configuración
+  loadSettings: () => {
     try {
       const stored = localStorage.getItem('app-settings');
       if (stored) {
-        const settings = JSON.parse(stored);
-        set({ settings });
+        set({ settings: JSON.parse(stored) });
       }
-    } catch (error) {
-      console.error('Error loading settings from storage:', error);
+    } catch (e) {
+      console.error('Failed to load settings from localStorage', e);
     }
   },
   
-  saveToStorage: () => {
+  saveSettings: () => {
     try {
-      const { settings } = get();
-      localStorage.setItem('app-settings', JSON.stringify(settings));
-    } catch (error) {
-      console.error('Error saving settings to storage:', error);
+      localStorage.setItem('app-settings', JSON.stringify(get().settings));
+    } catch (e) {
+      console.error('Failed to save settings to localStorage', e);
     }
   }
 }));
 
-// Auto-save settings when they change
+// Sincronizar cambios de settings con localStorage
 useAppStore.subscribe(
   (state) => state.settings,
-  (settings) => {
-    useAppStore.getState().saveToStorage();
-  }
+  () => useAppStore.getState().saveSettings()
 );
 
-// Load settings on initialization
+// Cargar settings al inicio
 if (typeof window !== 'undefined') {
-  useAppStore.getState().loadFromStorage();
+  useAppStore.getState().loadSettings();
 }
 
 export default useAppStore; 

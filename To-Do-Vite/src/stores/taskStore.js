@@ -1,91 +1,55 @@
 import { create } from 'zustand';
 
 const useTaskStore = create((set, get) => ({
-  // Estado de filtros
   filter: 'all',
+  searchTerm: '',
   currentPage: 1,
   itemsPerPage: 5,
-  
-  // Estado de edición
   editingTaskId: null,
-  editingTaskText: '',
   
-  // Estado de configuración
-  showCompletedTasks: true,
-  sortBy: 'createdAt', // 'createdAt', 'text', 'completed'
-  sortOrder: 'desc', // 'asc', 'desc'
-  
-  // Acciones para filtros
   setFilter: (filter) => {
-    set({ filter, currentPage: 1 }); // Reset a página 1 al cambiar filtro
+    set({ filter, currentPage: 1 });
   },
   
-  // Acciones para paginación
+  setSearchTerm: (term) => {
+    set({ searchTerm: term, currentPage: 1 });
+  },
+  
   setCurrentPage: (page) => set({ currentPage: page }),
+  
   setItemsPerPage: (items) => set({ itemsPerPage: items, currentPage: 1 }),
   
-  // Acciones para edición
-  setEditingTask: (taskId, text) => set({ editingTaskId: taskId, editingTaskText: text }),
-  clearEditingTask: () => set({ editingTaskId: null, editingTaskText: '' }),
+  setEditingTask: (taskId) => set({ editingTaskId: taskId }),
+
+  clearEditingTask: () => set({ editingTaskId: null }),
   
-  // Acciones para configuración
-  setShowCompletedTasks: (show) => set({ showCompletedTasks: show }),
-  setSortBy: (sortBy) => set({ sortBy }),
-  setSortOrder: (sortOrder) => set({ sortOrder }),
-  
-  // Reset del estado
-  resetTaskState: () => set({
-    filter: 'all',
-    currentPage: 1,
-    itemsPerPage: 5,
-    editingTaskId: null,
-    editingTaskText: '',
-    showCompletedTasks: true,
-    sortBy: 'createdAt',
-    sortOrder: 'desc'
-  }),
-  
-  // Utilidades
   getFilteredTasks: (tasks) => {
-    const { filter } = get();
+    const { filter, searchTerm } = get();
     if (!tasks) return [];
     
+    const lowercasedTerm = searchTerm.toLowerCase();
+
     return tasks.filter(task => {
-      if (filter === 'active') return !task.completed;
-      if (filter === 'completed') return task.completed;
-      return true;
+      const filterPasses = (filter === 'all') || 
+                           (filter === 'active' && !task.completed) || 
+                           (filter === 'completed' && task.completed);
+      
+      const searchPasses = !lowercasedTerm || task.text.toLowerCase().includes(lowercasedTerm);
+
+      return filterPasses && searchPasses;
     });
   },
   
   getSortedTasks: (tasks) => {
-    const { sortBy, sortOrder } = get();
     if (!tasks) return [];
     
-    return [...tasks].sort((a, b) => {
-      let comparison = 0;
-      
-      switch (sortBy) {
-        case 'text':
-          comparison = a.text.localeCompare(b.text);
-          break;
-        case 'completed':
-          comparison = a.completed === b.completed ? 0 : a.completed ? 1 : -1;
-          break;
-        case 'createdAt':
-        default:
-          comparison = new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
-          break;
-      }
-      
-      return sortOrder === 'asc' ? comparison : -comparison;
-    });
+    return [...tasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   },
   
   getPaginatedTasks: (tasks) => {
     const { currentPage, itemsPerPage } = get();
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return tasks.slice(startIndex, endIndex);
+    return tasks.slice(startIndex, startIndex + itemsPerPage);
   }
 }));
 

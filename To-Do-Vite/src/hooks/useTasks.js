@@ -19,8 +19,7 @@ export const taskKeys = {
 
 // Hook para obtener tareas de un tablero
 export const useTasks = (boardName) => {
-  const { getSetting } = useAppStore();
-  const refetchInterval = getSetting('refetchInterval') || 30;
+  const refetchInterval = useAppStore((state) => state.settings.refetchInterval) || 30;
 
   return useQuery({
     queryKey: taskKeys.list(boardName),

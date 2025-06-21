@@ -22,9 +22,11 @@ const PageLayout = ({ children, title, showBackButton = true }) => {
             )}
           </div>
 
-          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-lg shadow-xl">
-            {children}
-          </div>
+          <main className="px-4 sm:px-6 lg:px-8 pb-8 z-10 relative">
+            <div className="max-w-3xl mx-auto bg-black/10 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-white/10">
+              {children}
+            </div>
+          </main>
         </div>
       </div>
     </div>

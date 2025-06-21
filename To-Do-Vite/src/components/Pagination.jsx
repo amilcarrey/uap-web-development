@@ -9,6 +9,12 @@ export default function Pagination({
 }) {
   if (totalPages <= 1) return null;
 
+  const handlePageClick = (page) => {
+    if (typeof page === 'number' && !isLoading) {
+      onPageChange(page);
+    }
+  };
+
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
@@ -46,21 +52,11 @@ export default function Pagination({
 
   return (
     <div className={`flex justify-center items-center gap-2 mt-6 ${className}`}>
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1 || isLoading}
-        className="px-3 py-1 bg-white/20 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/30 transition-colors flex items-center gap-1"
-        title="Página anterior"
-      >
-        <FaChevronLeft size={12} />
-        Anterior
-      </button>
-      
       <div className="flex gap-1">
         {getPageNumbers().map((page, index) => (
           <button
             key={index}
-            onClick={() => typeof page === 'number' ? onPageChange(page) : null}
+            onClick={() => handlePageClick(page)}
             disabled={page === '...' || isLoading}
             className={`px-3 py-1 rounded-lg transition-colors ${
               page === currentPage
@@ -74,16 +70,6 @@ export default function Pagination({
           </button>
         ))}
       </div>
-      
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages || isLoading}
-        className="px-3 py-1 bg-white/20 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/30 transition-colors flex items-center gap-1"
-        title="Página siguiente"
-      >
-        Siguiente
-        <FaChevronRight size={12} />
-      </button>
     </div>
   );
 } 
