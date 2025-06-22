@@ -75,7 +75,7 @@ const Home = () => {
 
         {/* Sección de enlaces compartidos */}
         <div className="mt-8 pt-8 border-t border-white/20">
-          <h3 className="text-white font-semibold mb-4">📋 Acceder a Tablero Compartido</h3>
+          <h3 className="text-white font-semibold mb-4">Acceder a Tablero Compartido</h3>
           <form onSubmit={handleSharedLinkSubmit} className="space-y-3">
             <div className="flex gap-2">
               <input
@@ -101,9 +101,6 @@ const Home = () => {
               Ver Tablero Compartido
             </button>
           </form>
-          <p className="text-white/60 text-sm mt-2">
-            Pega un enlace compartido para ver un tablero de solo lectura
-          </p>
         </div>
       </div>
     </PageLayout>

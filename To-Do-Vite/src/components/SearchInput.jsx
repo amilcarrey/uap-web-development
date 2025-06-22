@@ -14,6 +14,18 @@ export default function SearchInput({ onSearchChange, placeholder = "Buscar...",
     };
   }, [inputValue, onSearchChange, debounceDelay]);
 
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      onSearchChange(inputValue);
+    }
+  };
+
   return (
     <div className={`relative w-full mb-4 ${className}`}>
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -22,7 +34,8 @@ export default function SearchInput({ onSearchChange, placeholder = "Buscar...",
       <input
         type="text"
         value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className="w-full p-2 pl-10 rounded-lg bg-white/10 text-white border border-transparent focus:border-purple-400 focus:outline-none focus:bg-white/5 transition-colors"
       />

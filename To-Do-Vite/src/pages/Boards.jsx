@@ -4,6 +4,8 @@ import { useBoardsQuery } from '../hooks/useBoardsQuery';
 import { useToast } from '../context/ToastContext';
 import { shareBoard, getBoardUsers, removeBoardUser, createShareLink, revokeShareLink } from '../config/api';
 import PageLayout from '../components/PageLayout';
+import SearchInput from '../components/SearchInput';
+import Pagination from '../components/Pagination';
 
 const Boards = () => {
   const [newBoardName, setNewBoardName] = useState('');
@@ -12,6 +14,8 @@ const Boards = () => {
   const [shareModal, setShareModal] = useState({ open: false, boardName: '', boardUsers: [], activeTab: 'users' });
   const [shareForm, setShareForm] = useState({ username: '', role: 'viewer' });
   const [shareLink, setShareLink] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
   const { addToast } = useToast();
 
@@ -149,10 +153,19 @@ const Boards = () => {
     );
   };
 
+  const handleSearchChange = (term) => {
+    setSearchTerm(term);
+    setCurrentPage(1);
+  };
+
+  const boardsPerPage = 6;
   const filteredBoards = boards.filter(board => {
-    if (filter === 'all') return true;
-    return board.category === filter;
+    const matchesCategory = filter === 'all' || board.category === filter;
+    const matchesSearch = !searchTerm || board.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
   });
+  const totalPages = Math.max(1, Math.ceil(filteredBoards.length / boardsPerPage));
+  const paginatedBoards = filteredBoards.slice((currentPage - 1) * boardsPerPage, currentPage * boardsPerPage);
 
   if (isLoading) {
     return (
@@ -229,8 +242,15 @@ const Boards = () => {
         </button>
       </div>
 
+      <SearchInput
+        initialValue={searchTerm}
+        onSearchChange={handleSearchChange}
+        placeholder="Buscar tablero..."
+        debounceDelay={150}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredBoards.map(board => (
+        {paginatedBoards.map(board => (
           <div
             key={board.name}
             className="bg-white/10 backdrop-blur-lg rounded-lg p-4 border border-white/30"
@@ -243,7 +263,7 @@ const Boards = () => {
                   {getRoleBadge(board.role)}
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-1">
                 <button
                   onClick={() => openShareModal(board.name)}
                   className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
@@ -269,6 +289,12 @@ const Boards = () => {
           </div>
         ))}
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
 
       {/* Modal para compartir tablero */}
       {shareModal.open && (

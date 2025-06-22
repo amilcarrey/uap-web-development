@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import useTaskStore from '../stores/taskStore';
 import { useTasks, useCreateTask, useUpdateTask, useDeleteTask, useDeleteCompletedTasks, useToggleTask } from './useTasks';
 
@@ -18,6 +18,13 @@ export const useTaskManager = (boardName) => {
     getSortedTasks,
     getPaginatedTasks
   } = useTaskStore();
+
+  // Limpiar búsqueda y paginación cuando cambia el tablero
+  useEffect(() => {
+    setSearchTerm('');
+    setCurrentPage(1);
+    setFilter('all');
+  }, [boardName, setSearchTerm, setCurrentPage, setFilter]);
 
   const { 
     data: tasks = [], 
@@ -49,7 +56,7 @@ export const useTaskManager = (boardName) => {
       activeCount,
       totalCount: tasks.length
     };
-  }, [tasks, filter, currentPage, itemsPerPage, getFilteredTasks, getSortedTasks, getPaginatedTasks]);
+  }, [tasks, filter, searchTerm, currentPage, itemsPerPage, getFilteredTasks, getSortedTasks, getPaginatedTasks]);
 
   const isLoading = isLoadingTasks || 
     createTaskMutation.isPending || 

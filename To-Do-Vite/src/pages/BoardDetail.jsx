@@ -54,6 +54,7 @@ const BoardDetail = () => {
         initialValue={searchTerm}
         onSearchChange={handleSearchChange}
         placeholder="Buscar por título..."
+        debounceDelay={150}
       />
 
       <TodoFilters

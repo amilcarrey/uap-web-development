@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const pool = require('./config/db');
 const authRoutes = require('./routes/auth');
 const boardRoutes = require('./routes/boardRoutes');
+const taskRoutes = require('./routes/taskRoutes');
 const authMiddleware = require('./middleware/auth');
 
 const app = express();
@@ -17,10 +18,23 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+// Middleware de logging para debug
+app.use((req, res, next) => {
+    console.log(`🔍 ${req.method} ${req.url}`);
+    next();
+});
+
 // Rutas públicas
 app.use('/auth', authRoutes);
 
-// Rutas protegidas
+// Rutas de tareas para cada tablero (deben ir antes que las rutas de tableros)
+app.use('/boards/:boardName/tasks', (req, res, next) => {
+    // Asegurar que el parámetro boardName esté disponible en las rutas hijas
+    req.boardName = req.params.boardName;
+    next();
+}, taskRoutes);
+
+// Rutas protegidas de tableros
 app.use('/boards', boardRoutes);
 
 // Función para generar token único
