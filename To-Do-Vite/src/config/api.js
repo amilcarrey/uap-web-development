@@ -102,4 +102,23 @@ export const getSharedBoardTasks = async (token) => {
   const response = await fetch(`${API_URL}/shared/${token}/tasks`, getRequestConfig());
   if (!response.ok) throw new Error('Error al cargar tareas del tablero compartido');
   return response.json();
+};
+
+// Funciones para el dashboard administrativo
+export const getAdminStats = async () => {
+  const response = await fetch(`${API_URL}/admin/stats`, getRequestConfig());
+  if (!response.ok) throw new Error('Error al obtener estadísticas');
+  return response.json();
+};
+
+export const getAdminUsers = async () => {
+  const response = await fetch(`${API_URL}/admin/users`, getRequestConfig());
+  if (!response.ok) throw new Error('Error al obtener usuarios');
+  return response.json();
+};
+
+export const deleteAdminUser = async (userId) => {
+  const response = await fetch(`${API_URL}/admin/users/${userId}`, getRequestConfig('DELETE'));
+  if (!response.ok) throw new Error('Error al eliminar usuario');
+  return response.json();
 }; 

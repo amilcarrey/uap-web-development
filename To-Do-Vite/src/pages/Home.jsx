@@ -58,6 +58,16 @@ const Home = () => {
             Ver Tableros
           </button>
           
+          {/* Botón de admin solo para luca */}
+          {user?.username === 'luca' && (
+            <button
+              onClick={() => navigate('/admin')}
+              className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              🛠️ Dashboard Administrativo
+            </button>
+          )}
+          
           <button
             onClick={handleLogout}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"

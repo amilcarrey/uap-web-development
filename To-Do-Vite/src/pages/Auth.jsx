@@ -11,6 +11,7 @@ const Auth = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -20,12 +21,14 @@ const Auth = () => {
       [e.target.name]: e.target.value
     });
     setError(''); // Limpiar error al escribir
+    setSuccess(''); // Limpiar éxito al escribir
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
 
     try {
       const endpoint = isLogin ? '/auth/login' : '/auth/register';
@@ -49,7 +52,7 @@ const Auth = () => {
           // Si es registro, cambiar a login
           setIsLogin(true);
           setFormData({ username: '', password: '' });
-          setError('Usuario registrado exitosamente. Inicia sesión.');
+          setSuccess('Usuario registrado exitosamente. Inicia sesión.');
         }
       } else {
         setError(data.error || 'Error en la autenticación');
@@ -65,6 +68,7 @@ const Auth = () => {
     setIsLogin(!isLogin);
     setFormData({ username: '', password: '' });
     setError('');
+    setSuccess('');
   };
 
   return (
@@ -86,6 +90,12 @@ const Auth = () => {
             {error && (
               <div className="mb-6 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
                 <p className="text-red-200 text-sm">{error}</p>
+              </div>
+            )}
+
+            {success && (
+              <div className="mb-6 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
+                <p className="text-green-200 text-sm">{success}</p>
               </div>
             )}
 

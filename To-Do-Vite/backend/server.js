@@ -6,6 +6,7 @@ const pool = require('./config/db');
 const authRoutes = require('./routes/auth');
 const boardRoutes = require('./routes/boardRoutes');
 const taskRoutes = require('./routes/taskRoutes');
+const adminRoutes = require('./routes/admin');
 const authMiddleware = require('./middleware/auth');
 
 const app = express();
@@ -18,14 +19,11 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Middleware de logging para debug
-app.use((req, res, next) => {
-    console.log(`🔍 ${req.method} ${req.url}`);
-    next();
-});
-
 // Rutas públicas
 app.use('/auth', authRoutes);
+
+// Rutas de administración (solo para luca)
+app.use('/admin', adminRoutes);
 
 // Rutas de tareas para cada tablero (deben ir antes que las rutas de tableros)
 app.use('/boards/:boardName/tasks', (req, res, next) => {

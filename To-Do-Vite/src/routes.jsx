@@ -7,6 +7,7 @@ import Auth from './pages/Auth';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorPage from './components/ErrorPage';
 import Settings from './pages/Settings';
+import AdminDashboard from './pages/AdminDashboard';
 
 const AppLayout = () => <Outlet />;
 
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: '/settings',
         element: <ProtectedRoute><Settings /></ProtectedRoute>,
+      },
+      {
+        path: '/admin',
+        element: <ProtectedRoute><AdminDashboard /></ProtectedRoute>,
       }
     ]
   }
