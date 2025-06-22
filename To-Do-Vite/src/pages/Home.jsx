@@ -48,7 +48,7 @@ const Home = () => {
   return (
     <PageLayout title={`¡Hola, ${user?.username || 'Usuario'}!`} showBackButton={false}>
       <div className="text-center">
-        <p className="text-white/80 mb-8 text-lg">Bienvenido a tu gestor de tareas</p>
+        <p className="text-white/80 mb-8 text-lg">Bienvenido</p>
         
         <div className="space-y-4">
           <button
@@ -58,13 +58,6 @@ const Home = () => {
             Ver Tableros
           </button>
           
-          <button
-            onClick={() => navigate('/settings')}
-            className="w-full bg-white/20 hover:bg-white/30 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-          >
-            Configuraciones
-          </button>
-
           <button
             onClick={handleLogout}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"

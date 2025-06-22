@@ -1,69 +1,89 @@
-import { useState, useEffect } from 'react';
-import { useSettings } from '../context/SettingsContext';
+import React from 'react';
 import PageLayout from '../components/PageLayout';
+import useAppStore from '../stores/appStore';
 
 const Settings = () => {
-  const { settings, updateSettings } = useSettings();
-  const [localSettings, setLocalSettings] = useState({
-    refetchInterval: settings.refetchInterval,
-    uppercase: settings.uppercase
-  });
+  const { settings, updateSettings } = useAppStore();
 
-  useEffect(() => {
-    setLocalSettings({
-      refetchInterval: settings.refetchInterval,
-      uppercase: settings.uppercase
-    });
-  }, [settings]);
-
-  const handleSave = () => {
-    updateSettings(localSettings);
-  };
-
-  const handleIntervalChange = (e) => {
-    const value = Math.max(1, Math.min(60, parseInt(e.target.value) || 10));
-    setLocalSettings(prev => ({ ...prev, refetchInterval: value }));
+  const handleSettingChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : Number(value);
+    updateSettings({ [name]: newValue });
   };
 
   return (
-    <PageLayout title="Configuraciones">
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <label className="block text-white text-lg">
-            Intervalo de Actualización (segundos)
-          </label>
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              min="1"
-              max="60"
-              value={localSettings.refetchInterval}
-              onChange={handleIntervalChange}
-              className="w-24 p-2 rounded-lg bg-white/20 text-white border border-white/30 focus:border-purple-400 focus:outline-none"
-            />
-            <span className="text-white/60 text-sm">(1-60 segundos)</span>
-          </div>
-        </div>
+    <PageLayout title="Ajustes">
+      <div className="space-y-8">
 
-        <div className="flex items-center justify-between">
-          <label className="text-white text-lg">Mostrar texto en mayúsculas</label>
+        {/* Forzar mayúsculas en tareas */}
+        <div className="p-4 rounded-lg flex items-center justify-between bg-white/10">
+          <h3 className="text-lg font-semibold text-white">
+            Mostrar tareas en mayúsculas
+          </h3>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
-              checked={localSettings.uppercase}
-              onChange={(e) => setLocalSettings(prev => ({ ...prev, uppercase: e.target.checked }))}
+              name="uppercaseTasks"
+              checked={settings.uppercaseTasks || false}
+              onChange={handleSettingChange}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+            <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
           </label>
         </div>
 
-        <button
-          onClick={handleSave}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-        >
-          Guardar Cambios
-        </button>
+        {/* Intervalo de actualización */}
+        <div className="p-4 rounded-lg bg-white/10">
+          <label htmlFor="refetchInterval" className="text-lg font-semibold mb-2 block text-white">
+            Intervalo de actualización
+          </label>
+          <div className="flex items-center gap-4">
+            <input
+              id="refetchInterval"
+              type="range"
+              min="5"
+              max="120"
+              step="5"
+              name="refetchInterval"
+              value={settings.refetchInterval}
+              onChange={handleSettingChange}
+              className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-white/20"
+            />
+            <span className="font-bold w-16 text-center text-lg p-2 rounded-md text-white bg-black/20">
+              {settings.refetchInterval}s
+            </span>
+          </div>
+          <p className="text-sm mt-2 text-white/60">
+            Las tareas se actualizarán automáticamente cada {settings.refetchInterval} segundos.
+          </p>
+        </div>
+
+        {/* Tareas por página */}
+        <div className="p-4 rounded-lg bg-white/10">
+          <label htmlFor="itemsPerPage" className="text-lg font-semibold mb-2 block text-white">
+            Tareas por página
+          </label>
+          <div className="flex items-center gap-4">
+            <input
+              id="itemsPerPage"
+              type="range"
+              min="3"
+              max="20"
+              step="1"
+              name="itemsPerPage"
+              value={settings.itemsPerPage}
+              onChange={handleSettingChange}
+              className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-white/20"
+            />
+            <span className="font-bold w-16 text-center text-lg p-2 rounded-md text-white bg-black/20">
+              {settings.itemsPerPage}
+            </span>
+          </div>
+          <p className="text-sm mt-2 text-white/60">
+            Mostrar {settings.itemsPerPage} tareas por página.
+          </p>
+        </div>
+
       </div>
     </PageLayout>
   );

@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Settings } from 'lucide-react';
 import AnimatedBackground from './AnimatedBackground';
 
 const PageLayout = ({ children, title, showBackButton = true }) => {
@@ -12,14 +13,19 @@ const PageLayout = ({ children, title, showBackButton = true }) => {
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-white">{title}</h1>
-            {showBackButton && (
-              <button
-                onClick={() => navigate(-1)}
-                className="text-white hover:text-purple-300 transition-colors"
-              >
-                Volver
-              </button>
-            )}
+            <div className="flex items-center gap-4">
+              <Link to="/settings" title="Ajustes">
+                <Settings className="w-6 h-6 text-white hover:text-purple-300 transition-transform duration-300 hover:rotate-45" />
+              </Link>
+              {showBackButton && (
+                <button
+                  onClick={() => navigate(-1)}
+                  className="text-white hover:text-purple-300 transition-colors"
+                >
+                  Volver
+                </button>
+              )}
+            </div>
           </div>
 
           <main className="px-4 sm:px-6 lg:px-8 pb-8 z-10 relative">

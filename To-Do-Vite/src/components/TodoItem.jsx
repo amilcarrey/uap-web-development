@@ -1,17 +1,22 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FaEdit, FaCheck, FaTimes, FaTrash } from 'react-icons/fa';
+import useAppStore from '../stores/appStore';
+import { Check, Edit, Trash2, X, Save } from 'lucide-react';
 
 export default function TodoItem({ 
   todo, 
   onToggle, 
   onDelete, 
   onEdit, 
-  isEditing, 
   onSaveEdit, 
   onCancelEdit, 
+  editingId, 
   isLoading = false 
 }) {
+  const { settings } = useAppStore();
   const [editText, setEditText] = useState(todo.text);
+  const editInputRef = useRef(null);
+  const isEditing = editingId === todo.id;
 
   const handleSaveEdit = () => {
     if (editText.trim() && editText !== todo.text) {
@@ -37,6 +42,7 @@ export default function TodoItem({
           <div className="w-5 h-5"></div> {/* Espacio para mantener alineación */}
           <div className="flex-1 flex gap-2">
             <input
+              ref={editInputRef}
               type="text"
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
@@ -89,13 +95,27 @@ export default function TodoItem({
           {todo.completed && <FaCheck size={12} />}
         </button>
         
-        <span
-          className={`flex-1 ${
-            todo.completed ? 'line-through text-white/60' : 'text-white'
-          }`}
-        >
-          {todo.text}
-        </span>
+        {settings.uppercaseTasks ? (
+          <span
+            className={`flex-grow cursor-pointer ${
+              todo.completed ? 'line-through text-gray-500' : 'text-white'
+            } ${settings.uppercaseTasks ? 'uppercase' : ''}`}
+            style={{ color: todo.completed ? 'var(--text-muted)' : 'var(--text-primary)' }}
+            onClick={() => onEdit(todo.id)}
+          >
+            {todo.text}
+          </span>
+        ) : (
+          <span
+            className={`flex-grow cursor-pointer ${
+              todo.completed ? 'line-through text-gray-500' : 'text-white'
+            }`}
+            style={{ color: todo.completed ? 'var(--text-muted)' : 'var(--text-primary)' }}
+            onClick={() => onEdit(todo.id)}
+          >
+            {todo.text}
+          </span>
+        )}
       </div>
       
       <div className="flex gap-2">

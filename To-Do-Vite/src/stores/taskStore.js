@@ -4,7 +4,6 @@ const useTaskStore = create((set, get) => ({
   filter: 'all',
   searchTerm: '',
   currentPage: 1,
-  itemsPerPage: 5,
   editingTaskId: null,
   
   setFilter: (filter) => {
@@ -16,8 +15,6 @@ const useTaskStore = create((set, get) => ({
   },
   
   setCurrentPage: (page) => set({ currentPage: page }),
-  
-  setItemsPerPage: (items) => set({ itemsPerPage: items, currentPage: 1 }),
   
   setEditingTask: (taskId) => set({ editingTaskId: taskId }),
 
@@ -45,12 +42,6 @@ const useTaskStore = create((set, get) => ({
     
     return [...tasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   },
-  
-  getPaginatedTasks: (tasks) => {
-    const { currentPage, itemsPerPage } = get();
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return tasks.slice(startIndex, startIndex + itemsPerPage);
-  }
 }));
 
 export default useTaskStore; 

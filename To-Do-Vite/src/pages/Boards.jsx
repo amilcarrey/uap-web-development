@@ -6,6 +6,7 @@ import { shareBoard, getBoardUsers, removeBoardUser, createShareLink, revokeShar
 import PageLayout from '../components/PageLayout';
 import SearchInput from '../components/SearchInput';
 import Pagination from '../components/Pagination';
+import useAppStore from '../stores/appStore';
 
 const Boards = () => {
   const [newBoardName, setNewBoardName] = useState('');
@@ -18,6 +19,7 @@ const Boards = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const { settings } = useAppStore();
 
   const {
     boardsQuery: { data: boards = [], isLoading, error },
@@ -158,7 +160,7 @@ const Boards = () => {
     setCurrentPage(1);
   };
 
-  const boardsPerPage = 6;
+  const boardsPerPage = settings.itemsPerPage || 6;
   const filteredBoards = boards.filter(board => {
     const matchesCategory = filter === 'all' || board.category === filter;
     const matchesSearch = !searchTerm || board.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -176,7 +178,7 @@ const Boards = () => {
   }
 
   return (
-    <PageLayout title="Mis Tableros">
+    <PageLayout title="Tableros">
       {error && (
         <div className="bg-red-500/20 border border-red-500 text-white p-4 rounded-lg mb-6">
           Error al cargar los tableros

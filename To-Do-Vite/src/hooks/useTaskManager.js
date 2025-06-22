@@ -1,5 +1,6 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 import useTaskStore from '../stores/taskStore';
+import useAppStore from '../stores/appStore';
 import { useTasks, useCreateTask, useUpdateTask, useDeleteTask, useDeleteCompletedTasks, useToggleTask } from './useTasks';
 
 export const useTaskManager = (boardName) => {
@@ -7,7 +8,6 @@ export const useTaskManager = (boardName) => {
     filter,
     searchTerm,
     currentPage,
-    itemsPerPage,
     editingTaskId,
     setFilter,
     setSearchTerm,
@@ -15,16 +15,21 @@ export const useTaskManager = (boardName) => {
     setEditingTask,
     clearEditingTask,
     getFilteredTasks,
-    getSortedTasks,
-    getPaginatedTasks
+    getSortedTasks
   } = useTaskStore();
+
+  const { itemsPerPage } = useAppStore(state => state.settings);
 
   // Limpiar búsqueda y paginación cuando cambia el tablero
   useEffect(() => {
     setSearchTerm('');
     setCurrentPage(1);
-    setFilter('all');
-  }, [boardName, setSearchTerm, setCurrentPage, setFilter]);
+  }, [boardName, setSearchTerm, setCurrentPage]);
+
+  // Resetear página si itemsPerPage cambia
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [itemsPerPage, setCurrentPage]);
 
   const { 
     data: tasks = [], 
@@ -39,24 +44,28 @@ export const useTaskManager = (boardName) => {
   const deleteCompletedMutation = useDeleteCompletedTasks(boardName);
   const toggleTaskMutation = useToggleTask(boardName);
 
-  const processedData = useMemo(() => {
-    const filteredTasks = getFilteredTasks(tasks);
-    const sortedTasks = getSortedTasks(filteredTasks);
-    const paginatedTasks = getPaginatedTasks(sortedTasks);
-    const totalPages = Math.max(1, Math.ceil(sortedTasks.length / itemsPerPage));
-    const completedCount = tasks.filter(task => task.completed).length;
-    const activeCount = tasks.filter(task => !task.completed).length;
+  const { filteredAndSortedTasks, completedCount, totalCount } = useMemo(() => {
+    const filtered = getFilteredTasks(tasks);
+    const sorted = getSortedTasks(filtered);
+    const completed = tasks.filter(task => task.completed).length;
 
-    return {
-      filteredTasks,
-      sortedTasks,
-      paginatedTasks,
-      totalPages,
-      completedCount,
-      activeCount,
+    return { 
+      filteredAndSortedTasks: sorted,
+      completedCount: completed,
       totalCount: tasks.length
     };
-  }, [tasks, filter, searchTerm, currentPage, itemsPerPage, getFilteredTasks, getSortedTasks, getPaginatedTasks]);
+  }, [tasks, filter, searchTerm, getFilteredTasks, getSortedTasks]);
+
+  const { paginatedTasks, totalPages } = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginated = filteredAndSortedTasks.slice(startIndex, startIndex + itemsPerPage);
+    const total = Math.max(1, Math.ceil(filteredAndSortedTasks.length / itemsPerPage));
+
+    return {
+      paginatedTasks: paginated,
+      totalPages: total
+    };
+  }, [filteredAndSortedTasks, currentPage, itemsPerPage]);
 
   const isLoading = isLoadingTasks || 
     createTaskMutation.isPending || 
@@ -99,20 +108,20 @@ export const useTaskManager = (boardName) => {
     deleteCompletedMutation.mutate();
   };
 
-  const handlePageChange = (page) => {
+  const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
-  };
+  }, [setCurrentPage]);
 
-  const handleFilterChange = (newFilter) => {
+  const handleFilterChange = useCallback((newFilter) => {
     setFilter(newFilter);
-  };
+  }, [setFilter]);
 
-  const handleSearchChange = (term) => {
+  const handleSearchChange = useCallback((term) => {
     setSearchTerm(term);
-  };
+  }, [setSearchTerm]);
 
   const getEmptyMessage = () => {
-    if (searchTerm && processedData.filteredTasks.length === 0) {
+    if (searchTerm && filteredAndSortedTasks.length === 0) {
       return `No hay resultados para "${searchTerm}"`;
     }
     if (filter === 'all') return 'No hay tareas en este tablero';
@@ -122,7 +131,10 @@ export const useTaskManager = (boardName) => {
   };
 
   return {
-    ...processedData,
+    paginatedTasks,
+    totalPages,
+    completedCount,
+    totalCount,
     isLoading,
     error: tasksError?.message || null,
     editingTaskId,
