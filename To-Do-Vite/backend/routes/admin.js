@@ -110,7 +110,7 @@ router.delete('/users/:userId', async (req, res) => {
         try {
             await client.query('BEGIN');
 
-            // Obtener tableros del usuario
+            // Obtener todos los tableros donde el usuario es propietario o participa
             const userBoards = await client.query(`
                 SELECT DISTINCT b.id 
                 FROM boards b 
@@ -118,14 +118,23 @@ router.delete('/users/:userId', async (req, res) => {
                 WHERE bu.user_id = $1
             `, [userId]);
 
-            // Eliminar tareas de los tableros del usuario
-            for (const board of userBoards.rows) {
-                await client.query('DELETE FROM tasks WHERE board_id = $1', [board.id]);
+            const boardIds = userBoards.rows.map(board => board.id);
+
+            if (boardIds.length > 0) {
+                // Eliminar tareas de todos los tableros del usuario
+                await client.query('DELETE FROM tasks WHERE board_id = ANY($1)', [boardIds]);
+                
+                // Eliminar enlaces compartidos de los tableros
+                await client.query('DELETE FROM shared_links WHERE board_id = ANY($1)', [boardIds]);
+                
+                // Eliminar relaciones de usuarios con tableros
+                await client.query('DELETE FROM board_users WHERE board_id = ANY($1)', [boardIds]);
+                
+                // Eliminar los tableros
+                await client.query('DELETE FROM boards WHERE id = ANY($1)', [boardIds]);
             }
 
-            // Eliminar relaciones y tableros
-            await client.query('DELETE FROM board_users WHERE user_id = $1', [userId]);
-            await client.query('DELETE FROM boards WHERE id IN (SELECT board_id FROM board_users WHERE user_id = $1)', [userId]);
+            // Eliminar el usuario
             await client.query('DELETE FROM users WHERE id = $1', [userId]);
 
             await client.query('COMMIT');
