@@ -10,6 +10,31 @@ import { Task } from '../models/Task';
 import { permission } from 'process';
 
 export class BoardService implements IBoardService{
+
+    //Buscar todos los tableros
+    async getBoards(): Promise<BoardDTO[]> {
+        const boards = await prisma.board.findMany({
+            include: {
+                tasks: true,
+                permissions: true
+            }
+        });
+
+        return boards.map(board => ({
+            id: board.id,
+            name: board.name,
+            active: board.active,
+            ownerId: board.ownerId,
+            tasks: board.tasks.map(task => ({
+                content: task.content,
+                active: task.active,
+                boardId: task.boardId
+            })),
+            permissionsId: board.permissions.map((perm: any) => perm.id)
+        }));
+    }
+
+    //Busca los tableros del usuario
     async getBoardsForUser(userId: number): Promise<BoardDTO[]> {
         //Busco los tableros en donde el usuario es el dueño
         const ownedBoards = await prisma.board.findMany({
@@ -44,6 +69,7 @@ export class BoardService implements IBoardService{
 
     }
 
+    //Buscar un tablero por su ID
     async getBoardById(boardId: number): Promise<BoardDTO | null> {
         const board = await prisma.board.findUnique({
             where: { id: boardId },
@@ -61,6 +87,7 @@ export class BoardService implements IBoardService{
         };
     }
     
+    //Actualizar tablero
     async updateBoard(boardId: number, data: UpdateBoardDTO): Promise<BoardDTO> {
         // Implementa la lógica para actualizar un tablero
         // 1. Buscar el tablero por ID
@@ -86,6 +113,7 @@ export class BoardService implements IBoardService{
 
     }
     
+    //Eliminar tablero
     async deleteBoard(userId: number, boardId: number): Promise<void> {
         //1. Verifico si el tablero existe
         const board = await prisma.board.findUnique({
@@ -107,7 +135,7 @@ export class BoardService implements IBoardService{
         });
 
         //4. Elimino los permisos asociados al tablero
-        await prisma.boardPermission.deleteMany({
+        await prisma.permission.deleteMany({
             where: {boardId}
         });
 
@@ -128,6 +156,7 @@ export class BoardService implements IBoardService{
         throw new Error('Method not implemented.');
     }
 
+    //Crear tablero
     async createBoard(userId: number, data: CreateBoardDTO): Promise<BoardDTO> {
         // 1. Crear el tablero (sin tareas asociadas)
         const board = await prisma.board.create({
@@ -139,7 +168,7 @@ export class BoardService implements IBoardService{
         });
 
         // 2. Crear el permiso OWNER para el usuario creador
-        await prisma.boardPermission.create({
+        await prisma.permission.create({
             data: {
                 userId: userId,
                 boardId: board.id,

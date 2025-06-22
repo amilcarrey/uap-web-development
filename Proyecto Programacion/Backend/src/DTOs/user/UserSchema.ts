@@ -14,6 +14,7 @@ export const UserSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   alias: z.string(),
+  password: z.string().optional(), // La contraseña puede no estar presente en algunos casos
   boards: z.array(BoardSchema),
   permissions: z.array(PermissionSchema),
   settings: UserSettingsSchema.nullable(),

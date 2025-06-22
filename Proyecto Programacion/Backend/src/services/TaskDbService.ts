@@ -1,10 +1,11 @@
 import { CreateTaskDTO } from "../DTOs/task/CreateTaskSchema";
 import { TaskDTO } from "../DTOs/task/TaskSchema";
-import { TaskQueryDTO } from "../DTOs/task/TaskQuerySchema";
+import { TaskQueryDTO, TaskQuerySchema } from "../DTOs/task/TaskQuerySchema";
 import { UpdateTaskDTO } from "../DTOs/task/UpdateTaskSchema";
 import { ITaskService } from "../Interfaces/ITaskService";
 import { Paginated } from "../Interfaces/Paginated";
 import { prisma } from "../prisma";
+import { Request, Response } from "express";
 
 
 export class TaskDbService implements ITaskService {
@@ -26,7 +27,7 @@ export class TaskDbService implements ITaskService {
     }
 
     // Obtiene tareas paginadas de un tablero
-    async getTask(userId: number, boardId: number, query: TaskQueryDTO): Promise<Paginated<TaskDTO>> {
+    async getTask(boardId: number, query: TaskQueryDTO): Promise<Paginated<TaskDTO>> {
         const page = query.page || 1;
         const pageSize = query.limit || 10;
         const where: any = { boardId };
@@ -87,4 +88,5 @@ export class TaskDbService implements ITaskService {
             active: task.active
         };
     }
+
 }

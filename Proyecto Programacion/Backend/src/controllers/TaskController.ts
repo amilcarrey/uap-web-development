@@ -34,17 +34,25 @@ export class TaskController {
     //Obtener tareas de un tablero (paginadas)
     static async getTaks(req: Request, res: Response){
         try{
-            const parseResult = TaskQuerySchema.safeParse(req.query);
+            // Transforma los parámetros de query a los tipos correctos
+            const query = {
+                ...req.query,
+                page: req.query.page ? Number(req.query.page) : undefined,
+                limit: req.query.limit ? Number(req.query.limit) : undefined,
+                active: req.query.active !== undefined ? req.query.active === "true" : undefined,
+            };
+
+            const parseResult = TaskQuerySchema.safeParse(query);
             if(!parseResult.success){
                 res.status(400).json({ error: "Datos inválidos", details: parseResult.error.errors });
                 return;
             }
 
-            const query = parseResult.data;
-            const userId = Number(req.params.userId);
+            const parsedQuery = parseResult.data;
+            //const userId = Number(req.params.userId);
             const boardId = Number(req.params.boardId);
 
-            const tasks = await taskService.getTask(userId, boardId, query);
+            const tasks = await taskService.getTask(boardId, parsedQuery);
             res.json(tasks);
 
         }catch(error){

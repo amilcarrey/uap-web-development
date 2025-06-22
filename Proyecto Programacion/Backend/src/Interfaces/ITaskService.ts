@@ -7,7 +7,7 @@ import { Paginated } from "./Paginated";
 
 export interface ITaskService{
     createTask(userId: number, boardId: number, data: CreateTaskDTO): Promise<TaskDTO>;
-    getTask(userId: number, boardId: number, query: TaskQueryDTO): Promise<Paginated<TaskDTO>>;
+    getTask(boardId: number, query: TaskQueryDTO): Promise<Paginated<TaskDTO>>;
     getTaskById(userId: number, taskId: number): Promise<TaskDTO>;
     updateTask(taskId: number, data: UpdateTaskDTO): Promise<TaskDTO>;
     deleteTask(userId: number, taskId: number): Promise<void>;

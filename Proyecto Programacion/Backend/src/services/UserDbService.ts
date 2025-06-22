@@ -11,10 +11,52 @@ import { Permission } from '../models/Permission'; // Adjust the path if needed
 import { User } from '../models/User';
 
 export class UserDbService implements IUserService {
+    async findUserByAlias(alias: string): Promise<UserDTO | null> {
+        const user = await prisma.user.findUnique({
+            where: { username: alias },
+        });
+
+        if(!user){
+            return null;
+        }
+
+        return {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            alias: user.username,
+            boards: [],
+            permissions: [],
+            settings: null
+        };
+    }
+
+    async findUserWithPasswordByAlias(alias: string): Promise<UserDTO & { id: number, password?: string } | null> {
+        const user = await prisma.user.findUnique({
+            where: { username: alias },
+            select:{
+                id: true,
+                firstName: true,
+                lastName: true,
+                username: true,
+                password: true, // Incluimos la contraseña para la verificación
+            }
+        });
+        if (!user) return null;
+        return {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            alias: user.username,
+            password: user.password, // Incluimos la contraseña para la verificación
+            boards: [],
+            permissions: [],
+            settings: null
+        };
+    }
 
 
     //Nota: Esta función debe retorna un DTO, pero se utiliza User para hacer pruebas (modificar más adelante)
-    async resgisterUser(data: RegistrerUserDTO): Promise<User> {
+    async registerUser(data: RegistrerUserDTO): Promise<User> {
         const newUser = await prisma.user.create({
             data: {
                 firstName: data.firstName,
@@ -101,7 +143,7 @@ export class UserDbService implements IUserService {
             })),
             permissionsId: board.permissions ? board.permissions.map((perm: any) => perm.id) : [],
         }));
-
+ 
         // Mapear settings a UserSettingsDTO
         const settings: UserSettingsDTO = userSettings
             ? {
@@ -136,5 +178,52 @@ export class UserDbService implements IUserService {
     updateUserSettings(userId: number, settings: UpdateSettingsDTO): Promise<UserDTO> {
         throw new Error('Method not implemented.');
     }
+
+
+    async getUsers(): Promise<UserDTO[]> {
+    const users = await prisma.user.findMany({
+        include: {
+            boards: {
+                include: {
+                    tasks: true,
+                    permissions: true,
+                }
+            },
+            permissions: true,
+        }
+    });
+
+    return users.map(user => ({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        alias: user.username,
+        password: user.password, // Incluimos la contraseña para la verificación
+        boards:[],
+        permissions:[],
+        settings: null // Puedes agregar lógica para traer settings si lo necesitas
+
+
+        /*
+        boards: user.boards.map(board => ({
+            name: board.name,
+            active: board.active,
+            ownerId: board.ownerId,
+            tasks: board.tasks.map(task => ({
+                content: task.content,
+                active: task.active,
+                boardId: task.boardId,
+            })),
+            permissionsId: board.permissions ? board.permissions.map((perm: any) => perm.id) : [],
+        })),
+        permissions: user.permissions ? user.permissions.map((perm: any) => ({
+            id: perm.id,
+            userId: perm.userId,
+            boardId: perm.boardId,
+            level: perm.level
+        })) : [],
+        settings: null // Puedes agregar lógica para traer settings si lo necesitas
+        */
+    }));
+}
 
 }

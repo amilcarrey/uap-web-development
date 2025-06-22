@@ -8,7 +8,7 @@ export class UserController {
   static async register(req: Request, res: Response) {
     try {
       const data: RegistrerUserDTO = req.body;
-      const user = await userService.resgisterUser(data);
+      const user = await userService.registerUser(data);
       res.status(201).json({
         id: user.id,
         firstName: user.firstName,
@@ -20,6 +20,16 @@ export class UserController {
     }
   }
 
+  static async getUsers(req: Request, res: Response) {
+    try {
+      const users = await userService.getUsers();
+      res.json(users);
+
+    } catch (error) {
+      throw new Error('Error al obtener usuarios: ' + (error instanceof Error ? error.message : error));
+    }
+  }
+ 
 
   static async getAll(req: Request, res: Response){
     try{

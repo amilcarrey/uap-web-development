@@ -7,13 +7,15 @@ import { UpdateSettingsDTO } from "../DTOs/settings/UpdateSettingsSchema";
 
 export interface IUserService {
 
-    resgisterUser(data: RegistrerUserDTO): Promise<User>;
+    registerUser(data: RegistrerUserDTO): Promise<User>;
     loginUser(credentials: LoginDTO): Promise<AuthResponseDTO>;
     logoutUser(userId: number): Promise<void>;
     getCurrentUser(userId: number): Promise<UserDTO>;
     getAllUsers(): Promise<UserDTO[]>;
     getUserById(userId: number): Promise<UserDTO>;
     updateUserSettings(userId: number, settings: UpdateSettingsDTO): Promise<UserDTO>;
+    findUserByAlias(alias: string): Promise<UserDTO | null>;
+    findUserWithPasswordByAlias(alias: string): Promise<UserDTO | null>
 }
 
 

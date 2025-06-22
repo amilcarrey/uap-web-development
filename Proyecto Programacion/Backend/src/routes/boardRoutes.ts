@@ -4,9 +4,10 @@ import { BoardController } from '../controllers/BoardController'; // Corrige el 
 const router = Router();
 
 router.post('/', BoardController.createBoard);
+router.get('/', BoardController.getBoards);
 router.get('/user/:userId', BoardController.getBoardsByuser);
 router.get('/:boardId', BoardController.getBoardById);
 router.put('/:boardId', BoardController.updateBoard);
-router.delete('/:boardId', BoardController.deleteBoard);
+router.delete('/:userId/:boardId', BoardController.deleteBoard);
 
 export default router; 

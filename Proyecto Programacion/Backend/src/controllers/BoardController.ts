@@ -3,9 +3,23 @@ import { BoardService } from '../services/BoardDbService';
 import { error } from 'console';
 import { UpdateBoardSchema } from '../DTOs/board/UpdateBoardSchema';
 import { parse } from 'dotenv';
+import { prisma } from '../prisma';
 const boardService = new BoardService();
 
 export class BoardController {
+
+  static async getBoards(req: Request, res: Response) {
+    try {
+      const boards = await boardService.getBoards();
+      res.json(boards);
+    } catch (error) {
+      res.status(500).json({
+        error: 'Error al obtener todos los tableros',
+        details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+
 
   //Crear Tablero
   static async createBoard(req: Request, res: Response) {
@@ -50,6 +64,8 @@ export class BoardController {
 
   //Actualizar un tablero
   static async updateBoard(req: Request, res: Response){
+    const boardId = Number(req.params.boardId);
+    const currentUserId = (req as any).user?.id;
 
     //Validar los datos de entrada con Zod
     const parseResult = UpdateBoardSchema.safeParse(req.body);
@@ -59,15 +75,32 @@ export class BoardController {
        return;
     }
 
-    const boardId = Number(req.params.boardId);
-    if(isNaN(boardId)){
-        res.status(400).json({ error: "ID de tablero inválido" });
+    try {
+      // Busca el tablero y sus permisos
+      const board = await prisma.board.findUnique({
+          where: { id: boardId },
+          include: { permissions: true }
+      });
+      if (!board) {
+        res.status(404).json({ error: "Tablero no encontrado" });
         return;
-    }
+      }
 
-    try{
-      const updateBoard = await boardService.updateBoard(boardId, parseResult.data);
-       res.status(200).json(updateBoard);
+      // ¿Es dueño?
+      if (board.ownerId === currentUserId) {
+          // Permitir
+      } else {
+          // ¿Tiene permiso EDITOR?
+          const permission = board.permissions.find(p => p.userId === currentUserId && p.level === "EDITOR");
+          if (!permission) {
+            res.status(403).json({ error: "No tienes permiso para modificar este tablero" });
+            return;
+          }
+      }
+
+      // ...actualiza el tablero
+      const updateBoard = await boardService.updateBoard(boardId, req.body);
+      res.status(200).json(updateBoard);
     }catch(error: any){
       if (error.message === "Board not found") {
          res.status(404).json({ error: "Tablero no encontrado" });
@@ -79,7 +112,7 @@ export class BoardController {
   //Eliminar un tablero
   static async deleteBoard(req: Request, res: Response){
     try{
-      const userId = Number(req.body.userId);
+      const userId = Number(req.params.userId);
       const boardId = Number(req.params.boardId);
 
       if(isNaN(userId) || isNaN(boardId)){
@@ -88,7 +121,7 @@ export class BoardController {
       }
 
       await boardService.deleteBoard(userId, boardId);
-       res.status(400).send();
+      res.status(400).send();
 
     }catch(error: any){
       if(error.message === 'Tablero no encontrado'){

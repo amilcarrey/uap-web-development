@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const UpdateSettingsSchema = z.object({
-  itemPerPage: z.number().optional(),
+  itemsPerPage: z.number().optional(), 
   updateInterval: z.number().optional(),
   upperCaseAlias: z.boolean().optional(),
 });

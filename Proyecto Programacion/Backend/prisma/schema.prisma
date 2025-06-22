@@ -17,7 +17,7 @@ model User {
   username    String      @unique
   password    String
   boards      Board[]     // 1:N relationship
-  permissions BoardPermission[]
+  permissions Permission[]
   preference  Preference?
 }
 
@@ -28,16 +28,19 @@ model Board {
   owner        User     @relation(fields: [ownerId], references: [id])
   ownerId      Int
   tasks        Task[]   // 1:N relationship
-  permissions  BoardPermission[]
+  permissions  Permission[]
 }
 
-model BoardPermission {
-  id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  board     Board    @relation(fields: [boardId], references: [id])
-  boardId   Int
-  level     PermissionLevel
+model Permission {
+  id      Int    @id @default(autoincrement())
+  userId  Int
+  boardId Int
+  level   PermissionLevel
+
+  user   User  @relation(fields: [userId], references: [id])
+  board  Board @relation(fields: [boardId], references: [id])
+
+  @@unique([userId, boardId])
 }
 
 enum PermissionLevel {
