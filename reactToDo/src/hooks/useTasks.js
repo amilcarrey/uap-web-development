@@ -6,8 +6,7 @@ export const useTasksByCategory = (category) => {
     queryKey: ['tasks', category],
     queryFn: async () => {
       // Simula un retardo de 2 segundos
-      //await new Promise(res => setTimeout(res, 2000));
-      // Simula un error descomentando la siguiente línea:
+      // await new Promise(res => setTimeout(res, 2000));
       // throw new Error('Error simulado para probar el estado de error');
       const allTasks = loadTasks();
       return allTasks.filter(task => task.category === category);
@@ -73,5 +72,28 @@ export const useTaskMutations = () => {
     },
   });
 
-  return { addTask, toggleTask, deleteTask, deleteCompletedTasks };
+  const updateTask = useMutation({
+    mutationFn: async ({ id, text, category }) => {
+      const tasks = loadTasks() || [];
+      const updatedTasks = tasks.map(task =>
+        task.id === id ? { ...task, text } : task
+      );
+      saveTasks(updatedTasks);
+      return { id, text, category };
+    },
+    onSuccess: (_, { category }) => {
+      queryClient.invalidateQueries(['tasks', category]);
+    },
+    onError: (error) => {
+      console.error('Error updating task:', error);
+    }
+  });
+
+  return { 
+    addTask, 
+    toggleTask, 
+    deleteTask, 
+    deleteCompletedTasks, 
+    updateTask 
+  };
 };

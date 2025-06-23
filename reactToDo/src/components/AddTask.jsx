@@ -1,27 +1,64 @@
 import { useClientStore } from '../stores/clientStore';
 import { useTaskMutations } from '../hooks/useTasks';
+import { useEffect } from 'react';
 
 export default function AddTask({ category }) {
-  const { modals, openAddTaskModal, closeAddTaskModal } = useClientStore();
+  const {
+    modals,
+    openAddTaskModal,
+    closeAddTaskModal,
+    editingTask,
+    cancelEditing,
+    addNotification
+  } = useClientStore();
+
   const { isAddTaskModalOpen } = modals;
-  const { addTask } = useTaskMutations();
+  const { addTask, updateTask } = useTaskMutations();
+  const isEditing = !!editingTask;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const text = e.target.task.value.trim();
-    if (text) {
-      addTask.mutate({ text, category }, {
-        onSuccess: () => {
-          useClientStore.getState().addNotification('Task added successfully!', 'success');
-          closeAddTaskModal();
-          e.target.reset();
-        },
-      });
+    if (!text) return;
+
+    if (isEditing) {
+      updateTask.mutate(
+        { id: editingTask.id, text, category },
+        {
+          onSuccess: () => {
+            addNotification('Task updated!', 'success');
+            closeAddTaskModal();
+            cancelEditing();
+          }
+        }
+      );
+    } else {
+      addTask.mutate(
+        { text, category },
+        {
+          onSuccess: () => {
+            addNotification('Task added!', 'success');
+            closeAddTaskModal();
+            e.target.reset();
+          }
+        }
+      );
     }
   };
 
+  useEffect(() => {
+    if (isAddTaskModalOpen) {
+      const form = document.querySelector('form');
+      if (form) {
+        form.task.value = isEditing ? editingTask.text : '';
+        form.task.focus();
+      }
+    }
+  }, [isAddTaskModalOpen, editingTask, isEditing]);
+
   return (
     <>
+      {/* Botón siempre visible */}
       <button
         onClick={openAddTaskModal}
         className="w-full mb-4 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
@@ -29,10 +66,13 @@ export default function AddTask({ category }) {
         Add Task
       </button>
 
+      {/* Modal */}
       {isAddTaskModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Add New Task</h2>
+            <h2 className="text-xl font-bold mb-4">
+              {isEditing ? 'Edit Task' : 'Add New Task'}
+            </h2>
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
@@ -44,8 +84,11 @@ export default function AddTask({ category }) {
               <div className="flex justify-end space-x-2">
                 <button
                   type="button"
-                  onClick={closeAddTaskModal}
-                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                  onClick={() => {
+                    closeAddTaskModal();
+                    if (isEditing) cancelEditing();
+                  }}
+                  className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
                 >
                   Cancel
                 </button>
@@ -53,7 +96,7 @@ export default function AddTask({ category }) {
                   type="submit"
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                 >
-                  Add
+                  {isEditing ? 'Save Changes' : 'Add Task'}
                 </button>
               </div>
             </form>
