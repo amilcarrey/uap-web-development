@@ -7,26 +7,30 @@ const preferenceService = new PreferenceService();
 export class PreferenceController {
     static async getPreferences(req: Request, res: Response) {
         const userId = (req as any).user?.id;
-        try {
-            const prefs = await preferenceService.getPreferences(userId);
-            res.json(prefs);
-        } catch (error) {
-            res.status(500).json({ error: "Error al obtener preferencias", details: error instanceof Error ? error.message : String(error) });
+        if (!userId) {
+            const error = new Error("Usuario no autenticado");
+            (error as any).status = 401;
+            throw error;
         }
+        const prefs = await preferenceService.getPreferences(userId);
+        res.json(prefs);
     }
 
     static async updatePreferences(req: Request, res: Response) {
         const userId = (req as any).user?.id;
+        if (!userId) {
+            const error = new Error("Usuario no autenticado");
+            (error as any).status = 401;
+            throw error;
+        }
         const parseResult = UpdateSettingsSchema.safeParse(req.body);
         if (!parseResult.success) {
-            res.status(400).json({ error: "Datos inválidos", details: parseResult.error.errors });
-            return;
+            const error = new Error("Datos inválidos");
+            (error as any).status = 400;
+            (error as any).details = parseResult.error.errors;
+            throw error;
         }
-        try {
-            const prefs = await preferenceService.updatePreferences(userId, parseResult.data);
-            res.json(prefs);
-        } catch (error) {
-            res.status(500).json({ error: "Error al actualizar preferencias", details: error instanceof Error ? error.message : String(error) });
-        }
+        const prefs = await preferenceService.updatePreferences(userId, parseResult.data);
+        res.json(prefs);
     }
 }

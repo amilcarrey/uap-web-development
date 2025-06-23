@@ -5,6 +5,11 @@ import { IPreferenceService } from "../Interfaces/IPreferenceService";
 
 export class PreferenceService implements IPreferenceService {
     async getPreferences(userId: number): Promise<UserSettingsDTO> {
+        if (!userId) {
+            const error = new Error("ID de usuario no proporcionado");
+            (error as any).status = 400;
+            throw error;
+        }
         const pref = await prisma.preference.findUnique({ where: { userId } });
         if (!pref) {
             // Devuelve valores por defecto si no existen preferencias
@@ -24,6 +29,16 @@ export class PreferenceService implements IPreferenceService {
     }
 
     async updatePreferences(userId: number, data: UpdateSettingsDTO): Promise<UserSettingsDTO> {
+        if (!userId) {
+            const error = new Error("ID de usuario no proporcionado");
+            (error as any).status = 400;
+            throw error;
+        }
+        if (!data) {
+            const error = new Error("Datos de preferencia no proporcionados");
+            (error as any).status = 400;
+            throw error;
+        }
         const updated = await prisma.preference.upsert({
             where: { userId },
             update: {
@@ -38,6 +53,11 @@ export class PreferenceService implements IPreferenceService {
                 upperCase: data.upperCaseAlias ?? false,
             }
         });
+        if (!updated) {
+            const error = new Error("No se pudieron actualizar las preferencias");
+            (error as any).status = 500;
+            throw error;
+        }
         return {
             userId: updated.userId,
             itemsPerPage: updated.itemsPerPage,

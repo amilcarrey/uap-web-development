@@ -11,6 +11,7 @@ import { Permission } from '../models/Permission'; // Adjust the path if needed
 import { User } from '../models/User';
 
 export class UserDbService implements IUserService {
+    
     async findUserByAlias(alias: string): Promise<UserDTO | null> {
         const user = await prisma.user.findUnique({
             where: { username: alias },
@@ -56,7 +57,7 @@ export class UserDbService implements IUserService {
 
 
     //Nota: Esta función debe retorna un DTO, pero se utiliza User para hacer pruebas (modificar más adelante)
-    async registerUser(data: RegistrerUserDTO): Promise<User> {
+    async createUser(data: RegistrerUserDTO): Promise<User> {
         const newUser = await prisma.user.create({
             data: {
                 firstName: data.firstName,
@@ -75,16 +76,6 @@ export class UserDbService implements IUserService {
             [], // permissions vacío al crear
             null // settings/preference vacío al crear
         );
-    }
-    
-    loginUser(credentials: LoginDTO): Promise<AuthResponseDTO> {
-        throw new Error('Method not implemented.');
-    }
-    logoutUser(userId: number): Promise<void> {
-        throw new Error('Method not implemented.');
-    }
-    getCurrentUser(userId: number): Promise<UserDTO> {
-        throw new Error('Method not implemented.');
     }
 
 
@@ -173,12 +164,6 @@ export class UserDbService implements IUserService {
             settings,
         };
     }
-
-
-    updateUserSettings(userId: number, settings: UpdateSettingsDTO): Promise<UserDTO> {
-        throw new Error('Method not implemented.');
-    }
-
 
     async getUsers(): Promise<UserDTO[]> {
     const users = await prisma.user.findMany({

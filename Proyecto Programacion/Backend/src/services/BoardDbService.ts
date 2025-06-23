@@ -10,7 +10,6 @@ import { Task } from '../models/Task';
 import { permission } from 'process';
 
 export class BoardService implements IBoardService{
-
     //Buscar todos los tableros
     async getBoards(): Promise<BoardDTO[]> {
         const boards = await prisma.board.findMany({
@@ -36,13 +35,11 @@ export class BoardService implements IBoardService{
 
     //Busca los tableros del usuario
     async getBoardsForUser(userId: number): Promise<BoardDTO[]> {
-        //Busco los tableros en donde el usuario es el dueño
         const ownedBoards = await prisma.board.findMany({
             where: {ownerId: userId},
             include: {tasks: true, permissions: true}
         });
 
-        //Tableros en donde el usuario tienen permisos pero no es el dueño
         const permissionBoards = await prisma.board.findMany({
             where: {
                 permissions: {
@@ -52,13 +49,11 @@ export class BoardService implements IBoardService{
             include: {tasks: true, permissions: true}
         });
 
-        //Unifico y elimino tableros duplicados (en el caso de que sea dueño y tenga permisos)
         const allBoards = [...ownedBoards, ...permissionBoards]
             .filter((board, index, self) =>
                 index === self.findIndex(b => b.id === board.id)
             );
 
-        //Devuelvo el DTO
         return allBoards.map(board => ({
             name: board.name,
             active: board.active,
@@ -66,7 +61,6 @@ export class BoardService implements IBoardService{
             tasks: board.tasks,
             permissionsId: board.permissions.map(P => P.id)
         }));
-
     }
 
     //Buscar un tablero por su ID
@@ -76,7 +70,11 @@ export class BoardService implements IBoardService{
             include: { tasks: true, permissions: true }
         });
 
-        if(!board){return null}
+        if(!board){
+            const error = new Error("Tablero no encontrado");
+            (error as any).status = 404;
+            throw error;
+        }
 
         return {
             name: board.name,
@@ -89,14 +87,15 @@ export class BoardService implements IBoardService{
     
     //Actualizar tablero
     async updateBoard(boardId: number, data: UpdateBoardDTO): Promise<BoardDTO> {
-        // Implementa la lógica para actualizar un tablero
-        // 1. Buscar el tablero por ID
         const board = await this.getBoardById(boardId);
+        // getBoardById ya lanza error 404 si no existe
+
         if(!board){
-            throw new Error("Tablero no encontrado");
+            const error = new Error("Tablero no encontrado");
+            (error as any).status = 404;
+            throw error;
         }
 
-        // 2. Actualizar los campos recibidos en `data`
         await prisma.board.update({
             where : {id: boardId},
             data:{
@@ -104,61 +103,51 @@ export class BoardService implements IBoardService{
             }
         });
 
-        // 3. Retornar el BoardDTO actualizado
         const updatedBoard = await this.getBoardById(boardId);
-        if (!updatedBoard) {
-            throw new Error("Error retrieving updated board");
-        }
-        return updatedBoard;
 
+        if(!updatedBoard){
+            const error = new Error("Tablero no encontrado después de actualizar");
+            (error as any).status = 500;
+            throw error;
+        }
+
+        return updatedBoard;
     }
     
     //Eliminar tablero
     async deleteBoard(userId: number, boardId: number): Promise<void> {
-        //1. Verifico si el tablero existe
         const board = await prisma.board.findUnique({
             where: {id: boardId}
         });
 
         if(!board){
-            throw new Error('Tablero no encontrado');
+            const error = new Error('Tablero no encontrado');
+            (error as any).status = 404;
+            throw error;
         }
 
-        //2. Verifico si el usuario es el dueño
         if(board.ownerId !== userId){
-            throw new Error('No tienes permiso para eliminar este tablero');
+            const error = new Error('No tienes permiso para eliminar este tablero');
+            (error as any).status = 403;
+            throw error;
         }
 
-        //3. Elimino primero las tareas asociadas (si existen)
         await prisma.task.deleteMany({
             where: {boardId}
         });
 
-        //4. Elimino los permisos asociados al tablero
         await prisma.permission.deleteMany({
             where: {boardId}
         });
 
-        //5. Elimino el tablero
         await prisma.board.delete({
             where: {id: boardId}
         });
     }
     
-    shareBoard(boardId: number, targetUserId: number, accessLevel: 'read' | 'edit' | 'owner'): Promise<void> {
-        throw new Error('Method not implemented.');
-    }
-    getBoardPermissions(boardId: number): Promise<UserPermissionDTO[]> {
-        // Implementa la lógica para obtener los permisos de un tablero
-        // Ejemplo:
-        // 1. Buscar todos los permisos asociados al boardId
-        // 2. Mapearlos a UserPermissionDTO[]
-        throw new Error('Method not implemented.');
-    }
 
     //Crear tablero
     async createBoard(userId: number, data: CreateBoardDTO): Promise<BoardDTO> {
-        // 1. Crear el tablero (sin tareas asociadas)
         const board = await prisma.board.create({
             data: {
                 name: data.name,
@@ -167,7 +156,6 @@ export class BoardService implements IBoardService{
             },
         });
 
-        // 2. Crear el permiso OWNER para el usuario creador
         await prisma.permission.create({
             data: {
                 userId: userId,
@@ -176,7 +164,6 @@ export class BoardService implements IBoardService{
             },
         });
 
-        // 3. Consultar el tablero con tareas y permisos (tasks estará vacío)
         const boardWithRelations = await prisma.board.findUnique({
             where: { id: board.id },
             include: {
@@ -185,16 +172,15 @@ export class BoardService implements IBoardService{
             },
         });
 
-        // 4. Mapear a modelo de dominio
+        if (!boardWithRelations) {
+            const error = new Error("Tablero no encontrado después de crearlo");
+            (error as any).status = 500;
+            throw error;
+        }
+
         return this.mapToBoardDTO(boardWithRelations);
     }
 
-    /**
-     * Convierte el objeto plano de la base de datos en una instancia de Board.
-     * 
-     * Al crear un tablero, tasks será un array vacío porque no hay tareas asociadas aún.
-     * permissions tendrá solo el permiso OWNER para el usuario creador.
-     */
     private mapToBoardDTO(board: any): BoardDTO {
         return{
             name: board.name,

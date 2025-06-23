@@ -12,8 +12,7 @@ export interface IBoardService{
     getBoardById(boardId: number): Promise<BoardDTO | null>;
     updateBoard(boardId: number, data: UpdateBoardDTO): Promise<BoardDTO>;
     deleteBoard(userId: number, boardId: number): Promise<void>;
-    shareBoard(boardId: number, targetUserId: number, accessLevel: 'read' | 'edit' | 'owner'): Promise<void>;
-    getBoardPermissions(boardId: number): Promise<UserPermissionDTO[]>;
+
 }
 
 
