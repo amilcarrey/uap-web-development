@@ -48,7 +48,7 @@ export default function TodoList({
           onToggle={onToggle}
           onDelete={onDelete}
           onEdit={onEdit}
-          isEditing={editingId === todo.id}
+          editingId={editingId}
           onSaveEdit={onSaveEdit}
           onCancelEdit={onCancelEdit}
           isLoading={isLoading}

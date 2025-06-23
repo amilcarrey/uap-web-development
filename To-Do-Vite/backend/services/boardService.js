@@ -89,18 +89,30 @@ const removeUserFromBoard = async (boardId, usernameToRemove) => {
     }
     const userIdToRemove = userResult.rows[0].id;
 
-    if (userIdToRemove === 1) { // Suponiendo que el superadmin tiene id 1 y no se puede eliminar
-        throw { status: 403, message: 'No se puede remover al propietario original' };
+    // Verificar que el usuario no sea el propietario del tablero
+    const boardOwnerResult = await pool.query(
+        'SELECT user_id FROM boards WHERE id = $1',
+        [boardId]
+    );
+    
+    if (boardOwnerResult.rows.length > 0 && boardOwnerResult.rows[0].user_id === userIdToRemove) {
+        throw { status: 403, message: 'No se puede remover al propietario del tablero' };
+    }
+
+    // Verificar que el usuario tenga acceso al tablero antes de intentar removerlo
+    const existingAccess = await pool.query(
+        'SELECT * FROM board_users WHERE board_id = $1 AND user_id = $2',
+        [boardId, userIdToRemove]
+    );
+
+    if (existingAccess.rows.length === 0) {
+        throw { status: 404, message: 'El usuario no tiene acceso a este tablero' };
     }
 
     const result = await pool.query(
         'DELETE FROM board_users WHERE board_id = $1 AND user_id = $2 RETURNING *',
         [boardId, userIdToRemove]
     );
-
-    if (result.rowCount === 0) {
-        throw { status: 404, message: 'El usuario no tiene acceso a este tablero' };
-    }
 
     return { message: 'Usuario removido del tablero exitosamente' };
 };

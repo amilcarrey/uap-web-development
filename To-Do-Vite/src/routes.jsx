@@ -37,10 +37,6 @@ const router = createBrowserRouter([
         element: <ProtectedRoute><BoardDetail /></ProtectedRoute>,
       },
       {
-        path: '/shared/:token',
-        element: <SharedBoard />,
-      },
-      {
         path: '/settings',
         element: <ProtectedRoute><Settings /></ProtectedRoute>,
       },

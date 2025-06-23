@@ -28,7 +28,7 @@ app.use('/admin', adminRoutes);
 // Rutas de tareas para cada tablero (deben ir antes que las rutas de tableros)
 app.use('/boards/:boardName/tasks', (req, res, next) => {
     // Asegurar que el parámetro boardName esté disponible en las rutas hijas
-    req.boardName = req.params.boardName;
+    req.boardName = decodeURIComponent(req.params.boardName);
     next();
 }, taskRoutes);
 

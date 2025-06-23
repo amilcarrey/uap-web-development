@@ -89,8 +89,11 @@ export const useTaskManager = (boardName) => {
     deleteTaskMutation.mutate({ taskId });
   };
 
-  const handleEditTask = (task) => {
-    setEditingTask(task.id, task.text);
+  const handleEditTask = (taskId) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      setEditingTask(taskId);
+    }
   };
 
   const handleSaveEdit = async (text) => {

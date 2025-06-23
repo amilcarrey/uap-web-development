@@ -18,6 +18,11 @@ export default function TodoItem({
   const editInputRef = useRef(null);
   const isEditing = editingId === todo.id;
 
+  // Actualizar editText cuando cambia la tarea o cuando entra en modo edición
+  useEffect(() => {
+    setEditText(todo.text);
+  }, [todo.text, isEditing]);
+
   const handleSaveEdit = () => {
     if (editText.trim() && editText !== todo.text) {
       onSaveEdit(editText.trim());
@@ -120,7 +125,7 @@ export default function TodoItem({
       
       <div className="flex gap-2">
         <button
-          onClick={() => onEdit(todo)}
+          onClick={() => onEdit(todo.id)}
           disabled={isLoading}
           className="text-blue-400 hover:text-blue-300 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Editar tarea"
