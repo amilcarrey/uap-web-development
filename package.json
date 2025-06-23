@@ -1,10 +1,17 @@
 {
   "dependencies": {
+    "@tanstack/react-query": "^5.81.2",
     "cookie-parser": "^1.4.7",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.2",
     "sqlstring": "^2.3.3",
     "validator": "^13.15.15"
   },
   "devDependencies": {
+    "@tanstack/react-query-devtools": "^5.81.2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@types/react-router-dom": "^5.3.3",
     "@types/sqlstring": "^2.3.2",
     "@types/validator": "^13.15.1"
   }
