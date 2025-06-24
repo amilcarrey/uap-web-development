@@ -10,6 +10,7 @@ export function useDeleteTask() {
     mutationFn: async ({ id}: { id: number; categoriaId: string; page: number }) => {
       const res = await fetch(`${API_URL}/api/tasks/${id}`, {
         method: "DELETE",
+        credentials: "include", // Enviar cookies con la solicitud
       });
       if (!res.ok) throw new Error("Error al eliminar la tarea");
       return res.json();

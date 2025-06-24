@@ -9,7 +9,9 @@ export function useAddTask() {
     mutationFn: async ({ text, categoriaId }: { text: string; categoriaId: string }) => {
       const res = await fetch(`${API_URL}/api/tasks`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: { "Content-Type": "application/json", 
+          Accept: "application/json" },
+        credentials: "include", //Enviar cookies con la solicitud
         body: JSON.stringify({ text, categoriaId }),
       });
       if (!res.ok) throw new Error("No se pudo agregar la tarea");

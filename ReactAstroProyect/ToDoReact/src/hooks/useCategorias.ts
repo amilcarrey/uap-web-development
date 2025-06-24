@@ -8,8 +8,14 @@ export function useCategorias() {
   const categoriasQuery = useQuery({
     queryKey: ["categorias"],
     queryFn: async () => {
-      const res = await fetch(`${API_URL}/api/categorias`);
+      const res = await fetch(`${API_URL}/api/categorias`, {
+        credentials: 'include', // Enviar cookies JWT
+      });
       if (!res.ok) {
+        if (res.status === 401) {
+          window.location.href = '/login';
+          throw new Error('No autenticado');
+        }
         if (res.status === 404) {
           throw new Error("URL inválida: El tablero no existe");
         }
@@ -26,6 +32,7 @@ export function useCategorias() {
       const res = await fetch(`${API_URL}/api/categorias`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", 
         body: JSON.stringify({ id, name }),
       });
       if (!res.ok) throw new Error("Error al agregar categoría");
@@ -41,6 +48,7 @@ const deleteCategoriaMutation = useMutation({
   mutationFn: async (id: string) => {
     const res = await fetch(`${API_URL}/api/categorias/${id}`, {
       method: "DELETE",
+      credentials: "include", 
     });
     if (!res.ok) throw new Error("Error al eliminar categoría");
     return res.json();

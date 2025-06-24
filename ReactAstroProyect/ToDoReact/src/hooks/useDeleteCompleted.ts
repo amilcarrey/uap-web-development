@@ -11,6 +11,7 @@ return useMutation({
 
       const res = await fetch(`${API_URL}/api/tasks/completed?categoriaId=${categoriaId}`, {
         method: "DELETE",
+        credentials: "include", // Enviar cookies con la solicitud
       });
 
       if (!res.ok) throw new Error("Error al eliminar las tareas completadas");

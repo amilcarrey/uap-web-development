@@ -9,6 +9,7 @@ export function useToggleTask() {
     mutationFn: async ({ id }: { id: number; categoriaId: string; page: number }) => {
       const res = await fetch(`${API_URL}/api/tasks/${id}/toggle`, {
         method: "PATCH",
+        credentials: "include", // Enviar cookies con la solicitud
       });
       if (!res.ok) throw new Error("Error al alternar el estado de la tarea");
       return res.json();

@@ -4,21 +4,42 @@ import { useSettingsStore } from "../store/settingsStore";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-type TasksResponse = 
-{
-  tasks: Task[];
-  totalPages: number;
-};
+  type TasksResponse = 
+  {
+    tasks: Task[];
+    totalPages: number;
+    totalCount: number;
+  };
 
-export function useTasks(filtro?: "completadas" | "pendientes", page = 1, pageSize = 7, categoriaId?: string) {
-   console.log("Parámetros enviados a /api/tasks:", { filtro, categoriaId, page, pageSize });
-  const refetchInterval = useSettingsStore((state) => state.refetchInterval);
+  export function useTasks(filtro?: "completadas" | "pendientes", page = 1, pageSize = 7, categoriaId?: string, search?: string) {
+    console.log("Parámetros enviados a /api/tasks:", { filtro, categoriaId, page, pageSize, search });
+    const refetchInterval = useSettingsStore((state) => state.refetchInterval);
 
-  return useQuery<TasksResponse>({
-    queryKey: ["tasks", filtro, categoriaId, page, pageSize],
+    return useQuery<TasksResponse>({
+    queryKey: ["tasks", filtro, categoriaId, page, pageSize, search],
     queryFn: async () => {
-      const res = await fetch(`${API_URL}/api/tasks?filtro=${filtro}&categoriaId=${categoriaId}&page=${page}&pageSize=${pageSize}`);
+      // CONSTRUIR URL, sabemos que el back maneja los args como query params opcionales
+      // Solo agregamos los parámetros que existen 
+      const params = new URLSearchParams();
+      if (filtro) params.append("filtro", filtro);        // Solo agregar si existe
+      if (categoriaId) params.append("categoriaId", categoriaId);               // Solo si existe
+      params.append("page", page.toString());                                   // Siempre presente  
+      params.append("pageSize", pageSize.toString());                           // Siempre presente
+      if (search) params.append("search", search);                              // Solo  si existe
+
+      const res = await fetch(`${API_URL}/api/tasks?${params.toString()}`, {
+        credentials: 'include', //  enviar cookies JWT
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      //  ERROR DE aut
       if (!res.ok) {
+        if (res.status === 401) {
+          window.location.href = '/login';
+          throw new Error('No autenticado');
+        }
         throw new Error("Error al cargar tareas");
       }
       return res.json();

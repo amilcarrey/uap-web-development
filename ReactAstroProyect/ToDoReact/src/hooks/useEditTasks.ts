@@ -10,9 +10,16 @@ export function useEditTask() {
       const res = await fetch(`${API_URL}/api/tasks/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Enviar cookies con la solicitud
         body: JSON.stringify({ text, categoriaId }),
       });
-      if (!res.ok) throw new Error("Error al editar la tarea");
+     if (!res.ok) {
+  if (res.status === 401) {
+    window.location.href = '/login';
+    throw new Error('No autenticado');
+  }
+  throw new Error("Error al EDITAR la tareas completadas")
+      }
       return res.json();
     },
     onError: (_, { categoriaId, page }) => {
