@@ -12,21 +12,21 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 // Obtener tareas con paginación y filtro
-router.get("/", getTasksHandler);
+router.get("/", authMiddleware, getTasksHandler);
 
 // Agregar una nueva tarea
-router.post("/", addTaskHandler);
+router.post("/", authMiddleware, addTaskHandler);
 
 // Eliminar tareas completadas
-router.delete("/completed", deleteCompletedTasksHandler);
+router.delete("/completed", authMiddleware, deleteCompletedTasksHandler);
 
 // Eliminar una tarea
-router.delete("/:id", deleteTaskHandler);
+router.delete("/:id", authMiddleware,deleteTaskHandler);
 
 // Alternar el estado de una tarea
-router.patch("/:id/toggle", toggleTaskHandler);
+router.patch("/:id/toggle", authMiddleware,toggleTaskHandler);
 
 // Editar una tarea
-router.put("/:id", editTaskHandler); // Ruta para editar una tarea
+router.put("/:id",  editTaskHandler); // Ruta para editar una tarea
 
 export default router;

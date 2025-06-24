@@ -54,10 +54,11 @@ export async function listarTareasPaginadasService(
   page: number,
   pageSize: number,
   categoriaId?: string,
-  filtro?: "completadas" | "pendientes"
+  filtro?: "completadas" | "pendientes",
+  search?: string // Agregar parámetro de búsqueda
 ) {
-  const tasks = await listarTareasPaginadas(page, pageSize, categoriaId, filtro);
-  const totalCount = await contarTareasFiltradas(categoriaId, filtro);
+  const tasks = await listarTareasPaginadas(page, pageSize, categoriaId, filtro, search);
+  const totalCount = await contarTareasFiltradas(categoriaId, filtro, search);
   return { tasks, totalCount };
 }
 

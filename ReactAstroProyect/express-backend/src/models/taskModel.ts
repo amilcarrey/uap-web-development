@@ -53,11 +53,14 @@ export async function listarTareasPaginadas(
   page: number,
   pageSize: number,
   categoriaId?: string,
-  filtro?: "completadas" | "pendientes"
+  filtro?: "completadas" | "pendientes",
+  search?: string // Agregar parámetro de búsqueda
 ): Promise<{ id: number; text: string; completed: boolean; categoriaId: string }[]> {
-  const offset = (page - 1) * pageSize;
+
+  const offset = (page - 1) * pageSize;// calcular el número de registros que se deben saltar osea desde donde empezar a buscar
+  // Construimos la consulta sql WHERE de manera dinámica
   let whereClause = "";
-  const params: any[] = [];
+  const params: any[] = []; // Array para meter los diferentres parametros osea lo que ahora es ? de la consulta
 
   if (categoriaId) {
     whereClause += "WHERE categoriaId = ?";
@@ -65,22 +68,34 @@ export async function listarTareasPaginadas(
   }
 
   if (filtro === "completadas") {
+    // Si el filtro es completadas, agregamos la condición a la cláusula WHERE\
+    // Si ya hay un WHERE, usamos AND, si no agregamos WHERE
     whereClause += whereClause ? " AND completed = 1" : "WHERE completed = 1";
   } else if (filtro === "pendientes") {
     whereClause += whereClause ? " AND completed = 0" : "WHERE completed = 0";
   }
 
+  //  búsqueda por contenido
+  if (search) {
+// Si tenemos un término de búsqueda, lo agregamos a la conssulta 
+    whereClause += whereClause ? " AND text LIKE ?" : "WHERE text LIKE ?";
+    params.push(`%${search}%`); // 
+  }
+// Agregamos los valores de paginación
   params.push(pageSize, offset);
 
+
+// Ejecutamos la consulta con la cláusula WHERE y los parámetros
   return await database.all(
-    `SELECT * FROM tasks ${whereClause} LIMIT ? OFFSET ?`,
+    `SELECT * FROM tasks ${whereClause} ORDER BY id DESC LIMIT ? OFFSET ?`,
     params
   );
 }
 
 export async function contarTareasFiltradas(
   categoriaId?: string,
-  filtro?: "completadas" | "pendientes"
+  filtro?: "completadas" | "pendientes",
+  search?: string
 ): Promise<number> {
   let whereClause = "";
   const params: any[] = [];
@@ -94,6 +109,11 @@ export async function contarTareasFiltradas(
     whereClause += whereClause ? " AND completed = 1" : "WHERE completed = 1";
   } else if (filtro === "pendientes") {
     whereClause += whereClause ? " AND completed = 0" : "WHERE completed = 0";
+  }
+  // búsqueda por contenido
+  if (search) {
+    whereClause += whereClause ? " AND text LIKE ?" : "WHERE text LIKE ?";
+    params.push(`%${search}%`);
   }
 
   const result = await database.get<{ count: number }>(

@@ -23,14 +23,15 @@ export async function hasAnyPermission(categoryId: string, userId: string, roles
 }
 
 export const getTasksHandler = async (req: Request, res: Response) => {
-  const { filtro, categoriaId, page = 1, pageSize = 7 } = req.query;
+  const { filtro, categoriaId, page = 1, pageSize = 7, search } = req.query; // Agregar search
 
   try {
     const { tasks, totalCount } = await listarTareasPaginadas(
       Number(page),
       Number(pageSize),
       categoriaId as string,
-      filtro as "completadas" | "pendientes"
+      filtro as "completadas" | "pendientes",
+      search as string 
     );
 
     const totalPages = Math.ceil(totalCount / Number(pageSize));

@@ -7,9 +7,10 @@ import categoryRoutes from "./routes/category.js";
 import taskRoutes from "./routes/tasks.js";
 import userSettingsRoutes from "./routes/userSettings.js";
 import authRoutes from "./routes/userRoutes.js"; 
-import { createCategoryTable } from "./models/categoryModel.js";
+import { createCategoryTable, createCategoryPermissionsTable } from "./models/categoryModel.js";
 import { createTaskTable } from "./models/taskModel.js";
 import { createUserSettingsTable } from "./models/userSettingsModel.js"; 
+import { createUserTableIfNotExists } from "./models/userModel.js";
 
 
 
@@ -23,8 +24,10 @@ app.use(cors());
 // Inicializar tablas en la base de datos
 (async () => {
   await createCategoryTable();
+  await createCategoryPermissionsTable(); 
   await createTaskTable();
-  await createUserSettingsTable()
+  await createUserSettingsTable();
+  await createUserTableIfNotExists();
   console.log("Tablas inicializadas correctamente");
 })();
 
