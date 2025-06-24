@@ -13,9 +13,7 @@ export const useTaskManager = (boardName) => {
     setSearchTerm,
     setCurrentPage,
     setEditingTask,
-    clearEditingTask,
-    getFilteredTasks,
-    getSortedTasks
+    clearEditingTask
   } = useTaskStore();
 
   const { itemsPerPage } = useAppStore(state => state.settings);
@@ -31,12 +29,20 @@ export const useTaskManager = (boardName) => {
     setCurrentPage(1);
   }, [itemsPerPage, setCurrentPage]);
 
+  // Parámetros para la query
+  const queryParams = {
+    page: currentPage,
+    limit: itemsPerPage,
+    search: searchTerm,
+    filter
+  };
+
   const { 
-    data: tasks = [], 
+    data: result = { tasks: [], pagination: { totalTasks: 0, totalPages: 1 } }, 
     isLoading: isLoadingTasks, 
     error: tasksError,
     refetch
-  } = useTasks(boardName);
+  } = useTasks(boardName, queryParams);
   
   const createTaskMutation = useCreateTask(boardName);
   const updateTaskMutation = useUpdateTask(boardName);
@@ -44,28 +50,12 @@ export const useTaskManager = (boardName) => {
   const deleteCompletedMutation = useDeleteCompletedTasks(boardName);
   const toggleTaskMutation = useToggleTask(boardName);
 
-  const { filteredAndSortedTasks, completedCount, totalCount } = useMemo(() => {
-    const filtered = getFilteredTasks(tasks);
-    const sorted = getSortedTasks(filtered);
-    const completed = tasks.filter(task => task.completed).length;
+  // Extraer datos de la respuesta paginada
+  const { tasks, pagination } = result;
+  const { totalTasks, totalPages, page: serverPage } = pagination;
 
-    return { 
-      filteredAndSortedTasks: sorted,
-      completedCount: completed,
-      totalCount: tasks.length
-    };
-  }, [tasks, filter, searchTerm, getFilteredTasks, getSortedTasks]);
-
-  const { paginatedTasks, totalPages } = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginated = filteredAndSortedTasks.slice(startIndex, startIndex + itemsPerPage);
-    const total = Math.max(1, Math.ceil(filteredAndSortedTasks.length / itemsPerPage));
-
-    return {
-      paginatedTasks: paginated,
-      totalPages: total
-    };
-  }, [filteredAndSortedTasks, currentPage, itemsPerPage]);
+  // Contar tareas completadas (necesario para el filtro)
+  const completedCount = tasks.filter(task => task.completed).length;
 
   const isLoading = isLoadingTasks || 
     createTaskMutation.isPending || 
@@ -124,7 +114,7 @@ export const useTaskManager = (boardName) => {
   }, [setSearchTerm]);
 
   const getEmptyMessage = () => {
-    if (searchTerm && filteredAndSortedTasks.length === 0) {
+    if (searchTerm && tasks.length === 0) {
       return `No hay resultados para "${searchTerm}"`;
     }
     if (filter === 'all') return 'No hay tareas en este tablero';
@@ -134,10 +124,10 @@ export const useTaskManager = (boardName) => {
   };
 
   return {
-    paginatedTasks,
+    tasks,
+    totalTasks,
     totalPages,
     completedCount,
-    totalCount,
     isLoading,
     error: tasksError?.message || null,
     editingTaskId,

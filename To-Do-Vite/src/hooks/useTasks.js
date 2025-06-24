@@ -12,18 +12,18 @@ import useAppStore from '../stores/appStore';
 export const taskKeys = {
   all: ['tasks'],
   lists: () => [...taskKeys.all, 'list'],
-  list: (boardName) => [...taskKeys.lists(), boardName],
+  list: (boardName, params = {}) => [...taskKeys.lists(), boardName, params],
   details: () => [...taskKeys.all, 'detail'],
   detail: (boardName, taskId) => [...taskKeys.details(), boardName, taskId],
 };
 
 // Hook para obtener tareas de un tablero
-export const useTasks = (boardName) => {
+export const useTasks = (boardName, params = {}) => {
   const refetchInterval = useAppStore((state) => state.settings.refetchInterval) || 30;
 
   return useQuery({
-    queryKey: taskKeys.list(boardName),
-    queryFn: () => fetchTasks(boardName),
+    queryKey: taskKeys.list(boardName, params),
+    queryFn: () => fetchTasks(boardName, params),
     staleTime: refetchInterval * 1000, // Usar configuración del store
     gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: false,
@@ -39,14 +39,10 @@ export const useCreateTask = (boardName) => {
   return useMutation({
     mutationFn: ({ text }) => createTask(boardName, text),
     onSuccess: (newTask) => {
-      // Actualizar la lista de tareas
-      queryClient.setQueryData(taskKeys.list(boardName), (oldData) => {
-        if (!oldData) return [newTask];
-        return [...oldData, newTask];
+      // Invalidar todas las queries de tareas para este tablero
+      queryClient.invalidateQueries({ 
+        queryKey: taskKeys.lists().concat(boardName)
       });
-      
-      // Invalidar la query para asegurar sincronización
-      queryClient.invalidateQueries({ queryKey: taskKeys.list(boardName) });
       
       addToast('Tarea creada exitosamente', 'success');
     },
@@ -65,18 +61,9 @@ export const useUpdateTask = (boardName) => {
   return useMutation({
     mutationFn: ({ taskId, updates }) => updateTask(boardName, taskId, updates),
     onSuccess: (updatedTask) => {
-      // Actualizar la tarea en la lista
-      queryClient.setQueryData(taskKeys.list(boardName), (oldData) => {
-        if (!oldData) return [updatedTask];
-        return oldData.map(task => 
-          task.id === updatedTask.id ? updatedTask : task
-        );
-      });
-      
-      // Invalidar queries relacionadas
-      queryClient.invalidateQueries({ queryKey: taskKeys.list(boardName) });
+      // Invalidar todas las queries de tareas para este tablero
       queryClient.invalidateQueries({ 
-        queryKey: taskKeys.detail(boardName, updatedTask.id) 
+        queryKey: taskKeys.lists().concat(boardName)
       });
       
       addToast('Tarea actualizada exitosamente', 'success');
@@ -96,16 +83,9 @@ export const useDeleteTask = (boardName) => {
   return useMutation({
     mutationFn: ({ taskId }) => deleteTask(boardName, taskId),
     onSuccess: (_, { taskId }) => {
-      // Remover la tarea de la lista
-      queryClient.setQueryData(taskKeys.list(boardName), (oldData) => {
-        if (!oldData) return [];
-        return oldData.filter(task => task.id !== taskId);
-      });
-      
-      // Invalidar queries relacionadas
-      queryClient.invalidateQueries({ queryKey: taskKeys.list(boardName) });
-      queryClient.removeQueries({ 
-        queryKey: taskKeys.detail(boardName, taskId) 
+      // Invalidar todas las queries de tareas para este tablero
+      queryClient.invalidateQueries({ 
+        queryKey: taskKeys.lists().concat(boardName)
       });
       
       addToast('Tarea eliminada exitosamente', 'success');
@@ -125,14 +105,10 @@ export const useDeleteCompletedTasks = (boardName) => {
   return useMutation({
     mutationFn: () => deleteCompletedTasks(boardName),
     onSuccess: () => {
-      // Remover tareas completadas de la lista
-      queryClient.setQueryData(taskKeys.list(boardName), (oldData) => {
-        if (!oldData) return [];
-        return oldData.filter(task => !task.completed);
+      // Invalidar todas las queries de tareas para este tablero
+      queryClient.invalidateQueries({ 
+        queryKey: taskKeys.lists().concat(boardName)
       });
-      
-      // Invalidar la query
-      queryClient.invalidateQueries({ queryKey: taskKeys.list(boardName) });
       
       addToast('Tareas completadas eliminadas exitosamente', 'success');
     },
@@ -152,32 +128,45 @@ export const useToggleTask = (boardName) => {
     mutationFn: ({ taskId, completed }) => updateTask(boardName, taskId, { completed }),
     onMutate: async ({ taskId, completed }) => {
       // Cancelar queries en curso
-      await queryClient.cancelQueries({ queryKey: taskKeys.list(boardName) });
-
-      // Snapshot del valor anterior
-      const previousTasks = queryClient.getQueryData(taskKeys.list(boardName));
-
-      // Optimistic update
-      queryClient.setQueryData(taskKeys.list(boardName), (oldData) => {
-        if (!oldData) return [];
-        return oldData.map(task => 
-          task.id === taskId ? { ...task, completed } : task
-        );
+      await queryClient.cancelQueries({ 
+        queryKey: taskKeys.lists().concat(boardName)
       });
 
-      return { previousTasks };
+      // Snapshot del valor anterior
+      const previousQueries = queryClient.getQueriesData({ 
+        queryKey: taskKeys.lists().concat(boardName)
+      });
+
+      // Optimistic update para todas las queries activas
+      queryClient.setQueriesData({ 
+        queryKey: taskKeys.lists().concat(boardName)
+      }, (oldData) => {
+        if (!oldData || !oldData.tasks) return oldData;
+        return {
+          ...oldData,
+          tasks: oldData.tasks.map(task => 
+            task.id === taskId ? { ...task, completed } : task
+          )
+        };
+      });
+
+      return { previousQueries };
     },
     onError: (err, variables, context) => {
       // Revertir en caso de error
-      if (context?.previousTasks) {
-        queryClient.setQueryData(taskKeys.list(boardName), context.previousTasks);
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
       }
       addToast('Error al actualizar la tarea', 'error');
       console.error('Error toggling task:', err);
     },
     onSettled: () => {
       // Invalidar para asegurar sincronización
-      queryClient.invalidateQueries({ queryKey: taskKeys.list(boardName) });
+      queryClient.invalidateQueries({ 
+        queryKey: taskKeys.lists().concat(boardName)
+      });
     },
   });
 }; 

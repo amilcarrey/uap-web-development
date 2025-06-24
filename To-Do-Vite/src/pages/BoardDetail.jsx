@@ -12,10 +12,10 @@ const BoardDetail = () => {
   const { boardName } = useParams();
   
   const {
-    paginatedTasks,
+    tasks,
     totalPages,
     completedCount,
-    totalCount,
+    totalTasks,
     filter,
     searchTerm,
     currentPage,
@@ -66,7 +66,7 @@ const BoardDetail = () => {
       />
 
       <TodoList
-        todos={paginatedTasks}
+        todos={tasks}
         onToggle={handleToggleTask}
         onDelete={handleDeleteTask}
         onEdit={handleEditTask}

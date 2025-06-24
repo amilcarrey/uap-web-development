@@ -34,8 +34,17 @@ export const deleteBoard = async (name) => {
   if (!response.ok) throw new Error('Error al eliminar el tablero');
 };
 
-export const fetchTasks = async (boardName) => {
-  const response = await fetch(`${API_URL}/boards/${boardName}/tasks`, getRequestConfig());
+export const fetchTasks = async (boardName, params = {}) => {
+  const { page = 1, limit = 10, search = '', filter = 'all' } = params;
+  
+  const queryParams = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+    search,
+    filter
+  });
+
+  const response = await fetch(`${API_URL}/boards/${boardName}/tasks?${queryParams}`, getRequestConfig());
   if (!response.ok) throw new Error('Error al cargar las tareas');
   return response.json();
 };

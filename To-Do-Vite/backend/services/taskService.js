@@ -8,6 +8,53 @@ const getTasks = async (boardId) => {
     return result.rows;
 };
 
+const getTasksPaginated = async (boardId, page = 1, limit = 10, search = '', filter = 'all') => {
+    const offset = (page - 1) * limit;
+    
+    // Construir la consulta base
+    let baseQuery = 'FROM tasks WHERE board_id = $1';
+    let countQuery = 'SELECT COUNT(*) FROM tasks WHERE board_id = $1';
+    let queryParams = [boardId];
+    let paramCount = 1;
+
+    // Agregar filtros
+    if (search) {
+        baseQuery += ` AND text ILIKE $${++paramCount}`;
+        countQuery += ` AND text ILIKE $${paramCount}`;
+        queryParams.push(`%${search}%`);
+    }
+
+    if (filter === 'active') {
+        baseQuery += ` AND completed = false`;
+        countQuery += ` AND completed = false`;
+    } else if (filter === 'completed') {
+        baseQuery += ` AND completed = true`;
+        countQuery += ` AND completed = true`;
+    }
+
+    // Obtener el total de registros
+    const countResult = await pool.query(countQuery, queryParams);
+    const totalTasks = parseInt(countResult.rows[0].count);
+
+    // Obtener las tareas paginadas
+    const tasksQuery = `SELECT * ${baseQuery} ORDER BY created_at DESC LIMIT $${++paramCount} OFFSET $${++paramCount}`;
+    queryParams.push(limit, offset);
+    
+    const tasksResult = await pool.query(tasksQuery, queryParams);
+
+    return {
+        tasks: tasksResult.rows,
+        pagination: {
+            page,
+            limit,
+            totalTasks,
+            totalPages: Math.ceil(totalTasks / limit),
+            hasNextPage: page < Math.ceil(totalTasks / limit),
+            hasPrevPage: page > 1
+        }
+    };
+};
+
 const createTask = async (boardId, text) => {
     const result = await pool.query(
         'INSERT INTO tasks (board_id, text, completed) VALUES ($1, $2, false) RETURNING *',
@@ -85,6 +132,7 @@ const getTaskById = async (taskId) => {
 
 module.exports = {
     getTasks,
+    getTasksPaginated,
     createTask,
     updateTask,
     deleteTask,

@@ -10,8 +10,21 @@ const getTasks = async (req, res) => {
             return res.status(permission.status).json({ error: permission.error });
         }
 
-        const tasks = await taskService.getTasks(permission.boardId);
-        res.json(tasks);
+        // Extraer parámetros de paginación y filtros
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const filter = req.query.filter || 'all';
+
+        const result = await taskService.getTasksPaginated(
+            permission.boardId, 
+            page, 
+            limit, 
+            search, 
+            filter
+        );
+        
+        res.json(result);
     } catch (error) {
         console.error('❌ Error en getTasks:', error);
         res.status(500).json({ error: 'Error al obtener las tareas' });
