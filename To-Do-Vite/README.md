@@ -1,170 +1,181 @@
-# To-Do App con Vite + React
+# 📝 To-Do App con Vite + React
 
-Una aplicación moderna de gestión de tareas construida con React, Vite, Tanstack Query y Zustand.
+Una aplicación **full-stack completa** de gestión de tareas construida con React, Vite, Node.js, PostgreSQL, Tanstack Query y Zustand.
 
-## 🚀 Características
+## 🚀 ¿Qué es esta aplicación?
 
-### ✅ Implementado
-- **Gestión de tareas con Tanstack Query**: Caching inteligente, sincronización automática y optimistic updates
-- **Estado global con Zustand**: Gestión eficiente del estado de la aplicación
-- **Componentes reutilizables**: TodoForm, TodoItem, TodoList, TodoFilters y Pagination
-- **Paginación optimizada**: Paginación del lado del cliente con configuración flexible
-- **Sistema de toasts**: Notificaciones consistentes usando Zustand
-- **Filtros avanzados**: Filtrar por estado (todas, pendientes, completadas)
-- **Ordenamiento**: Ordenar tareas por fecha, texto o estado
-- **Optimistic updates**: Actualizaciones instantáneas con rollback en caso de error
-- **Refetch automático**: Sincronización automática configurable
-- **Persistencia**: Configuraciones guardadas en localStorage
+Es una plataforma completa de gestión de tareas que permite a los usuarios organizar sus proyectos en **múltiples tableros**, **colaborar con otros usuarios**, y mantener sus tareas sincronizadas en tiempo real.
 
-### 🎯 Mejoras Implementadas
+## ✨ Funcionalidades Principales
 
-#### 1. **Tanstack Query Integration**
-- Hooks personalizados para todas las operaciones CRUD
-- Caching inteligente con configuración de stale time
-- Optimistic updates para mejor UX
-- Manejo automático de errores y reintentos
-- Query invalidation automática
+### 🔐 **Sistema de Autenticación**
+- **Registro e inicio de sesión** seguro con JWT
+- **Sesiones persistentes** con cookies
+- **Protección de rutas** automática
+- **Logout** con limpieza de sesión
 
-#### 2. **Zustand State Management**
-- `taskStore`: Gestión de filtros, paginación y estado de edición
-- `appStore`: Configuraciones globales y sistema de toasts
-- Persistencia automática en localStorage
-- Suscripciones reactivas
+### 📋 **Gestión de Tableros**
+- ➕ **Crear tableros** organizados por categorías (Personal, Universidad)
+- 📁 **Múltiples tableros** para diferentes proyectos
+- 🗑️ **Eliminar tableros** con confirmación
+- 🔍 **Búsqueda y filtrado** de tableros por categoría
 
-#### 3. **Componentes Reutilizables**
-- **TodoForm**: Formulario con validación y estados de carga
-- **TodoItem**: Item individual con edición inline
-- **TodoList**: Lista con manejo de estados vacíos y errores
-- **TodoFilters**: Filtros con iconos y estados de carga
-- **Pagination**: Paginación avanzada con navegación inteligente
+### ✅ **Gestión de Tareas por Tablero**
+- ➕ **Crear tareas** específicas para cada tablero
+- ✏️ **Editar tareas** en línea
+- ✅ **Marcar como completadas/pendientes**
+- 🗑️ **Eliminar tareas** individuales o todas las completadas
+- 🔍 **Búsqueda** de tareas por texto
+- 🏷️ **Filtros** por estado (todas, pendientes, completadas)
+- 📄 **Paginación** para manejar muchas tareas
 
-#### 4. **Hooks Personalizados**
-- `useTaskManager`: Hook principal que combina Zustand + Tanstack Query
-- `useTasks`: Hooks específicos para cada operación CRUD
-- Configuración centralizada y reutilizable
+### 👥 **Colaboración y Compartir**
+- 🤝 **Compartir tableros** con otros usuarios registrados
+- 👤 **Roles de usuario**: Propietario, Editor, Solo lectura
+- 🔗 **Enlaces públicos** para compartir tableros (solo lectura)
+- ⏰ **Enlaces con expiración** configurable
+- 👥 **Gestión de usuarios** en tableros compartidos
 
-## 🛠️ Tecnologías
+### ⚙️ **Panel de Administración**
+- 📊 **Dashboard administrativo** con estadísticas del sistema
+- 👥 **Gestión de usuarios** (solo para administradores)
+- 📈 **Métricas** de usuarios, tableros y tareas
+- 🗑️ **Eliminación de usuarios** con confirmación
 
-- **Frontend**: React 19, Vite
-- **Estado**: Zustand
-- **Queries**: Tanstack Query (React Query)
-- **Estilos**: Tailwind CSS
-- **Iconos**: React Icons
-- **Routing**: React Router DOM
+### 🎨 **Experiencia de Usuario**
+- 📱 **Diseño responsive** para móvil, tablet y desktop
+- 🌙 **Tema dark** moderno con Tailwind CSS
+- 🔔 **Notificaciones** en tiempo real (toasts)
+- ⚡ **Carga rápida** con optimizaciones de rendimiento
+- 🎭 **Animaciones suaves** y transiciones
+
+## 🛠️ Arquitectura Técnica
+
+### **Frontend (React)**
+- **React 19** - Interfaz de usuario moderna
+- **Vite** - Desarrollo ultra-rápido y build optimizado
+- **Tanstack Query** - Gestión de estado del servidor y caché inteligente
+- **Zustand** - Estado global del cliente
+- **React Router** - Navegación con protección de rutas
+- **Tailwind CSS** - Estilos utility-first
+
+### **Backend (Node.js)**
+- **Express.js** - Servidor web RESTful
+- **PostgreSQL** - Base de datos relacional
+- **JWT** - Autenticación segura con tokens
+- **bcrypt** - Hashing de contraseñas
+- **CORS** - Configuración de seguridad
+
+### **Características Técnicas Avanzadas**
+- **Autenticación JWT** con cookies HTTP-only
+- **Optimistic updates** para respuesta inmediata
+- **Caché inteligente** con invalidación automática
+- **Paginación del servidor** para rendimiento
+- **Validación** tanto en frontend como backend
+- **Manejo de errores** robusto y user-friendly
+- **Queries paralelas** para mejor rendimiento
 
 ## 📁 Estructura del Proyecto
 
 ```
-src/
-├── components/          # Componentes reutilizables
-│   ├── TodoForm.jsx    # Formulario de tareas
-│   ├── TodoItem.jsx    # Item individual
-│   ├── TodoList.jsx    # Lista de tareas
-│   ├── TodoFilters.jsx # Filtros
-│   ├── Pagination.jsx  # Paginación
-│   └── ToastContainer.jsx # Sistema de toasts
-├── hooks/              # Hooks personalizados
-│   ├── useTasks.js     # Hooks de Tanstack Query
-│   └── useTaskManager.js # Hook principal
-├── stores/             # Stores de Zustand
-│   ├── taskStore.js    # Estado de tareas
-│   ├── appStore.js     # Estado global
-│   └── uiStore.js      # Estado de UI
-├── pages/              # Páginas de la aplicación
-│   └── BoardDetail.jsx # Página principal (refactorizada)
-└── config/             # Configuración
-    └── api.js          # Funciones de API
+To-Do-Vite/
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # Componentes reutilizables
+│   │   ├── pages/          # Páginas principales
+│   │   ├── hooks/          # Lógica de negocio personalizada
+│   │   ├── stores/         # Estado global con Zustand
+│   │   ├── context/        # Contextos de React
+│   │   └── config/         # Configuración de API
+│   └── public/
+└── backend/
+    ├── controllers/        # Lógica de controladores
+    ├── routes/            # Rutas de la API
+    ├── middleware/        # Middleware personalizado
+    ├── config/           # Configuración de DB
+    └── services/         # Servicios de negocio
 ```
 
-## 🚀 Instalación
+## 🚀 Instalación y Configuración
 
+### **Requisitos Previos**
+- Node.js 18+ 
+- PostgreSQL 12+
+- npm o yarn
+
+### **1. Configurar Backend**
 ```bash
+cd backend
 npm install
-npm run dev
+
+# Configurar base de datos PostgreSQL
+# Crear archivo .env con:
+# DATABASE_URL=postgresql://usuario:password@localhost:5432/todoapp
+# JWT_SECRET=tu-secreto-jwt
+
+npm run dev  # Servidor en http://localhost:3000
 ```
 
-## 📖 Uso
-
-### Gestión de Tareas
-- **Crear**: Usar el formulario en la parte superior
-- **Editar**: Hacer clic en el icono de editar
-- **Completar**: Hacer clic en el checkbox
-- **Eliminar**: Hacer clic en el icono de eliminar
-- **Filtrar**: Usar los botones de filtro
-- **Paginación**: Navegar entre páginas
-
-### Configuraciones
-- **Refetch Interval**: Configurar en el store de la aplicación
-- **Items por página**: Configurable en el store de tareas
-- **Ordenamiento**: Por fecha, texto o estado
-
-## 🔧 Configuración
-
-### Tanstack Query
-```javascript
-// Configuración en main.jsx
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1
-    }
-  }
-});
+### **2. Configurar Frontend**
+```bash
+cd ../
+npm install
+npm run dev  # Aplicación en http://localhost:5173
 ```
 
-### Zustand Stores
-```javascript
-// taskStore.js - Estado de tareas
-const useTaskStore = create((set, get) => ({
-  filter: 'all',
-  currentPage: 1,
-  itemsPerPage: 5,
-  // ... más estado y acciones
-}));
+## 📖 Guía de Uso
 
-// appStore.js - Estado global
-const useAppStore = create((set, get) => ({
-  settings: { refetchInterval: 30, itemsPerPage: 5 },
-  toasts: [],
-  // ... más estado y acciones
-}));
+### **Para Usuarios Nuevos:**
+1. **Regístrate** en `/auth` con un usuario único
+2. **Crea tu primer tablero** desde la página de tableros
+3. **Añade tareas** específicas a cada tablero
+4. **Organiza** usando filtros y búsqueda
+5. **Comparte** tableros con colaboradores
+
+### **Para Colaboración:**
+1. **Compartir tablero**: Añade usuarios por nombre de usuario
+2. **Roles disponibles**:
+   - **Propietario**: Control total
+   - **Editor**: Puede modificar tareas
+   - **Solo lectura**: Solo puede ver
+3. **Enlaces públicos**: Genera enlaces para compartir sin registro
+
+### **Para Administradores:**
+- Acceso al dashboard en `/admin`
+- Ver estadísticas del sistema
+- Gestionar usuarios registrados
+
+## 🎯 Flujo de Datos
+
+```mermaid
+graph TD
+    A[Usuario] --> B[Frontend React]
+    B --> C[Hooks Personalizados]
+    C --> D[Tanstack Query]
+    D --> E[API REST Backend]
+    E --> F[PostgreSQL]
+    C --> G[Zustand Store]
+    G --> B
+    D --> H[Caché Local]
+    H --> B
 ```
 
-## 🎨 Características de UX
+1. **Usuario** interactúa con la interfaz React
+2. **Hooks personalizados** procesan la lógica de negocio
+3. **Tanstack Query** gestiona peticiones HTTP y caché
+4. **API REST** procesa las peticiones en el backend
+5. **PostgreSQL** almacena los datos persistentes
+6. **Zustand** mantiene estado local (filtros, UI)
+7. **Caché local** optimiza la experiencia del usuario
 
-- **Animaciones suaves**: Transiciones CSS personalizadas
-- **Estados de carga**: Indicadores visuales para todas las operaciones
-- **Mensajes de error**: Manejo consistente de errores
-- **Responsive**: Diseño adaptativo
-- **Accesibilidad**: Focus visible y navegación por teclado
+## ⚡ Optimizaciones de Rendimiento
 
-## 🔄 Optimizaciones
+- **Lazy loading** de componentes grandes
+- **Memoización** de cálculos costosos
+- **Debouncing** en búsquedas
+- **Paginación** para grandes volúmenes de datos
+- **Optimistic updates** para feedback inmediato
+- **Cache invalidation** inteligente
+- **Consultas paralelas** cuando es posible
 
-- **Memoización**: Uso de useMemo para cálculos costosos
-- **Lazy loading**: Componentes cargados bajo demanda
-- **Caching**: Tanstack Query para cache inteligente
-- **Optimistic updates**: Actualizaciones instantáneas
-- **Debouncing**: Evitar llamadas innecesarias a la API
-
-## 📝 Próximas Mejoras
-
-- [ ] Paginación del lado del servidor
-- [ ] Búsqueda en tiempo real
-- [ ] Drag & drop para reordenar
-- [ ] Temas personalizables
-- [ ] Exportar/importar tareas
-- [ ] Notificaciones push
-- [ ] Modo offline
-
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crear una rama para tu feature
-3. Commit tus cambios
-4. Push a la rama
-5. Abrir un Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT.
+Esta arquitectura garantiza que la aplicación sea rápida, confiable y fácil de mantener.
