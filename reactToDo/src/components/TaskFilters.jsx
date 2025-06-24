@@ -5,10 +5,11 @@ import ConfirmationModal from './ConfirmationModal';
 export default function TaskFilters({ 
   currentFilter, 
   onFilterChange,
-  category
+  category,
+  boardId
 }) {
   const [showConfirm, setShowConfirm] = useState(false);
-  const { data: tasks = [] } = useTasksByCategory(category);
+  const { data: tasks = [] } = useTasksByCategory(category, boardId);
   const { deleteCompletedTasks } = useTaskMutations();
 
   const activeCount = tasks.filter(t => !t.completed).length;
@@ -16,7 +17,7 @@ export default function TaskFilters({
   const handleClearCompleted = () => setShowConfirm(true);
 
   const handleConfirm = () => {
-    deleteCompletedTasks.mutate(category, {
+    deleteCompletedTasks.mutate({ category }, {
       onSettled: () => setShowConfirm(false)
     });
   };

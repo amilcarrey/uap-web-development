@@ -1,9 +1,10 @@
 import { useTasksByCategory, useTaskMutations } from '../hooks/useTasks';
 import { useClientStore } from '../stores/clientStore';
 
-export default function TaskList({ category, filter }) {
-  const { data: tasks = [], isLoading, error } = useTasksByCategory(category);
-  const { toggleTask, deleteTask, updateTask } = useTaskMutations();
+// Actualizar para usar boardId
+export default function TaskList({ category, filter, boardId }) {
+  const { data: tasks = [], isLoading, error } = useTasksByCategory(category, boardId);
+  const { toggleTask, deleteTask } = useTaskMutations();
   const { 
     modals, 
     openDeleteModal, 
