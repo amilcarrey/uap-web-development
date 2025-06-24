@@ -51,9 +51,17 @@ export const addCategoryHandler = async (req: Request, res: Response) => {
 
 export const deleteCategoryHandler = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const user = req.user as { id: string };
+  const user = req.user as { id: string, role: string };
 
   try {
+
+    //Si es admin, permitido eliminar cualquier categoría
+    if (user.role === "admin") {
+      await removeCategory(id);
+      res.status(200).json({ message: "Categoría eliminada exitosamente" });
+      return;
+    }
+
     const isOwner = await checkCategoryPermission(id, user.id, "owner");
     if (!isOwner) {
        res.status(403).json({ error: "Solo el propietario puede eliminar esta categoría." });
