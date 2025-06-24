@@ -1,0 +1,18 @@
+{
+  "name": "christian-barreto-2",
+  "version": "1.0.0",
+  "description": "A lo largo de la materia vamos a ir realizando una aplicación de gestion de tareas.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parse": "^0.1.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

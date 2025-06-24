@@ -1,26 +1,22 @@
 import React, { useEffect, useState } from "react";
 import TareaItem from "./TareaItem";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useUIStore } from "./store/useUIstore";
 import { useMatch } from "@tanstack/react-router";
-import { tableroRoute } from "../routes/routes"; // ajusta según tu estructura
-import { useNotificacionesStore } from "../components/store/useNotificacionesStore"; // ajusta la ruta si es necesario
-import { useConfigStore } from "./store/useConfigStore"; // NUEVO: store para configuración
-
-type Tarea = {
-  id: string;
-  texto: string;
-  completada: boolean;
-  fecha_creacion?: string;
-  fecha_modificacion?: string;
-  fecha_realizada?: string;
-  tableroId?: string;
-};
+import { tableroRoute } from "../routes/routes";
+import { useNotificacionesStore } from "./store/useNotificacionesStore";
+import { useConfigStore } from "./store/useConfigStore";
+import type { Tarea } from "../types";
+import { useAgregarTarea } from "./hooks/useAgregarTarea";
 
 const TAREAS_POR_PAGINA = 3;
 
-const ListaTareas = () => {
+type ListaTareasProps = {
+  tareas: Tarea[];
+  listaId: string;
+};
+
+const ListaTareas: React.FC<ListaTareasProps> = ({ tareas, listaId }) => {
   const queryClient = useQueryClient();
   const { filtro, setFiltro } = useUIStore();
   const [texto, setTexto] = useState("");
@@ -29,7 +25,7 @@ const ListaTareas = () => {
   const match = useMatch({ to: tableroRoute.id });
   const tableroActivo = match?.params.tableroId ?? "";
 
-  // Página actual
+  // Página actual (almacenada en React Query para persistencia entre renders)
   const { data: currentPage = 1 } = useQuery({
     queryKey: ["pagina"],
     queryFn: () => 1,
@@ -38,34 +34,20 @@ const ListaTareas = () => {
     queryClient.setQueryData(["pagina"], page);
   };
 
+  // Notificaciones y configuración global
   const { agregar: notificar } = useNotificacionesStore();
-
-  // NUEVO: Obtener configuración
   const intervaloRefetch = useConfigStore((state) => state.intervaloRefetch);
   const descripcionMayusculas = useConfigStore((state) => state.descripcionMayusculas);
 
-  const agregarTareaMutation = useMutation({
-    mutationFn: (texto: string) => {
-      const now = new Date().toISOString();
-      return axios.post("http://localhost:8008/tareas", {
-        id: crypto.randomUUID(),
-        texto,
-        completada: false,
-        fecha_creacion: now,
-        fecha_modificacion: now,
-        fecha_realizada: null,
-        tableroId: tableroActivo,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tareas", tableroActivo] });
+  // Usar hook personalizado para agregar tarea
+  const agregarTareaMutation = useAgregarTarea(tableroActivo);
+
+  // Limpiar input y notificar desde el componente tras éxito
+  useEffect(() => {
+    if (agregarTareaMutation.isSuccess) {
       setTexto("");
-      notificar("Tarea creada", "success");
-    },
-    onError: () => {
-      notificar("Error al crear la tarea", "error");
-    },
-  });
+    }
+  }, [agregarTareaMutation.isSuccess]);
 
   const agregarTarea = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +55,8 @@ const ListaTareas = () => {
     agregarTareaMutation.mutate(texto.trim());
   };
 
-  // Traer todas las tareas del tablero activo con refetch interval dinámico
+  // Si quieres seguir usando las tareas de props, comenta el siguiente bloque:
+  /*
   const {
     data: tareas = [],
     isLoading,
@@ -87,7 +70,12 @@ const ListaTareas = () => {
     enabled: !!tableroActivo,
     refetchInterval: intervaloRefetch,
   });
+  */
+  // Y usa estas variables en su lugar:
+  const isLoading = false;
+  const isError = false;
 
+  // Filtrado y paginación
   const tareasFiltradas = tareas.filter((t: Tarea) =>
     filtro === "activas" ? !t.completada :
     filtro === "completadas" ? t.completada : true
@@ -124,6 +112,7 @@ const ListaTareas = () => {
             focus:ring-0
             focus:shadow-[0_0_8px_2px_rgba(69,140,255,0.5)]
           "
+          disabled={agregarTareaMutation.isPending}
         />
       </form>
 
@@ -160,7 +149,7 @@ const ListaTareas = () => {
             fecha_modificacion={tarea.fecha_modificacion ?? ""}
             fecha_realizada={tarea.fecha_realizada ?? ""}
             tableroId={tarea.tableroId ?? ""}
-            descripcionMayusculas={descripcionMayusculas} // <--- Aquí la nueva prop
+            descripcionMayusculas={descripcionMayusculas}
           />
         ))
       )}

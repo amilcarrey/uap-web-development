@@ -5,16 +5,7 @@ import Notificaciones from "./components/Notificaciones"; // opcional
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useParams } from "@tanstack/react-router";
-
-type Tarea = {
-  id: string;
-  texto: string;
-  completada: boolean;
-  fecha_creacion: string;
-  fecha_modificacion: string;
-  fecha_realizada: string | null;
-  tableroId: string;
-};
+import type { Tarea } from "./types";
 
 const App = () => {
   const { tableroId } = useParams({ from: "/tablero/$tableroId" });

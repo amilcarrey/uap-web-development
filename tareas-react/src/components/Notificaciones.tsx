@@ -1,9 +1,8 @@
-// src/components/Notificaciones.tsx
-import React from "react";
 import { useNotificacionesStore } from "../components/store/useNotificacionesStore";
 
 const Notificaciones = () => {
-  const { notificaciones } = useNotificacionesStore();
+  // Hook de Zustand para acceder a las notificaciones globales
+  const notificaciones = useNotificacionesStore((state) => state.notificaciones);
 
   return (
     <div className="fixed top-[90px] right-4 z-50 space-y-2 w-[300px]">

@@ -5,26 +5,53 @@
       "nombre": "Personal"
     },
     {
-      "id": "69e7",
+      "id": "3f2d",
       "nombre": "Profesional"
     }
   ],
   "tareas": [
     {
-      "id": "3fc98d85-01ea-478c-b1fd-c77e08679205",
-      "texto": "asdasd",
-      "completada": false,
-      "fecha_creacion": "2025-06-04T20:48:17.585Z",
-      "fecha_modificacion": "2025-06-05T20:47:24.550Z",
-      "fecha_realizada": null,
-      "tableroId": "69e7"
-    },
-    {
-      "id": "b2364c1c-747d-4232-a6fd-e893f922a97a",
+      "id": "637323b8-96ac-4dfe-8cfb-f60290dc93a0",
       "texto": "asd",
       "completada": false,
-      "fecha_creacion": "2025-06-05T21:25:21.231Z",
-      "fecha_modificacion": "2025-06-05T21:25:21.231Z",
+      "fecha_creacion": "2025-06-11T01:08:46.517Z",
+      "fecha_modificacion": "2025-06-11T02:10:58.074Z",
+      "fecha_realizada": null,
+      "tableroId": "3f2d"
+    },
+    {
+      "id": "3b3385ce-a439-40ae-8791-d0188f9c8613",
+      "texto": "asd",
+      "completada": false,
+      "fecha_creacion": "2025-06-11T02:07:55.928Z",
+      "fecha_modificacion": "2025-06-11T02:07:55.928Z",
+      "fecha_realizada": null,
+      "tableroId": "1"
+    },
+    {
+      "id": "c55ed9c9-89d5-4efe-b5ba-ecfbae2ea123",
+      "texto": "asdasd",
+      "completada": false,
+      "fecha_creacion": "2025-06-11T02:07:58.134Z",
+      "fecha_modificacion": "2025-06-11T02:07:58.134Z",
+      "fecha_realizada": null,
+      "tableroId": "3f2d"
+    },
+    {
+      "id": "992e58b0-c8ee-4c38-ace1-f74b53acdef9",
+      "texto": "asd",
+      "completada": false,
+      "fecha_creacion": "2025-06-11T02:21:14.291Z",
+      "fecha_modificacion": "2025-06-11T02:21:14.291Z",
+      "fecha_realizada": null,
+      "tableroId": "1"
+    },
+    {
+      "id": "5fb5156b-ac03-44ad-862a-d98b899bb456",
+      "texto": "asd",
+      "completada": false,
+      "fecha_creacion": "2025-06-11T02:25:32.791Z",
+      "fecha_modificacion": "2025-06-11T02:25:32.791Z",
       "fecha_realizada": null,
       "tableroId": "1"
     }

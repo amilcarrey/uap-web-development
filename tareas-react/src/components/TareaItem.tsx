@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { useNotificacionesStore } from "./store/useNotificacionesStore";
-import { useConfigStore } from "./store/useConfigStore"; // <-- Importar config
+import { useActualizarTarea } from "./hooks/useActualizarTarea";
+import { useToggleCompletada } from "./hooks/useToggleCompletada";
+import { useEliminarTarea } from "./hooks/useEliminarTarea";
+import { useConfigStore } from "./store/useConfigStore";
 
 type Props = {
   id: string;
@@ -11,6 +11,8 @@ type Props = {
   fecha_creacion: string;
   fecha_modificacion: string;
   fecha_realizada?: string | null;
+  tableroId?: string;
+  descripcionMayusculas: boolean;
 };
 
 const CheckIcon = ({ completed }: { completed: boolean }) => (
@@ -73,74 +75,22 @@ const TareaItem = ({
   fecha_creacion,
   fecha_modificacion,
   fecha_realizada,
+  tableroId,
+  descripcionMayusculas,
 }: Props) => {
-  const queryClient = useQueryClient();
   const [editando, setEditando] = useState(false);
   const [nuevoTexto, setNuevoTexto] = useState(texto);
 
-  const { notificar } = useNotificacionesStore();
-
-  // Traer configuración global
-  const descripcionMayusculas = useConfigStore((state) => state.descripcionMayusculas);
-
-  const toggleMutation = useMutation({
-    mutationFn: async () => {
-      const ahora = new Date().toISOString();
-      const nuevoEstado = !completada;
-      await axios.patch(`http://localhost:8008/tareas/${id}`, {
-        completada: nuevoEstado,
-        fecha_modificacion: ahora,
-        fecha_realizada: nuevoEstado ? ahora : null,
-      });
-      return nuevoEstado;
-    },
-    onSuccess: (nuevoEstado) => {
-      queryClient.invalidateQueries({ queryKey: ["tareas"] });
-      notificar(
-        nuevoEstado ? "Tarea completada" : "Tarea marcada como pendiente",
-        "success"
-      );
-    },
-    onError: () => {
-      notificar("Error al cambiar el estado de la tarea", "error");
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      await axios.delete(`http://localhost:8008/tareas/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tareas"] });
-      notificar("Tarea eliminada", "error");
-    },
-    onError: () => {
-      notificar("Error al eliminar tarea", "error");
-    },
-  });
-
-  const editarMutation = useMutation({
-    mutationFn: async () => {
-      const ahora = new Date().toISOString();
-      await axios.patch(`http://localhost:8008/tareas/${id}`, {
-        texto: nuevoTexto,
-        fecha_modificacion: ahora,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tareas"] });
-      notificar("Tarea editada", "success");
-      setEditando(false);
-    },
-    onError: () => {
-      notificar("Error al editar tarea", "error");
-    },
-  });
+  // Hooks personalizados
+  const actualizarTarea = useActualizarTarea(id);
+  const toggleCompletada = useToggleCompletada(id, completada);
+  const eliminarTarea = useEliminarTarea(tableroId);
 
   const handleEditarTexto = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       if (nuevoTexto.trim()) {
-        editarMutation.mutate();
+        actualizarTarea.mutate({ texto: nuevoTexto });
+        setEditando(false);
       } else {
         setNuevoTexto(texto);
         setEditando(false);
@@ -166,10 +116,10 @@ const TareaItem = ({
     <div className="flex flex-col gap-2 bg-black/80 backdrop-blur-lg rounded-xl border border-white/20 p-4 shadow-md shadow-black/20 hover:shadow-lg transition-shadow duration-300 text-white">
       <div className="flex items-center justify-between">
         <button
-          onClick={() => toggleMutation.mutate()}
+          onClick={() => toggleCompletada.mutate()}
           aria-label="Toggle complete"
           className="focus:outline-none"
-          disabled={toggleMutation.isPending}
+          disabled={toggleCompletada.isPending}
         >
           <CheckIcon completed={completada} />
         </button>
@@ -211,10 +161,10 @@ const TareaItem = ({
           </button>
 
           <button
-            onClick={() => deleteMutation.mutate()}
+            onClick={() => eliminarTarea.mutate(id)}
             aria-label="Delete task"
             className="focus:outline-none"
-            disabled={deleteMutation.isPending}
+            disabled={eliminarTarea.isPending}
           >
             <TrashIcon />
           </button>
