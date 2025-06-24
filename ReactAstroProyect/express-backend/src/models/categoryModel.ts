@@ -51,6 +51,8 @@ export async function addCategoryPermission(categoryId: string, userId: string, 
   );
 }
 
+// Verificar si un usuario tiene un permiso específico en una categoría
+// requiredRole puede ser "owner", "editor" o "viewer"
 export async function checkCategoryPermission(categoryId: string, userId: string, requiredRole: string): Promise<boolean> {
   const result = await database.get(
     "SELECT 1 FROM category_permissions WHERE categoryId = ? AND userId = ? AND role = ?",
@@ -59,9 +61,34 @@ export async function checkCategoryPermission(categoryId: string, userId: string
   return !!result;
 }
 
-export async function getCategoryPermissions(categoryId: string): Promise<{ userId: string; role: string }[]> {
+// Obtener todos los usuarios con permisos en una categoría
+export async function getCategoryPermissions(categoryId: string) {
   return await database.all(
-    "SELECT userId, role FROM category_permissions WHERE categoryId = ?",
+    `SELECT cp.userId, cp.role, u.email 
+     FROM category_permissions cp 
+     JOIN users u ON cp.userId = u.id 
+     WHERE cp.categoryId = ?`,
     [categoryId]
   );
+}
+
+// Actualizar el rol de un usuario en una categoría
+export async function updateCategoryPermission(categoryId: string, userId: string, newRole: string): Promise<void> {
+  await database.run(
+    "UPDATE category_permissions SET role = ? WHERE categoryId = ? AND userId = ?",
+    [newRole, categoryId, userId]
+  );
+}
+
+// Eliminar un permiso de categoría
+export async function removeCategoryPermission(categoryId: string, userId: string): Promise<void> {
+  await database.run(
+    "DELETE FROM category_permissions WHERE categoryId = ? AND userId = ?",
+    [categoryId, userId]
+  );
+}
+
+// buscar usuario por email
+export async function getUserByEmail(email: string) {
+  return await database.get("SELECT id, email, role FROM users WHERE email = ?", [email]);
 }

@@ -6,7 +6,11 @@ import {
   categoryExists,
   getCategoriesByUserId as getCategoriesByUserIdModel,
   addCategoryPermission,
-  checkCategoryPermission as checkCategoryPermissionModel
+  checkCategoryPermission as checkCategoryPermissionModel,
+  getCategoryPermissions,
+  updateCategoryPermission,
+  removeCategoryPermission,
+  getUserByEmail
 } from "../models/categoryModel.js";
 
 export async function getAllCategories() {
@@ -44,4 +48,65 @@ export async function getCategoriesByUserId(userId: string) {
 export async function checkCategoryPermissionService(categoryId: string, userId: string, requiredRole: string): Promise<boolean> {
   return await checkCategoryPermissionModel(categoryId, userId, requiredRole);
 } 
+
+// Compartir una categoría con otro usuario
+export async function shareCategory(categoryId: string, userEmail: string, role: string, ownerId: string) {
+  // Verificar que el usuario que comparte sea el propietario
+  const isOwner = await checkCategoryPermissionService(categoryId, ownerId, "owner");
+  if (!isOwner) {
+    throw new Error("Solo el propietario puede compartir la categoría.");
+  }
+
+  // Buscar el usuario por email
+  const targetUser = await getUserByEmail(userEmail) as { id: string };
+  if (!targetUser) {
+    throw new Error("Usuario no encontrado con ese email.");
+  }
+
+  // Verificar que no sea el mismo propietario
+  if (targetUser.id === ownerId) {
+    throw new Error("No puedes compartir contigo mismo.");
+  }
+
+  // Verificar que el usuario no tenga ya permisos
+  const existingPermission = await checkCategoryPermissionService(categoryId, targetUser.id, role);
+  if (existingPermission) {
+    throw new Error("El usuario ya tiene permisos en esta categoría.");
+  }
+
+  await addCategoryPermission(categoryId, targetUser.id, role);
+}
+
+// Obtener permisos de una categoría (solo si el usuario tiene al menos rol "viewer")
+// Devuelve una lista de usuarios con sus roles
+export async function getCategoryPermissionsList(categoryId: string, userId: string) {
+  // Verificar que el usuario tenga permisos (al menos viewer)
+  const hasPermission = await checkCategoryPermissionService(categoryId, userId, "viewer");
+  if (!hasPermission) {
+    throw new Error("No tienes permisos para ver los permisos de esta categoría.");
+  }
+
+  return await getCategoryPermissions(categoryId);
+}
+
+// Cambiar permisos de un usuario (solo propietario)
+export async function changeCategoryPermission(categoryId: string, targetUserId: string, newRole: string, ownerId: string) {
+  const isOwner = await checkCategoryPermissionService(categoryId, ownerId, "owner");
+  if (!isOwner) {
+    throw new Error("Solo el propietario puede cambiar permisos.");
+  }
+
+  await updateCategoryPermission(categoryId, targetUserId, newRole);
+}
+
+// Remover permisos de un usuario (solo propietario)
+export async function removeCategoryPermissionService(categoryId: string, targetUserId: string, ownerId: string) {
+  const isOwner = await checkCategoryPermissionService(categoryId, ownerId, "owner");
+  if (!isOwner) {
+    throw new Error("Solo el propietario puede remover permisos.");
+  }
+
+  await removeCategoryPermission(categoryId, targetUserId);
+}
+
 

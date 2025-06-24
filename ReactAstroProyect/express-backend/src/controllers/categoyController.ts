@@ -6,7 +6,11 @@ import {
   removeCategory, 
   checkCategoryExists, 
   getCategoriesByUserId, 
-  checkCategoryPermissionService as checkCategoryPermission
+  checkCategoryPermissionService as checkCategoryPermission,
+  shareCategory,
+  getCategoryPermissionsList,
+  changeCategoryPermission,
+  removeCategoryPermissionService
 } from "../services/categoryServices.js";
 
 
@@ -60,5 +64,70 @@ export const deleteCategoryHandler = async (req: Request, res: Response) => {
     res.status(200).json({ message: "Categoría eliminada exitosamente" });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+export const checkCategoryExistsHandler = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const exists = await checkCategoryExists(id);
+    res.json({ exists });
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+export const shareCategoryHandler = async (req: Request, res: Response) => {
+  const { categoryId, userEmail, role } = req.body;
+  const user = req.user as { id: string };
+
+  try {
+    await shareCategory(categoryId, userEmail, role, user.id);
+    res.status(200).json({ message: "Categoría compartida exitosamente" });
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
+}
+
+// Permisos de una cat
+export const getCategoryPermissionsHandler = async (req: Request, res: Response) => {
+  const { categoryId, id } = req.params;
+  const user = req.user as { id: string };
+
+  try {
+    const permissions = await getCategoryPermissionsList(categoryId, user.id);
+    res.json(permissions);
+  } catch (error) {
+
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+// Cambiar permisos de un usuario
+export const updateCategoryPermissionHandler = async (req: Request, res: Response) => {
+  const { categoryId, targetUserId, newRole } = req.body;
+  const user = req.user as { id: string };
+
+  try {
+    await changeCategoryPermission(categoryId, targetUserId, newRole, user.id);
+    res.status(200).json({ message: "Permisos actualizados exitosamente" });
+  } catch (error) {
+    const err = error as Error;
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Eliminar permisos de un usuario sobre una categoría
+export const removeCategoryPermissionHandler = async (req: Request, res: Response) => {
+  const { categoryId, targetUserId } = req.body;
+  const user = req.user as { id: string };
+
+  try {
+    await removeCategoryPermissionService(categoryId, targetUserId, user.id);
+    res.status(200).json({ message: "Permisos removidos exitosamente" });
+  } catch (error) {
+    const err = error as Error;
+    res.status(400).json({ error: err.message });
   }
 };
