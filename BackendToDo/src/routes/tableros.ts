@@ -20,7 +20,7 @@ router.use(requireAuth); // Solo autenticación básica
 router.get('/', getTableros);
 router.post('/', createTablero);
 router.get('/:alias', getTableroPorAlias); 
-router.post('/:id/compartir', compartirTablero); 
+router.post('/:alias/compartir', soloPropietario, compartirTablero); 
 router.get('/:id/usuarios', obtenerUsuariosTablero); 
 router.delete('/:id/acceso/:usuarioId', revocarAccesoTablero); 
 router.delete('/:alias', soloPropietario, deleteTablero);

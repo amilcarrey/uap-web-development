@@ -48,7 +48,7 @@ export const soloPropietario = async (req: AuthRequest, res: Response, next: Nex
     const usuarioId = req.userId;
 
     if (!alias || !usuarioId) {
-      return res.status(400).json({ error: "Datos insuficientes" });
+      return res.status(400).json({ error: "No sos propietario" });
     }
 
     // Buscar el tablero por alias

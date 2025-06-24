@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/useAutenticacion";
-import Header from "./Header"; // Agrega este import
 
 export default function AutenticacionPagina() {
   const [isLogin, setIsLogin] = useState(true);

@@ -3,3 +3,9 @@ export type TareaType = {
   descripcion: string;
   completada: boolean;
 };
+
+export interface Usuario {
+  id: string;
+  nombre: string;
+  email: string;
+}

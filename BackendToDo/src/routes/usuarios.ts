@@ -23,7 +23,7 @@ router.post('/login', loginUsuario);
 router.post('/logout', logoutUsuario);
 
 // GET /usuarios/check-auth - Verificar autenticación
-router.get('/check-auth');
+router.get('/check-auth', checkAuth);
 
 // GET /usuarios/:id - Obtener usuario por ID
 router.get('/:id', getUsuarioPorId);

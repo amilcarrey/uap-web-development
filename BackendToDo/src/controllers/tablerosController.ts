@@ -186,42 +186,39 @@ export async function deleteTableroPorId(req: Request, res: Response) {
 // POST /tableros/:id/compartir - Compartir tablero con otro usuario
 export async function compartirTablero(req: Request, res: Response) {
   try {
-    const { id: tableroId } = req.params;
+    const { alias } = req.params;
     const { emailUsuario } = req.body;
-    
+
     if (!emailUsuario) {
-      return res.status(400).json({ 
-        error: "Email del usuario es requerido" 
-      });
+      return res.status(400).json({ error: "Email del usuario es requerido" });
+    }
+
+    // Buscar el tablero por alias
+    const tablero = await obtenerTablero(alias);
+    if (!tablero) {
+      return res.status(404).json({ error: "Tablero no encontrado" });
     }
 
     // Buscar el usuario por email
     const usuario = await obtenerUsuarioPorEmail(emailUsuario.trim());
-    
     if (!usuario) {
-      return res.status(404).json({ 
-        error: "Usuario no encontrado" 
-      });
+      return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
     // Verificar que no sea el mismo propietario
     if (usuario.id === (req as any).userId) {
-      return res.status(400).json({ 
-        error: "No puedes compartir contigo mismo" 
-      });
+      return res.status(400).json({ error: "No puedes compartir contigo mismo" });
     }
 
-    // Compartir el tablero
-    const compartido = await compartirTableroService(tableroId, usuario.id);
-    
+    // Compartir el tablero usando el id real
+    const compartido = await compartirTableroService(tablero.id, usuario.id);
+
     if (!compartido) {
-      return res.status(500).json({ 
-        error: "Error al compartir tablero" 
-      });
+      return res.status(500).json({ error: "Error al compartir tablero" });
     }
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       mensaje: `Tablero compartido con ${usuario.nombre} (${usuario.email})`,
       usuario: {
         id: usuario.id,

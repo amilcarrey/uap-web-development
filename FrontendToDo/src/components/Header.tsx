@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from '@tanstack/react-router';
-import { useTableros, useCrearTablero, useEliminarTablero } from '../hooks/useTableros';
+import { useTableros, useCrearTablero, useEliminarTablero, useTablero } from '../hooks/useTableros';
 import { useClientStore } from '../store/clientStore';
+import { useAuthStatus } from '../hooks/useAutenticacion';
+import { useQuery } from '@tanstack/react-query';
+import type { Usuario } from '../types/Tarea';
 
 interface HeaderProps {
   tableroNombre?: string;
@@ -10,15 +13,65 @@ interface HeaderProps {
 const Header = ({ tableroNombre }: HeaderProps) => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [nombreTablero, setNombreTablero] = useState('');
+  const [mostrarCompartir, setMostrarCompartir] = useState(false);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState('');
+  const [compartiendo, setCompartiendo] = useState(false);
+
   const { data: tablerosData } = useTableros();
-  const { mostrarToast } = useClientStore();
   const crearTableroMutation = useCrearTablero();
   const eliminarTableroMutation = useEliminarTablero();
+  const { mostrarToast } = useClientStore();
   const navigate = useNavigate();
-  
-  // Obtener el alias actual de la URL
+
+  // Alias actual de la URL
   const params = useParams({ strict: false });
   const aliasActual = params?.alias as string;
+
+  // Usuario autenticado y tablero actual (React Query)
+  const { data: authData } = useAuthStatus();
+  const { data: tableroData } = useTablero(aliasActual);
+
+  // ¿Es propietario?
+  const soyPropietario = !!(
+    authData?.usuario &&
+    tableroData?.tablero &&
+    authData.usuario.id === tableroData.tablero.propietarioId
+  );
+
+  // Usuarios registrados (React Query)
+  const { data: usuariosData, isLoading: cargandoUsuarios } = useQuery<Usuario[]>({
+    queryKey: ['usuarios'],
+    queryFn: async () => {
+      const res = await fetch('http://localhost:3001/api/usuarios', { credentials: 'include' });
+      const data = await res.json();
+      return data.usuarios || [];
+    },
+    enabled: mostrarCompartir, // Solo consulta cuando se abre el modal
+  });
+
+  // Compartir tablero
+  const handleCompartir = async () => {
+    if (!usuarioSeleccionado) return;
+    setCompartiendo(true);
+    try {
+      const res = await fetch(`http://localhost:3001/api/tableros/${aliasActual}/compartir`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ emailUsuario: usuarioSeleccionado, rol: 'editor' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        mostrarToast('Tablero compartido correctamente', 'exito');
+        setMostrarCompartir(false);
+      } else {
+        mostrarToast(data.error || 'Error al compartir', 'error');
+      }
+    } catch {
+      mostrarToast('Error al compartir', 'error');
+    }
+    setCompartiendo(false);
+  };
 
   const handleCrearTablero = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,16 +100,15 @@ const Header = ({ tableroNombre }: HeaderProps) => {
       mostrarToast('No hay tablero seleccionado para eliminar', 'error');
       return;
     }
-
     if (aliasActual === 'configuracion') {
       mostrarToast('No se puede eliminar el tablero de configuración', 'error');
       return;
     }
-
     eliminarTableroMutation.mutate(aliasActual, {
       onSuccess: (data) => {
         mostrarToast(data.mensaje || 'Tablero eliminado correctamente', 'exito');
-        navigate({ to: '/tablero/$alias', params: { alias: 'configuracion' } });      },
+        navigate({ to: '/tablero/$alias', params: { alias: 'configuracion' } });
+      },
       onError: (error) => {
         mostrarToast(error.message || 'Error al eliminar tablero', 'error');
       },
@@ -66,7 +118,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
   const handleTableroClick = (alias: string) => {
     navigate({ to: '/tablero/$alias', params: { alias } });
   };
-
+console.log('authData:', authData);
   return (
     <>
       {/* Botón casita arriba a la izquierda */}
@@ -83,6 +135,11 @@ const Header = ({ tableroNombre }: HeaderProps) => {
       </button>
 
       <h1 className="my-2 mx-auto text-center text-black text-7xl font-bold">ToDo</h1>
+      {authData?.usuario?.nombre && (
+        <div className="text-center text-xs text-gray-600 mb-2">
+          Bienvenido {authData.usuario.nombre}
+        </div>
+      )}
       
       {tableroNombre && (
         <h2 className="text-2xl font-semibold text-center text-gray-700 mb-4">
@@ -160,6 +217,62 @@ const Header = ({ tableroNombre }: HeaderProps) => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Botón compartir */}
+      {aliasActual && aliasActual !== 'configuracion' && (
+        <button
+          onClick={() => setMostrarCompartir(true)}
+          className="absolute top-16 left-4 bg-white rounded-full p-2 shadow hover:bg-blue-100 transition"
+          title="Compartir tablero"
+          style={{ zIndex: 1000 }}
+        >
+          {/* SVG de compartir */}
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 8a3 3 0 11-6 0 3 3 0 016 0zm6 8a6 6 0 10-12 0h12zm-6-6v6" />
+          </svg>
+        </button>
+      )}
+
+      {/* Modal de compartir */}
+      {mostrarCompartir && (
+        <div
+          className="absolute left-4 top-28 bg-white p-4 rounded shadow-lg border w-72 z-50"
+          style={{ minWidth: 250 }}
+        >
+          <h3 className="text-lg font-bold mb-3">Compartir tablero</h3>
+          {cargandoUsuarios ? (
+            <p>Cargando usuarios...</p>
+          ) : (
+            <select
+              className="w-full border p-2 rounded mb-4"
+              value={usuarioSeleccionado}
+              onChange={e => setUsuarioSeleccionado(e.target.value)}
+            >
+              <option value="">Selecciona un usuario</option>
+              {usuariosData?.filter(u => u.email !== undefined).map(u => (
+                <option key={u.id} value={u.email}>
+                  {u.email}
+                </option>
+              ))}
+            </select>
+          )}
+          <div className="flex gap-2">
+            <button
+              className="flex-1 bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
+              onClick={handleCompartir}
+              disabled={!usuarioSeleccionado || compartiendo}
+            >
+              {compartiendo ? 'Compartiendo...' : 'Compartir'}
+            </button>
+            <button
+              className="flex-1 bg-gray-400 text-white rounded px-4 py-2 hover:bg-gray-500"
+              onClick={() => setMostrarCompartir(false)}
+            >
+              Cancelar
+            </button>
+          </div>
         </div>
       )}
     </>
