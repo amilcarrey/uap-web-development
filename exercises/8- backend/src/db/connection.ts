@@ -75,6 +75,21 @@ class Database {
       )
     `);
 
+    // Notifications table
+    await this.run(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        type TEXT NOT NULL CHECK (type IN ('board_shared', 'board_access_revoked', 'task_added')),
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        data TEXT, -- JSON data for additional context
+        read BOOLEAN DEFAULT FALSE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      )
+    `);
+
     // Create indexes for better performance
     await this.run(
       `CREATE INDEX IF NOT EXISTS idx_boards_owner ON boards(owner_id)`
@@ -91,6 +106,12 @@ class Database {
     await this.run(
       `CREATE INDEX IF NOT EXISTS idx_board_permissions_user ON board_permissions(user_id)`
     );
+    await this.run(
+      `CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id)`
+    );
+    await this.run(
+      `CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read)`
+    );
   }
 
   private async seedData(): Promise<void> {
@@ -101,15 +122,30 @@ class Database {
         return; // Data already seeded
       }
 
-      // Create a demo user (password: "demo123")
-      const demoUserId = "demo-user-id";
+      // Create demo users (password: "demo123" for all)
       const hashedPassword =
         "$2a$10$vQqN5xyj3FPk1tE2Nkv7wOb.ELwJX1JO3fJ.MWJXk7bQ2JQ5.N8O2"; // bcrypt hash for "demo123"
 
-      await this.run(
-        "INSERT INTO users (id, username, email, password_hash) VALUES (?, ?, ?, ?)",
-        [demoUserId, "demo", "demo@example.com", hashedPassword]
-      );
+      const users = [
+        { id: "demo-user-id", username: "demo", email: "demo@example.com" },
+        { id: "alice-user-id", username: "alice", email: "alice@example.com" },
+        { id: "bob-user-id", username: "bob", email: "bob@example.com" },
+        {
+          id: "charlie-user-id",
+          username: "charlie",
+          email: "charlie@example.com",
+        },
+      ];
+
+      // Insert all users
+      for (const user of users) {
+        await this.run(
+          "INSERT INTO users (id, username, email, password_hash) VALUES (?, ?, ?, ?)",
+          [user.id, user.username, user.email, hashedPassword]
+        );
+      }
+
+      const demoUserId = "demo-user-id";
 
       // Create demo boards
       const todayBoardId = "today-board";

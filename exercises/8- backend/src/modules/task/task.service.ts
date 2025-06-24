@@ -1,7 +1,7 @@
 import { TaskRepository } from "./task.repository";
 import { BoardService } from "../board/board.service";
 import { BoardRepository } from "../board/board.repository";
-import { UserRepository } from "../user/user.repository";
+import { PermissionService } from "../permission/permission.service";
 import {
   Task,
   CreateTaskRequest,
@@ -15,12 +15,13 @@ import { PaginationUtils } from "../../utils";
 export class TaskService {
   private taskRepository: TaskRepository;
   private boardService: BoardService;
+  private permissionService: PermissionService;
 
   constructor() {
     this.taskRepository = new TaskRepository();
     const boardRepository = new BoardRepository();
-    const userRepository = new UserRepository();
-    this.boardService = new BoardService(boardRepository, userRepository);
+    this.boardService = new BoardService(boardRepository);
+    this.permissionService = new PermissionService();
   }
 
   async getTasksByBoard(
@@ -29,8 +30,12 @@ export class TaskService {
     paginationParams: PaginationParams
   ): Promise<ApiResponse<PaginationResponse<Task[]>>> {
     try {
-      // Check if user has access to the board
-      const hasAccess = await this.boardService.hasUserAccess(boardId, userId);
+      // Check if user has access to the board using permission service
+      const hasAccess = await this.permissionService.hasPermission(
+        boardId,
+        userId,
+        "viewer"
+      );
       if (!hasAccess) {
         return {
           success: false,
@@ -79,10 +84,11 @@ export class TaskService {
         };
       }
 
-      // Check if user has access to the board
-      const hasAccess = await this.boardService.hasUserAccess(
+      // Check if user has access to the board using permission service
+      const hasAccess = await this.permissionService.hasPermission(
         task.board_id,
-        userId
+        userId,
+        "viewer"
       );
       if (!hasAccess) {
         return {
@@ -112,15 +118,16 @@ export class TaskService {
     userId: string
   ): Promise<ApiResponse<Task>> {
     try {
-      // Check if user has editor or owner access to the board
-      const permission = await this.boardService.getUserPermission(
+      // Check if user has at least viewer access to the board (they can add tasks even as viewers)
+      const hasAccess = await this.permissionService.hasPermission(
         taskData.board_id,
-        userId
+        userId,
+        "viewer"
       );
-      if (!permission || permission === "viewer") {
+      if (!hasAccess) {
         return {
           success: false,
-          message: "Insufficient permissions to create tasks",
+          message: "Access denied to this board",
           statusCode: 403,
         };
       }
@@ -159,17 +166,39 @@ export class TaskService {
         };
       }
 
-      // Check if user has editor or owner access to the board
+      // Check if user has access to the board
       const permission = await this.boardService.getUserPermission(
         boardId,
         userId
       );
-      if (!permission || permission === "viewer") {
+      if (!permission) {
         return {
           success: false,
-          message: "Insufficient permissions to update tasks",
+          message: "You don't have access to this board",
           statusCode: 403,
         };
+      }
+
+      // Viewers can only toggle completion status, not edit task text
+      if (permission === "viewer") {
+        // Check if trying to update text - viewers can't do this
+        if (taskData.text !== undefined) {
+          return {
+            success: false,
+            message:
+              "Viewers can only mark tasks as completed/incomplete, not edit text",
+            statusCode: 403,
+          };
+        }
+
+        // Allow viewers to toggle completion status
+        if (taskData.completed === undefined) {
+          return {
+            success: false,
+            message: "Viewers can only mark tasks as completed/incomplete",
+            statusCode: 403,
+          };
+        }
       }
 
       const task = await this.taskRepository.updateTask(id, taskData);
@@ -281,8 +310,12 @@ export class TaskService {
     ApiResponse<{ total: number; completed: number; active: number }>
   > {
     try {
-      // Check if user has access to the board
-      const hasAccess = await this.boardService.hasUserAccess(boardId, userId);
+      // Check if user has access to the board using permission service
+      const hasAccess = await this.permissionService.hasPermission(
+        boardId,
+        userId,
+        "viewer"
+      );
       if (!hasAccess) {
         return {
           success: false,

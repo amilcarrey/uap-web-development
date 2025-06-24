@@ -3,6 +3,7 @@ import userRoutes from "./user.routes";
 import boardRoutes from "./board.routes";
 import taskRoutes from "./task.routes";
 import filterRoutes from "./filter.routes";
+import permissionRoutes from "../modules/permission/permission.routes";
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.use("/users", userRoutes);
 router.use("/boards", boardRoutes);
 router.use("/tasks", taskRoutes);
 router.use("/filter", filterRoutes);
+router.use("/permissions", permissionRoutes);
 
 // Health check endpoint
 router.get("/health", (_req, res) => {

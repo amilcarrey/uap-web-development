@@ -14,7 +14,11 @@ const PORT = process.env.PORT || 3001;
 
 // CORS configuration for frontend integration
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:5173", // Default Vite dev server port
+  origin: [
+    process.env.FRONTEND_URL || "http://localhost:5173", // Default Vite dev server port
+    "http://localhost:4321", // Alternative frontend port
+    "http://localhost:3000", // Common React dev port
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
