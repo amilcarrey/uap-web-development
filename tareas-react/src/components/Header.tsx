@@ -38,7 +38,7 @@ const Header = () => {
     mutationFn: async () => {
       if (!nuevoNombre.trim()) return;
       const nuevo = { nombre: nuevoNombre };
-      await axios.post("http://localhost:8008/tableros", nuevo);
+      await axios.post("http://localhost:8008/api/tableros", nuevo);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tableros"] });
@@ -53,7 +53,7 @@ const Header = () => {
   // Mutación para eliminar tablero
   const eliminarTableroMutation = useMutation({
     mutationFn: async (id: string) => {
-      await axios.delete(`http://localhost:8008/tableros/${id}`);
+      await axios.delete(`http://localhost:8008/api/tableros/${id}`);
     },
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["tableros"] });

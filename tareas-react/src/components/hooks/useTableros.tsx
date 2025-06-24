@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-const API_TABLEROS_URL = "http://localhost:8008/tableros";
+const API_TABLEROS_URL = "http://localhost:8008/api/tableros";
 
 export function useTableros() {
   return useQuery({

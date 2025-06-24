@@ -6,7 +6,7 @@ export function useActualizarTarea(id: string) {
 
   return useMutation({
     mutationFn: (data: Partial<{ texto: string; completada: boolean }>) =>
-      axios.patch(`http://localhost:8008/tareas/${id}`, {
+      axios.patch(`http://localhost:8008/api/tareas/${id}`, {
         ...data,
         fecha_modificacion: new Date().toISOString(),
       }),

@@ -7,7 +7,7 @@ export function useToggleCompletada(id: string, estadoActual: boolean) {
   return useMutation({
     mutationFn: async () => {
       const ahora = new Date().toISOString();
-      return axios.patch(`http://localhost:8008/tareas/${id}`, {
+      return axios.patch(`http://localhost:8008/api/tareas/${id}`, {
         completada: !estadoActual,
         fecha_modificacion: ahora,
         fecha_realizada: !estadoActual ? ahora : null,

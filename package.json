@@ -1,18 +1,70 @@
 {
+  
   "name": "christian-barreto-2",
+  
   "version": "1.0.0",
+  
   "description": "A lo largo de la materia vamos a ir realizando una aplicación de gestion de tareas.",
+  
   "main": "index.js",
+  
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  
+    
+  "dev": "ts-node src/server.ts"
+  
   },
+  
   "keywords": [],
+  
   "author": "",
+  
   "license": "ISC",
+  
   "dependencies": {
-    "body-parse": "^0.1.0",
-    "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
-    "express": "^5.1.0"
+  
+    
+  "body-parse": "^0.1.0",
+  
+    
+  "body-parser": "^2.2.0",
+  
+    
+  "cors": "^2.8.5",
+  
+    
+  "dotenv": "^16.5.0",
+  
+    
+  "express": "^5.1.0",
+  
+    
+  "sqlite3": "^5.1.7",
+  
+    
+  "uuid": "^11.1.0"
+  
+  },
+  
+  "devDependencies": {
+  
+    
+  "@types/cors": "^2.8.19",
+  
+    
+  "@types/dotenv": "^6.1.1",
+  
+    
+  "@types/express": "^5.0.3",
+  
+    
+  "@types/node": "^24.0.3",
+  
+    
+  "@types/uuid": "^10.0.0",
+  
+    
+  "ts-node": "^10.9.2"
+  
   }
 }

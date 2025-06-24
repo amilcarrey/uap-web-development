@@ -6,16 +6,13 @@ export function useAgregarTarea(tableroId: string) {
   const queryClient = useQueryClient();
   const agregarNotificacion = useNotificacionesStore((s) => s.agregar);
 
+  console.log("tableroId actual:", tableroId);
+
   return useMutation({
-    mutationFn: (texto: string) =>
-      axios.post("http://localhost:8008/tareas", {
-        id: crypto.randomUUID(),
-        texto,
-        completada: false,
-        fecha_creacion: new Date().toISOString(),
-        fecha_modificacion: new Date().toISOString(),
-        fecha_realizada: null,
-        tableroId,
+    mutationFn: (descripcion: string) =>
+      axios.post("http://localhost:8008/api/tareas", {
+        texto: descripcion,
+        tableroId: tableroId,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tareas", tableroId] });

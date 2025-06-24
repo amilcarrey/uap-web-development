@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import TareaItem from "./TareaItem";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useUIStore } from "./store/useUIstore";
 import { useMatch } from "@tanstack/react-router";
 import { tableroRoute } from "../routes/routes";
@@ -8,46 +7,32 @@ import { useNotificacionesStore } from "./store/useNotificacionesStore";
 import { useConfigStore } from "./store/useConfigStore";
 import type { Tarea } from "../types";
 import { useAgregarTarea } from "./hooks/useAgregarTarea";
+import { useTareasPaginadas } from "./hooks/useTareasPaginadas";
 
 const TAREAS_POR_PAGINA = 3;
 
-type ListaTareasProps = {
-  tareas: Tarea[];
-  listaId: string;
-};
+const ListaTareas = () => {
+  const match = useMatch({ from: tableroRoute.id });
+  const tableroId = match?.params.tableroId ?? "";
 
-const ListaTareas: React.FC<ListaTareasProps> = ({ tareas, listaId }) => {
-  const queryClient = useQueryClient();
+  const [pagina, setPagina] = useState(1);
+  const { data = { tareas: [], totalPaginas: 1 }, isLoading, isError } = useTareasPaginadas(tableroId, pagina, TAREAS_POR_PAGINA);
+  console.log("Datos de tareas:", data);
   const { filtro, setFiltro } = useUIStore();
   const [texto, setTexto] = useState("");
-
-  // Obtener el ID del tablero actual desde la URL
-  const match = useMatch({ to: tableroRoute.id });
-  const tableroActivo = match?.params.tableroId ?? "";
-
-  // Página actual (almacenada en React Query para persistencia entre renders)
-  const { data: currentPage = 1 } = useQuery({
-    queryKey: ["pagina"],
-    queryFn: () => 1,
-  });
-  const setPagina = (page: number) => {
-    queryClient.setQueryData(["pagina"], page);
-  };
-
-  // Notificaciones y configuración global
   const { agregar: notificar } = useNotificacionesStore();
-  const intervaloRefetch = useConfigStore((state) => state.intervaloRefetch);
   const descripcionMayusculas = useConfigStore((state) => state.descripcionMayusculas);
+  const agregarTareaMutation = useAgregarTarea(tableroId);
 
-  // Usar hook personalizado para agregar tarea
-  const agregarTareaMutation = useAgregarTarea(tableroActivo);
-
-  // Limpiar input y notificar desde el componente tras éxito
   useEffect(() => {
     if (agregarTareaMutation.isSuccess) {
       setTexto("");
     }
   }, [agregarTareaMutation.isSuccess]);
+
+  // AHORA SÍ, LOS RETURN CONDICIONALES
+  if (isLoading) return <p>Cargando tareas...</p>;
+  if (isError) return <p>Error al cargar tareas</p>;
 
   const agregarTarea = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,40 +40,12 @@ const ListaTareas: React.FC<ListaTareasProps> = ({ tareas, listaId }) => {
     agregarTareaMutation.mutate(texto.trim());
   };
 
-  // Si quieres seguir usando las tareas de props, comenta el siguiente bloque:
-  /*
-  const {
-    data: tareas = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["tareas", tableroActivo],
-    queryFn: () =>
-      axios
-        .get(`http://localhost:8008/tareas?tableroId=${tableroActivo}`)
-        .then((res) => res.data),
-    enabled: !!tableroActivo,
-    refetchInterval: intervaloRefetch,
-  });
-  */
-  // Y usa estas variables en su lugar:
-  const isLoading = false;
-  const isError = false;
-
-  // Filtrado y paginación
-  const tareasFiltradas = tareas.filter((t: Tarea) =>
-    filtro === "activas" ? !t.completada :
-    filtro === "completadas" ? t.completada : true
-  );
-
-  const totalPaginas = Math.max(1, Math.ceil(tareasFiltradas.length / TAREAS_POR_PAGINA));
-
-  useEffect(() => {
-    if (currentPage > totalPaginas) setPagina(1);
-  }, [tareasFiltradas.length, totalPaginas]);
-
-  const inicio = (currentPage - 1) * TAREAS_POR_PAGINA;
-  const tareasPaginadas = tareasFiltradas.slice(inicio, inicio + TAREAS_POR_PAGINA);
+  const tareasFiltradas =
+    filtro === "activas"
+      ? data?.tareas?.filter((t: Tarea) => !t.completada) ?? []
+      : filtro === "completadas"
+      ? data?.tareas?.filter((t: Tarea) => t.completada) ?? []
+      : data?.tareas ?? [];
 
   return (
     <div className="bg-gray-150 bg-opacity-10 backdrop-blur-md border border-white border-opacity-20 rounded-3xl shadow-lg w-[90%] max-w-3xl mx-auto p-8 flex flex-col gap-6 text-gray-800">
@@ -134,14 +91,10 @@ const ListaTareas: React.FC<ListaTareasProps> = ({ tareas, listaId }) => {
       </div>
 
       {/* Lista de tareas */}
-      {isLoading ? (
-        <p className="text-gray-500 text-center mt-4">Cargando tareas...</p>
-      ) : isError ? (
-        <p className="text-red-500 text-center mt-4">Error al cargar tareas</p>
-      ) : tareasPaginadas.length === 0 ? (
+      {tareasFiltradas.length === 0 ? (
         <p className="text-center text-gray-500">No hay tareas para mostrar</p>
       ) : (
-        tareasPaginadas.map((tarea: Tarea) => (
+        tareasFiltradas.map((tarea: Tarea) => (
           <TareaItem
             key={tarea.id}
             {...tarea}
@@ -157,10 +110,10 @@ const ListaTareas: React.FC<ListaTareasProps> = ({ tareas, listaId }) => {
       {/* Paginación */}
       <div className="flex items-center justify-between mt-4">
         <button
-          onClick={() => setPagina(Math.max(1, currentPage - 1))}
-          disabled={currentPage === 1}
+          onClick={() => setPagina(Math.max(1, pagina - 1))}
+          disabled={pagina === 1}
           className={`px-4 py-2 rounded-lg font-semibold text-white transition-colors ${
-            currentPage === 1
+            pagina === 1
               ? "bg-gray-300 cursor-not-allowed"
               : "bg-blue-500 hover:bg-blue-600"
           }`}
@@ -169,14 +122,14 @@ const ListaTareas: React.FC<ListaTareasProps> = ({ tareas, listaId }) => {
         </button>
 
         <span className="text-gray-400 font-medium">
-          {currentPage} de {totalPaginas}
+          {pagina} de {data.totalPaginas}
         </span>
 
         <button
-          onClick={() => setPagina(Math.min(totalPaginas, currentPage + 1))}
-          disabled={currentPage === totalPaginas}
+          onClick={() => setPagina(Math.min(data.totalPaginas, pagina + 1))}
+          disabled={!data || pagina === data.totalPaginas}
           className={`px-4 py-2 rounded-lg font-semibold text-white transition-colors ${
-            currentPage === totalPaginas
+            pagina === data.totalPaginas
               ? "bg-gray-300 cursor-not-allowed"
               : "bg-blue-500 hover:bg-blue-600"
           }`}
