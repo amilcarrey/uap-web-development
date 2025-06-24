@@ -19,6 +19,9 @@ class Database {
   }
 
   private async init() {
+        //HABILITAR FOREIGN KEYS
+    await this.run("PRAGMA foreign_keys = ON");
+    // Crear tablas si no existen
     if (process.env.POPULATE_DB === "true") {
       console.log("Inicializando tablas...");
     }

@@ -41,7 +41,13 @@ export async function categoryExists(id: string): Promise<boolean> {
 }
 
 export async function getCategoriesByUserId(userId: string) {
-  return database.all("SELECT * FROM categories WHERE user_id = ?", [userId]);
+  //uscar categorías donde el usuario tiene permisos
+  return database.all(`
+    SELECT DISTINCT c.id, c.name 
+    FROM categories c 
+    INNER JOIN category_permissions cp ON c.id = cp.categoryId 
+    WHERE cp.userId = ?
+  `, [userId]);
 }
 
 export async function addCategoryPermission(categoryId: string, userId: string, role: string): Promise<void> {

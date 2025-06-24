@@ -1,6 +1,10 @@
 {
   "dependencies": {
     "astro": "^5.8.1",
+    "cookie-parser": "^1.4.7",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.9"
   }
 }

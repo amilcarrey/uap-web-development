@@ -12,7 +12,12 @@ import {
 import { checkCategoryPermissionService } from "../services/categoryServices.js";
 
 
-export async function hasAnyPermission(categoryId: string, userId: string, roles: string[]): Promise<boolean> {
+export async function hasAnyPermission(categoryId: string, userId: string, roles: string[], userRole?: string): Promise<boolean> {
+  // Si el usuario es admin, tiene acceso a todo
+  if (userRole === "admin") {
+    return true;
+  }
+
   for (const role of roles) {
     const hasPermission = await checkCategoryPermissionService(categoryId, userId, role);
     if (hasPermission) {
@@ -45,10 +50,10 @@ export const getTasksHandler = async (req: Request, res: Response) => {
 
 export const addTaskHandler = async (req: Request, res: Response) => {
   const { text, categoriaId } = req.body;
-  const user = req.user as { id: string };
+  const user = req.user as { id: string; role: string }; // Usuario autenticado
 
   try {
-    const hasPermission = await hasAnyPermission(categoriaId, user.id, ["editor", "owner"]);
+    const hasPermission = await hasAnyPermission(categoriaId, user.id, ["editor", "owner"], user.role);
     if (!hasPermission) {
       res.status(403).json({ error: "No tienes permisos para agregar tareas en esta categoría." });
       return;
@@ -63,7 +68,7 @@ export const addTaskHandler = async (req: Request, res: Response) => {
 
 export const deleteTaskHandler = async (req: Request, res: Response) => {
   const { id } = req.params; 
-  const user = req.user as { id: string }; // Usuario autenticado
+  const user = req.user as { id: string, role: string}; 
 
   try {
 
@@ -74,7 +79,7 @@ export const deleteTaskHandler = async (req: Request, res: Response) => {
     }
 
     // Verificar si el usuario tiene permisos como `editor` u `owner`
-    const hasPermission = await hasAnyPermission(task.categoriaId, user.id, ["editor", "owner"]);
+    const hasPermission = await hasAnyPermission(task.categoriaId, user.id, ["editor", "owner"], user.role);
     if (!hasPermission) {
       res.status(403).json({ error: "No tienes permisos para eliminar esta tarea." });
       return; // corta la ejecución
@@ -90,7 +95,7 @@ export const deleteTaskHandler = async (req: Request, res: Response) => {
 
 export const toggleTaskHandler = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const user = req.user as { id: string }; // Usuario autenticado
+  const user = req.user as { id: string, role: string}; // Usuario autenticado
 
   try {
         const task = await getTaskById(Number(id));
@@ -99,7 +104,7 @@ export const toggleTaskHandler = async (req: Request, res: Response) => {
       return;
     }
 
-      const hasPermission = await hasAnyPermission(task.categoriaId, user.id, ["editor", "owner"]);
+      const hasPermission = await hasAnyPermission(task.categoriaId, user.id, ["editor", "owner"], user.role);
     if (!hasPermission) {
       res.status(403).json({ error: "No tienes permisos para cambiar el estado de esta tarea." });
       return;
@@ -114,17 +119,17 @@ export const toggleTaskHandler = async (req: Request, res: Response) => {
 
 export const deleteCompletedTasksHandler = async (req: Request, res: Response) => {
   const { categoriaId } = req.query;
-  const user = req.user as { id: string };
+  const user = req.user as { id: string, role: string}; 
 
   try {
-    const hasPermission = await hasAnyPermission(categoriaId as string, user.id, ["editor", "owner"]);
+    const hasPermission = await hasAnyPermission(categoriaId as string, user.id, ["editor", "owner"], user.role);
     if (!hasPermission) {
-      res.status(403).json({ error: "No tienes permisos para eliminar tareas completadas en esta categoría." });
+      res.status(403).json({ error: "No tienes permisos para eliminar tareas completas en esta categoría." });
       return;
     }
 
     await removeCompletedTasks(categoriaId as string);
-    res.status(200).json({ message: "Tareas completadas eliminadas" });
+    res.status(200).json({ message: "Tareas completas eliminadas" });
   } catch (error) {
     res.status(400).json({ error: error instanceof Error ? error.message : "Error desconocido" });
   }
@@ -134,10 +139,10 @@ export const deleteCompletedTasksHandler = async (req: Request, res: Response) =
 export const editTaskHandler = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { text, categoriaId } = req.body;
-  const user = req.user as { id: string };
+  const user = req.user as { id: string, role: string }; // Usuario autenticado
 
   try {
-    const hasPermission = await hasAnyPermission(categoriaId, user.id, ["editor", "owner"]);
+    const hasPermission = await hasAnyPermission(categoriaId, user.id, ["editor", "owner"], user.role);
     if (!hasPermission) {
       res.status(403).json({ error: "No tienes permisos para editar esta tarea." });
       return;

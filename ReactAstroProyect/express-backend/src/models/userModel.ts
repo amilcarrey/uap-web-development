@@ -8,6 +8,13 @@ export type User = {
   role: "user" | "admin";
 };
 
+//Tipo sin password para respuestas
+export type UserResponse = {
+  id: string;
+  email: string;
+  role: "user" | "admin";
+};
+
 export async function createUserTableIfNotExists() {
   await database.run(`
     CREATE TABLE IF NOT EXISTS users (

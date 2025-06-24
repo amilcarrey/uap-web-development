@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useCategorias } from "../hooks/useCategorias";
+import { useLogout } from '../hooks/useAuthUser';
 import { useModalStore } from "../store/modalStore";
 import { useSettingsStore } from "../store/settingsStore";
 import type { Categoria } from "../types";
 
 export default function Settings() {
   const { categoriasQuery, addCategoriaMutation, deleteCategoriaMutation } = useCategorias();
+  const logout = useLogout();
   const [newCategoriaName, setNewCategoriaName] = useState("");
 
   // Configuraciones globales
@@ -37,6 +39,11 @@ const handleAddCategoria = (name: string) => {
       onError: () => useModalStore.getState().openModal("Error al eliminar la categoría", "error"),
     });
   };
+
+  const handleLogout = () => {
+    logout.mutate();
+  };
+
 console.log("uppercaseDescriptions en Settings:", uppercaseDescriptions);
   return (
     <div className="p-4">
@@ -121,7 +128,16 @@ console.log("uppercaseDescriptions en Settings:", uppercaseDescriptions);
             Crear
           </button>
         </div>
+        <div>
+          <button
+            onClick={handleLogout}
+            className="mt-4 bg-red-500 text-white px-3 py-1 rounded"
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </div>
+
   );
 }

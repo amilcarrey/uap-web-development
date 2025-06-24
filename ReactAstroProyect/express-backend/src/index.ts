@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 // Importar rutas y modelos
 import categoryRoutes from "./routes/category.js"; 
@@ -18,7 +18,12 @@ dotenv.config();
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // frontend
+  credentials: true //  enviar cookies
+}));
+app.use(express.json()); // 
+app.use(cookieParser()); // 
 
 
 // Inicializar tablas en la base de datos
@@ -32,7 +37,6 @@ app.use(cors());
 })();
 
 // Rutas
-app.use(express.json()); // Middleware para parsear JSON
 app.use("/api/categorias", categoryRoutes); // Usando las rutas importadas
 app.use("/api/tasks", taskRoutes); // Usando las rutas importadas
 app.use("/api/auth", authRoutes); // Usando las rutas de autenticación
