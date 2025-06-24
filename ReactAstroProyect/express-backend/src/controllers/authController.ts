@@ -10,13 +10,13 @@ export const registerHandler = async (req: Request, res: Response) => {
     res.status(400).json({ error: "Email y contraseña requeridos" }); // ya envia la respuesta para el cliente 
     return; // es solo para cortar la ejecucion no devuleve nada 
   }
+  
     const currentUser = req.user as { role: string } | undefined; // representa al usuario actual, si está autenticado
   // Solo un admin logueado puede crear otro admin
   if (role === "admin" && currentUser?.role !== "admin") {
     res.status(403).json({ error: "Solo un administrador puede crear otros administradores" });
     return;
   }
-
 
   try {
      const user = await authService.register(email, password, role || "user");

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "secreto-inseguro";
+const JWT_SECRET = process.env.JWT_SECRET || "secreto-secretisimo123";
 
 export const authMiddleware: RequestHandler = (req, res, next) => {
   const token = req.cookies.token;  // agarramos nuestra cookie llamada "token"

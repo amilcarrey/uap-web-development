@@ -25,7 +25,7 @@ export function useAuthUser() {
     },
     retry: false, // Si falla, no reintenta (significa que no está logueado)
     staleTime: 5 * 60 * 1000, // 5 minutos para que no se vuelvan viejos los datos, evitamos peticiones innecesarias el user puede seguir 
-    // autenticado lo que definamos en el back lo que defina cuando se vence la cookie 
+    // autenticado lo que definamos en el back cuando se vence la cookie 
   });
 }
 
