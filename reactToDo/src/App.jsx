@@ -6,11 +6,13 @@ import TaskFilters from './components/TaskFilters';
 import NotificationList from './components/NotificationList';
 import BoardSwitcher from './components/BoardSwitcher';
 import BoardModal from './components/BoardModal';
+import Settings from './components/Settings';
 import { useClientStore } from './stores/clientStore';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('');
   const [filter, setFilter] = useState('all');
+  const [showSettings, setShowSettings] = useState(false);
   const { activeBoard, boards } = useClientStore();
 
   // Encuentra el board activo y sus categorías
@@ -33,12 +35,34 @@ export default function App() {
     setActiveTab(categories[0]);
   }
 
+  if (showSettings) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
+        <button
+          className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
+          onClick={() => setShowSettings(false)}
+        >
+          Volver
+        </button>
+        <Settings />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
       <NotificationList />
       <div className="max-w-xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Task Manager</h1>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold text-center text-gray-800">Task Manager</h1>
+            <button
+              className="ml-4 px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={() => setShowSettings(true)}
+            >
+              ⚙️
+            </button>
+          </div>
           
           <BoardSwitcher />
           

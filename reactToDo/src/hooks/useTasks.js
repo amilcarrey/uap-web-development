@@ -3,6 +3,7 @@ import { loadTasks, saveTasks } from '../utils/storage';
 import { useClientStore } from '../stores/clientStore';
 
 export const useTasksByCategory = (category, boardId) => {
+  const { settings } = useClientStore();
   return useQuery({
     queryKey: ['tasks', category, boardId],
     queryFn: async () => {
@@ -11,7 +12,8 @@ export const useTasksByCategory = (category, boardId) => {
         task.category === category && task.boardId === boardId
       );
     },
-    initialData: []
+    initialData: [],
+    refetchInterval: settings.refetchInterval,
   });
 };
 

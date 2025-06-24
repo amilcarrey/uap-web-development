@@ -13,6 +13,7 @@ export default function TaskList({ category, filter, boardId }) {
     startEditing,
     pagination: { currentPage, tasksPerPage },
     setCurrentPage,
+    settings
   } = useClientStore();
 
   // Filtrar tareas (activas/completadas/todas)
@@ -73,7 +74,9 @@ export default function TaskList({ category, filter, boardId }) {
               <span className={`flex-grow ${
                 task.completed ? 'line-through text-gray-400' : 'text-gray-700'
               }`}>
-                {task.text}
+                {settings.uppercaseDescriptions
+                  ? task.text.toUpperCase()
+                  : task.text}
               </span>
             </label>
 

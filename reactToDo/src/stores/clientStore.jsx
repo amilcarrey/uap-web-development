@@ -109,4 +109,18 @@ export const useClientStore = create((set, get) => ({
   resetPagination: () => set((state) => ({
     pagination: { ...state.pagination, currentPage: 1 }
   })),
+
+  // Configuración global
+  settings: {
+    refetchInterval: 10000, // 10 segundos por defecto
+    uppercaseDescriptions: false,
+  },
+  setRefetchInterval: (ms) =>
+    set((state) => ({
+      settings: { ...state.settings, refetchInterval: ms }
+    })),
+  setUppercaseDescriptions: (value) =>
+    set((state) => ({
+      settings: { ...state.settings, uppercaseDescriptions: value }
+    })),
 }));
