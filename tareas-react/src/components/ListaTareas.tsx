@@ -7,7 +7,7 @@ import { useNotificacionesStore } from "./store/useNotificacionesStore";
 import { useConfigStore } from "./store/useConfigStore";
 import type { Tarea } from "../types";
 import { useAgregarTarea } from "./hooks/useAgregarTarea";
-import { useTareasPaginadas } from "./hooks/useTareasPaginadas";
+import { useTareas } from "./hooks/useTareas";
 
 const TAREAS_POR_PAGINA = 3;
 
@@ -16,8 +16,8 @@ const ListaTareas = () => {
   const tableroId = match?.params.tableroId ?? "";
 
   const [pagina, setPagina] = useState(1);
-  const { data = { tareas: [], totalPaginas: 1 }, isLoading, isError } = useTareasPaginadas(tableroId, pagina, TAREAS_POR_PAGINA);
-  console.log("Datos de tareas:", data);
+  const { data = { tareas: [], totalPaginas: 1 }, isLoading } = useTareas({ tableroId, pagina, porPagina: TAREAS_POR_PAGINA });
+
   const { filtro, setFiltro } = useUIStore();
   const [texto, setTexto] = useState("");
   const { agregar: notificar } = useNotificacionesStore();
@@ -30,9 +30,7 @@ const ListaTareas = () => {
     }
   }, [agregarTareaMutation.isSuccess]);
 
-  // AHORA SÍ, LOS RETURN CONDICIONALES
   if (isLoading) return <p>Cargando tareas...</p>;
-  if (isError) return <p>Error al cargar tareas</p>;
 
   const agregarTarea = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,10 +40,12 @@ const ListaTareas = () => {
 
   const tareasFiltradas =
     filtro === "activas"
-      ? data?.tareas?.filter((t: Tarea) => !t.completada) ?? []
+      ? data.tareas.filter((t: Tarea) => !t.completada)
       : filtro === "completadas"
-      ? data?.tareas?.filter((t: Tarea) => t.completada) ?? []
-      : data?.tareas ?? [];
+      ? data.tareas.filter((t: Tarea) => t.completada)
+      : data.tareas;
+
+  console.log(data);
 
   return (
     <div className="bg-gray-150 bg-opacity-10 backdrop-blur-md border border-white border-opacity-20 rounded-3xl shadow-lg w-[90%] max-w-3xl mx-auto p-8 flex flex-col gap-6 text-gray-800">
@@ -122,14 +122,14 @@ const ListaTareas = () => {
         </button>
 
         <span className="text-gray-400 font-medium">
-          {pagina} de {data.totalPaginas}
+          {pagina} de {data?.totalPaginas ?? 1}
         </span>
 
         <button
-          onClick={() => setPagina(Math.min(data.totalPaginas, pagina + 1))}
-          disabled={!data || pagina === data.totalPaginas}
+          onClick={() => setPagina(Math.min(data?.totalPaginas ?? 1, pagina + 1))}
+          disabled={!data || pagina === (data?.totalPaginas ?? 1)}
           className={`px-4 py-2 rounded-lg font-semibold text-white transition-colors ${
-            pagina === data.totalPaginas
+            pagina === (data?.totalPaginas ?? 1)
               ? "bg-gray-300 cursor-not-allowed"
               : "bg-blue-500 hover:bg-blue-600"
           }`}

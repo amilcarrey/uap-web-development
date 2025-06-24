@@ -2,21 +2,44 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import type { Tarea } from "../../types";
 
-export function useTareas(tableroId?: string) {
-  return useQuery<Tarea[]>({
-    queryKey: ["tareas", tableroId],
+interface TareasPaginadasResponse {
+  tareas: Tarea[];
+  total?: number;
+  pagina?: number;
+  porPagina?: number;
+  totalPaginas?: number;
+}
+
+type UseTareasParams = {
+  tableroId?: string;
+  pagina?: number;
+  porPagina?: number;
+};
+
+export function useTareas({ tableroId, pagina, porPagina }: UseTareasParams) {
+  return useQuery<TareasPaginadasResponse>({
+    queryKey: [
+      "tareas",
+      tableroId,
+      pagina ?? "all",
+      porPagina ?? "all"
+    ],
     queryFn: () =>
       axios
         .get("http://localhost:8008/api/tareas", {
-          params: { tablero_id: tableroId },
+          params: {
+            tablero_id: tableroId,
+            ...(pagina && porPagina ? { pagina, porPagina } : {}),
+          },
         })
-        .then((res) =>
-          res.data.tareas
+        .then((res) => ({
+          ...res.data,
+          tareas: res.data.tareas
             ? res.data.tareas.map((t: any) => ({
                 ...t,
+                completada: !!t.completada,
                 texto: t.texto ?? t.descripcion,
                 tableroId: t.tablero_id ?? t.tableroId,
-                completada: !!t.completada,
                 fecha_creacion: t.fecha_creacion
                   ? new Date(Number(t.fecha_creacion)).toISOString()
                   : "",
@@ -27,8 +50,8 @@ export function useTareas(tableroId?: string) {
                   ? new Date(Number(t.fecha_realizada)).toISOString()
                   : "",
               }))
-            : []
-        ),
+            : [],
+        })),
     enabled: !!tableroId,
   });
 }
