@@ -56,8 +56,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
     eliminarTableroMutation.mutate(aliasActual, {
       onSuccess: (data) => {
         mostrarToast(data.mensaje || 'Tablero eliminado correctamente', 'exito');
-        navigate({ to: '/' });
-      },
+        navigate({ to: '/tablero/$alias', params: { alias: 'configuracion' } });      },
       onError: (error) => {
         mostrarToast(error.message || 'Error al eliminar tablero', 'error');
       },
@@ -70,6 +69,19 @@ const Header = ({ tableroNombre }: HeaderProps) => {
 
   return (
     <>
+      {/* Botón casita arriba a la izquierda */}
+      <button
+        onClick={() => navigate({ to: "/" })}
+        className="absolute top-4 left-4 bg-white rounded-full p-2 shadow hover:bg-pink-100 transition"
+        title="Ir al inicio"
+        style={{ zIndex: 1000 }}
+      >
+        {/* SVG de casita */}
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0h6" />
+        </svg>
+      </button>
+
       <h1 className="my-2 mx-auto text-center text-black text-7xl font-bold">ToDo</h1>
       
       {tableroNombre && (

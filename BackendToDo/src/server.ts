@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser'; // AGREGAR ESTA LÍNEA
 import dotenv from 'dotenv';
 import tareasRoutes from './routes/tareas';
 import tablerosRoutes from './routes/tableros';
@@ -20,13 +21,17 @@ app.use(cors({
   credentials: true
 }));
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Middleware de logging para desarrollo
+// Middleware de logging mejorado
 if (process.env.NODE_ENV !== 'production') {
   app.use((req, res, next) => {
     console.log(`📡 ${req.method} ${req.path} - ${new Date().toLocaleTimeString()}`);
+    if (req.path.includes('check-auth')) {
+      console.log('🍪 Cookies en server:', req.cookies); // DEBUG
+    }
     next();
   });
 }

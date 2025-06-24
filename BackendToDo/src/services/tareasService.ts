@@ -56,3 +56,9 @@ export async function actualizarDescripcion(id: number, nuevaDescripcion: string
   const result = await db.run(query, [nuevaDescripcion, id]);
   return result.changes > 0;
 }
+
+export async function obtenerTareaPorId(id: number) {
+  const tareas = await db.query("SELECT * FROM tareas WHERE id = ?", [id]);
+  console.log('Buscando tarea', id, '->', tareas);
+  return tareas.length > 0 ? tareas[0] : null;
+}

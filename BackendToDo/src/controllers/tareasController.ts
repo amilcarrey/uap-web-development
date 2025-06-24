@@ -79,22 +79,23 @@ export async function createTarea(req: Request, res: Response) {
 // PUT /tareas/:id/toggle - Cambiar estado completada/pendiente
 export async function toggleTarea(req: Request, res: Response) {
   try {
-    const id = parseInt(req.params.id);
-
-    if (!id || isNaN(id)) {
-      return res.status(400).json({ error: "ID inválido" });
-    }
-
-    const actualizado = await actualizarEstado(id);
+    const { id } = req.params;
     
-    if (!actualizado) {
+    // COMENTAR VERIFICACIONES DE PERMISOS TEMPORALMENTE:
+    // const tarea = await obtenerTareaPorId(parseInt(id));
+    // const tienePermiso = await verificarPermisoTablero(req.userId!, tarea.idTablero);
+    // if (!tienePermiso) return res.status(403).json({ error: "Sin permisos" });
+    
+    const resultado = await actualizarEstado(parseInt(id));
+    
+    if (!resultado) {
       return res.status(404).json({ error: "Tarea no encontrada" });
     }
-
-    res.json({ success: true });
+    
+    res.json({ success: true, tarea: resultado });
   } catch (error) {
-    console.error('Error al cambiar estado:', error);
-    res.status(500).json({ error: "Error al cambiar estado" });
+    console.error('Error al cambiar estado de tarea:', error);
+    res.status(500).json({ error: "Error al cambiar estado de tarea" });
   }
 }
 

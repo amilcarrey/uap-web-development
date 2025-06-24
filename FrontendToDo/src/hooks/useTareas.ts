@@ -15,7 +15,9 @@ const getTableroIdFromAlias = async (alias: string | undefined): Promise<string>
   if (!alias) return "tb-1"; 
   
   try {
-    const response = await fetch(`http://localhost:3001/api/tableros/${alias}`);
+    const response = await fetch(`http://localhost:3001/api/tableros/${alias}`, {
+      credentials: "include"
+    });
     if (response.ok) {
       const data = await response.json();
       return data.tablero.id;
@@ -47,7 +49,9 @@ export const useTareas = (tableroAlias?: string, filtro?: 'todas' | 'completadas
       
       url += `?${params.toString()}`;
       
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        credentials: "include" 
+      });
       if (!response.ok) throw new Error('Error al obtener tareas');
       const data = await response.json();
       console.log(`✅ Frontend - Refetch completado: ${data.tareas?.length || 0} tareas recibidas`); 
@@ -68,6 +72,7 @@ export const useCrearTarea = (tableroAlias: string | undefined) => {
       
       const response = await fetch("http://localhost:3001/api/tareas", {
         method: "POST",
+        credentials: "include", // Agregar esto
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           descripcion, 
@@ -93,6 +98,7 @@ export const useEliminarCompletadas = (tableroAlias: string | undefined) => {
       
       const response = await fetch("http://localhost:3001/api/tareas/completadas", {
         method: "DELETE",
+        credentials: "include", // Agregar esto
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idTablero }),
       });
@@ -116,6 +122,7 @@ export const useEliminarTareaMutation = () => {
     mutationFn: async (id: number) => {
       const res = await fetch(`http://localhost:3001/api/tareas/${id}`, {
         method: 'DELETE',
+        credentials: "include", // Agregar esto
         headers: { 'Content-Type': 'application/json' },
       });
       if (!res.ok) throw new Error('Error al eliminar tarea');
@@ -133,6 +140,7 @@ export const useToggleTareaMutation = () => {
     mutationFn: async (id: number) => {
       const res = await fetch(`http://localhost:3001/api/tareas/${id}/toggle`, {
         method: 'PUT',
+        credentials: "include", 
         headers: { 'Content-Type': 'application/json' },
       });
       if (!res.ok) throw new Error('Error al cambiar estado');
@@ -150,6 +158,7 @@ export const useEditarTareaMutation = () => {
     mutationFn: async ({ id, descripcion }: { id: number; descripcion: string }) => {
       const res = await fetch(`http://localhost:3001/api/tareas/${id}`, {
         method: 'PUT',
+        credentials: "include", // Agregar esto
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, descripcion }),
       });

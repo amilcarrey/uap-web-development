@@ -1,4 +1,6 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import { AuthRequest } from '../middleware/error.middleware'; // AGREGAR ESTA LÍNEA
 import {
   registrarUsuario,
   autenticarUsuario,
@@ -121,5 +123,44 @@ export async function logoutUsuario(req: Request, res: Response) {
   } catch (error) {
     console.error('Error al cerrar sesión:', error);
     res.status(500).json({ error: "Error al cerrar sesión" });
+  }
+}
+
+// GET /usuarios/check-auth - Verificar si el usuario está autenticado
+export async function checkAuth(req: Request, res: Response) {
+  console.log('🔍 === EJECUTANDO checkAuth ==='); // DEBUG
+  console.log('🔍 Cookies recibidas:', req.cookies); // DEBUG
+  console.log('🔍 Headers:', req.headers.cookie); // DEBUG
+  
+  try {
+    const token = req.cookies?.token;
+    console.log('🔍 Token extraído:', token ? 'SÍ EXISTE' : 'NO EXISTE'); // DEBUG
+    
+    if (!token) {
+      console.log('🔍 Sin token - devolviendo 401'); // DEBUG
+      return res.status(401).json({ error: 'No autenticado' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: string };
+    console.log('🔍 Token decodificado:', decoded); // DEBUG
+    
+    const usuario = await obtenerUsuarioPorId(decoded.id);
+    console.log('🔍 Usuario encontrado:', usuario ? 'SÍ' : 'NO'); // DEBUG
+    
+    if (!usuario) {
+      console.log('🔍 Usuario no encontrado - devolviendo 401'); // DEBUG
+      return res.status(401).json({ error: 'Usuario no encontrado' });
+    }
+
+    // No devolver la contraseña
+    const { password: _, ...usuarioSinPassword } = usuario;
+    console.log('🔍 Devolviendo 200 OK'); // DEBUG
+    res.json({ 
+      success: true, 
+      usuario: usuarioSinPassword 
+    });
+  } catch (error) {
+    console.error('🔍 Error en checkAuth:', error);
+    res.status(401).json({ error: 'Token inválido' });
   }
 }

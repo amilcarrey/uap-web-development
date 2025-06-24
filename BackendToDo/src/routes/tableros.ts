@@ -1,6 +1,7 @@
 import express from 'express';
 import { requireAuth } from '../middleware/error.middleware';
-import { verificarAccesoTableroByAlias, soloPropietario } from '../middleware/authorization.middleware'; 
+// COMENTAR TEMPORALMENTE:
+// import { verificarAccesoTableroByAlias, soloPropietario } from '../middleware/authorization.middleware';
 import { 
   getTableroPorAlias, 
   createTablero, 
@@ -10,31 +11,18 @@ import {
   obtenerUsuariosTablero, 
   revocarAccesoTablero
 } from '../controllers/tablerosController';
+import { soloPropietario } from '../middleware/authorization.middleware';
 
 const router = express.Router();
+router.use(requireAuth); // Solo autenticación básica
 
-// Aplicar autenticación a todas las rutas
-router.use(requireAuth);
-
-// GET /tableros - Listar tableros donde el usuario tiene acceso
-router.get('/', getTableros); // Este controller ya filtrará por usuario
-
-// POST /tableros - Crear nuevo tablero (cualquier usuario autenticado)
+// Rutas simplificadas
+router.get('/', getTableros);
 router.post('/', createTablero);
-
-// GET /tableros/:alias - Solo lectura
-router.get('/:alias', verificarAccesoTableroByAlias, getTableroPorAlias); 
-
-// POST /tableros/:id/compartir - Solo gestión (propietarios)
+router.get('/:alias', getTableroPorAlias); 
 router.post('/:id/compartir', compartirTablero); 
-
-// GET /tableros/:id/usuarios - Solo gestión
 router.get('/:id/usuarios', obtenerUsuariosTablero); 
-
-// DELETE /tableros/:id/acceso/:usuarioId - Solo gestión
-router.delete('/:id/acceso/:usuarioId', soloPropietario, revocarAccesoTablero); 
-
-// DELETE /tableros/:alias - Solo gestión
-router.delete('/:alias', verificarAccesoTableroByAlias, soloPropietario, deleteTablero);
+router.delete('/:id/acceso/:usuarioId', revocarAccesoTablero); 
+router.delete('/:alias', soloPropietario, deleteTablero);
 
 export default router;

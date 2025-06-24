@@ -15,7 +15,9 @@ export const useTableros = () => {
   return useQuery<TablerosResponse>({
     queryKey: ['tableros'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3001/api/tableros');
+      const response = await fetch('http://localhost:3001/api/tableros', {
+        credentials: "include" 
+      });
       if (!response.ok) throw new Error('Error al obtener tableros');
       return response.json();
     },
@@ -28,21 +30,18 @@ export const useCrearTablero = () => {
   
   return useMutation({
     mutationFn: async ({ nombre, alias }: { nombre: string; alias: string }) => {
-      const response = await fetch('http://localhost:3001/api/tableros', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:3001/api/tableros", {
+        method: "POST",
+        credentials: "include", // Agregar esto
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre, alias }),
       });
       
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Error al crear tablero');
-      }
-      
+      if (!response.ok) throw new Error("Error al crear tablero");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tableros'] });
+      queryClient.invalidateQueries({ queryKey: ["tableros"] });
     },
   });
 };
@@ -55,6 +54,7 @@ export const useEliminarTablero = () => {
     mutationFn: async (alias: string) => {
       const response = await fetch(`http://localhost:3001/api/tableros/${alias}`, {
         method: 'DELETE',
+        credentials: "include", // AGREGAR ESTA LÍNEA
       });
       
       if (!response.ok) {
@@ -76,7 +76,9 @@ export const useTablero = (alias: string) => {
   return useQuery({
     queryKey: ['tablero', alias],
     queryFn: async () => {
-      const response = await fetch(`http://localhost:3001/api/tableros/${alias}`);
+      const response = await fetch(`http://localhost:3001/api/tableros/${alias}`, {
+        credentials: "include" 
+      });
       if (!response.ok) throw new Error('Error al obtener tablero');
       return response.json();
     },

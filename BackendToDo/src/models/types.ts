@@ -2,7 +2,7 @@ export type Tablero = {
   id: string;
   nombre: string;
   alias: string;
-  propietarioId?: string;
+  propietarioId: string;
   publico?: boolean;
 }
 

@@ -10,7 +10,9 @@ export const useConfiguraciones = () => {
   return useQuery<{ configuraciones: Configuraciones }>({
     queryKey: ['configuraciones'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3001/api/configuraciones');
+      const response = await fetch('http://localhost:3001/api/configuraciones', {
+        credentials: "include"
+      });
       if (!response.ok) throw new Error('Error al obtener configuraciones');
       return response.json();
     },
@@ -25,6 +27,7 @@ export const useActualizarConfiguraciones = () => {
     mutationFn: async (configuraciones: Partial<Configuraciones>) => {
       const response = await fetch('http://localhost:3001/api/configuraciones', {
         method: 'PUT',
+        credentials: "include", // Ya lo tienes, pero asegúrate
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(configuraciones),
       });
@@ -50,6 +53,7 @@ export const useResetearConfiguraciones = () => {
     mutationFn: async () => {
       const response = await fetch('http://localhost:3001/api/configuraciones/reset', {
         method: 'POST',
+        credentials: "include", // AGREGAR ESTA LÍNEA
       });
       
       if (!response.ok) throw new Error('Error al resetear configuraciones');

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verificarPermisoTablero, esPropietarioTablero, obtenerRolUsuario } from '../services/permisosService';
 import { obtenerTablero } from '../services/tablerosService'; 
+import { obtenerTareaPorId } from '../services/tareasService';
 import { AuthRequest } from './error.middleware';
 
 export const verificarAccesoTablero = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -42,27 +43,29 @@ export const verificarAccesoTablero = async (req: AuthRequest, res: Response, ne
 // Middleware para verificar que sea propietario del tablero
 export const soloPropietario = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const tableroId = req.params.id || 
-                     req.params.tableroId || 
-                     req.body.idTablero || 
-                     req.query.idTablero;
-    
+    // Buscar alias en params
+    const alias = req.params.alias;
     const usuarioId = req.userId;
 
-    if (!tableroId || !usuarioId) {
+    if (!alias || !usuarioId) {
       return res.status(400).json({ error: "Datos insuficientes" });
     }
 
-    // Verificar si es propietario
-    const esPropietario = await esPropietarioTablero(usuarioId, tableroId as string);
-    
-    if (!esPropietario) {
+    // Buscar el tablero por alias
+    const tablero = await obtenerTablero(alias);
+
+    if (!tablero) {
+      return res.status(404).json({ error: "Tablero no encontrado" });
+    }
+
+    // Verificar si el usuario es el propietario
+    if (tablero.propietarioId !== usuarioId) {
       return res.status(403).json({ 
         error: "Solo el propietario puede realizar esta acción" 
       });
     }
 
-    (req as any).tableroId = tableroId;
+    (req as any).tableroId = tablero.id;
     next();
   } catch (error) {
     console.error('Error verificando propietario:', error);
@@ -110,22 +113,15 @@ export const requirePermission = (accionRequerida: 'leer' | 'escribir' | 'gestio
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const usuarioId = req.userId;
-      
-      let tableroId = req.params.tableroId || 
-                     req.body.idTablero || 
-                     req.query.idTablero; 
-    
-      // Solo usar req.params.id si es explícitamente un ID de tablero
-      if (!tableroId && req.params.id && !req.path.includes('/tareas/')) {
-        tableroId = req.params.id;
+      let tableroId = req.body.idTablero || req.query.idTablero;
+
+      // Si no viene el idTablero pero sí el id de la tarea (por ejemplo, para editar/eliminar una tarea)
+      if (!tableroId && req.params.id) {
+        const tarea = await obtenerTareaPorId(Number(req.params.id));
+        tableroId = tarea?.idTablero;
       }
 
-      console.log('🔍 DEBUG: Datos obtenidos:', {
-        'req.params.id': req.params.id,
-        'req.query.idTablero': req.query.idTablero,
-        'tableroId final': tableroId,
-        'path': req.path
-      });
+      console.log('usuarioId:', usuarioId, 'tableroId:', tableroId);
 
       if (!usuarioId || !tableroId) {
         return res.status(400).json({ error: "Usuario y tablero requeridos" });

@@ -100,7 +100,7 @@ export async function obtenerRolUsuario(usuarioId: string, tableroId: string): P
     "SELECT * FROM tableros WHERE id = ? AND propietarioId = ?", 
     [tableroId, usuarioId]
   );
-    console.log('👑 Verificando propietario:', { found: esPropietario.length > 0, query: [tableroId, usuarioId] });
+    
   if (esPropietario.length > 0) return 'propietario';
   
   // 2. Verificar si tiene acceso compartido y su rol
@@ -108,7 +108,7 @@ export async function obtenerRolUsuario(usuarioId: string, tableroId: string): P
     "SELECT rol FROM accesos_tablero WHERE idTablero = ? AND idUsuario = ?", 
     [tableroId, usuarioId]
   );
-    console.log('🤝 Verificando acceso compartido:', { found: acceso.length > 0, rol: acceso[0]?.rol });
+    
   if (acceso.length > 0) return acceso[0].rol;
   
   // 3. Verificar si es tablero público
@@ -116,7 +116,7 @@ export async function obtenerRolUsuario(usuarioId: string, tableroId: string): P
     "SELECT * FROM tableros WHERE id = ? AND publico = 1", 
     [tableroId]
   );
-    console.log('🌍 Verificando tablero público:', { found: esPublico.length > 0 });
+
 
   if (esPublico.length > 0) return 'lector'; // Tableros públicos = solo lectura
   

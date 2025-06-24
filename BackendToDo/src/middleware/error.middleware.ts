@@ -70,10 +70,11 @@ export interface AuthRequest extends Request {
 
 export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction): void => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '') || req.cookies?.token;
+    // Solo usar cookies para simplicidad
+    const token = req.cookies?.token;
     
     if (!token) {
-      res.status(401).json({ error: 'Token de acceso requerido' });
+      res.status(401).json({ error: 'Token de acceso requerido - inicia sesión' });
       return;
     }
 
@@ -82,6 +83,6 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
     next();
   } catch (error) {
     console.error('Error de autenticación:', error);
-    res.status(401).json({ error: 'Token inválido' });
+    res.status(401).json({ error: 'Token inválido - inicia sesión nuevamente' });
   }
 };

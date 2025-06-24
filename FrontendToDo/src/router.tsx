@@ -9,17 +9,19 @@ import { useClientStore } from './store/clientStore'
 import { useTablero } from './hooks/useTableros'
 import App from './App'
 import Configuraciones from './components/Configuraciones'
+import AuthPage from './components/AutenticacionPagina';
+import { useAuthStatus } from './hooks/useAutenticacion';
 
 // 1. Crear ruta raíz
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
 });
 
-// 2. Crear ruta de inicio
+// 2. Crear ruta de inicio SIEMPRE login
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: () => <App />,
+  component: () => <AuthPage />, // SIEMPRE login/registro
 });
 
 // 3. Crear ruta de tablero
@@ -29,9 +31,8 @@ const tableroRoute = createRoute({
   component: function TableroPage() {
     const { alias } = tableroRoute.useParams()
     const { toast, cerrarToast } = useClientStore()
-    
     const { data: tableroData, isLoading, error } = useTablero(alias)
-    
+
     if (alias === 'configuracion') {
       return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-pink-200 h-screen w-screen">
