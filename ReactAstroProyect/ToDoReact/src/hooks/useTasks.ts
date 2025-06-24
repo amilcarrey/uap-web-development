@@ -12,7 +12,6 @@ const API_URL = import.meta.env.VITE_API_URL;
   };
 
   export function useTasks(filtro?: "completadas" | "pendientes", page = 1, pageSize = 7, categoriaId?: string, search?: string) {
-    console.log("Parámetros enviados a /api/tasks:", { filtro, categoriaId, page, pageSize, search });
     const refetchInterval = useSettingsStore((state) => state.refetchInterval);
 
     return useQuery<TasksResponse>({

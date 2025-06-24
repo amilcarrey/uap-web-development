@@ -19,13 +19,14 @@ import Title from "./title";
 
 function TaskManager() {
   const search = useSearch({ from: "/categorias/$categoriaId" });
-  const filtro = search.filtro === "completadas" || search.filtro === "pendientes" ? search.filtro : "todas";
+  const filtro = search.filtro === "completadas" || search.filtro === "pendientes" ? search.filtro : undefined;
   const [page, setPage] = useState(1);
   const [pageSize] = useState(7);
   const { categoriaId } = useParams({ from: "/categorias/$categoriaId" });
+  const searchTerm = search.search || undefined;
 
   // Tareas
-  const { data = { tasks: [], totalPages: 1 }, isLoading, error } = useTasks(filtro, page, pageSize, categoriaId);
+  const { data = { tasks: [], totalPages: 1 }, isLoading, error } = useTasks(filtro, page, pageSize, categoriaId, searchTerm);
   const tasks = data.tasks;
   const addTaskMutation = useAddTask();
   const deleteTaskMutation = useDeleteTask();
@@ -196,7 +197,12 @@ return (
         onEditTasks={handleEditTask} 
       />
     ) : (
-      <p>No hay tareas disponibles.</p> // Maneja el caso donde tasks está vacío
+        <p className="text-gray-500">
+    {searchTerm 
+      ? `No se encontraron tareas que coincidan con "${searchTerm}"` // Muestra un mensaje si hay un término de búsqueda
+      : "No hay tareas disponibles." // Muestra un mensaje si no hay tareas y no hay búsqueda
+    }
+  </p>
     )}
 
     {/* Paginación */}
