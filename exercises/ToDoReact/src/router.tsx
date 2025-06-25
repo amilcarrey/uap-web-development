@@ -37,11 +37,6 @@ const authRoute = createRoute({
 const tabRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/tab/$tabId",
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      search: (search.search as string) || undefined,
-    };
-  },
   component: () => (
     <ProtectedRoute>
       <TabPage />
