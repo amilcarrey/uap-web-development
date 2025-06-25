@@ -1,12 +1,12 @@
-const pool = require('../config/db');
+const { query } = require('../config/db');
 
 const checkBoardPermission = async (boardName, userId, requiredRole = 'viewer') => {
-    const result = await pool.query(
+    const result = await query(
         `SELECT b.id, b.user_id as owner_id, bu.role 
          FROM boards b 
-         LEFT JOIN board_users bu ON bu.board_id = b.id AND bu.user_id = $2
-         WHERE b.name = $1`,
-        [boardName, userId]
+         LEFT JOIN board_users bu ON bu.board_id = b.id AND bu.user_id = ?
+         WHERE b.name = ?`,
+        [userId, boardName]
     );
     
     if (result.rows.length === 0) {

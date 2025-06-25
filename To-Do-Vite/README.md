@@ -1,6 +1,6 @@
 # 📝 To-Do App con Vite + React
 
-Una aplicación **full-stack completa** de gestión de tareas construida con React, Vite, Node.js, PostgreSQL, Tanstack Query y Zustand.
+Una aplicación **full-stack completa** de gestión de tareas construida con React, Vite, Node.js, SQLite, Tanstack Query y Zustand.
 
 ## 🚀 ¿Qué es esta aplicación?
 
@@ -52,19 +52,24 @@ Es una plataforma completa de gestión de tareas que permite a los usuarios orga
 ## 🛠️ Arquitectura Técnica
 
 ### **Frontend (React)**
-- **React 19** - Interfaz de usuario moderna
+- **React 18** - Interfaz de usuario moderna
 - **Vite** - Desarrollo ultra-rápido y build optimizado
-- **Tanstack Query** - Gestión de estado del servidor y caché inteligente
-- **Zustand** - Estado global del cliente
-- **React Router** - Navegación con protección de rutas
+- **TypeScript** - Type safety
 - **Tailwind CSS** - Estilos utility-first
+- **React Router** - Navegación con protección de rutas
+- **Tanstack Query** - Gestión de estado del servidor
+- **Zustand** - Estado global del cliente
+- **React Hook Form** - Form handling
+- **React Hot Toast** - Notifications
 
 ### **Backend (Node.js)**
 - **Express.js** - Servidor web RESTful
-- **PostgreSQL** - Base de datos relacional
+- **SQLite** - Base de datos ligera y portable
+- **SQLite3** driver para Node.js
 - **JWT** - Autenticación segura con tokens
 - **bcrypt** - Hashing de contraseñas
 - **CORS** - Configuración de seguridad
+- **Cookie-parser** para manejo de cookies
 
 ### **Características Técnicas Avanzadas**
 - **Autenticación JWT** con cookies HTTP-only
@@ -99,8 +104,8 @@ To-Do-Vite/
 ## 🚀 Instalación y Configuración
 
 ### **Requisitos Previos**
-- Node.js 18+ 
-- PostgreSQL 12+
+- Node.js 16+ 
+- SQLite (incluido con Node.js)
 - npm o yarn
 
 ### **1. Configurar Backend**
@@ -108,10 +113,8 @@ To-Do-Vite/
 cd backend
 npm install
 
-# Configurar base de datos PostgreSQL
-# Crear archivo .env con:
-# DATABASE_URL=postgresql://usuario:password@localhost:5432/todoapp
-# JWT_SECRET=tu-secreto-jwt
+# Configurar base de datos SQLite
+# La base de datos se creará automáticamente al iniciar el servidor.
 
 npm run dev  # Servidor en http://localhost:3000
 ```
@@ -153,7 +156,7 @@ graph TD
     B --> C[Hooks Personalizados]
     C --> D[Tanstack Query]
     D --> E[API REST Backend]
-    E --> F[PostgreSQL]
+    E --> F[SQLite Database]
     C --> G[Zustand Store]
     G --> B
     D --> H[Caché Local]
@@ -164,7 +167,7 @@ graph TD
 2. **Hooks personalizados** procesan la lógica de negocio
 3. **Tanstack Query** gestiona peticiones HTTP y caché
 4. **API REST** procesa las peticiones en el backend
-5. **PostgreSQL** almacena los datos persistentes
+5. **SQLite** almacena los datos persistentes
 6. **Zustand** mantiene estado local (filtros, UI)
 7. **Caché local** optimiza la experiencia del usuario
 

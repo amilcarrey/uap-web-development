@@ -1,11 +1,11 @@
-const pool = require('../config/db');
+const { query, run } = require('../config/db');
 
 const getBoardsForUser = async (userId) => {
-    const result = await pool.query(
+    const result = await query(
         `SELECT b.*, bu.role
          FROM boards b
          JOIN board_users bu ON bu.board_id = b.id
-         WHERE bu.user_id = $1
+         WHERE bu.user_id = ?
          ORDER BY b.created_at DESC`,
         [userId]
     );
@@ -13,57 +13,66 @@ const getBoardsForUser = async (userId) => {
 };
 
 const createBoard = async (name, category, userId) => {
-    const client = await pool.connect();
     try {
-        await client.query('BEGIN');
-        
-        const boardResult = await client.query(
-            'INSERT INTO boards (name, category, user_id) VALUES ($1, $2, $3) RETURNING *',
+        // Insertar el tablero
+        const boardResult = await run(
+            'INSERT INTO boards (name, category, user_id) VALUES (?, ?, ?)',
             [name, category, userId]
         );
-        const board = boardResult.rows[0];
         
-        await client.query(
-            'INSERT INTO board_users (board_id, user_id, role) VALUES ($1, $2, $3)',
-            [board.id, userId, 'owner']
+        const boardId = boardResult.rows[0].id;
+        
+        // Obtener el tablero creado
+        const boardQuery = await query(
+            'SELECT * FROM boards WHERE id = ?',
+            [boardId]
         );
         
-        await client.query('COMMIT');
+        const board = boardQuery.rows[0];
+        
+        // Insertar el usuario como propietario
+        await run(
+            'INSERT INTO board_users (board_id, user_id, role) VALUES (?, ?, ?)',
+            [boardId, userId, 'owner']
+        );
+        
         return board;
     } catch (error) {
-        await client.query('ROLLBACK');
         console.error('Error en el servicio createBoard:', error);
         throw new Error('Error al crear el tablero');
-    } finally {
-        client.release();
     }
 };
 
 const deleteBoard = async (boardId) => {
-    const result = await pool.query(
-        'DELETE FROM boards WHERE id = $1 RETURNING *',
+    const result = await run(
+        'DELETE FROM boards WHERE id = ?',
         [boardId]
     );
-    return result.rows[0];
+    
+    if (result.rowCount === 0) {
+        throw { status: 404, message: 'Tablero no encontrado' };
+    }
+    
+    return { id: boardId };
 };
 
 const shareBoard = async (boardId, usernameToShare, roleToAssign) => {
-    const userResult = await pool.query('SELECT id FROM users WHERE username = $1', [usernameToShare]);
+    const userResult = await query('SELECT id FROM users WHERE username = ?', [usernameToShare]);
     if (userResult.rows.length === 0) {
         throw { status: 404, message: 'Usuario a compartir no encontrado' };
     }
     const invitedUserId = userResult.rows[0].id;
 
-    const existingInvite = await pool.query(
-        'SELECT * FROM board_users WHERE board_id = $1 AND user_id = $2',
+    const existingInvite = await query(
+        'SELECT * FROM board_users WHERE board_id = ? AND user_id = ?',
         [boardId, invitedUserId]
     );
     if (existingInvite.rows.length > 0) {
         throw { status: 409, message: 'El usuario ya tiene acceso a este tablero' };
     }
 
-    await pool.query(
-        'INSERT INTO board_users (board_id, user_id, role) VALUES ($1, $2, $3)',
+    await run(
+        'INSERT INTO board_users (board_id, user_id, role) VALUES (?, ?, ?)',
         [boardId, invitedUserId, roleToAssign]
     );
 
@@ -71,11 +80,11 @@ const shareBoard = async (boardId, usernameToShare, roleToAssign) => {
 };
 
 const getBoardUsers = async (boardId) => {
-    const result = await pool.query(
+    const result = await query(
         `SELECT u.username, bu.role
          FROM board_users bu
          JOIN users u ON u.id = bu.user_id
-         WHERE bu.board_id = $1
+         WHERE bu.board_id = ?
          ORDER BY bu.role DESC, u.username`,
         [boardId]
     );
@@ -83,15 +92,15 @@ const getBoardUsers = async (boardId) => {
 };
 
 const removeUserFromBoard = async (boardId, usernameToRemove) => {
-    const userResult = await pool.query('SELECT id FROM users WHERE username = $1', [usernameToRemove]);
+    const userResult = await query('SELECT id FROM users WHERE username = ?', [usernameToRemove]);
     if (userResult.rows.length === 0) {
         throw { status: 404, message: 'Usuario a remover no encontrado' };
     }
     const userIdToRemove = userResult.rows[0].id;
 
     // Verificar que el usuario no sea el propietario del tablero
-    const boardOwnerResult = await pool.query(
-        'SELECT user_id FROM boards WHERE id = $1',
+    const boardOwnerResult = await query(
+        'SELECT user_id FROM boards WHERE id = ?',
         [boardId]
     );
     
@@ -100,8 +109,8 @@ const removeUserFromBoard = async (boardId, usernameToRemove) => {
     }
 
     // Verificar que el usuario tenga acceso al tablero antes de intentar removerlo
-    const existingAccess = await pool.query(
-        'SELECT * FROM board_users WHERE board_id = $1 AND user_id = $2',
+    const existingAccess = await query(
+        'SELECT * FROM board_users WHERE board_id = ? AND user_id = ?',
         [boardId, userIdToRemove]
     );
 
@@ -109,14 +118,13 @@ const removeUserFromBoard = async (boardId, usernameToRemove) => {
         throw { status: 404, message: 'El usuario no tiene acceso a este tablero' };
     }
 
-    const result = await pool.query(
-        'DELETE FROM board_users WHERE board_id = $1 AND user_id = $2 RETURNING *',
+    const result = await run(
+        'DELETE FROM board_users WHERE board_id = ? AND user_id = ?',
         [boardId, userIdToRemove]
     );
 
     return { message: 'Usuario removido del tablero exitosamente' };
 };
-
 
 module.exports = {
     getBoardsForUser,

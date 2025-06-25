@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
-const pool = require('./config/db');
+const { query, queryOne } = require('./config/db');
 const authRoutes = require('./routes/auth');
 const boardRoutes = require('./routes/boardRoutes');
 const taskRoutes = require('./routes/taskRoutes');
@@ -45,11 +45,11 @@ app.get('/shared/:token', async (req, res) => {
     try {
         const { token } = req.params;
         
-        const result = await pool.query(
+        const result = await query(
             `SELECT b.*, sl.expires_at
              FROM shared_links sl
              JOIN boards b ON b.id = sl.board_id
-             WHERE sl.token = $1 AND (sl.expires_at IS NULL OR sl.expires_at > NOW())`,
+             WHERE sl.token = ? AND (sl.expires_at IS NULL OR sl.expires_at > datetime('now'))`,
             [token]
         );
         
@@ -71,9 +71,9 @@ app.get('/shared/:token/tasks', async (req, res) => {
         const { token } = req.params;
         
         // Verificar que el enlace es válido
-        const linkResult = await pool.query(
+        const linkResult = await query(
             `SELECT board_id FROM shared_links 
-             WHERE token = $1 AND (expires_at IS NULL OR expires_at > NOW())`,
+             WHERE token = ? AND (expires_at IS NULL OR expires_at > datetime('now'))`,
             [token]
         );
         
@@ -83,8 +83,8 @@ app.get('/shared/:token/tasks', async (req, res) => {
         
         const boardId = linkResult.rows[0].board_id;
         
-        const result = await pool.query(
-            'SELECT * FROM tasks WHERE board_id = $1 ORDER BY created_at DESC',
+        const result = await query(
+            'SELECT * FROM tasks WHERE board_id = ? ORDER BY created_at DESC',
             [boardId]
         );
         

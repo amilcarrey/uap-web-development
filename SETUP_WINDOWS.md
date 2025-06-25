@@ -1,175 +1,187 @@
-# 🪟 Guía de Instalación en Windows
+# 🚀 Configuración del Proyecto en Windows
 
 ## 📋 Requisitos Previos
 
 ### 1. Node.js
 - Descargar desde: https://nodejs.org/
-- Instalar con opciones por defecto
+- Instalar la versión LTS (recomendado)
 - Verificar instalación: `node --version` y `npm --version`
 
-### 2. PostgreSQL
-- Descargar desde: https://www.postgresql.org/download/windows/
-- Durante la instalación:
-  - Usuario: `postgres`
-  - Contraseña: `tu_contraseña_postgres` (¡Recuérdala!)
-  - Puerto: `5432`
-  - Instalar pgAdmin (opcional pero recomendado)
-
-### 3. Git (opcional)
+### 2. Git
 - Descargar desde: https://git-scm.com/download/win
 - Instalar con opciones por defecto
+- Verificar instalación: `git --version`
 
-## 🚀 Pasos de Instalación
+### 3. Editor de código
+- **VS Code** (recomendado): https://code.visualstudio.com/
+- Instalar extensiones útiles:
+  - ES7+ React/Redux/React-Native snippets
+  - Tailwind CSS IntelliSense
+  - Auto Rename Tag
+  - Bracket Pair Colorizer
+
+## 🛠️ Configuración del Proyecto
 
 ### 1. Clonar el repositorio
 ```bash
-git clone https://github.com/TU_USUARIO/TU_REPO.git
-cd TU_REPO/To-Do-Vite
+git clone <url-del-repositorio>
+cd progra3/To-Do-Vite
 ```
 
-### 2. Instalar dependencias
+### 2. Instalar dependencias del frontend
 ```bash
-# Instalar dependencias del frontend
 npm install
+```
 
-# Instalar dependencias del backend
+### 3. Instalar dependencias del backend
+```bash
 cd backend
 npm install
-cd ..
 ```
 
-### 3. Configurar la base de datos
+### 4. Configurar base de datos SQLite
+La base de datos SQLite se creará automáticamente al iniciar el servidor. No se requiere configuración adicional.
 
-#### Opción A: Usar pgAdmin (Recomendado)
-1. Abrir **pgAdmin** desde el menú de inicio
-2. Conectar al servidor local (usuario: `postgres`)
-3. Click derecho en "Databases" → "Create" → "Database"
-4. Nombre: `todo_app`
-5. Click en "Save"
-6. Seleccionar la base de datos `todo_app`
-7. Ir a "Query Tool" (ícono de SQL)
-8. Copiar y pegar el contenido de `database/schema.sql`
-9. Ejecutar (F5)
-
-#### Opción B: Usar línea de comandos
-```bash
-# Abrir Command Prompt como administrador
-# Navegar a la carpeta de PostgreSQL (ejemplo):
-cd "C:\Program Files\PostgreSQL\15\bin"
-
-# Conectar a PostgreSQL
-psql -U postgres
-
-# Crear base de datos
-CREATE DATABASE todo_app;
-
-# Conectar a la base de datos
-\c todo_app
-
-# Ejecutar el script (copiar y pegar el contenido de database/schema.sql)
-# Luego escribir: \q para salir
-```
-
-### 4. Restaurar datos (opcional)
-Si tienes el archivo `todo_app_backup.sql`:
-```bash
-# En la carpeta bin de PostgreSQL
-psql -U postgres -d todo_app -f "ruta\completa\a\todo_app_backup.sql"
-```
-
-### 5. Configurar variables de entorno
-Crear archivo `.env` en la carpeta `backend/`:
+### 5. Variables de entorno (opcional)
+Crear archivo `.env` en la carpeta `backend`:
 ```env
-DB_USER=postgres
-DB_HOST=localhost
-DB_NAME=todo_app
-DB_PASSWORD=tu_contraseña_postgres
-DB_PORT=5432
+NODE_ENV=development
+PORT=3000
 JWT_SECRET=tu_clave_secreta_super_segura
 ```
 
-### 6. Actualizar configuración de base de datos
-Editar `backend/config/db.js`:
-```javascript
-const { Pool } = require('pg');
-
-const pool = new Pool({
-    user: process.env.DB_USER || 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    database: process.env.DB_NAME || 'todo_app',
-    password: process.env.DB_PASSWORD || 'tu_contraseña_postgres',
-    port: process.env.DB_PORT || 5432,
-});
-
-module.exports = pool;
-```
-
-## 🏃‍♂️ Ejecutar la aplicación
+## 🚀 Ejecutar el proyecto
 
 ### Terminal 1 - Backend
 ```bash
 cd backend
-npm start
+npm run dev
 ```
+El servidor estará disponible en: http://localhost:3000
 
 ### Terminal 2 - Frontend
 ```bash
 npm run dev
 ```
+La aplicación estará disponible en: http://localhost:5173
 
-## 🌐 Acceder a la aplicación
-- **Frontend**: http://localhost:5173
-- **Backend**: http://localhost:3000
+## 👤 Usuario por defecto
+- **Usuario**: `luca`
+- **Contraseña**: `admin123`
 
-## 🔐 Usuarios por defecto
-- **Admin**: `luca` (contraseña: la que hayas configurado)
-- **Otros usuarios**: Los que hayas creado en tu Mac
+## 🔧 Comandos útiles
 
-## 🛠️ Solución de problemas comunes
-
-### Error: "password authentication failed"
-- Verificar que la contraseña de PostgreSQL sea correcta
-- Verificar que el usuario tenga permisos en la base de datos
-- En pgAdmin, verificar la conexión
-
-### Error: "connection refused"
-- Verificar que PostgreSQL esté ejecutándose
-- Ir a "Servicios" de Windows y buscar "postgresql"
-- Si no está ejecutándose, iniciarlo manualmente
-
-### Error: "database does not exist"
-- Crear la base de datos `todo_app`
-- Verificar que el nombre en la configuración sea correcto
-- Usar pgAdmin para verificar que existe
-
-### Error: "module not found"
-- Ejecutar `npm install` en ambas carpetas (frontend y backend)
-- Verificar que Node.js esté instalado correctamente
-- Limpiar cache: `npm cache clean --force`
-
-### Error: "port already in use"
-- Abrir Command Prompt como administrador
-- Ejecutar: `netstat -ano | findstr :3000`
-- Matar el proceso: `taskkill /PID [número_del_proceso] /F`
-
-## 📝 Notas importantes
-- Asegúrate de que los puertos 3000 y 5173 estén libres
-- Si usas un firewall, permitir las conexiones a estos puertos
-- Para desarrollo, puedes usar la misma contraseña de JWT que en Mac
-- pgAdmin es muy útil para gestionar la base de datos visualmente
-
-## 🔧 Comandos útiles de Windows
+### Desarrollo
 ```bash
-# Verificar si PostgreSQL está ejecutándose
-sc query postgresql
+# Frontend
+npm run dev          # Iniciar servidor de desarrollo
+npm run build        # Construir para producción
+npm run preview      # Previsualizar build
 
-# Iniciar PostgreSQL manualmente
-net start postgresql
+# Backend
+npm run dev          # Iniciar servidor con nodemon
+npm start            # Iniciar servidor en producción
+```
 
-# Detener PostgreSQL
-net stop postgresql
+### Base de datos
+```bash
+# Verificar base de datos SQLite
+node check-db.js     # Script temporal para verificar tablas
+```
 
-# Verificar puertos en uso
+### Limpieza
+```bash
+# Limpiar node_modules
+rm -rf node_modules package-lock.json
+npm install
+
+# Limpiar caché de npm
+npm cache clean --force
+```
+
+## 🐛 Solución de problemas
+
+### Error: "Cannot find module"
+```bash
+# Reinstalar dependencias
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Error: "Port already in use"
+```bash
+# Encontrar proceso usando el puerto
 netstat -ano | findstr :3000
 netstat -ano | findstr :5173
-``` 
+
+# Terminar proceso (reemplazar PID con el número de proceso)
+taskkill /PID <PID> /F
+```
+
+### Error: "Database connection failed"
+- Verificar que el servidor backend esté ejecutándose
+- Verificar que no haya errores en la consola del backend
+- La base de datos SQLite se crea automáticamente
+
+### Error: "CORS error"
+- Verificar que el backend esté en puerto 3000
+- Verificar que el frontend esté en puerto 5173
+- Verificar configuración CORS en `backend/server.js`
+
+## 📁 Estructura del proyecto
+
+```
+To-Do-Vite/
+├── src/                    # Frontend React
+│   ├── components/         # Componentes reutilizables
+│   ├── pages/             # Páginas de la aplicación
+│   ├── hooks/             # Custom hooks
+│   ├── stores/            # Zustand stores
+│   └── config/            # Configuración
+├── backend/               # Backend Node.js
+│   ├── routes/            # Rutas de la API
+│   ├── controllers/       # Controladores
+│   ├── services/          # Lógica de negocio
+│   ├── middleware/        # Middlewares
+│   ├── config/            # Configuración
+│   └── database.sqlite    # Base de datos SQLite
+└── README.md
+```
+
+## 🔍 Herramientas de desarrollo
+
+### VS Code Extensions recomendadas
+- **ES7+ React/Redux/React-Native snippets**
+- **Tailwind CSS IntelliSense**
+- **Auto Rename Tag**
+- **Bracket Pair Colorizer**
+- **Prettier - Code formatter**
+- **ESLint**
+
+### Herramientas de línea de comandos
+- **Git Bash** (incluido con Git)
+- **Windows Terminal** (recomendado)
+- **PowerShell** (alternativa)
+
+## 📚 Recursos adicionales
+
+### Documentación oficial
+- [React](https://react.dev/)
+- [Vite](https://vitejs.dev/)
+- [Express.js](https://expressjs.com/)
+- [SQLite](https://www.sqlite.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+
+### Tutoriales útiles
+- [React Tutorial](https://react.dev/learn)
+- [Node.js Tutorial](https://nodejs.org/en/learn/)
+- [SQLite Tutorial](https://www.sqlite.org/quickstart.html)
+
+## 🆘 Soporte
+
+Si encuentras problemas:
+1. Verificar que todos los requisitos estén instalados
+2. Revisar la consola del navegador (F12)
+3. Revisar la consola del servidor backend
+4. Verificar que los puertos no estén ocupados
+5. Reinstalar dependencias si es necesario 

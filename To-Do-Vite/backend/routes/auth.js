@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const pool = require('../config/db');
+const { query, run } = require('../config/db');
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router.post('/register', async (req, res) => {
 
     try {
         // Verificar si el usuario ya existe
-        const userExists = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        const userExists = await query('SELECT * FROM users WHERE username = ?', [username]);
         if (userExists.rows.length > 0) {
             return res.status(409).json({ error: 'El usuario ya existe' });
         }
@@ -24,8 +24,8 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Guardar el usuario
-        await pool.query(
-            'INSERT INTO users (username, password) VALUES ($1, $2)',
+        await run(
+            'INSERT INTO users (username, password) VALUES (?, ?)',
             [username, hashedPassword]
         );
 
@@ -46,7 +46,7 @@ router.post('/login', async (req, res) => {
 
     try {
         // Buscar el usuario
-        const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        const result = await query('SELECT * FROM users WHERE username = ?', [username]);
         const user = result.rows[0];
 
         if (!user) {

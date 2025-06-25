@@ -1,5 +1,5 @@
 const express = require('express');
-const pool = require('../config/db');
+const { query, run } = require('../config/db');
 const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
@@ -22,15 +22,15 @@ router.use(adminMiddleware);
 router.get('/stats', async (req, res) => {
     try {
         const [usersCount, boardsCount, tasksCount] = await Promise.all([
-            pool.query('SELECT COUNT(*) FROM users'),
-            pool.query('SELECT COUNT(*) FROM boards'),
-            pool.query('SELECT COUNT(*) FROM tasks')
+            query('SELECT COUNT(*) FROM users'),
+            query('SELECT COUNT(*) FROM boards'),
+            query('SELECT COUNT(*) FROM tasks')
         ]);
 
         res.json({
-            users: parseInt(usersCount.rows[0].count),
-            boards: parseInt(boardsCount.rows[0].count),
-            tasks: parseInt(tasksCount.rows[0].count)
+            users: parseInt(usersCount.rows[0]['COUNT(*)']),
+            boards: parseInt(boardsCount.rows[0]['COUNT(*)']),
+            tasks: parseInt(tasksCount.rows[0]['COUNT(*)'])
         });
     } catch (error) {
         console.error('Error al obtener estadísticas:', error);
@@ -41,7 +41,7 @@ router.get('/stats', async (req, res) => {
 // Obtener lista de usuarios con estadísticas
 router.get('/users', async (req, res) => {
     try {
-        const usersResult = await pool.query(`
+        const usersResult = await query(`
             SELECT id, username, created_at
             FROM users
             ORDER BY created_at DESC
@@ -51,18 +51,18 @@ router.get('/users', async (req, res) => {
             usersResult.rows.map(async (user) => {
                 try {
                     const [boardsCount, tasksCount] = await Promise.all([
-                        pool.query(`
+                        query(`
                             SELECT COUNT(DISTINCT b.id) as count
                             FROM boards b
                             JOIN board_users bu ON b.id = bu.board_id
-                            WHERE bu.user_id = $1
+                            WHERE bu.user_id = ?
                         `, [user.id]),
-                        pool.query(`
+                        query(`
                             SELECT COUNT(DISTINCT t.id) as count
                             FROM tasks t
                             JOIN boards b ON t.board_id = b.id
                             JOIN board_users bu ON b.id = bu.board_id
-                            WHERE bu.user_id = $1
+                            WHERE bu.user_id = ?
                         `, [user.id])
                     ]);
                     
@@ -94,7 +94,7 @@ router.delete('/users/:userId', async (req, res) => {
     const { userId } = req.params;
     
     try {
-        const userExists = await pool.query('SELECT username FROM users WHERE id = $1', [userId]);
+        const userExists = await query('SELECT username FROM users WHERE id = ?', [userId]);
         if (userExists.rows.length === 0) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
@@ -105,49 +105,36 @@ router.delete('/users/:userId', async (req, res) => {
             return res.status(400).json({ error: 'No se puede eliminar al administrador' });
         }
 
-        const client = await pool.connect();
-        
-        try {
-            await client.query('BEGIN');
+        // Obtener todos los tableros donde el usuario es propietario o participa
+        const userBoards = await query(`
+            SELECT DISTINCT b.id 
+            FROM boards b 
+            JOIN board_users bu ON b.id = bu.board_id 
+            WHERE bu.user_id = ?
+        `, [userId]);
 
-            // Obtener todos los tableros donde el usuario es propietario o participa
-            const userBoards = await client.query(`
-                SELECT DISTINCT b.id 
-                FROM boards b 
-                JOIN board_users bu ON b.id = bu.board_id 
-                WHERE bu.user_id = $1
-            `, [userId]);
+        const boardIds = userBoards.rows.map(board => board.id);
 
-            const boardIds = userBoards.rows.map(board => board.id);
-
-            if (boardIds.length > 0) {
-                // Eliminar tareas de todos los tableros del usuario
-                await client.query('DELETE FROM tasks WHERE board_id = ANY($1)', [boardIds]);
-                
-                // Eliminar enlaces compartidos de los tableros
-                await client.query('DELETE FROM shared_links WHERE board_id = ANY($1)', [boardIds]);
-                
-                // Eliminar relaciones de usuarios con tableros
-                await client.query('DELETE FROM board_users WHERE board_id = ANY($1)', [boardIds]);
-                
-                // Eliminar los tableros
-                await client.query('DELETE FROM boards WHERE id = ANY($1)', [boardIds]);
-            }
-
-            // Eliminar el usuario
-            await client.query('DELETE FROM users WHERE id = $1', [userId]);
-
-            await client.query('COMMIT');
-
-            res.json({ 
-                message: `Usuario ${username} eliminado correctamente junto con todos sus tableros y tareas` 
-            });
-        } catch (error) {
-            await client.query('ROLLBACK');
-            throw error;
-        } finally {
-            client.release();
+        if (boardIds.length > 0) {
+            // Eliminar tareas de todos los tableros del usuario
+            await run('DELETE FROM tasks WHERE board_id IN (' + boardIds.map(() => '?').join(',') + ')', boardIds);
+            
+            // Eliminar enlaces compartidos de los tableros
+            await run('DELETE FROM shared_links WHERE board_id IN (' + boardIds.map(() => '?').join(',') + ')', boardIds);
+            
+            // Eliminar relaciones de usuarios con tableros
+            await run('DELETE FROM board_users WHERE board_id IN (' + boardIds.map(() => '?').join(',') + ')', boardIds);
+            
+            // Eliminar los tableros
+            await run('DELETE FROM boards WHERE id IN (' + boardIds.map(() => '?').join(',') + ')', boardIds);
         }
+
+        // Eliminar el usuario
+        await run('DELETE FROM users WHERE id = ?', [userId]);
+
+        res.json({ 
+            message: `Usuario ${username} eliminado correctamente junto con todos sus tableros y tareas` 
+        });
     } catch (error) {
         console.error('Error al eliminar usuario:', error);
         res.status(500).json({ error: 'Error al eliminar usuario' });

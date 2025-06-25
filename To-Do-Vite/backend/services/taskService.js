@@ -1,8 +1,8 @@
-const pool = require('../config/db');
+const { query, run } = require('../config/db');
 
 const getTasks = async (boardId) => {
-    const result = await pool.query(
-        'SELECT * FROM tasks WHERE board_id = $1 ORDER BY created_at DESC',
+    const result = await query(
+        'SELECT * FROM tasks WHERE board_id = ? ORDER BY created_at DESC',
         [boardId]
     );
     return result.rows;
@@ -12,35 +12,35 @@ const getTasksPaginated = async (boardId, page = 1, limit = 10, search = '', fil
     const offset = (page - 1) * limit;
     
     // Construir la consulta base
-    let baseQuery = 'FROM tasks WHERE board_id = $1';
-    let countQuery = 'SELECT COUNT(*) FROM tasks WHERE board_id = $1';
+    let baseQuery = 'FROM tasks WHERE board_id = ?';
+    let countQuery = 'SELECT COUNT(*) FROM tasks WHERE board_id = ?';
     let queryParams = [boardId];
     let paramCount = 1;
 
     // Agregar filtros
     if (search) {
-        baseQuery += ` AND text ILIKE $${++paramCount}`;
-        countQuery += ` AND text ILIKE $${paramCount}`;
+        baseQuery += ` AND text LIKE ?`;
+        countQuery += ` AND text LIKE ?`;
         queryParams.push(`%${search}%`);
     }
 
     if (filter === 'active') {
-        baseQuery += ` AND completed = false`;
-        countQuery += ` AND completed = false`;
+        baseQuery += ` AND completed = 0`;
+        countQuery += ` AND completed = 0`;
     } else if (filter === 'completed') {
-        baseQuery += ` AND completed = true`;
-        countQuery += ` AND completed = true`;
+        baseQuery += ` AND completed = 1`;
+        countQuery += ` AND completed = 1`;
     }
 
     // Obtener el total de registros
-    const countResult = await pool.query(countQuery, queryParams);
-    const totalTasks = parseInt(countResult.rows[0].count);
+    const countResult = await query(countQuery, queryParams);
+    const totalTasks = parseInt(countResult.rows[0]['COUNT(*)']);
 
     // Obtener las tareas paginadas
-    const tasksQuery = `SELECT * ${baseQuery} ORDER BY created_at DESC LIMIT $${++paramCount} OFFSET $${++paramCount}`;
+    const tasksQuery = `SELECT * ${baseQuery} ORDER BY created_at DESC LIMIT ? OFFSET ?`;
     queryParams.push(limit, offset);
     
-    const tasksResult = await pool.query(tasksQuery, queryParams);
+    const tasksResult = await query(tasksQuery, queryParams);
 
     return {
         tasks: tasksResult.rows,
@@ -56,11 +56,18 @@ const getTasksPaginated = async (boardId, page = 1, limit = 10, search = '', fil
 };
 
 const createTask = async (boardId, text) => {
-    const result = await pool.query(
-        'INSERT INTO tasks (board_id, text, completed) VALUES ($1, $2, false) RETURNING *',
+    const result = await run(
+        'INSERT INTO tasks (board_id, text, completed) VALUES (?, ?, 0)',
         [boardId, text]
     );
-    return result.rows[0];
+    
+    // Obtener la tarea creada
+    const taskResult = await query(
+        'SELECT * FROM tasks WHERE id = ?',
+        [result.rows[0].id]
+    );
+    
+    return taskResult.rows[0];
 };
 
 const updateTask = async (taskId, updates) => {
@@ -70,13 +77,13 @@ const updateTask = async (taskId, updates) => {
     let paramCount = 1;
 
     if (text !== undefined) {
-        setClause.push(`text = $${paramCount++}`);
+        setClause.push(`text = ?`);
         values.push(text);
     }
 
     if (completed !== undefined) {
-        setClause.push(`completed = $${paramCount++}`);
-        values.push(completed);
+        setClause.push(`completed = ?`);
+        values.push(completed ? 1 : 0);
     }
 
     if (setClause.length === 0) {
@@ -84,42 +91,48 @@ const updateTask = async (taskId, updates) => {
     }
 
     values.push(taskId);
-    const result = await pool.query(
-        `UPDATE tasks SET ${setClause.join(', ')} WHERE id = $${paramCount} RETURNING *`,
+    const result = await run(
+        `UPDATE tasks SET ${setClause.join(', ')} WHERE id = ?`,
         values
     );
 
-    if (result.rows.length === 0) {
+    if (result.rowCount === 0) {
         throw { status: 404, message: 'Tarea no encontrada' };
     }
 
-    return result.rows[0];
-};
-
-const deleteTask = async (taskId) => {
-    const result = await pool.query(
-        'DELETE FROM tasks WHERE id = $1 RETURNING *',
+    // Obtener la tarea actualizada
+    const taskResult = await query(
+        'SELECT * FROM tasks WHERE id = ?',
         [taskId]
     );
 
-    if (result.rows.length === 0) {
+    return taskResult.rows[0];
+};
+
+const deleteTask = async (taskId) => {
+    const result = await run(
+        'DELETE FROM tasks WHERE id = ?',
+        [taskId]
+    );
+
+    if (result.rowCount === 0) {
         throw { status: 404, message: 'Tarea no encontrada' };
     }
 
-    return result.rows[0];
+    return { id: taskId };
 };
 
 const deleteCompletedTasks = async (boardId) => {
-    const result = await pool.query(
-        'DELETE FROM tasks WHERE board_id = $1 AND completed = true RETURNING *',
+    const result = await run(
+        'DELETE FROM tasks WHERE board_id = ? AND completed = 1',
         [boardId]
     );
-    return result.rows;
+    return { deletedCount: result.rowCount };
 };
 
 const getTaskById = async (taskId) => {
-    const result = await pool.query(
-        'SELECT * FROM tasks WHERE id = $1',
+    const result = await query(
+        'SELECT * FROM tasks WHERE id = ?',
         [taskId]
     );
 

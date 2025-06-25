@@ -151,8 +151,8 @@ const deleteCompletedTasks = async (req, res) => {
             return res.status(permission.status).json({ error: permission.error });
         }
 
-        const deletedTasks = await taskService.deleteCompletedTasks(permission.boardId);
-        res.json({ message: `${deletedTasks.length} tareas completadas eliminadas` });
+        const result = await taskService.deleteCompletedTasks(permission.boardId);
+        res.json({ message: `${result.deletedCount} tareas completadas eliminadas` });
     } catch (error) {
         res.status(500).json({ error: 'Error al eliminar las tareas completadas' });
     }
