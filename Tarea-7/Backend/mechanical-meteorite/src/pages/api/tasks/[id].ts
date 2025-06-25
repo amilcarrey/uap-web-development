@@ -1,17 +1,17 @@
 import type { APIRoute } from "astro";
 import { updateTask, deleteTask } from "../../../db/tasks";
 
-export const PATCH: APIRoute = async ({ params, request }) => {
+export const PATCH: APIRoute = async ({ params, request, url }) => {
+  const boardId = url.searchParams.get("board") || "default";
   const id = params.id!;
   try {
     const { completed } = await request.json();
-    const updated = updateTask(id, completed);
+    const updated = updateTask(boardId, id, completed);
     if (!updated) {
       return new Response(JSON.stringify({ error: "Tarea no encontrada" }), {
         status: 404
       });
     }
-
     return new Response(JSON.stringify(updated), {
       headers: { "Content-Type": "application/json" }
     });
@@ -22,8 +22,9 @@ export const PATCH: APIRoute = async ({ params, request }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ params }) => {
+export const DELETE: APIRoute = async ({ params, url }) => {
+  const boardId = url.searchParams.get("board") || "default";
   const id = params.id!;
-  deleteTask(id);
+  deleteTask(boardId, id);
   return new Response(null, { status: 204 });
 };

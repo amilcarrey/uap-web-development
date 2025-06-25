@@ -134,3 +134,29 @@ li:last-child {
     justify-content: center;
     gap: 1rem;
 }
+
+.board-selector {
+  margin: 20px 0;
+  padding: 10px;
+  background-color: #181818;
+  border-radius: 10px;
+}
+
+.board-selector h2 {
+  color: #1DB954;
+}
+
+.board-selector select,
+.board-selector input {
+  margin: 5px;
+  padding: 8px;
+  border-radius: 5px;
+  border: none;
+}
+
+.board-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
