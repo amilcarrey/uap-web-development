@@ -12,19 +12,25 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import cookieParser from 'cookie-parser';
 import { errorHandler } from './middlewares/errorHandler';
+import { authMiddleware } from './middlewares/authMiddleware';
 
 const app = express();
 
-
 app.use(cookieParser(process.env.JWT_SECRET || "default_secret"));
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
-app.use('/api/board', boardRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/task', taskRoutes);
+
 app.use('/api/auth', authRoutes);
-app.use('/api', permissionRoutes);
-app.use('/api/preferences', preferenciaRoutes);
+app.use('/api/user', userRoutes); // <-- Servia para realizar pruebas
+app.use('/api/boards', boardRoutes); // Tableros del usuario autenticado
+app.use(authMiddleware)
+app.use('/api/boards/:boardId/tasks', taskRoutes); // Tareas de un tablero específico
+app.use('/api/boards/:boardId/permissions', permissionRoutes);
+app.use('/api/preferences', preferenciaRoutes); // Preferencias del usuario autenticado
+
 
 
 const swaggerOptions = {
@@ -44,9 +50,5 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware global para el manejo de errores
 app.use(errorHandler);
-
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
-});
 
 export default app;

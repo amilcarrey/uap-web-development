@@ -7,19 +7,24 @@ interface JwtPayload{
 }
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction){
-    const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
-
-    if(!token){
-        res.status(401).json({error: "Token no proporcionado"});
+    console.log('authMiddleware ejecutado');
+    let token = req.signedCookies?.token || req.cookies?.token || req.headers.authorization?.split(' ')[1];
+    console.log('Token recibido:', token);
+    if (!token) {
+        res.status(401).json({ error: "Token no proporcionado" });
         return;
     }
-
-    try{
+    // Quitar prefijo 's:' si existe
+    if (token.startsWith('s:')) {
+        token = token.slice(2);
+    }
+    try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret") as JwtPayload;
-        (req as any).user = decoded; // Agrego el usuario decodificado al request para que esté disponible en las siguientes capas
+        (req as any).user = decoded;
         next();
-    }catch(error){
-        res.status(401).json({error: "Token inválido o expirado"});
+    } catch (error) {
+        console.log('JWT error:', error);
+        res.status(401).json({ error: "Token inválido o expirado" });
         return;
     }
 };

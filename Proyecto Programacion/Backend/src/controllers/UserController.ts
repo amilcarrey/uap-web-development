@@ -1,3 +1,11 @@
+/*
+------------------------------------------------------------
+No se utiliza, solo servia para realizar pruebas
+------------------------------------------------------------
+*/
+
+
+
 import { Request, Response } from 'express';
 import { UserDbService } from '../services/UserDbService';
 import { RegistrerUserDTO, RegistrerUserSchema } from '../DTOs/user/RegistrerUserSchema';

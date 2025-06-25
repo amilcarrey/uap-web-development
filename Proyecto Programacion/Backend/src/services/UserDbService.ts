@@ -144,7 +144,7 @@ export class UserDbService implements IUserService {
                 upperCaseAlias: userSettings.upperCase,
             }
             : {
-                userId: user.id,
+                userId: user.id, 
                 itemsPerPage: 10,
                 updateInterval: 60000,
                 upperCaseAlias: false,

@@ -1,10 +1,8 @@
 import { Router } from "express";
 import { PreferenceController } from "../controllers/PreferenceController";
-import { authMiddleware } from "../middlewares/authMiddleware";
-
 const router = Router();
 
-router.use(authMiddleware);
+// Rutas anidadas bajo: /api/preferences
 
 router.get("/", PreferenceController.getPreferences);
 router.put("/", PreferenceController.updatePreferences);

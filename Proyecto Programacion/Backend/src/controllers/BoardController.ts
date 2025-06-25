@@ -6,16 +6,28 @@ const boardService = new BoardService();
 
 export class BoardController {
 
-  static async getBoards(req: Request, res: Response) {
-    const boards = await boardService.getBoards();
-    res.json(boards);
+
+  static async getBoards(req: Request, res: Response){
+    const currentUserId = (req as any).user?.id;
+
+    if (!currentUserId) {
+      const error = new Error("Usuario no autenticado");
+      (error as any).status = 401;
+      throw error;
+    }
+
+    const bords = await boardService.getBoardsForUser(currentUserId);
+    res.json(bords);
   }
 
+
   static async createBoard(req: Request, res: Response) {
-    const { userId, name, active } = req.body;
-    if (!userId || isNaN(Number(userId))) {
-      const error = new Error("ID de usuario inválido");
-      (error as any).status = 400;
+    const currentUserId = (req as any).user?.id;
+    const { name, active } = req.body;
+
+    if (!currentUserId) {
+      const error = new Error("Usuario no autenticado");
+      (error as any).status = 401;
       throw error;
     }
     if (!name) {
@@ -23,36 +35,12 @@ export class BoardController {
       (error as any).status = 400;
       throw error;
     }
-    const board = await boardService.createBoard(Number(userId), { name, active });
+
+    const board = await boardService.createBoard(currentUserId, { name, active });
+    
     res.status(201).json(board);
   }
 
-  static async getBoardsByuser(req: Request, res: Response){
-    const userId = Number(req.params.userId);
-    if (isNaN(userId)) {
-      const error = new Error("ID de usuario inválido");
-      (error as any).status = 400;
-      throw error;
-    }
-    const board = await boardService.getBoardsForUser(userId);
-    res.json(board);
-  }
-
-  static async getBoardById(req: Request, res: Response){
-    const boardId = Number(req.params.boardId);
-    if (isNaN(boardId)) {
-      const error = new Error("ID de tablero inválido");
-      (error as any).status = 400;
-      throw error;
-    }
-    const board = await boardService.getBoardById(boardId);
-    if(!board){
-      const error = new Error('No se encontro el tablero');
-      (error as any).status = 404;
-      throw error;
-    }
-    res.json(board);
-  }
 
   static async updateBoard(req: Request, res: Response){
     const boardId = Number(req.params.boardId);
@@ -102,12 +90,17 @@ export class BoardController {
     res.status(200).json(updateBoard);
   }
 
-  static async deleteBoard(req: Request, res: Response){
-    const userId = Number(req.params.userId);
+  static async deleteBoard(req: Request, res: Response) {
+    const currentUserId = (req as any).user?.id;
     const boardId = Number(req.params.boardId);
 
-    if(isNaN(userId) || isNaN(boardId)){
-      const error = new Error('Id invalido');
+    if (!currentUserId) {
+      const error = new Error("Usuario no autenticado");
+      (error as any).status = 401;
+      throw error;
+    }
+    if (isNaN(boardId)) {
+      const error = new Error('Id de tablero invalido');
       (error as any).status = 400;
       throw error;
     }
@@ -124,11 +117,11 @@ export class BoardController {
     }
 
     // Validar si es dueño o tiene permiso EDITOR
-    if (board.ownerId === userId) {
+    if (board.ownerId === currentUserId) {
       // Permitir
     } else {
       const permission = board.permissions.find(
-        p => p.userId === userId && p.level === "EDITOR"
+        p => p.userId === currentUserId && p.level === "EDITOR"
       );
       if (!permission) {
         const error = new Error("No tienes permiso para eliminar este tablero");
@@ -137,7 +130,59 @@ export class BoardController {
       }
     }
 
-    await boardService.deleteBoard(userId, boardId);
+    await boardService.deleteBoard(currentUserId, boardId);
     res.status(204).send();
   }
+
+
+  /* 
+  -------------------------------------------------------
+  Metodos no utilizados (comentados), solo servian para las pruebas  
+  -------------------------------------------------------
+  */
+
+  /* // Esta funcion no se usa, solo es para pruebas
+  static async getBoards(req: Request, res: Response) {
+    const boards = await boardService.getBoards();
+    res.json(boards);
+  }
+  */
+
+
+  /** // Esta funcion no se usa, solo es para pruebas
+   
+  static async getBoardsByuser(req: Request, res: Response){
+    const userId = Number(req.params.userId);
+    if (isNaN(userId)) {
+      const error = new Error("ID de usuario inválido");
+      (error as any).status = 400;
+      throw error;
+    }
+    const board = await boardService.getBoardsForUser(userId);
+    res.json(board);
+  }
+  */
+
+  /** // Esta funcion no se usa, solo es para pruebas
+  static async getBoardById(req: Request, res: Response){
+    const boardId = Number(req.params.boardId);
+    if (isNaN(boardId)) {
+      const error = new Error("ID de tablero inválido");
+      (error as any).status = 400;
+      throw error;
+    }
+    const board = await boardService.getBoardById(boardId);
+    if(!board){
+      const error = new Error('No se encontro el tablero');
+      (error as any).status = 404;
+      throw error;
+    }
+    res.json(board);
+  }
+  */
+
+
+
+
+
 }

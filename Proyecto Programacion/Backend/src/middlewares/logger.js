@@ -1,5 +1,7 @@
 // Ejemplo de middleware
-module.exports = (req, res, next) => {
+const logger = (req, res, next) => {
   console.log('Middleware ejecutado');
   next();
 };
+
+export default logger;

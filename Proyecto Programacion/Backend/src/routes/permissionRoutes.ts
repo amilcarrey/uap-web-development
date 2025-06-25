@@ -1,14 +1,12 @@
 import { Router } from 'express';
 import { PermissionController } from '../controllers/PermissionController';
-import { authMiddleware } from '../middlewares/authMiddleware';
-
 const router = Router();
 
-router.use(authMiddleware);
+// Rutas anidadas bajo: /api/boards/:boardId/permissions
 
-router.post('/board/:boardId/permission', PermissionController.grantPermission);
-router.delete('/board/:boardId/permission/:userId', PermissionController.revokePermission);
-router.get('/board/:boardId/permission', PermissionController.getBoardPermissions);
-router.put('/board/:boardId/permission/:userId', PermissionController.updatePermission);
+router.get('/', PermissionController.getBoardPermissions);
+router.post('/', PermissionController.grantPermission);
+router.put('/:permissionId', PermissionController.updatePermission);
+router.delete('/:permissionId"', PermissionController.revokePermission);
 
 export default router;

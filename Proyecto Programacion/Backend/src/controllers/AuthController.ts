@@ -47,7 +47,7 @@ export class AuthController{
         //Seteo el token en la cookie
         res.cookie("token", user.token, {
             httpOnly: true,
-            secure: true, // solo en HTTPS en producción
+            secure: false, // solo en HTTPS en producción
             signed: true,
             maxAge: 1000 * 60 * 60 * 24 * 30 // 30 días
         });

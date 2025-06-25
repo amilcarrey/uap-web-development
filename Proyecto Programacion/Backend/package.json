@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon --watch src --ext ts,js --exec ts-node src/server",
+    "start:dev": "ts-node src/server.ts",
+    "dev": "ts-node src/app",
+    "setup": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -31,7 +33,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.15.30",
     "@types/swagger-jsdoc": "^6.0.4",
-    "nodemon": "^3.1.10",
     "prisma": "^6.9.0",
     "ts-node": "^10.9.2",
     "tsoa": "^6.6.0",

@@ -1,16 +1,19 @@
 import { Router } from 'express';
 import { BoardController } from '../controllers/BoardController';
-import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.use(authMiddleware);
-
+// Rutas anidadas bajo: /api/boards
+router.use((req, res, next) => {
+    console.log('Board routes middleware executed');
+    next();
+});
+router.get('/', BoardController.getBoards); // Obtiene todos los tableros del usuario autenticado
 router.post('/', BoardController.createBoard);
-router.get('/', BoardController.getBoards);
-router.get('/user/:userId', BoardController.getBoardsByuser);
-router.get('/:boardId', BoardController.getBoardById);
 router.put('/:boardId', BoardController.updateBoard);
 router.delete('/:userId/:boardId', BoardController.deleteBoard);
+
+//router.get('/:boardId', BoardController.getBoardById); // <-- Servia para realizar pruebas
+//router.get('/user/:userId', BoardController.getBoardsByuser); // <-- Servia para realizar pruebas
 
 export default router;

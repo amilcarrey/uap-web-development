@@ -9,10 +9,21 @@ import { prisma } from "../prisma";
 export class TaskDbService implements ITaskService {
     // Crea una tarea en un tablero específico
     async createTask(userId: number, boardId: number, data: CreateTaskDTO): Promise<TaskDTO> {
-        const board = await prisma.board.findUnique({ where: { id: boardId } });
+        // Verifica que el usuario tenga acceso al board
+        const board = await prisma.board.findUnique({
+            where: { id: boardId },
+            include: { permissions: true }
+        });
         if (!board) {
             const error = new Error("Tablero no encontrado");
             (error as any).status = 404;
+            throw error;
+        }
+        const isOwner = board.ownerId === userId;
+        const hasPermission = board.permissions.some(p => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
+        if (!isOwner && !hasPermission) {
+            const error = new Error("No tienes permiso para crear tareas en este tablero");
+            (error as any).status = 403;
             throw error;
         }
         const task = await prisma.task.create({
@@ -69,23 +80,29 @@ export class TaskDbService implements ITaskService {
         };
     }
 
-    // Obtiene una tarea por su ID
-    async getTaskById(taskId: number): Promise<TaskDTO> {
+    // Actualiza una tarea
+    async updateTask(taskId: number, data: UpdateTaskDTO, userId: number): Promise<TaskDTO> {
         const task = await prisma.task.findUnique({ where: { id: taskId } });
         if (!task) {
             const error = new Error("Tarea no encontrada");
             (error as any).status = 404;
             throw error;
         }
-        return this.mapToTaskDTO(task);
-    }
-
-    // Actualiza una tarea
-    async updateTask(taskId: number, data: UpdateTaskDTO): Promise<TaskDTO> {
-        const task = await prisma.task.findUnique({ where: { id: taskId } });
-        if (!task) {
-            const error = new Error("Tarea no encontrada");
+        // Verifica que el usuario tenga permiso sobre el board de la tarea
+        const board = await prisma.board.findUnique({
+            where: { id: task.boardId },
+            include: { permissions: true }
+        });
+        if (!board) {
+            const error = new Error("Tablero no encontrado");
             (error as any).status = 404;
+            throw error;
+        }
+        const isOwner = board.ownerId === userId;
+        const hasPermission = board.permissions.some(p => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
+        if (!isOwner && !hasPermission) {
+            const error = new Error("No tienes permiso para actualizar tareas en este tablero");
+            (error as any).status = 403;
             throw error;
         }
         const updated = await prisma.task.update({
@@ -96,11 +113,28 @@ export class TaskDbService implements ITaskService {
     }
 
     // Elimina una tarea
-    async deleteTask(taskId: number): Promise<void> {
+    async deleteTask(taskId: number, userId: number): Promise<void> {
         const task = await prisma.task.findUnique({ where: { id: taskId } });
         if (!task) {
             const error = new Error("Tarea no encontrada");
             (error as any).status = 404;
+            throw error;
+        }
+        // Verifica que el usuario tenga permiso sobre el board de la tarea
+        const board = await prisma.board.findUnique({
+            where: { id: task.boardId },
+            include: { permissions: true }
+        });
+        if (!board) {
+            const error = new Error("Tablero no encontrado");
+            (error as any).status = 404;
+            throw error;
+        }
+        const isOwner = board.ownerId === userId;
+        const hasPermission = board.permissions.some(p => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
+        if (!isOwner && !hasPermission) {
+            const error = new Error("No tienes permiso para eliminar tareas en este tablero");
+            (error as any).status = 403;
             throw error;
         }
         await prisma.task.delete({ where: { id: taskId } });

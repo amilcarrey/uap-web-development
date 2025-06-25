@@ -9,8 +9,14 @@ export interface Tab {
 
 // Obtener todos los tableros
 async function fetchTabs(): Promise<Tab[]> {
-  const res = await fetch('http://localhost:4321/api/tabs');
-  if (!res.ok) throw new Error('Error al obtener tableros');
+  console.log('Ejecutando fetchTabs: consultando /api/boards');
+  const res = await fetch('http://localhost:3000/api/boards', {
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    console.log('Error al obtener tableros:', res.status);
+    throw new Error('Error al obtener tableros');
+  }
   const data = await res.json();
   // Extrae el array de la propiedad 'tabs'
   return data.tabs ?? [];
@@ -18,9 +24,10 @@ async function fetchTabs(): Promise<Tab[]> {
 
 // Crear tablero
 async function createTabRequest(title: string): Promise<Tab> {
-  const res = await fetch('http://localhost:4321/api/tabs', {
+  const res = await fetch('http://localhost:3000/api/boards', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', accept: 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ action: 'create', title }),
   });
   if (!res.ok) throw new Error('Error al crear tablero');
@@ -30,9 +37,10 @@ async function createTabRequest(title: string): Promise<Tab> {
 
 // Eliminar tablero
 async function deleteTabRequest(id: string): Promise<any> {
-  const res = await fetch('http://localhost:4321/api/tabs', {
+  const res = await fetch('http://localhost:3000/api/boards', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ action: 'delete', tabId: id }),
   });
   if (!res.ok) throw new Error('Error al eliminar tablero');
@@ -41,9 +49,10 @@ async function deleteTabRequest(id: string): Promise<any> {
 
 // Renombrar tablero
 async function renameTabRequest({ id, newTitle }: { id: string; newTitle: string }): Promise<Tab> {
-  const res = await fetch('http://localhost:4321/api/tabs', {
+  const res = await fetch('http://localhost:3000/api/boards', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ action: 'rename', tabId: id, newTitle: newTitle }),
   });
   if (!res.ok) throw new Error('Error al renombrar tablero');
@@ -57,6 +66,9 @@ export function useTabs() {
     queryKey: ['tabs'],
     queryFn: fetchTabs,
     initialData: [],
+    gcTime: 1,
+    staleTime: 1000,
+    refetchInterval: 10000, // Refrescar cada 10 segundos
   });
 }
 
