@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { agregarTablero, listarTableros, eliminarTablero, obtenerTablero, obtenerTableroPorId} from '../services/tablerosService';
+import { agregarTablero, listarTableros, eliminarTablero, obtenerTablero, obtenerTableroPorId, listarTablerosDeUsuario} from '../services/tablerosService';
 import { 
   compartirTablero as compartirTableroService, 
   obtenerUsuariosConAcceso, 
@@ -189,6 +189,8 @@ export async function compartirTablero(req: Request, res: Response) {
     const { alias } = req.params;
     const { emailUsuario } = req.body;
 
+    console.log('Rol recibido para compartir:', req.body.rol); // <-- LOG AQUÍ
+
     if (!emailUsuario) {
       return res.status(400).json({ error: "Email del usuario es requerido" });
     }
@@ -211,7 +213,7 @@ export async function compartirTablero(req: Request, res: Response) {
     }
 
     // Compartir el tablero usando el id real
-    const compartido = await compartirTableroService(tablero.id, usuario.id);
+    const compartido = await compartirTableroService(tablero.id, usuario.id, req.body.rol);
 
     if (!compartido) {
       return res.status(500).json({ error: "Error al compartir tablero" });
@@ -282,5 +284,16 @@ export async function revocarAccesoTablero(req: Request, res: Response) {
   } catch (error) {
     console.error('Error al revocar acceso:', error);
     res.status(500).json({ error: "Error al revocar acceso" });
+  }
+}
+
+// GET /mis-tableros - Listar tableros del usuario autenticado
+export async function getMisTableros(req: Request, res: Response) {
+  try {
+    const userId = (req as any).userId;
+    const tableros = await listarTablerosDeUsuario(userId);
+    res.json({ tableros });
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener tableros del usuario" });
   }
 }

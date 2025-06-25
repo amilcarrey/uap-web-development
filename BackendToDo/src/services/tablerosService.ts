@@ -50,3 +50,14 @@ export async function obtenerTableroPorId(id: string): Promise<Tablero | null> {
   const tableros = await db.query("SELECT * FROM tableros WHERE id = ?", [id]);
   return tableros.length > 0 ? tableros[0] as Tablero : null;
 }
+
+export async function listarTablerosDeUsuario(userId: string) {
+  return db.query(`
+    SELECT DISTINCT t.*
+    FROM tableros t
+    LEFT JOIN accesos_tablero a ON a.idTablero = t.id
+    WHERE t.propietarioId = ?
+       OR a.idUsuario = ?
+       OR t.publico = 1
+  `, [userId, userId]);
+}

@@ -48,6 +48,10 @@ export async function compartirTablero(tableroId: string, usuarioId: string, rol
     return true;
   } catch (error) {
     if (error instanceof Error && error.message.includes('UNIQUE constraint failed')) {
+      await db.run(
+        "UPDATE accesos_tablero SET rol = ? WHERE idTablero = ? AND idUsuario = ?",
+        [rol, tableroId, usuarioId]
+      );
       return true;
     }
     throw error;
@@ -101,16 +105,12 @@ export async function obtenerRolUsuario(usuarioId: string, tableroId: string): P
     [tableroId, usuarioId]
   );
     
-  if (esPropietario.length > 0) return 'propietario';
-  
   // 2. Verificar si tiene acceso compartido y su rol
   const acceso = await db.query(
     "SELECT rol FROM accesos_tablero WHERE idTablero = ? AND idUsuario = ?", 
     [tableroId, usuarioId]
   );
     
-  if (acceso.length > 0) return acceso[0].rol;
-  
   // 3. Verificar si es tablero público
   const esPublico = await db.query(
     "SELECT * FROM tableros WHERE id = ? AND publico = 1", 
@@ -118,8 +118,18 @@ export async function obtenerRolUsuario(usuarioId: string, tableroId: string): P
   );
 
 
-  if (esPublico.length > 0) return 'lector'; // Tableros públicos = solo lectura
-  
-    console.log('❌ Sin acceso al tablero');
+  if (esPropietario.length > 0) {
+    console.log('Rol detectado: propietario');
+    return 'propietario';
+  }
+  if (acceso.length > 0) {
+    console.log('Rol detectado:', acceso[0].rol);
+    return acceso[0].rol;
+  }
+  if (esPublico.length > 0) {
+    console.log('Rol detectado: lector (público)');
+    return 'lector';
+  }
+  console.log('❌ Sin acceso al tablero');
   return null; // Sin acceso
 }

@@ -10,12 +10,12 @@ interface TablerosResponse {
   tableros: Tablero[];
 }
 
-// Hook para obtener todos los tableros
+// Hook para obtener SOLO los tableros propios y compartidos
 export const useTableros = () => {
   return useQuery<TablerosResponse>({
     queryKey: ['tableros'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3001/api/tableros', {
+      const response = await fetch('http://localhost:3001/api/tableros/mios', {
         credentials: "include" 
       });
       if (!response.ok) throw new Error('Error al obtener tableros');

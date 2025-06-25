@@ -41,6 +41,7 @@ export function useAuth() {
     onSuccess: () => {
       setError(null);
       queryClient.invalidateQueries({ queryKey: ["auth-status"] });
+      queryClient.invalidateQueries({ queryKey: ["tableros"] }); 
       navigate({ to: "/tablero/$alias", params: { alias: "configuracion" } });
     },
     onError: (error: Error) => {

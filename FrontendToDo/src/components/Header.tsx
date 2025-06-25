@@ -50,15 +50,16 @@ const Header = ({ tableroNombre }: HeaderProps) => {
   });
 
   // Compartir tablero
-  const handleCompartir = async () => {
+  const handleCompartir = async (rol: 'lector' | 'editor') => {
     if (!usuarioSeleccionado) return;
     setCompartiendo(true);
+    console.log('Compartiendo con rol:', rol); // <-- LOG AQUÍ
     try {
       const res = await fetch(`http://localhost:3001/api/tableros/${aliasActual}/compartir`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ emailUsuario: usuarioSeleccionado, rol: 'editor' }),
+        body: JSON.stringify({ emailUsuario: usuarioSeleccionado, rol }),
       });
       const data = await res.json();
       if (data.success) {
@@ -118,7 +119,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
   const handleTableroClick = (alias: string) => {
     navigate({ to: '/tablero/$alias', params: { alias } });
   };
-console.log('authData:', authData);
+
   return (
     <>
       {/* Botón casita arriba a la izquierda */}
@@ -261,10 +262,17 @@ console.log('authData:', authData);
           <div className="flex gap-2">
             <button
               className="flex-1 bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
-              onClick={handleCompartir}
               disabled={!usuarioSeleccionado || compartiendo}
+              onClick={() => handleCompartir('lector')}
             >
-              {compartiendo ? 'Compartiendo...' : 'Compartir'}
+              Lectura
+            </button>
+            <button
+              className="flex-1 bg-green-500 text-white rounded px-4 py-2 hover:bg-green-600"
+              disabled={!usuarioSeleccionado || compartiendo}
+              onClick={() => handleCompartir('editor')}
+            >
+              Edición
             </button>
             <button
               className="flex-1 bg-gray-400 text-white rounded px-4 py-2 hover:bg-gray-500"

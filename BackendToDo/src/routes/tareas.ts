@@ -1,6 +1,6 @@
 import express from 'express';
 import { requireAuth, AuthRequest } from '../middleware/error.middleware';
-import { requirePermission } from '../middleware/authorization.middleware'; // DESCOMENTAR ESTA LÍNEA
+import { requirePermission } from '../middleware/authorization.middleware'; 
 import { 
   getTareas, 
   createTarea, 
@@ -19,10 +19,10 @@ router.get('/', getTareas); // Leer tareas: todos los que tengan acceso pueden v
 
 // Solo propietario/editor pueden crear, editar, eliminar, marcar tareas
 router.post('/', requirePermission('escribir'), createTarea);
-router.post('/filtro', filtrarTareas);
-router.delete('/completadas', requirePermission('escribir'), deleteCompletadas);
-router.put('/:id/toggle', requirePermission('escribir'), toggleTarea);
-router.delete('/:id', requirePermission('escribir'), deleteTarea);
 router.put('/:id', requirePermission('escribir'), updateDescripcionTarea);
+router.delete('/:id', requirePermission('escribir'), deleteTarea);
+router.put('/:id/toggle', requirePermission('escribir'), toggleTarea);
+router.delete('/completadas', requirePermission('escribir'), deleteCompletadas);
+router.post('/filtro', filtrarTareas);
 
 export default router;

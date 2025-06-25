@@ -9,7 +9,8 @@ import {
   deleteTablero,
   compartirTablero, 
   obtenerUsuariosTablero, 
-  revocarAccesoTablero
+  revocarAccesoTablero,
+  getMisTableros
 } from '../controllers/tablerosController';
 import { soloPropietario } from '../middleware/authorization.middleware';
 
@@ -17,6 +18,7 @@ const router = express.Router();
 router.use(requireAuth); // Solo autenticación básica
 
 // Rutas simplificadas
+router.get('/mios', getMisTableros);
 router.get('/', getTableros);
 router.post('/', createTablero);
 router.get('/:alias', getTableroPorAlias); 
