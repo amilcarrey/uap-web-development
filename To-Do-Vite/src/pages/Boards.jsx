@@ -137,7 +137,7 @@ const Boards = () => {
     setFilter(newFilter);
   };
 
-  const boardsPerPage = 4;
+  const boardsPerPage = 6;
   const filteredBoards = boards.filter(board => {
     const matchesCategory = filter === 'all' || board.category === filter;
     const matchesSearch = !searchTerm || board.name.toLowerCase().includes(searchTerm.toLowerCase());

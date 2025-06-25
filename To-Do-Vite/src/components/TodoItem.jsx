@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { FaEdit, FaCheck, FaTimes, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaCheck, FaTimes, FaTrash, FaRegCircle } from 'react-icons/fa';
 import { useUserSettings } from '../hooks/useSettings';
 import { Check, Edit, Trash2, X, Save } from 'lucide-react';
 
@@ -96,7 +96,7 @@ export default function TodoItem({
           } disabled:opacity-50 disabled:cursor-not-allowed`}
           title={todo.completed ? 'Desmarcar tarea' : 'Completar tarea'}
         >
-          {todo.completed && <FaCheck size={12} />}
+          {todo.completed ? <FaCheck size={12} /> : null}
         </button>
         
         <span
