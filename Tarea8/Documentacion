@@ -1,0 +1,106 @@
+# Tarea 8 
+
+## ¿De qué se trata?
+
+Esta es una aplicación web donde podés crear tableros (tipo Trello), compartirlos con otros usuarios y trabajar juntos en tareas. Cada usuario puede tener distintos permisos (owner, editor, viewer) y todo está protegido con login y roles.
+
+---
+
+## Backend (carpeta `Backend`)
+
+### ¿Qué usé?
+
+- Node.js con Express
+- Prisma + SQLite para la base de datos
+- JWT para autenticación
+- CORS, validaciones y manejo de errores
+
+### ¿Cómo se usa?
+
+1. **Instalá las dependencias:**
+   ```sh
+   cd Backend
+   npm install
+   ```
+
+2. **Configurá el entorno:**
+   - Creá un archivo `.env` en la carpeta Backend con:
+     ```
+     JWT_SECRET=loquesea123
+     ```
+
+3. **Migrá la base de datos:**
+   ```sh
+   npx prisma migrate dev --name init
+   ```
+
+4. **Arrancá el backend:**
+   ```sh
+   npm run dev
+   ```
+   El backend queda en [http://localhost:4321](http://localhost:4321).
+
+### Endpoints importantes
+
+- **Auth:** `/api/auth/register`, `/api/auth/login`, `/api/auth/logout`
+- **Tableros:** `/api/boards`, `/api/boards/:id`, `/api/boards/:id/share`, `/api/boards/:id/permissions/:userId`
+- **Tareas:** `/api/tasks`, `/api/tasks/:id`, `/api/tasks/clear-completed`
+- **Configuración:** `/api/settings`
+
+> Todos los endpoints protegidos requieren estar logueado.
+
+---
+
+## Frontend (carpeta `TareaReact`)
+
+### ¿Qué usé?
+
+- React + Vite + TypeScript
+- Zustand para estado global
+- React Query para fetch y caché
+- TailwindCSS para estilos
+
+### ¿Cómo se usa?
+
+1. **Instalá las dependencias:**
+   ```sh
+   cd TareaReact
+   npm install
+   ```
+
+2. **Arrancá el frontend:**
+   ```sh
+   npm run dev
+   ```
+   El frontend queda en [http://localhost:5173](http://localhost:5173).
+
+### ¿Qué se puede hacer?
+
+- Registrarse y loguearse (con cookies seguras)
+- Crear tableros, compartirlos, cambiar/quitar permisos
+- Agregar, editar, borrar y buscar tareas
+- Filtrar tareas (todas, activas, completadas)
+- Borrar todas las tareas completadas de un tablero
+- Cambiar preferencias personales (intervalo de refresco, modo de vista)
+- Ver mensajes de error claros si algo sale mal
+
+---
+
+## ¿Cómo probar todo?
+
+1. Arrancá el backend y el frontend como se explicó arriba.
+2. Registrate con un mail, logueate y empezá a crear tableros.
+3. Probá compartir un tablero con otro usuario (usá otro mail).
+4. Jugá con los permisos: cambiá roles, quitá usuarios, etc.
+5. Agregá tareas, marcá como completadas, filtrá y probá borrar en lote.
+
+---
+
+## Notas y tips
+
+- Si cambiás el puerto del backend, cambiá la variable `BACKEND_URL` en el frontend.
+- Si querés arrancar de cero, borrá el archivo `database.sqlite` y corré las migraciones de nuevo.
+- Si algo falla, mirá la consola del navegador o del backend para ver el error.
+
+---
+

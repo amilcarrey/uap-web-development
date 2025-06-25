@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../Backend/db/database.sqlite"
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  boards       Board[]   @relation("OwnerBoards")
+  permissions  BoardPermission[]
+  settings     UserSetting[]
+  tasks        Task[]    
+}
+
+model Board {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String?
+  ownerId     Int
+  owner       User              @relation("OwnerBoards", fields: [ownerId], references: [id])
+  permissions BoardPermission[]
+  tasks       Task[]
+  createdAt   DateTime          @default(now())
+}
+
+model BoardPermission {
+  id      Int    @id @default(autoincrement())
+  board   Board  @relation(fields: [boardId], references: [id])
+  boardId Int
+  user    User   @relation(fields: [userId], references: [id])
+  userId  Int
+  role    String // 'owner', 'editor', 'viewer'
+  @@unique([boardId, userId])
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  board       Board    @relation(fields: [boardId], references: [id])
+  boardId     Int
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  title       String
+  description String?
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserSetting {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int     @unique   
+  autoRefreshInterval Int? 
+  viewMode  String? 
+}

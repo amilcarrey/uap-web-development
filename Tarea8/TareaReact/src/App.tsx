@@ -1,14 +1,16 @@
 import { useState, type FormEvent } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTasks, type Filter} from './hooks/useTasks'
-import { toast } from 'react-hot-toast'
 import { useSettingsStore } from "./stores/settings";
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { TaskItem } from './components/TaskItem'
 import { SettingsModal } from './components/SettingsModal'
+import ToastContainer from './components/ToastContainer';
+import { useAddTaskMutation } from './hooks/useAddTaskMutation';
+import { useDeleteTaskMutation } from './hooks/useDeleteTaskMutation';
+import { useToggleTaskMutation } from './hooks/useToggleTaskMutation';
+import { useClearCompletedMutation } from './hooks/useClearCompletedMutation';
 
-const BACKEND_URL = 'http://localhost:4321/api'
 
 function App() {
   const [newTask, setNewTask] = useState('')
@@ -27,41 +29,14 @@ function App() {
 
   if (!boardId) return null
 
-
-  const queryClient = useQueryClient()
-
-
-
-
   // Usamos el hook personalizado
   const { data, isLoading, isError, error } = useTasks({ boardId, filter, page, limit, refetchInterval })
 
   const tasks = data?.tasks ?? []
   const totalPages = data?.totalPages ?? 1
 
-  // Mutación para agregar tareas
-  const addTaskMutation = useMutation({
-    mutationFn: async (task: string) => {
-      const formData = new FormData()
-      formData.append('task', task)
-      formData.append('boardId', boardId)
-
-      const res = await fetch(`${BACKEND_URL}/add-task`, {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!res.ok) throw new Error('Error al agregar la tarea')
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', filter, page, limit] })
-      setNewTask('')
-      toast.success('Tarea agregada')
-    },
-    onError: () => {
-      toast.error('Error al agregar la tarea')
-    },
-  })
+  // Hook para agregar tareas
+  const addTaskMutation = useAddTaskMutation(boardId, filter, page, limit, setNewTask)
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     const trimmed = newTask.trim()
@@ -69,70 +44,14 @@ function App() {
     addTaskMutation.mutate(trimmed)
   }
 
-  const toggleTaskMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const formData = new FormData()
-      formData.append('id', id.toString())
-      formData.append('action', 'toggle')
-      formData.append('boardId', boardId)
+  // Hook para cambiar el estado de las tareas
+  const toggleTaskMutation = useToggleTaskMutation(boardId, filter, page, limit)
+  
+  // Hook para eliminar tareas
+  const deleteTaskMutation = useDeleteTaskMutation(boardId, filter, page, limit)
 
-      const res = await fetch(`${BACKEND_URL}/update-task`, {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!res.ok) throw new Error('Error al cambiar el estado de la tarea')
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', filter, page, limit] })
-      toast.success('Estado de tarea cambiado')
-    },
-    onError: () => {
-      toast.error('Error al cambiar el estado de la tarea')
-    },
-  })
-
-  const deleteTaskMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const formData = new FormData()
-      formData.append('id', id.toString())
-      formData.append('action', 'delete')
-      formData.append('boardId', boardId)
-
-      const res = await fetch(`${BACKEND_URL}/update-task`, {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!res.ok) throw new Error('Error al eliminar la tarea')
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', filter, page, limit] })
-      toast.success('Tarea eliminada')
-    },
-    onError: () => {
-      toast.error('Error al eliminar la tarea')
-    },
-  })
-
-  const clearCompletedMutation = useMutation({
-    mutationFn: async () => {
-      const formData = new FormData()
-      formData.append('boardId', boardId)
-      const res = await fetch(`${BACKEND_URL}/clear-completed`, {
-        method: 'POST',
-      })
-
-      if (!res.ok) throw new Error('Error al borrar tareas completadas')
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', filter, page, limit] })
-      toast.success('Tareas completadas borradas')
-    },
-    onError: () => {
-      toast.error('Error al borrar tareas completadas')
-    },
-  })
+  // Hook para limpiar tareas completadas
+  const clearCompletedMutation = useClearCompletedMutation(boardId, filter, page, limit)
 
   const handleFilterChange = (newFilter: Filter) => {
     setFilter(newFilter)
@@ -205,7 +124,7 @@ function App() {
                 className="bg-gray-100 mb-2 p-5 rounded-lg flex items-center gap-4"
               >
                 <button
-                  onClick={() => toggleTaskMutation.mutate(task.id)}
+                  onClick={() => toggleTaskMutation.mutate(task)}
                   className="text-xl cursor-pointer transition-transform transform hover:scale-110"
                 >
                   {task.completed ? '✅' : '⬜'}
@@ -280,6 +199,7 @@ function App() {
           </button>
         </div>
       </div>
+      <ToastContainer />
     </div>
   )
 }
