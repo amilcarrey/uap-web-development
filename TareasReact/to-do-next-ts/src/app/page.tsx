@@ -35,9 +35,10 @@ export default function HomePage() {
   const [mostrarGestionPermisos, setMostrarGestionPermisos] = useState(false);
   const [mostrarCompartir, setMostrarCompartir] = useState(false);
   const [mostrarConfig, setMostrarConfig] = useState(false);
+  const [busqueda, setBusqueda] = useState('');
 
   const { tableros, crearTablero, eliminarTablero, isLoading } = useTableros();
-  const tareasQuery = useTareas(filtro, pagina, tableroId);
+  const tareasQuery = useTareas(filtro, pagina, tableroId, busqueda);
   const agregarTarea = useAgregarTarea(filtro, pagina, tableroId || '');
   const toggleTarea = useToggleTarea(filtro, pagina, tableroId || '');
   const borrarTarea = useBorrarTarea(filtro, pagina, tableroId || '');
@@ -440,6 +441,17 @@ export default function HomePage() {
                 </button>
               </div>
             )}
+
+            <input
+              type="text"
+              placeholder="Buscar tareas..."
+              value={busqueda}
+              onChange={(e) => {
+                setBusqueda(e.target.value);
+                setPagina(1); // reiniciar a la página 1 si se busca algo
+              }}
+              className="w-full border px-3 py-2 rounded mt-4"
+            />
 
             {/* filtros de tareas */}
             <Filtros filtroActual={filtro} onChange={setFiltro} />

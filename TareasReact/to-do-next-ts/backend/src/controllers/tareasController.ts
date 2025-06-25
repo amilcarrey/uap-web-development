@@ -4,7 +4,8 @@ import { randomUUID } from 'crypto'
 
 // trae las tareas según filtro, paginado y tablero
 export const obtenerTareas = (req: Request, res: Response): void => {
-  const { filtro = 'todas', pagina = '1', limit = '5', tableroId } = req.query
+  const { filtro = 'todas', pagina = '1', limit = '5', tableroId, busqueda = '' } = req.query;
+
 
   // si no viene el id del tablero, corto
   if (!tableroId || typeof tableroId !== 'string') {
@@ -26,29 +27,40 @@ export const obtenerTareas = (req: Request, res: Response): void => {
   const offset = (paginaNumero - 1) * limitNumero
 
   // armo el where según filtro
-  let where = 'WHERE tableroId = ?'
+  let where = 'WHERE tableroId = ?';
+  const params: any[] = [tableroId];
+
   if (filtro === 'completas') {
-    where += ' AND completada = 1'
+    where += ' AND completada = 1';
   } else if (filtro === 'incompletas') {
-    where += ' AND completada = 0'
+    where += ' AND completada = 0';
   }
+
+  if (busqueda) {
+    where += ' AND texto LIKE ?';
+    params.push(`%${busqueda}%`);
+  }
+
+  params.push(limitNumero, offset); // para el LIMIT y OFFSET
 
   try {
     // traigo las tareas
     const stmt = db.prepare(`
-      SELECT * FROM tareas ${where}
-      ORDER BY id DESC
-      LIMIT ? OFFSET ?
-    `)
-    const tareas = stmt.all(tableroId, limitNumero, offset).map((t: any) => ({
+    SELECT * FROM tareas ${where}
+    ORDER BY id DESC
+    LIMIT ? OFFSET ?
+  `);
+    const tareas = stmt.all(...params).map((t: any) => ({
       ...t,
       completada: Boolean(t.completada),
-    }))
+    }));
+
 
     // traigo el total para la paginación
-    const totalResult = db.prepare(`
-      SELECT COUNT(*) as total FROM tareas ${where}
-    `).get(tableroId) as { total: number }
+      const countParams = busqueda ? [tableroId, `%${busqueda}%`] : [tableroId];
+  const totalResult = db.prepare(`
+    SELECT COUNT(*) as total FROM tareas ${where.replace('LIMIT ? OFFSET ?', '')}
+  `).get(...countParams) as { total: number };
 
     res.json({ tareas, total: totalResult.total })
   } catch (error) {

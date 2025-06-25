@@ -6,19 +6,21 @@ import { API } from '@/lib/api'
 export const useTareas = (
   filtro: string,
   pagina: number,
-  tableroId: string | null
+  tableroId: string | null,
+  busqueda: string = ''
 ) => {
+
   const refetchInterval = useConfigStore((state) => state.refetchInterval)
   const tareasPorPagina = useConfigStore((state) => state.tareasPorPagina)
 
-  return useQuery({
-    queryKey: ['tareas', filtro, pagina, tableroId, tareasPorPagina], // cache por filtro, pag y tablero
+    return useQuery({
+    queryKey: ['tareas', filtro, pagina, tableroId, tareasPorPagina, busqueda],
     queryFn: async () => {
-      // pido las tareas al backend
       const res = await fetch(
-        `${API}/api/tareas?filtro=${filtro}&pagina=${pagina}&limit=${tareasPorPagina}&tableroId=${tableroId}`,
+        `${API}/api/tareas?filtro=${filtro}&pagina=${pagina}&limit=${tareasPorPagina}&tableroId=${tableroId}&busqueda=${encodeURIComponent(busqueda)}`,
         { credentials: 'include' }
       )
+
 
       if (!res.ok) throw new Error('Error al cargar tareas')
 
