@@ -1,4 +1,9 @@
-# Task Manager App - Proyecto de Gestión de Tareas y Tableros
+# TO-DO LIST -Proyecto de Gestión de Tareas y Tableros
+
+## Importante
+Para entrar y ver tableros y tareas:
+usuario: aguswaigel34@gmail.com
+contraseña: a
 
 ## Descripción general
 
