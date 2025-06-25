@@ -1,34 +1,5 @@
 import { create } from 'zustand';
 
-// Helpers para persistencia
-const BOARDS_KEY = 'boards';
-const ACTIVE_BOARD_KEY = 'activeBoard';
-
-const loadBoards = () => {
-  try {
-    const saved = localStorage.getItem(BOARDS_KEY);
-    return saved ? JSON.parse(saved) : [];
-  } catch {
-    return [];
-  }
-};
-
-const saveBoards = (boards) => {
-  localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
-};
-
-const loadActiveBoard = () => {
-  try {
-    return localStorage.getItem(ACTIVE_BOARD_KEY) || null;
-  } catch {
-    return null;
-  }
-};
-
-const saveActiveBoard = (id) => {
-  localStorage.setItem(ACTIVE_BOARD_KEY, id || '');
-};
-
 export const useClientStore = create((set, get) => ({
   modals: {
     isAddTaskModalOpen: false,
@@ -44,29 +15,19 @@ export const useClientStore = create((set, get) => ({
     tasksPerPage: 5,
   },
 
-  boards: loadBoards(),
-  activeBoard: loadActiveBoard(),
+  boards: [],
+  activeBoard: null,
 
-  setActiveBoard: (boardId) => {
-    saveActiveBoard(boardId);
-    set({ activeBoard: boardId });
-  },
-  addBoard: (board) => {
-    const boards = [...get().boards, board];
-    saveBoards(boards);
-    saveActiveBoard(board.id);
-    set({ boards, activeBoard: board.id });
-  },
-  removeBoard: (boardId) => {
-    const newBoards = get().boards.filter(board => board.id !== boardId);
-    saveBoards(newBoards);
+  setActiveBoard: (boardId) => set({ activeBoard: boardId }),
+  addBoard: (board) => set((state) => ({
+    boards: [...state.boards, board],
+    activeBoard: board.id
+  })),
+  removeBoard: (boardId) => set((state) => {
+    const newBoards = state.boards.filter(board => board.id !== boardId);
     const newActive = newBoards.length > 0 ? newBoards[0].id : null;
-    saveActiveBoard(newActive);
-    set({
-      boards: newBoards,
-      activeBoard: newActive
-    });
-  },
+    return { boards: newBoards, activeBoard: newActive };
+  }),
   openBoardModal: () => set((state) => ({
     modals: { ...state.modals, isBoardModalOpen: true }
   })),
@@ -109,6 +70,7 @@ export const useClientStore = create((set, get) => ({
   resetPagination: () => set((state) => ({
     pagination: { ...state.pagination, currentPage: 1 }
   })),
+  resetBoards: () => set({ boards: [], activeBoard: null }),
 
   // Configuración global
   settings: {

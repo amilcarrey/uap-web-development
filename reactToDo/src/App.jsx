@@ -26,17 +26,6 @@ export default function App() {
   const board = useMemo(() => boards.find(b => b.id === activeBoard), [boards, activeBoard]);
   const categories = board?.categories || [];
 
-  // Si no hay boards, muestra solo el modal para crear uno
-  if (!activeBoard) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
-        <BoardSwitcher />
-        <BoardModal />
-        <p className="text-gray-500 mt-4">Crea un board para comenzar.</p>
-      </div>
-    );
-  }
-
   // Si no hay tab activo, selecciona el primero
   if (!activeTab && categories.length > 0) {
     setActiveTab(categories[0]);
@@ -67,6 +56,17 @@ export default function App() {
 
   if (!isAuthenticated) {
     return <AuthForm onAuthSuccess={() => setIsAuthenticated(true)} />;
+  }
+
+  // Si no hay boards, muestra solo el modal para crear uno
+  if (!activeBoard) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
+        <BoardSwitcher />
+        <BoardModal />
+        <p className="text-gray-500 mt-4">Crea un board para comenzar.</p>
+      </div>
+    );
   }
 
   return (

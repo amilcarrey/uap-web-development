@@ -6,6 +6,7 @@ require('dotenv').config();
 const sequelize = require('./config/database');
 const taskRoutes = require('./routes/taskRoutes');
 const authRoutes = require('./routes/authRoutes');
+const boardRoutes = require('./routes/boardRoutes');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(cookieParser());
 
 app.use('/api/tasks', taskRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/boards', boardRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });

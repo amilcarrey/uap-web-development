@@ -14,7 +14,6 @@ export default function AuthForm({ onAuthSuccess }) {
     setSuccess('');
     setUsername('');
     setPassword('');
-    setEmail('');
     setConfirm('');
   };
 
@@ -27,9 +26,7 @@ export default function AuthForm({ onAuthSuccess }) {
       return;
     }
     const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
-    const body = mode === 'login'
-      ? { username, password }
-      : { username, password }; // agrega email si lo usas en backend
+    const body = { username, password };
 
     const res = await fetch(`http://localhost:4000${endpoint}`, {
       method: 'POST',
@@ -37,18 +34,17 @@ export default function AuthForm({ onAuthSuccess }) {
       credentials: 'include',
       body: JSON.stringify(body),
     });
+
     const data = await res.json();
     if (!res.ok) {
       setError(data.error || 'Error');
     } else {
       setUsername('');
       setPassword('');
-      setEmail('');
       setConfirm('');
       if (mode === 'login') {
         onAuthSuccess && onAuthSuccess();
       } else {
-        // Opcional: muestra mensaje de éxito o cambia a la pestaña de login
         setMode('login');
         setSuccess('¡Registro exitoso! Ahora inicia sesión.');
       }
