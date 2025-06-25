@@ -1,10 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useBoards() {
-  return useQuery(['boards'], async () => {
-    const res = await fetch('http://localhost:4000/api/boards', { credentials: 'include' });
-    if (!res.ok) throw new Error('No autorizado');
-    return res.json();
+  return useQuery({
+    queryKey: ['boards'],
+    queryFn: async () => {
+      const res = await fetch('http://localhost:4000/api/boards', { credentials: 'include' });
+      if (!res.ok) throw new Error('No autorizado');
+      return res.json();
+    }
   });
 }
 
@@ -19,10 +22,11 @@ export function useCreateBoard() {
         body: JSON.stringify({ name }),
       });
       if (!res.ok) throw new Error('Error al crear board');
-      return res.json();
+      return res.json(); // <-- Esto retorna el board creado
     },
-    onSuccess: () => {
+    onSuccess: (board) => {
       queryClient.invalidateQueries(['boards']);
+      // No hagas nada más aquí, el board se pasa al onSuccess del componente
     },
   });
 }

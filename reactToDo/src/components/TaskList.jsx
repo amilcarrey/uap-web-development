@@ -2,7 +2,7 @@ import { useTasksByCategory, useTaskMutations } from '../hooks/useTasks';
 import { useClientStore } from '../stores/clientStore';
 
 // Actualizar para usar boardId
-export default function TaskList({ category, filter, boardId }) {
+export default function TaskList({ category, boardId, filter }) {
   const { data: tasks = [], isLoading, error } = useTasksByCategory(category, boardId);
   const { toggleTask, deleteTask } = useTaskMutations();
   const { 
@@ -66,7 +66,8 @@ export default function TaskList({ category, filter, boardId }) {
                 onChange={() => toggleTask.mutate({
                   id: task.id,
                   completed: !task.completed,
-                  category
+                  category,
+                  boardId
                 })}
                 disabled={toggleTask.isPending}
                 className="h-5 w-5 mr-3 rounded border-gray-300 text-blue-500 focus:ring-blue-500 disabled:opacity-50"

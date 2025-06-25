@@ -7,29 +7,39 @@ import NotificationList from './components/NotificationList';
 import BoardSwitcher from './components/BoardSwitcher';
 import BoardModal from './components/BoardModal';
 import Settings from './components/Settings';
-import { useClientStore } from './stores/clientStore';
 import AuthForm from './components/AuthForm';
+import { useBoards } from './hooks/useBoards';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('');
   const [filter, setFilter] = useState('all');
   const [showSettings, setShowSettings] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { activeBoard, boards } = useClientStore();
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [activeBoard, setActiveBoard] = useState(null);
+  const [showBoardModal, setShowBoardModal] = useState(false);
+
+  const { data: boards = [], isLoading: loadingBoards } = useBoards({ enabled: isAuthenticated });
 
   useEffect(() => {
     fetch('http://localhost:4000/api/tasks', { credentials: 'include' })
-      .then(res => setIsAuthenticated(res.ok));
+      .then(res => setIsAuthenticated(res.ok))
+      .catch(() => setIsAuthenticated(false));
   }, []);
 
-  // Encuentra el board activo y sus categorías
   const board = useMemo(() => boards.find(b => b.id === activeBoard), [boards, activeBoard]);
   const categories = board?.categories || [];
 
-  // Si no hay tab activo, selecciona el primero
-  if (!activeTab && categories.length > 0) {
-    setActiveTab(categories[0]);
-  }
+  useEffect(() => {
+    if (!activeTab && categories.length > 0) {
+      setActiveTab(categories[0]);
+    }
+  }, [categories, activeTab]);
+
+  useEffect(() => {
+    if (!activeBoard && boards.length > 0) {
+      setActiveBoard(boards[0].id);
+    }
+  }, [boards, activeBoard]);
 
   const handleLogout = async () => {
     await fetch('http://localhost:4000/api/auth/logout', {
@@ -37,7 +47,8 @@ export default function App() {
       credentials: 'include',
     });
     setIsAuthenticated(false);
-    // Opcional: aquí puedes limpiar el estado de boards/tareas si lo deseas
+    setActiveBoard(null);
+    setActiveTab('');
   };
 
   if (showSettings) {
@@ -54,16 +65,25 @@ export default function App() {
     );
   }
 
+  if (isAuthenticated === null) {
+    return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
+  }
+
   if (!isAuthenticated) {
     return <AuthForm onAuthSuccess={() => setIsAuthenticated(true)} />;
   }
 
-  // Si no hay boards, muestra solo el modal para crear uno
-  if (!activeBoard) {
+  if (loadingBoards) {
+    return <div className="min-h-screen flex items-center justify-center">Cargando boards...</div>;
+  }
+
+  if (boards.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
-        <BoardSwitcher />
-        <BoardModal />
+        <BoardModal
+          onClose={null}
+          setActiveBoard={setActiveBoard}
+        />
         <p className="text-gray-500 mt-4">Crea un board para comenzar.</p>
       </div>
     );
@@ -94,7 +114,13 @@ export default function App() {
             </div>
           </div>
           
-          <BoardSwitcher />
+          <BoardSwitcher activeBoard={activeBoard} setActiveBoard={setActiveBoard} />
+          <button
+            className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
+            onClick={() => setShowBoardModal(true)}
+          >
+            Administrar Boards
+          </button>
           
           <Tabs 
             activeTab={activeTab} 
@@ -119,7 +145,12 @@ export default function App() {
         </div>
       </div>
       
-      <BoardModal />
+      {showBoardModal && (
+        <BoardModal
+          onClose={() => setShowBoardModal(false)}
+          setActiveBoard={setActiveBoard}
+        />
+      )}
     </div>
   );
 }
