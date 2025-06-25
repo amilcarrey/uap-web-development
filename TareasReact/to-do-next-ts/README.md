@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Task Manager App - Proyecto de Gestión de Tareas y Tableros
 
-## Getting Started
+## Descripción general
 
-First, run the development server:
+Aplicación de gestión de tareas multiusuario con control de acceso. Permite crear tableros colaborativos, agregar tareas, compartirlos con diferentes niveles de permisos y configurar preferencias personales. Desarrollada con una arquitectura cliente-servidor que integra React en el frontend y Express con SQLite en el backend.
+
+---
+
+## Funcionalidades principales
+
+### Autenticación y seguridad
+- Registro e inicio de sesión de usuarios
+- Autenticación con JWT en cookies HTTP-only
+- Protección de rutas mediante middleware
+- Cierre de sesión seguro
+
+### Tareas
+- Crear, editar, eliminar tareas
+- Marcar tareas como completadas o pendientes
+- Borrar tareas completadas en lote
+- Paginación, filtrado por estado y búsqueda por texto
+
+### Tableros
+- Crear, editar, eliminar tableros
+- Compartir tableros con otros usuarios a traves del email registrado
+- Asignar y modificar roles: propietario, editor, lector
+- Listar usuarios con acceso y sus roles
+
+### Configuración de usuario
+- Intervalo de actualización automática de tareas
+- Cantidad de tareas por página
+- Visualización en mayúsculas
+- Configuración persistente en la base de datos
+
+---
+
+## Documentación de la API REST
+
+### Autenticación (`/api/auth`)
+- `POST /registro`: Crear usuario
+- `POST /login`: Iniciar sesión
+- `POST /logout`: Cerrar sesión
+- `GET /test`: Verificar token y obtener datos del usuario
+
+### Tareas (`/api/tareas`)
+- `GET /`: Obtener tareas con filtros (`?filtro=&pagina=&limit=&tableroId=`)
+- `POST /`: Crear nueva tarea
+- `PUT /:id`: Editar texto de una tarea
+- `PUT /:id/toggle`: Cambiar estado completado
+- `DELETE /:id`: Borrar una tarea
+- `DELETE /limpiar/:tableroId`: Borrar tareas completadas de un tablero
+
+### Tableros (`/api/tableros`)
+- `GET /`: Obtener tableros del usuario
+- `POST /`: Crear nuevo tablero
+- `GET /:id`: Obtener tablero por ID (si tiene permiso)
+- `PUT /:id`: Editar nombre del tablero
+- `DELETE /:id`: Eliminar tablero (solo propietario)
+- `POST /compartir`: Compartir tablero con usuario
+- `PUT /modificarPermiso`: Modificar rol de usuario compartido
+- `GET /:id/usuarios`: Obtener lista de usuarios con acceso al tablero
+
+### Configuración (`/api/config`)
+- `GET /`: Obtener configuración del usuario actual
+- `PUT /`: Guardar configuración del usuario actual
+
+---
+
+## Instrucciones para ejecución local
+
+### 1. Clonar el repositorio
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <URL-del-repo>
+cd TareasReact/to-do-next-ts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Backend
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Base de datos SQLite se crea automáticamente en `data/database.db`.
 
-## Learn More
+### 3. Frontend
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+cd ../
+npm install
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Abrir en navegador: `http://localhost:3000`

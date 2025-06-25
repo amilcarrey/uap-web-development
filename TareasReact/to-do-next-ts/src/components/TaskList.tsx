@@ -1,7 +1,7 @@
 'use client';
 
 import TaskItem from './TaskItem';
-
+import { useConfigStore } from '@/stores/configStore';
 type Tarea = {
   id: string;
   texto: string;
@@ -20,6 +20,7 @@ type Props = {
 
 
 export default function TaskList({ tareas, onToggle, onDelete, onEdit, isLoading, rol }: Props) {
+  const { mayusculas } = useConfigStore();
   if (isLoading) {
     return <p className="text-gray-500">Cargando tareas...</p>;
   }
@@ -29,12 +30,16 @@ export default function TaskList({ tareas, onToggle, onDelete, onEdit, isLoading
       {tareas.map((tarea) => (
         <TaskItem
           key={tarea.id}
-          tarea={tarea}
+          tarea={{
+            ...tarea,
+            texto: mayusculas ? tarea.texto.toUpperCase() : tarea.texto,
+          }}
           onToggle={onToggle}
           onDelete={onDelete}
           onEdit={onEdit}
           puedeEditar={rol === 'propietario' || rol === 'editor'}
         />
+
       ))}
     </div>
   );

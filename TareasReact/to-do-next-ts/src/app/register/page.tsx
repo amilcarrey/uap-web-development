@@ -10,14 +10,9 @@ export default function RegistrarsePage() {
     const [mensaje, setMensaje] = useState('');
     const router = useRouter();
 
-    // setError simply sets the mensaje state
-    function setError(msg: string) {
-        setMensaje(msg);
-    }
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
+        setMensaje('');
 
         try {
             const res = await fetch('http://localhost:4000/api/auth/registro', {
@@ -28,55 +23,68 @@ export default function RegistrarsePage() {
 
             if (!res.ok) {
                 const data = await res.json();
-                setError(data.error || 'Error desconocido');
+                setMensaje(data.error || 'Error desconocido');
                 return;
             }
 
-            // Redirigir al login
             router.push('/login');
         } catch (err) {
-            console.error('Error al registrar:', err);
-            setError('No se pudo conectar con el servidor');
+            setMensaje('No se pudo conectar con el servidor');
         }
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-4 bg-white rounded shadow">
-            <h1 className="text-xl font-bold mb-4 text-gray-600">Registrarse</h1>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                <input
-                    type="text"
-                    placeholder="Nombre"
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                    className="border px-3 py-2 rounded text-gray-600"
-                    required
-                />
-                <input
-                    type="email"
-                    placeholder="Correo electrónico"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="border px-3 py-2 rounded text-gray-600"
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Contraseña"
-                    value={contraseña}
-                    onChange={(e) => setContraseña(e.target.value)}
-                    className="border px-3 py-2 rounded text-gray-600"
-                    required
-                />
-                <button type="submit" className="bg-cyan-700 text-white py-2 rounded">
-                    Registrarme
-                </button>
-            </form>
-            {mensaje && <p className="mt-4 text-sm text-center">{mensaje}</p>}
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-100">
+            <div className="w-full max-w-md bg-white/90 rounded-xl shadow-xl p-8">
+                <div className="flex flex-col items-center mb-6">
+                    <h1 className="text-2xl font-bold text-cyan-700 mb-1">Crear cuenta</h1>
+                    <p className="text-gray-500 text-sm">Registrate para comenzar a organizar tus tareas</p>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <input
+                        type="text"
+                        placeholder="Nombre"
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
+                        className="w-full px-4 py-2 border border-cyan-200 rounded focus:outline-none focus:ring-2 focus:ring-cyan-400 transition text-gray-600"
+                        required
+                    />
+                    <input
+                        type="email"
+                        placeholder="Correo electrónico"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-4 py-2 border border-cyan-200 rounded focus:outline-none focus:ring-2 focus:ring-cyan-400 transition text-gray-600"
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="Contraseña"
+                        value={contraseña}
+                        onChange={(e) => setContraseña(e.target.value)}
+                        className="w-full px-4 py-2 border border-cyan-200 rounded focus:outline-none focus:ring-2 focus:ring-cyan-400 transition text-gray-600"
+                        required
+                    />
+                    <button
+                        type="submit"
+                        className="w-full bg-cyan-700 text-white font-semibold py-2 rounded hover:bg-cyan-800 transition"
+                    >
+                        Registrarme
+                    </button>
+                </form>
+                {mensaje && (
+                    <p className={`mt-4 text-sm text-center ${mensaje.includes('Error') || mensaje.includes('No se pudo') ? 'text-red-600' : 'text-green-600'}`}>
+                        {mensaje}
+                    </p>
+                )}
+                <div className="mt-6 text-center text-sm text-gray-600">
+                    ¿Ya tenés cuenta?{' '}
+                    <a href="/login" className="text-cyan-700 hover:underline font-medium">
+                        Iniciar sesión
+                    </a>
+                </div>
+            </div>
         </div>
     );
-}
-function setError(arg0: string) {
-    throw new Error('Function not implemented.');
 }
 
