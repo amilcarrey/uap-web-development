@@ -87,7 +87,9 @@ export const checkCategoryExistsHandler = async (req: Request, res: Response) =>
 };
 
 export const shareCategoryHandler = async (req: Request, res: Response) => {
-  const { categoryId, userEmail, role } = req.body;
+  const { id: categoryId } = req.params; // ID de la categoría desde los parámetros de la ruta
+  // En el body email del usuario y el rol
+  const { userEmail, role } = req.body;
   const user = req.user as { id: string };
 
   try {
@@ -98,9 +100,9 @@ export const shareCategoryHandler = async (req: Request, res: Response) => {
   }
 }
 
-// Permisos de una cat
+// Permisos de una categoria
 export const getCategoryPermissionsHandler = async (req: Request, res: Response) => {
-  const { categoryId, id } = req.params;
+  const { id: categoryId } = req.params;
   const user = req.user as { id: string };
 
   try {
@@ -114,7 +116,8 @@ export const getCategoryPermissionsHandler = async (req: Request, res: Response)
 
 // Cambiar permisos de un usuario
 export const updateCategoryPermissionHandler = async (req: Request, res: Response) => {
-  const { categoryId, targetUserId, newRole } = req.body;
+  const { id: categoryId } = req.params; // ID de la categoría desde los parámetros de la ruta
+  const { targetUserId, newRole } = req.body;
   const user = req.user as { id: string };
 
   try {
@@ -128,7 +131,8 @@ export const updateCategoryPermissionHandler = async (req: Request, res: Respons
 
 // Eliminar permisos de un usuario sobre una categoría
 export const removeCategoryPermissionHandler = async (req: Request, res: Response) => {
-  const { categoryId, targetUserId } = req.body;
+  const { id: categoryId } = req.params; // ID de la categoría desde los parámetros de la ruta
+  const { targetUserId } = req.body;
   const user = req.user as { id: string };
 
   try {

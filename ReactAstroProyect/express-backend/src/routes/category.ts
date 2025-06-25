@@ -16,17 +16,20 @@ router.post("/",authMiddleware, addCategoryHandler);
 router.delete("/:id", authMiddleware, deleteCategoryHandler);
 
 // Compartir una categoría con otro usuario
-router.post("/:categoryId/share", authMiddleware, shareCategoryHandler);
-// recibimos { userEmail: "user@email.com", role: "editor" }
+router.post("/:id/share", authMiddleware, shareCategoryHandler);
+// Frontend: POST /api/categorias/trabajo123/share
+// Body: { userEmail: "user@email.com", role: "editor" }
 
 // Obtener permisos de una categoría  
-router.get("/:categoryId/permissions", authMiddleware, getCategoryPermissionsHandler);
-// Recibimos { categoryId: "123", id: "456" } id es el usuario que hace el request
+router.get("/:id/permissions", authMiddleware, getCategoryPermissionsHandler);
+// Recibimos { id: "trabajo123" } en req.params
 
 // Actualizar permisos de un usuario en una categoría
-router.put("/:categoryId/permissions", authMiddleware, updateCategoryPermissionHandler);
+router.put("/:id/permissions", authMiddleware, updateCategoryPermissionHandler);
+// Body: { targetUserId: "user123" , newRole: "editor" }
 
 // Eliminar  permisos de un usuario de una categoría
-router.delete("/:categoryId/permissions", authMiddleware, removeCategoryPermissionHandler);
+router.delete("/:id/permissions", authMiddleware, removeCategoryPermissionHandler);
+// Body: { targetUserId: "user123" }
 
 export default router;
