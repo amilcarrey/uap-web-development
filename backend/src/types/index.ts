@@ -10,6 +10,6 @@ export interface Tarea {
 
 
 export interface Tablero {
-  id: number;
+  id: string;
   nombre: string;
 }

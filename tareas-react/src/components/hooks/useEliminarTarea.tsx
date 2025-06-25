@@ -8,7 +8,9 @@ export function useEliminarTarea(tableroId?: string) {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await axios.delete(`http://localhost:8008/api/tareas/${id}`);
+      await axios.delete(`http://localhost:8008/api/tareas/${id}`, {
+        withCredentials: true, 
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tareas", tableroId] });

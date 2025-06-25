@@ -1,27 +1,17 @@
-import  db  from "../../db/knex";
+import { TableroRepository } from "./tablero.repository";
 import { Tablero } from "../../types/index";
 
-export const getAllTableros = async (): Promise<Tablero[]> => {
-  return await db<Tablero>("tableros").select("*");
-};
+const tableroRepository = new TableroRepository();
 
-export const getTableroById = async (id: number): Promise<Tablero | undefined> => {
-  return await db<Tablero>("tableros").where({ id }).first();
-};
+export const getAllTableros = () => tableroRepository.getAll();
+export const getTableroById = (id: string) => tableroRepository.getById(id);
+export const createTablero = (nombre: string, userId: string) =>
+  tableroRepository.create(nombre, userId);
+export const updateTablero = (id: string, data: Partial<Tablero>) => tableroRepository.update(id, data);
+export const deleteTablero = (id: string) => tableroRepository.delete(id);
+export const getTablerosByUser = (userId: string) => tableroRepository.getTablerosByUser(userId);
+export const compartirTablero = (tableroId: string, usuarioId: string, rol: string) =>
+  tableroRepository.compartir(tableroId, usuarioId, rol);
 
-export const createTablero = async (data: Omit<Tablero, "id">): Promise<Tablero> => {
-  const [newTablero] = await db<Tablero>("tableros").insert(data).returning("*");
-  return newTablero;
-};
-
-export const updateTablero = async (
-  id: number,
-  data: Partial<Tablero>
-): Promise<Tablero | undefined> => {
-  const [updated] = await db<Tablero>("tableros").where({ id }).update(data).returning("*");
-  return updated;
-};
-
-export const deleteTablero = async (id: number): Promise<number> => {
-  return await db<Tablero>("tableros").where({ id }).delete();
-};
+export const obtenerUsuariosCompartidos = (tableroId: string) =>
+  tableroRepository.obtenerUsuariosCompartidos(tableroId);

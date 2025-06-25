@@ -7,7 +7,9 @@ export function useTableros() {
   return useQuery({
     queryKey: ["tableros"],
     queryFn: async () => {
-      const res = await axios.get(API_TABLEROS_URL);
+      const res = await axios.get(API_TABLEROS_URL, {
+        withCredentials: true,
+      });
       return res.data;
     },
   });

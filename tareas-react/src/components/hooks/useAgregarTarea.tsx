@@ -10,10 +10,14 @@ export function useAgregarTarea(tableroId: string) {
 
   return useMutation({
     mutationFn: (descripcion: string) =>
-      axios.post("http://localhost:8008/api/tareas", {
-        texto: descripcion,
-        tableroId: tableroId,
-      }),
+      axios.post(
+        "http://localhost:8008/api/tareas",
+        {
+          texto: descripcion,
+          tableroId: tableroId,
+        },
+        { withCredentials: true } 
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tareas", tableroId] });
       agregarNotificacion("Tarea agregada", "success");

@@ -1,14 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import type { Tarea } from "../../types";
-
-interface TareasPaginadasResponse {
-  tareas: Tarea[];
-  total?: number;
-  pagina?: number;
-  porPagina?: number;
-  totalPaginas?: number;
-}
+import { useConfigStore } from "../store/useConfigStore";
 
 type UseTareasParams = {
   tableroId?: string;
@@ -17,7 +9,9 @@ type UseTareasParams = {
 };
 
 export function useTareas({ tableroId, pagina, porPagina }: UseTareasParams) {
-  return useQuery<TareasPaginadasResponse>({
+  const intervaloRefetch = useConfigStore((s) => s.intervaloRefetch);
+
+  return useQuery({
     queryKey: [
       "tareas",
       tableroId,
@@ -31,27 +25,13 @@ export function useTareas({ tableroId, pagina, porPagina }: UseTareasParams) {
             tablero_id: tableroId,
             ...(pagina && porPagina ? { pagina, porPagina } : {}),
           },
-        })
-        .then((res) => ({
-          ...res.data,
-          tareas: res.data.tareas
-            ? res.data.tareas.map((t: any) => ({
-                ...t,
-                completada: !!t.completada,
-                texto: t.texto ?? t.descripcion,
-                tableroId: t.tablero_id ?? t.tableroId,
-                fecha_creacion: t.fecha_creacion
-                  ? new Date(Number(t.fecha_creacion)).toISOString()
-                  : "",
-                fecha_modificacion: t.fecha_modificacion
-                  ? new Date(Number(t.fecha_modificacion)).toISOString()
-                  : "",
-                fecha_realizada: t.fecha_realizada
-                  ? new Date(Number(t.fecha_realizada)).toISOString()
-                  : "",
-              }))
-            : [],
-        })),
+          withCredentials: true, // <-- esto es clave
+         }),
+        select: (data) => {
+      // Devuelve todo el objeto de respuesta del backend
+      return data.data;
+    },
     enabled: !!tableroId,
+    refetchInterval: intervaloRefetch,
   });
 }

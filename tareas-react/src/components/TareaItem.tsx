@@ -3,6 +3,7 @@ import { useActualizarTarea } from "./hooks/useActualizarTarea";
 import { useToggleCompletada } from "./hooks/useToggleCompletada";
 import { useEliminarTarea } from "./hooks/useEliminarTarea";
 import { useConfigStore } from "./store/useConfigStore";
+import { useHandleEditarTexto } from "./hooks/useHandleEditarTexto";
 
 type Props = {
   id: string;
@@ -13,6 +14,7 @@ type Props = {
   fecha_realizada?: string | null;
   tableroId?: string;
   descripcionMayusculas: boolean;
+  rol: string;
 };
 
 const CheckIcon = ({ completed }: { completed: boolean }) => (
@@ -77,6 +79,7 @@ const TareaItem = ({
   fecha_realizada,
   tableroId,
   descripcionMayusculas,
+  rol,
 }: Props) => {
   const [editando, setEditando] = useState(false);
   const [nuevoTexto, setNuevoTexto] = useState(texto);
@@ -86,20 +89,13 @@ const TareaItem = ({
   const toggleCompletada = useToggleCompletada(id, completada);
   const eliminarTarea = useEliminarTarea(tableroId);
 
-  const handleEditarTexto = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      if (nuevoTexto.trim()) {
-        actualizarTarea.mutate({ texto: nuevoTexto });
-        setEditando(false);
-      } else {
-        setNuevoTexto(texto);
-        setEditando(false);
-      }
-    } else if (e.key === "Escape") {
-      setNuevoTexto(texto);
-      setEditando(false);
-    }
-  };
+  const handleEditarTexto = useHandleEditarTexto(
+    texto,
+    nuevoTexto,
+    setNuevoTexto,
+    setEditando,
+    actualizarTarea
+  );
 
   const formatFecha = (fecha?: string | null) => {
     if (!fecha) return "N/A";
@@ -113,7 +109,7 @@ const TareaItem = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 bg-black/80 backdrop-blur-lg rounded-xl border border-white/20 p-4 shadow-md shadow-black/20 hover:shadow-lg transition-shadow duration-300 text-white">
+    <div className="flex flex-col gap-2 bg-black/90 backdrop-blur-lg rounded-xl border border-white/20 p-4 shadow-md shadow-black/20 hover:shadow-lg transition-shadow duration-300 text-white">
       <div className="flex items-center justify-between">
         <button
           onClick={() => toggleCompletada.mutate()}
@@ -151,23 +147,27 @@ const TareaItem = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setEditando(true)}
-            aria-label="Edit task"
-            className="focus:outline-none"
-            disabled={editando}
-          >
-            <EditIcon />
-          </button>
+          {(rol === "editor" || rol === "propietario") && (
+            <>
+              <button
+                onClick={() => setEditando(true)}
+                aria-label="Edit task"
+                className="focus:outline-none"
+                disabled={editando}
+              >
+                <EditIcon />
+              </button>
 
-          <button
-            onClick={() => eliminarTarea.mutate(id)}
-            aria-label="Delete task"
-            className="focus:outline-none"
-            disabled={eliminarTarea.isPending}
-          >
-            <TrashIcon />
-          </button>
+              <button
+                onClick={() => eliminarTarea.mutate(id)}
+                aria-label="Delete task"
+                className="focus:outline-none"
+                disabled={eliminarTarea.isPending}
+              >
+                <TrashIcon />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
