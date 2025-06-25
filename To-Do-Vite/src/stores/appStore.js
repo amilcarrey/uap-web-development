@@ -10,11 +10,20 @@ const useAppStore = create((set, get) => ({
   toasts: [],
   isLoading: false,
   error: null,
+  currentUserId: null,
 
   updateSettings: (newSettings) => {
     set((state) => ({
       settings: { ...state.settings, ...newSettings }
     }));
+  },
+  
+  setCurrentUser: (userId) => {
+    set({ currentUserId: userId });
+    // Cargar configuraciones específicas del usuario
+    if (userId) {
+      get().loadSettings(userId);
+    }
   },
   
   addToast: (message, type = 'info', duration = 4000) => {
@@ -37,12 +46,22 @@ const useAppStore = create((set, get) => ({
   
   clearError: () => set({ error: null }),
 
-  // Persistencia de la configuración
-  loadSettings: () => {
+  // Persistencia de la configuración específica por usuario
+  loadSettings: (userId) => {
     try {
-      const stored = localStorage.getItem('app-settings');
+      const stored = localStorage.getItem(`app-settings-${userId}`);
       if (stored) {
         set({ settings: JSON.parse(stored) });
+      } else {
+        // Configuración por defecto
+        set({ 
+          settings: {
+            refetchInterval: 30,
+            itemsPerPage: 5,
+            theme: 'dark',
+            language: 'es'
+          }
+        });
       }
     } catch (e) {
       console.error('Failed to load settings from localStorage', e);
@@ -51,7 +70,10 @@ const useAppStore = create((set, get) => ({
   
   saveSettings: () => {
     try {
-      localStorage.setItem('app-settings', JSON.stringify(get().settings));
+      const { currentUserId, settings } = get();
+      if (currentUserId) {
+        localStorage.setItem(`app-settings-${currentUserId}`, JSON.stringify(settings));
+      }
     } catch (e) {
       console.error('Failed to save settings to localStorage', e);
     }
@@ -63,10 +85,5 @@ useAppStore.subscribe(
   (state) => state.settings,
   () => useAppStore.getState().saveSettings()
 );
-
-// Cargar settings al inicio
-if (typeof window !== 'undefined') {
-  useAppStore.getState().loadSettings();
-}
 
 export default useAppStore; 

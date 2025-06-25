@@ -96,5 +96,5 @@ app.get('/shared/:token/tasks', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
+    console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
 }); 

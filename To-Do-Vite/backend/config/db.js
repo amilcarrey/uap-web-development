@@ -8,7 +8,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error al conectar con la base de datos SQLite:', err.message);
     } else {
-        console.log('Conectado a la base de datos SQLite');
         initializeDatabase();
     }
 });
@@ -90,8 +89,6 @@ const initializeDatabase = () => {
                 ['luca', hashedPassword, 1], (err) => {
                 if (err) {
                     console.error('Error al crear usuario admin:', err);
-                } else {
-                    console.log('Usuario admin creado: luca / admin123');
                 }
             });
         }

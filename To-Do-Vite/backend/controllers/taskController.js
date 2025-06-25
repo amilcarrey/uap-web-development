@@ -26,7 +26,7 @@ const getTasks = async (req, res) => {
         
         res.json(result);
     } catch (error) {
-        console.error('❌ Error en getTasks:', error);
+        console.error('Error en getTasks:', error);
         res.status(500).json({ error: 'Error al obtener las tareas' });
     }
 };
@@ -49,7 +49,7 @@ const createTask = async (req, res) => {
         const newTask = await taskService.createTask(permission.boardId, text.trim());
         res.status(201).json(newTask);
     } catch (error) {
-        console.error('❌ Error en createTask:', error);
+        console.error('Error en createTask:', error);
         res.status(500).json({ error: 'Error al crear la tarea' });
     }
 };
@@ -60,57 +60,42 @@ const updateTask = async (req, res) => {
         const { taskId } = req.params;
         const updates = req.body;
 
-        console.log('--- updateTask ---');
-        console.log('boardName:', boardName);
-        console.log('taskId:', taskId);
-        console.log('updates:', updates);
-        console.log('user:', req.user);
-
         if (!updates || Object.keys(updates).length === 0) {
-            console.log('No hay campos para actualizar');
             return res.status(400).json({ error: 'Se requieren campos para actualizar' });
         }
 
         // Verificar que la tarea pertenece al tablero primero
         const task = await taskService.getTaskById(taskId);
-        console.log('task:', task);
         
         // Obtener permisos del usuario
         const permission = await permissionService.checkBoardPermission(boardName, req.user.userId, 'viewer');
-        console.log('permission:', permission);
 
         if (!permission.hasPermission) {
-            console.log('Sin permiso');
             return res.status(permission.status).json({ error: permission.error });
         }
 
         // Verificar que la tarea pertenece al tablero
         if (task.board_id !== permission.boardId) {
-            console.log('Tarea no pertenece al tablero');
             return res.status(404).json({ error: 'Tarea no encontrada' });
         }
 
         // Si solo está actualizando el estado 'completed', permitir para 'viewer'
         // Si está actualizando texto u otros campos, requerir 'editor'
         const isOnlyCompletedUpdate = Object.keys(updates).length === 1 && updates.completed !== undefined;
-        console.log('isOnlyCompletedUpdate:', isOnlyCompletedUpdate);
         
         if (!isOnlyCompletedUpdate) {
             const editorPermission = await permissionService.checkBoardPermission(boardName, req.user.userId, 'editor');
-            console.log('editorPermission:', editorPermission);
             if (!editorPermission.hasPermission) {
-                console.log('Sin permiso de editor');
                 return res.status(editorPermission.status).json({ error: editorPermission.error });
             }
         }
 
         const updatedTask = await taskService.updateTask(taskId, updates);
-        console.log('updatedTask:', updatedTask);
         res.json(updatedTask);
     } catch (error) {
         const status = error.status || 500;
         const message = error.message || 'Error al actualizar la tarea';
-        console.error('❌ Error en updateTask:', error);
+        console.error('Error en updateTask:', error);
         res.status(status).json({ error: message });
     }
 };
