@@ -1,11 +1,15 @@
 const Task = require('../models/Task');
+const { Op } = require('sequelize');
 
 // Obtener todas las tareas del usuario y board, con paginación
 exports.getAll = async (req, res) => {
-  const { boardId, category, page = 1, pageSize = 5 } = req.query;
+  const { boardId, category, page = 1, pageSize = 5, filter, search } = req.query;
   const where = { userId: req.user.id };
   if (boardId) where.boardId = boardId;
   if (category) where.category = category;
+  if (filter === 'active') where.completed = false;
+  if (filter === 'completed') where.completed = true;
+  if (search) where.text = { [Op.like]: `%${search}%` };
 
   const limit = parseInt(pageSize, 10) || 5;
   const offset = ((parseInt(page, 10) || 1) - 1) * limit;

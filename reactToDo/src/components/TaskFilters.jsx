@@ -5,24 +5,15 @@ import ConfirmationModal from './ConfirmationModal';
 export default function TaskFilters({ 
   currentFilter, 
   onFilterChange,
-  category,
-  boardId
+  activeCount,
+  onClearCompleted,
+  isClearing,
+  search,
+  setSearch,
+  showConfirm,
+  setShowConfirm,
+  handleConfirmClear
 }) {
-  const [showConfirm, setShowConfirm] = useState(false);
-  const { data } = useTasksByCategory({ category, boardId });
-  const tasks = data?.tasks || [];
-  const { deleteCompletedTasks } = useTaskMutations(boardId);
-
-  const activeCount = tasks.filter(t => !t.completed).length;
-
-  const handleClearCompleted = () => setShowConfirm(true);
-
-  const handleConfirm = () => {
-    deleteCompletedTasks.mutate({ boardId, category }, {
-      onSettled: () => setShowConfirm(false)
-    });
-  };
-
   return (
     <>
       <div className="flex justify-between items-center mb-6 p-4 bg-gray-50 rounded-lg">
@@ -47,20 +38,42 @@ export default function TaskFilters({
         </div>
         
         <button
-          onClick={handleClearCompleted}
-          disabled={deleteCompletedTasks.isPending}
+          onClick={onClearCompleted}
+          disabled={isClearing}
           className={`px-3 py-1 text-sm rounded-full transition-colors ${
-            deleteCompletedTasks.isPending
+            isClearing
               ? 'text-red-300 cursor-wait'
               : 'text-red-500 hover:bg-red-50'
           }`}
         >
-          {deleteCompletedTasks.isPending ? 'Clearing...' : 'Clear completed'}
+          {isClearing ? 'Clearing...' : 'Clear completed'}
         </button>
+      </div>
+      <div className="flex gap-2 mb-4 items-center">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Buscar tarea..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="border rounded px-2 py-1 pr-6"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+              tabIndex={-1}
+              aria-label="Limpiar búsqueda"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
       <ConfirmationModal
         isOpen={showConfirm}
-        onConfirm={handleConfirm}
+        onConfirm={handleConfirmClear}
         onCancel={() => setShowConfirm(false)}
         message="¿Estás seguro de que quieres eliminar todas las tareas completadas?"
       />

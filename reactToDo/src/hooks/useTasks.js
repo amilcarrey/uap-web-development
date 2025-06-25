@@ -1,15 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useClientStore } from '../stores/clientStore';
 
-export function useTasksByCategory({ category, boardId, page, pageSize }) {
+export function useTasksByCategory({ category, boardId, page, pageSize, filter, search }) {
   return useQuery({
-    queryKey: ['tasks', category, boardId, page, pageSize],
+    queryKey: ['tasks', category, boardId, page, pageSize, filter, search],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (category) params.append('category', category);
       if (boardId) params.append('boardId', boardId);
       if (page) params.append('page', page);
       if (pageSize) params.append('pageSize', pageSize);
+      if (filter) params.append('filter', filter);
+      if (search) params.append('search', search);
 
       const res = await fetch(`/api/tasks?${params.toString()}`, {
         credentials: 'include',

@@ -130,17 +130,11 @@ export default function App() {
           
           <AddTask category={activeTab} boardId={activeBoard} />
           
-          <TaskFilters 
-            currentFilter={filter}
-            onFilterChange={setFilter}
-            category={activeTab}
-            boardId={activeBoard}
-          />
-          
           <TaskList 
             category={activeTab}
             filter={filter}
             boardId={activeBoard}
+            setFilter={setFilter}
           />
         </div>
       </div>
