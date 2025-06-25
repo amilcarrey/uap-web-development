@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useNotifications } from "../store/clientStore";
 import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import GorgeousButton from "./GorgeousButton";
 import LoadingSpinner from "./LoadingSpinner";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
@@ -23,6 +24,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
   const { login, register, isLoading } = useAuthStore();
   const { showSuccess, showError } = useNotifications();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Show loading spinner during authentication
   if (isLoading) {
@@ -69,14 +71,34 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
     try {
       if (mode === "login") {
         await login(formData.email, formData.password);
+
+        // Invalidar cache después del login para mostrar usuarios actualizados
+        queryClient.invalidateQueries({ queryKey: ["users"] });
+        queryClient.invalidateQueries({ queryKey: ["board-permissions"] });
+        queryClient.invalidateQueries({ queryKey: ["boards"] });
+
         showSuccess("Welcome back!", "Successfully logged in");
         // Redirect to dashboard after successful login
-        navigate({ to: "/tab/$tabId", params: { tabId: "today" } });
+        navigate({
+          to: "/tab/$tabId",
+          params: { tabId: "today" },
+          search: { search: undefined },
+        });
       } else {
         await register(formData.username, formData.email, formData.password);
+
+        // También invalidar cache después del registro
+        queryClient.invalidateQueries({ queryKey: ["users"] });
+        queryClient.invalidateQueries({ queryKey: ["board-permissions"] });
+        queryClient.invalidateQueries({ queryKey: ["boards"] });
+
         showSuccess("Account created!", "Welcome to The Old Stand");
         // Redirect to dashboard after successful registration
-        navigate({ to: "/tab/$tabId", params: { tabId: "today" } });
+        navigate({
+          to: "/tab/$tabId",
+          params: { tabId: "today" },
+          search: { search: undefined },
+        });
       }
     } catch (error) {
       showError(

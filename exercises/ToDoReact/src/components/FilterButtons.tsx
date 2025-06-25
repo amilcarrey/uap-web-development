@@ -3,6 +3,7 @@ import { useClientStore } from "../store/clientStore";
 import { useClearCompleted } from "../hooks/useTasks";
 import useFilters from "../hooks/useFilters";
 import GorgeousButton from "./GorgeousButton";
+import SearchInput from "./SearchInput";
 
 const FilterButtons: React.FC = () => {
   const { setFilter: setLocalFilter, activeTab } = useClientStore();
@@ -50,38 +51,50 @@ const FilterButtons: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-wrap justify-center gap-2 p-4">
-      <GorgeousButton 
-        onClick={() => handleFilterChange("all")}
-        variant={filter === "all" ? "amber-400" : "amber"}
-        className={filter === "all" ? "ring-2 ring-amber-400 shadow-lg" : ""}
-      >
-        All
-      </GorgeousButton>
+    <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
+      {/* Filter buttons row */}
+      <div className="flex justify-center gap-2">
+        <GorgeousButton
+          onClick={() => handleFilterChange("all")}
+          variant={filter === "all" ? "amber-400" : "amber"}
+          className={filter === "all" ? "ring-2 ring-amber-400 shadow-lg" : ""}
+        >
+          All
+        </GorgeousButton>
 
-      <GorgeousButton 
-        onClick={() => handleFilterChange("active")}
-        variant={filter === "active" ? "amber-400" : "amber"}
-        className={filter === "active" ? "ring-2 ring-amber-400 shadow-lg" : ""}
-      >
-        Pending
-      </GorgeousButton>
+        <GorgeousButton
+          onClick={() => handleFilterChange("active")}
+          variant={filter === "active" ? "amber-400" : "amber"}
+          className={
+            filter === "active" ? "ring-2 ring-amber-400 shadow-lg" : ""
+          }
+        >
+          Pending
+        </GorgeousButton>
 
-      <GorgeousButton 
-        onClick={() => handleFilterChange("completed")}
-        variant={filter === "completed" ? "amber-400" : "amber"}
-        className={filter === "completed" ? "ring-2 ring-amber-400 shadow-lg" : ""}
-      >
-        Completed
-      </GorgeousButton>
+        <GorgeousButton
+          onClick={() => handleFilterChange("completed")}
+          variant={filter === "completed" ? "amber-400" : "amber"}
+          className={
+            filter === "completed" ? "ring-2 ring-amber-400 shadow-lg" : ""
+          }
+        >
+          Completed
+        </GorgeousButton>
+      </div>
 
-      <GorgeousButton
-        onClick={openDialog}
-        disabled={clearCompletedMutation.isPending}
-        variant="red"
-      >
-        {clearCompletedMutation.isPending ? "Cleaning..." : "Clear Completed"}
-      </GorgeousButton>
+      {/* Search and Clear row */}
+      <div className="flex justify-center items-center gap-3">
+        <SearchInput className="w-64" />
+
+        <GorgeousButton
+          onClick={openDialog}
+          disabled={clearCompletedMutation.isPending}
+          variant="red"
+        >
+          {clearCompletedMutation.isPending ? "Cleaning..." : "Clear Completed"}
+        </GorgeousButton>
+      </div>
 
       {/*DIALOG POP TO CLEAR THE COMPLETED TASKS*/}
       <dialog

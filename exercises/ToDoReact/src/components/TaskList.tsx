@@ -1,4 +1,5 @@
 import React from "react";
+import { useSearch } from "@tanstack/react-router";
 import { useTasks } from "../hooks/useTasks";
 import { useClientStore } from "../store/clientStore";
 import TaskItem from "./TaskItem";
@@ -7,7 +8,8 @@ import ErrorMessage from "./ErrorMessage";
 import Pagination from "./Pagination";
 
 const TaskList: React.FC = () => {
-  const { data, isLoading, error } = useTasks();
+  const search = useSearch({ from: "/tab/$tabId" });
+  const { data, isLoading, error } = useTasks(search.search);
   const { setCurrentPage } = useClientStore();
 
   if (isLoading) {
@@ -19,9 +21,19 @@ const TaskList: React.FC = () => {
   }
 
   if (!data?.tasks?.length) {
+    const searchTerm = search.search;
     return (
       <div className="p-8 text-center text-amber-100">
-        <p>No tasks found. Add one above!</p>
+        {searchTerm ? (
+          <div>
+            <p>No tasks found matching "{searchTerm}"</p>
+            <p className="text-sm text-amber-300 mt-2">
+              Try a different search term or clear the search.
+            </p>
+          </div>
+        ) : (
+          <p>No tasks found. Add one above!</p>
+        )}
       </div>
     );
   }
@@ -36,10 +48,7 @@ const TaskList: React.FC = () => {
       </div>
 
       {/* Paginación */}
-      <Pagination 
-        pagination={data.pagination}
-        onPageChange={setCurrentPage}
-      />
+      <Pagination pagination={data.pagination} onPageChange={setCurrentPage} />
     </div>
   );
 };

@@ -37,7 +37,7 @@ app.use("/api", routes);
 app.get("/", (_req, res) => {
   res.json({
     success: true,
-    message: "ToDo Backend API",
+    message: "The Old Stand TO-DO",
     version: "1.0.0",
     endpoints: {
       health: "/api/health",
@@ -62,35 +62,35 @@ app.use("*", (_req, res) => {
 // Initialize database and start server
 async function startServer() {
   try {
-    console.log("🗄️  Initializing database...");
-    await initializeDatabase();
-    console.log("✅ Database initialized successfully");
+    console.log("1- ARRANCANDO BD");
+    await initializeDatabase(); // MAKING SURE THAT THE connection.ts WORKS PROPERLY
+    console.log("3- BD OK");
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`4- BACKEND DE EXPRESS: http://localhost:${PORT}`);
       console.log(
-        `📚 API documentation available at http://localhost:${PORT}/api/health`
+        `DOCUMENTACION DE LA API - http://localhost:${PORT}/api/health`
       );
       console.log(
-        `🔗 Frontend expected at ${
+        `5- FRONTEND REACT: ${
           process.env.FRONTEND_URL || "http://localhost:5173"
         }`
       );
     });
   } catch (error) {
-    console.error("❌ Failed to start server:", error);
+    console.error("❌ ERROR PARA CONTACTAR EL BACKEND", error);
     process.exit(1);
   }
 }
 
 // Handle graceful shutdown
 process.on("SIGINT", () => {
-  console.log("\n🛑 Shutting down server...");
+  console.log("\n HASTA LA PROXIMA");
   process.exit(0);
 });
 
 process.on("SIGTERM", () => {
-  console.log("\n🛑 Shutting down server...");
+  console.log("\n HASTA LA PROXIMA");
   process.exit(0);
 });
 

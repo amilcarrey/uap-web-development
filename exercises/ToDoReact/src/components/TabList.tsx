@@ -107,6 +107,7 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
           navigate({
             to: "/tab/$tabId",
             params: { tabId: remainingTabs[0] },
+            search: { search: undefined },
           });
         }
       },
@@ -210,7 +211,11 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
                   name={tab}
                   isActive={tabId === tab}
                   onClick={() =>
-                    navigate({ to: "/tab/$tabId", params: { tabId: tab } })
+                    navigate({
+                      to: "/tab/$tabId",
+                      params: { tabId: tab },
+                      search: { search: undefined },
+                    })
                   }
                   board={board}
                   onDelete={handleDeleteTab}
@@ -417,10 +422,14 @@ const TabList: React.FC<TabListProps> = ({ tabs }) => {
 
           {/*BUTTONS*/}
           <div className="flex gap-3 justify-center">
-            <GorgeousButton onClick={() => {
-              handleCancel();
-              dialogRef.current?.close();
-            }}>Cancel</GorgeousButton>
+            <GorgeousButton
+              onClick={() => {
+                handleCancel();
+                dialogRef.current?.close();
+              }}
+            >
+              Cancel
+            </GorgeousButton>
             <GorgeousButton
               onClick={handleConfirm}
               disabled={deleteTabMutation.isPending}

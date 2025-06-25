@@ -231,5 +231,5 @@ export const database = new Database();
 export async function initializeDatabase(): Promise<void> {
   // The database is already initialized in the constructor
   // This function is just for explicit initialization call
-  console.log("Database connection established");
+  console.log("2- BD CONECTADA 😎");
 }

@@ -14,6 +14,7 @@ interface ConfigState {
 }
 
 const defaultConfig: AppConfig = {
+  hideCompletedTasksByDefault: false,
   taskRefetchInterval: 10,
   uppercaseDescriptions: false,
 };

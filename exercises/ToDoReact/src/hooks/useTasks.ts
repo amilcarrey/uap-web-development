@@ -24,8 +24,8 @@ export type { LegacyTask as Task, LegacyTasksResponse as TasksResponse };
 export const taskKeys = {
   all: ["tasks"] as const,
   lists: () => [...taskKeys.all, "list"] as const,
-  list: (boardId: string, page: number, filter: string) =>
-    [...taskKeys.lists(), { boardId, page, filter }] as const,
+  list: (boardId: string, page: number, filter: string, search?: string) =>
+    [...taskKeys.lists(), { boardId, page, filter, search }] as const,
 };
 
 //API CALLS - Updated to use new backend endpoints
@@ -33,7 +33,8 @@ const fetchTasks = async (
   boardId: string,
   page: number,
   filter: string,
-  itemsPerPage: number
+  itemsPerPage: number,
+  search?: string
 ): Promise<LegacyTasksResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -43,6 +44,11 @@ const fetchTasks = async (
   // Add status filter if not "all"
   if (filter !== "all") {
     params.append("status", filter === "active" ? "pending" : "completed");
+  }
+
+  // Add search parameter if provided
+  if (search && search.trim()) {
+    params.append("search", search.trim());
   }
 
   const response = await apiGet<ApiResponse<BackendTasksResponse>>(
@@ -152,7 +158,7 @@ export const useTabChangeEffect = () => {
 };
 
 //CUSTOM HOOKS
-export const useTasks = () => {
+export const useTasks = (search?: string) => {
   const { activeTab, filter, currentPage, itemsPerPage } = useClientStore();
   const { config } = useConfigStore();
   const { getBoardIdByName, getFirstBoardId, boards } = useBoardMapping();
@@ -164,7 +170,9 @@ export const useTasks = () => {
   const boardId = getBoardIdByName(activeTab) || getFirstBoardId();
 
   console.log(
-    `📋 useTasks: activeTab="${activeTab}", boardId="${boardId}", filter="${filter}", page=${currentPage}`
+    `📋 useTasks: activeTab="${activeTab}", boardId="${boardId}", filter="${filter}", page=${currentPage}, search="${
+      search || ""
+    }"`
   );
   console.log(
     `📋 Available boards:`,
@@ -172,15 +180,17 @@ export const useTasks = () => {
   );
 
   return useQuery({
-    queryKey: taskKeys.list(boardId || "", currentPage, filter),
+    queryKey: taskKeys.list(boardId || "", currentPage, filter, search),
     queryFn: () => {
       console.log(
-        `🔄 Fetching tasks for board: ${boardId}, filter: ${filter}, page: ${currentPage}`
+        `🔄 Fetching tasks for board: ${boardId}, filter: ${filter}, page: ${currentPage}, search: ${
+          search || ""
+        }`
       );
       if (!boardId) {
         throw new Error("No board ID available");
       }
-      return fetchTasks(boardId, currentPage, filter, itemsPerPage);
+      return fetchTasks(boardId, currentPage, filter, itemsPerPage, search);
     },
     enabled: !!boardId && boards.length > 0, // Ensure we have boards data before fetching tasks
     staleTime: 0, // Always fetch fresh data when switching boards

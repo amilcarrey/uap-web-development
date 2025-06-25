@@ -12,7 +12,11 @@ const AuthPage: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       console.log("🔄 Already authenticated, redirecting from AuthPage");
-      navigate({ to: "/tab/$tabId", params: { tabId: "today" } });
+      navigate({
+        to: "/tab/$tabId",
+        params: { tabId: "today" },
+        search: { search: undefined },
+      });
     }
   }, [isAuthenticated, navigate]);
 
