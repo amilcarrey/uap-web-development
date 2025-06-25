@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useCallback } from 'react';
 import useTaskStore from '../stores/taskStore';
-import useAppStore from '../stores/appStore';
+import { useUserSettings } from './useSettings';
 import { useTasks, useCreateTask, useUpdateTask, useDeleteTask, useDeleteCompletedTasks, useToggleTask } from './useTasks';
 
 export const useTaskManager = (boardName) => {
@@ -16,7 +16,8 @@ export const useTaskManager = (boardName) => {
     clearEditingTask
   } = useTaskStore();
 
-  const { itemsPerPage } = useAppStore(state => state.settings);
+  const { data: settings = {} } = useUserSettings();
+  const itemsPerPage = settings.items_per_page || 10;
 
   // Limpiar búsqueda y paginación cuando cambia el tablero
   useEffect(() => {

@@ -3,9 +3,8 @@ import { create } from 'zustand';
 const useAppStore = create((set, get) => ({
   settings: {
     refetchInterval: 30,
-    itemsPerPage: 5,
-    theme: 'dark',
-    language: 'es'
+    itemsPerPage: 10,
+    uppercaseTasks: false
   },
   toasts: [],
   isLoading: false,
@@ -20,10 +19,6 @@ const useAppStore = create((set, get) => ({
   
   setCurrentUser: (userId) => {
     set({ currentUserId: userId });
-    // Cargar configuraciones específicas del usuario
-    if (userId) {
-      get().loadSettings(userId);
-    }
   },
   
   addToast: (message, type = 'info', duration = 4000) => {
@@ -46,44 +41,38 @@ const useAppStore = create((set, get) => ({
   
   clearError: () => set({ error: null }),
 
-  // Persistencia de la configuración específica por usuario
-  loadSettings: (userId) => {
+  // Cargar ajustes desde el servidor
+  loadSettingsFromServer: async () => {
     try {
-      const stored = localStorage.getItem(`app-settings-${userId}`);
-      if (stored) {
-        set({ settings: JSON.parse(stored) });
+      const response = await fetch('http://localhost:3000/settings', {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const settings = await response.json();
+        set({ settings });
       } else {
-        // Configuración por defecto
+        // Si hay error, usar ajustes por defecto
         set({ 
           settings: {
             refetchInterval: 30,
-            itemsPerPage: 5,
-            theme: 'dark',
-            language: 'es'
+            itemsPerPage: 10,
+            uppercaseTasks: false
           }
         });
       }
-    } catch (e) {
-      console.error('Failed to load settings from localStorage', e);
-    }
-  },
-  
-  saveSettings: () => {
-    try {
-      const { currentUserId, settings } = get();
-      if (currentUserId) {
-        localStorage.setItem(`app-settings-${currentUserId}`, JSON.stringify(settings));
-      }
-    } catch (e) {
-      console.error('Failed to save settings to localStorage', e);
+    } catch (error) {
+      console.error('Error loading settings from server:', error);
+      // Usar ajustes por defecto en caso de error
+      set({ 
+        settings: {
+          refetchInterval: 30,
+          itemsPerPage: 10,
+          uppercaseTasks: false
+        }
+      });
     }
   }
 }));
-
-// Sincronizar cambios de settings con localStorage
-useAppStore.subscribe(
-  (state) => state.settings,
-  () => useAppStore.getState().saveSettings()
-);
 
 export default useAppStore; 

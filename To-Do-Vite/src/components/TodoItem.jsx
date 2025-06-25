@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { FaEdit, FaCheck, FaTimes, FaTrash } from 'react-icons/fa';
-import useAppStore from '../stores/appStore';
+import { useUserSettings } from '../hooks/useSettings';
 import { Check, Edit, Trash2, X, Save } from 'lucide-react';
 
 export default function TodoItem({ 
@@ -13,7 +13,7 @@ export default function TodoItem({
   editingId, 
   isLoading = false 
 }) {
-  const { settings } = useAppStore();
+  const { data: settings = {} } = useUserSettings();
   const [editText, setEditText] = useState(todo.text);
   const editInputRef = useRef(null);
   const isEditing = editingId === todo.id;
@@ -100,27 +100,15 @@ export default function TodoItem({
           {todo.completed && <FaCheck size={12} />}
         </button>
         
-        {settings.uppercaseTasks ? (
-          <span
-            className={`flex-grow cursor-pointer ${
-              todo.completed ? 'line-through text-gray-500' : 'text-white'
-            } ${settings.uppercaseTasks ? 'uppercase' : ''}`}
-            style={{ color: todo.completed ? 'var(--text-muted)' : 'var(--text-primary)' }}
-            onClick={() => onEdit(todo.id)}
-          >
-            {todo.text}
-          </span>
-        ) : (
-          <span
-            className={`flex-grow cursor-pointer ${
-              todo.completed ? 'line-through text-gray-500' : 'text-white'
-            }`}
-            style={{ color: todo.completed ? 'var(--text-muted)' : 'var(--text-primary)' }}
-            onClick={() => onEdit(todo.id)}
-          >
-            {todo.text}
-          </span>
-        )}
+        <span
+          className={`flex-grow cursor-pointer ${
+            todo.completed ? 'line-through text-gray-500' : 'text-white'
+          } ${settings.uppercase_tasks ? 'uppercase' : ''}`}
+          style={{ color: todo.completed ? 'var(--text-muted)' : 'var(--text-primary)' }}
+          onClick={() => onEdit(todo.id)}
+        >
+          {todo.text}
+        </span>
       </div>
       
       <div className="flex gap-2">

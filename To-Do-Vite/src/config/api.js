@@ -130,4 +130,17 @@ export const deleteAdminUser = async (userId) => {
   const response = await fetch(`${API_URL}/admin/users/${userId}`, getRequestConfig('DELETE'));
   if (!response.ok) throw new Error('Error al eliminar usuario');
   return response.json();
+};
+
+// Funciones para ajustes de usuario
+export const getUserSettings = async () => {
+  const response = await fetch(`${API_URL}/settings`, getRequestConfig());
+  if (!response.ok) throw new Error('Error al obtener ajustes');
+  return response.json();
+};
+
+export const updateUserSettings = async (settings) => {
+  const response = await fetch(`${API_URL}/settings`, getRequestConfig('PUT', settings));
+  if (!response.ok) throw new Error('Error al actualizar ajustes');
+  return response.json();
 }; 

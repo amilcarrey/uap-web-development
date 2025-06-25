@@ -78,6 +78,20 @@ const initializeDatabase = () => {
         )
     `);
 
+    // Crear tabla de ajustes de usuario
+    db.run(`
+        CREATE TABLE IF NOT EXISTS user_settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER UNIQUE,
+            refetch_interval INTEGER DEFAULT 30,
+            items_per_page INTEGER DEFAULT 10,
+            uppercase_tasks BOOLEAN DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        )
+    `);
+
     // Crear usuario admin por defecto si no existe
     db.get('SELECT * FROM users WHERE username = ?', ['luca'], (err, row) => {
         if (err) {

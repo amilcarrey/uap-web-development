@@ -1,15 +1,68 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import useAppStore from '../stores/appStore';
+import { useUserSettings, useUpdateSettings } from '../hooks/useSettings';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Settings = () => {
-  const { settings, updateSettings } = useAppStore();
+  const { data: settings = {}, isLoading, error } = useUserSettings();
+  const updateSettingsMutation = useUpdateSettings();
+  const [localSettings, setLocalSettings] = useState({});
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Sincronizar ajustes locales cuando se cargan del servidor
+  useEffect(() => {
+    if (settings && Object.keys(settings).length > 0) {
+      setLocalSettings(settings);
+    }
+  }, [settings]);
 
   const handleSettingChange = (e) => {
     const { name, value, type, checked } = e.target;
     const newValue = type === 'checkbox' ? checked : Number(value);
-    updateSettings({ [name]: newValue });
+    
+    // Actualizar estado local inmediatamente
+    const updatedSettings = { ...localSettings, [name]: newValue };
+    setLocalSettings(updatedSettings);
+    setHasChanges(true);
   };
+
+  const handleSaveChanges = () => {
+    if (hasChanges) {
+      updateSettingsMutation.mutate(localSettings);
+      setHasChanges(false);
+    }
+  };
+
+  // Guardar cambios automáticamente después de un delay
+  useEffect(() => {
+    if (hasChanges) {
+      const timeoutId = setTimeout(() => {
+        handleSaveChanges();
+      }, 1000); // 1 segundo de delay
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [localSettings, hasChanges]);
+
+  if (isLoading) {
+    return (
+      <PageLayout title="Ajustes">
+        <div className="flex justify-center items-center h-64">
+          <LoadingSpinner />
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageLayout title="Ajustes">
+        <div className="bg-red-500/20 border border-red-500 text-white p-4 rounded-lg">
+          Error al cargar los ajustes: {error.message}
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout title="Ajustes">
@@ -23,8 +76,8 @@ const Settings = () => {
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
-              name="uppercaseTasks"
-              checked={settings.uppercaseTasks || false}
+              name="uppercase_tasks"
+              checked={localSettings.uppercase_tasks || false}
               onChange={handleSettingChange}
               className="sr-only peer"
             />
@@ -44,17 +97,17 @@ const Settings = () => {
               min="5"
               max="120"
               step="5"
-              name="refetchInterval"
-              value={settings.refetchInterval}
+              name="refetch_interval"
+              value={localSettings.refetch_interval || 30}
               onChange={handleSettingChange}
               className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-white/20"
             />
             <span className="font-bold w-16 text-center text-lg p-2 rounded-md text-white bg-black/20">
-              {settings.refetchInterval}s
+              {localSettings.refetch_interval || 30}s
             </span>
           </div>
           <p className="text-sm mt-2 text-white/60">
-            Las tareas y tableros se actualizarán automáticamente cada {settings.refetchInterval} segundos.
+            Las tareas y tableros se actualizarán automáticamente cada {localSettings.refetch_interval || 30} segundos.
           </p>
         </div>
 
@@ -70,19 +123,28 @@ const Settings = () => {
               min="3"
               max="20"
               step="1"
-              name="itemsPerPage"
-              value={settings.itemsPerPage}
+              name="items_per_page"
+              value={localSettings.items_per_page || 10}
               onChange={handleSettingChange}
               className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-white/20"
             />
             <span className="font-bold w-16 text-center text-lg p-2 rounded-md text-white bg-black/20">
-              {settings.itemsPerPage}
+              {localSettings.items_per_page || 10}
             </span>
           </div>
           <p className="text-sm mt-2 text-white/60">
-            Mostrar {settings.itemsPerPage} tareas por página.
+            Mostrar {localSettings.items_per_page || 10} tareas por página.
           </p>
         </div>
+
+        {/* Indicador de cambios pendientes */}
+        {hasChanges && (
+          <div className="p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+            <p className="text-blue-200 text-sm text-center">
+              Guardando cambios...
+            </p>
+          </div>
+        )}
 
       </div>
     </PageLayout>

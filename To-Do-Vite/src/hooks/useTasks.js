@@ -6,6 +6,7 @@ import {
   deleteTask, 
   deleteCompletedTasks 
 } from '../config/api';
+import { useUserSettings } from './useSettings';
 import useAppStore from '../stores/appStore';
 
 // Query key factory para tareas
@@ -19,12 +20,13 @@ export const taskKeys = {
 
 // Hook para obtener tareas de un tablero
 export const useTasks = (boardName, params = {}) => {
-  const refetchInterval = useAppStore((state) => state.settings.refetchInterval) || 30;
+  const { data: settings = {} } = useUserSettings();
+  const refetchInterval = settings.refetch_interval || 30;
 
   return useQuery({
     queryKey: taskKeys.list(boardName, params),
     queryFn: () => fetchTasks(boardName, params),
-    staleTime: refetchInterval * 1000, // Usar configuración del store
+    staleTime: refetchInterval * 1000, // Usar configuración del servidor
     gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: false,
     refetchInterval: refetchInterval * 1000, // Refetch automático

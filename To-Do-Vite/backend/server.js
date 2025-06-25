@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const boardRoutes = require('./routes/boardRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const adminRoutes = require('./routes/admin');
+const settingsRoutes = require('./routes/settingsRoutes');
 const authMiddleware = require('./middleware/auth');
 
 const app = express();
@@ -24,6 +25,9 @@ app.use('/auth', authRoutes);
 
 // Rutas de administración (solo para luca)
 app.use('/admin', adminRoutes);
+
+// Rutas de ajustes (protegidas)
+app.use('/settings', settingsRoutes);
 
 // Rutas de tareas para cada tablero (deben ir antes que las rutas de tableros)
 app.use('/boards/:boardName/tasks', (req, res, next) => {
