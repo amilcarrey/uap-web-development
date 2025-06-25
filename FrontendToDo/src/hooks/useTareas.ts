@@ -169,3 +169,19 @@ export const useEditarTareaMutation = () => {
     },
   });
 };
+
+export const useBuscarTareas = (query: string) => {
+  return useQuery({
+    queryKey: ['buscar-tareas', query],
+    queryFn: async () => {
+      if (!query) return [];
+      const res = await fetch(`http://localhost:3001/api/tareas/buscar?query=${encodeURIComponent(query)}`, {
+        credentials: "include"
+      });
+      if (!res.ok) throw new Error("Error al buscar tareas");
+      const data = await res.json();
+      return data.tareas;
+    },
+    enabled: !!query,
+  });
+};

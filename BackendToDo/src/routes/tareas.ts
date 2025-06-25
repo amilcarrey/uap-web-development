@@ -8,7 +8,8 @@ import {
   deleteTarea, 
   deleteCompletadas,
   updateDescripcionTarea,
-  filtrarTareas 
+  filtrarTareas,
+  buscarTareas
 } from '../controllers/tareasController';
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.use(requireAuth);
 
 // Rutas protegidas por permisos
 router.get('/', getTareas); // Leer tareas: todos los que tengan acceso pueden ver
+router.get('/buscar', buscarTareas);
 
 // Solo propietario/editor pueden crear, editar, eliminar, marcar tareas
 router.post('/', requirePermission('escribir'), createTarea);

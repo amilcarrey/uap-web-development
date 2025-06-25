@@ -62,3 +62,18 @@ export async function obtenerTareaPorId(id: number) {
   console.log('Buscando tarea', id, '->', tareas);
   return tareas.length > 0 ? tareas[0] : null;
 }
+
+export async function buscarTareasPorUsuario(userId: string, texto: string) {
+  // Buscar tareas solo en tableros propios o compartidos
+  const query = `
+    SELECT tareas.*, tableros.nombre as nombreTablero, tableros.alias as aliasTablero
+    FROM tareas
+    JOIN tableros ON tareas.idTablero = tableros.id
+    LEFT JOIN accesos_tablero a ON a.idTablero = tableros.id
+    WHERE (tableros.propietarioId = ? OR a.idUsuario = ?)
+      AND tareas.descripcion LIKE ?
+    ORDER BY tareas.id DESC
+    LIMIT 50
+  `;
+  return db.query(query, [userId, userId, `%${texto}%`]);
+}

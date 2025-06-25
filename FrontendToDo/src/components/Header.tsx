@@ -5,6 +5,8 @@ import { useClientStore } from '../store/clientStore';
 import { useAuthStatus } from '../hooks/useAutenticacion';
 import { useQuery } from '@tanstack/react-query';
 import type { Usuario } from '../types/Tarea';
+import BarraBusquedaTareas from "./BarraBusquedaTareas";
+
 
 interface HeaderProps {
   tableroNombre?: string;
@@ -121,7 +123,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
   };
 
   return (
-    <>
+    <header>
       {/* Botón casita arriba a la izquierda */}
       <button
         onClick={() => navigate({ to: "/" })}
@@ -283,7 +285,9 @@ const Header = ({ tableroNombre }: HeaderProps) => {
           </div>
         </div>
       )}
-    </>
+
+      <BarraBusquedaTareas /> {/* <-- Agregalo aquí */}
+    </header>
   );
 };
 

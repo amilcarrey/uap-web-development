@@ -5,7 +5,8 @@ import {
   actualizarEstado, 
   eliminarTarea, 
   eliminarCompletadas,
-  actualizarDescripcion 
+  actualizarDescripcion,
+  buscarTareasPorUsuario 
 } from '../services/tareasService';
 
 // GET /tareas - Listar tareas con filtros y paginación
@@ -80,12 +81,6 @@ export async function createTarea(req: Request, res: Response) {
 export async function toggleTarea(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    
-    // COMENTAR VERIFICACIONES DE PERMISOS TEMPORALMENTE:
-    // const tarea = await obtenerTareaPorId(parseInt(id));
-    // const tienePermiso = await verificarPermisoTablero(req.userId!, tarea.idTablero);
-    // if (!tienePermiso) return res.status(403).json({ error: "Sin permisos" });
-    
     const resultado = await actualizarEstado(parseInt(id));
     
     if (!resultado) {
@@ -205,5 +200,20 @@ export async function filtrarTareas(req: Request, res: Response) {
   } catch (error) {
     console.error('Error al filtrar tareas:', error);
     res.status(500).json({ error: "Error al filtrar tareas" });
+  }
+}
+
+// POST /tareas/buscar - Buscar tareas por usuario
+export async function buscarTareas(req: Request, res: Response) {
+  try {
+    const userId = (req as any).userId;
+    const { query } = req.query;
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({ error: "Falta el parámetro de búsqueda" });
+    }
+    const tareas = await buscarTareasPorUsuario(userId, query);
+    res.json({ tareas });
+  } catch (error) {
+    res.status(500).json({ error: "Error al buscar tareas" });
   }
 }
