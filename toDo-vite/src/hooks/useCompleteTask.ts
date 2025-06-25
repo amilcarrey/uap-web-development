@@ -7,14 +7,18 @@ export function useCompleteTask() {
 
     return useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`${BASE_URL}/complete-task`, {
-        method: "POST",
-        body: JSON.stringify({action: "complete", id  }),
+      const response = await fetch(`${BASE_URL}/tasks/${id}/complete`, {
+        method: "PATCH",
+        credentials: 'include',
+        body: JSON.stringify({completed: true}),
         headers: {
           "Content-Type": "application/json",
         },
       });
       if (!response.ok) throw new Error("Error al completar tarea");
+      if (response.status === 204) {
+        return true; 
+      }
       return response.json(); 
     },
     onSuccess: () => {

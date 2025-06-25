@@ -8,6 +8,7 @@ export default function SettingsPage() {
     uppercaseDescriptions,
     setRefetchInterval,
     toggleUppercaseDescriptions,
+    tasksPerPage, setTasksPerPage
   } = useSettingsStore();
    const router = useRouter();
 
@@ -15,13 +16,24 @@ export default function SettingsPage() {
     <div className="max-w-lg mx-auto mt-8 p-6 bg-gray-800 text-white rounded-2xl shadow-md">
         <div className="p-6 text-white">
       <button
-        onClick={() => router.history.go(-1)} // o usa navigate(-1) si querés ir una página atrás en el historial
+        onClick={() => router.history.go(-1)} 
         className="mb-4 text-blue-400 hover:text-blue-600 transition"
       >
         ← Volver
       </button>
       </div>
       <h2 className="text-2xl font-bold mb-6">Configuraciones</h2>
+      <label className="block mb-2">
+  Tareas por página:
+  <input
+    type="number"
+    min={1}
+    max={50}
+    value={tasksPerPage}
+    onChange={e => setTasksPerPage(Number(e.target.value))}
+    className="ml-2 p-1 rounded bg-gray-700 text-white w-20"
+  />
+</label>
 
       <div className="mb-4">
         <label className="block mb-2">Intervalo de actualización (s):</label>

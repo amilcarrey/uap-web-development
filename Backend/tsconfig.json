@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    /* Configuración base */
+    "target": "ES2022",                          /* Especifica la versión de ECMAScript */
+    "module": "NodeNext",                        /* Especifica el sistema de módulos para el código generado */
+    "moduleResolution": "NodeNext",              /* Cómo se resuelven los módulos */
+    "esModuleInterop": true,                     /* Permite la interoperabilidad entre CommonJS y ES Modules */
+    "resolveJsonModule": true,                   /* Permite importar archivos .json */
+    
+    /* Strict Type Checking */
+    "strict": true,                              /* Habilita todas las opciones de comprobación strict */
+    "noImplicitAny": true,                       /* Genera error en expresiones y declaraciones con tipo 'any' implícito */
+    "strictNullChecks": true,                    /* Habilita comprobaciones estrictas de nulos */
+    "strictFunctionTypes": true,                 /* Habilita comprobación estricta de tipos para funciones */
+    "strictBindCallApply": true,                 /* Habilita comprobación estricta para métodos bind, call y apply */
+    "noImplicitThis": true,                      /* Genera error en expresiones 'this' con tipo 'any' implícito */
+    
+    /* Configuración adicional */
+    "allowSyntheticDefaultImports": true,        /* Permite importaciones predeterminadas sintéticas desde módulos sin exportación predeterminada */
+    "forceConsistentCasingInFileNames": true,    /* Asegura que la referencia a los archivos tenga el mismo formato */
+    "skipLibCheck": true,                        /* Omite la comprobación de tipos en archivos de declaración */
+    "sourceMap": true,                           /* Genera archivos .map para depuración */
+    "declaration": true,                         /* Genera archivos .d.ts para tus módulos */
+    "removeComments": true,                      /* Elimina comentarios en el código compilado */
+    
+    /* Configuración de salida */
+    "outDir": "./dist",                          /* Directorio de salida para archivos JavaScript */
+    "rootDir": "./src",                          /* Directorio raíz para los archivos de origen */
+    
+    /* Mejoras para desarrollo */
+    "incremental": true,                         /* Habilita compilación incremental */
+    "noUnusedLocals": true,                      /* Reporta errores sobre variables locales no utilizadas */
+    "noUnusedParameters": true,                  /* Reporta errores sobre parámetros no utilizados */
+    "noFallthroughCasesInSwitch": true,          /* Reporta errores para casos de switch que caen sin un break */
+    "baseUrl": ".",                              /* Base para resolver módulos no relativos */
+    "paths": {                                   /* Mapeo de rutas para módulos */
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*"],                       /* Archivos a incluir en la compilación */
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"] /* Archivos a excluir */
+}

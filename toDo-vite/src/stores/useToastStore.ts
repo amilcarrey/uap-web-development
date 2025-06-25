@@ -19,7 +19,7 @@ export const useToastStore = create<ToastState>((set) => ({
 
     setTimeout(() => {
       set({ isVisible: false });
-    }, 3000); // oculta el toast a los 3 segundos
+    }, 3000); 
   },
   hideToast: () => set({ isVisible: false }),
 }));

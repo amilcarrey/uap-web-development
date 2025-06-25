@@ -1,17 +1,23 @@
 import { Link } from "@tanstack/react-router";
-import { useBoardStore } from "../stores/useBoardStore";
 
 import { boardRoute } from "../routes"; 
+import {useBoards, useCreateBoard } from "../hooks/useBoard";
+
+import type { Board } from "../types"; 
+
 
 export default function Home() {
-  const { boards, addBoard } = useBoardStore();
+  const { data } = useBoards();
+  const { mutate: createBoard } = useCreateBoard();
+  const boards: Board[] = data?.boards || [];
+
 
   return (
     <div className="p-6 max-w-xl mx-auto">
       <h2 className="text-2xl font-bold text-center mb-6">Mis tableros</h2>
 
       <ul className="space-y-4">
-        {boards.map((board) => (
+        {boards.map((board: Board) => (
           <li key={board.id}>
             <Link
               to={boardRoute.to} params={{ boardId: board.id }}
@@ -26,7 +32,7 @@ export default function Home() {
       <button
         onClick={() => {
           const name = prompt("Nombre del nuevo tablero:");
-          if (name) addBoard(name);
+          if (name) createBoard({name});
         }}
         className="mt-6 block w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg"
       >

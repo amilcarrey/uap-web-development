@@ -11,31 +11,33 @@ export const BASE_URL = "http://localhost:4321/api";
 
 type TasksResponse = {
   tasks: TaskType[];
-  total: number;
-  page: number;
   totalPages: number;
 };
 
 
-export function useTasks(filter: TaskFilter, boardId?: string) {
+export function useTasks(filter: TaskFilter, boardId?: string, searchQuery = '') {
   const { page } = usePaginationStore();
-  const limit = 5;
-  const { refetchInterval } = useSettingsStore();
+  const { refetchInterval, tasksPerPage } = useSettingsStore();
+  const limit = tasksPerPage || 5;
 
 
-  const queryKey = ["tasks", filter, page, boardId];
+  const queryKey = ["tasks", filter, page, boardId, searchQuery];
 
   return useQuery({
     queryKey,
     queryFn: async () => {
-      let url = `${BASE_URL}/tasks?page=${page}&limit=${limit}`;
+      let url = `${BASE_URL}/tasks/${boardId}?page=${page}&limit=${limit}`;
       if (filter !== "all") {
         url += `&filter=${filter}`;
       }
-      if (boardId) {
-        url += `&boardId=${boardId}`;
+      if (searchQuery) {
+        url += `&search=${encodeURIComponent(searchQuery)}`;
       }
-      const res = await fetch(url);
+     
+      const res = await fetch(url,{
+        credentials: 'include', 
+        headers: { "Content-Type": "application/json" },
+      });
       if (!res.ok) {
           throw new Error(`Error al obtener tareas: ${res.status}`);
         }

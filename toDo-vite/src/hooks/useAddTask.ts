@@ -11,9 +11,10 @@ export function useAddTask() {
 
     return useMutation({
     mutationFn: async ({name,boardId}: NewTask) => {
-      const response = await fetch(`${BASE_URL}/tasks`, {
+      const response = await fetch(`${BASE_URL}/tasks/${boardId}`, {
         method: "POST",
-        body: JSON.stringify({action: "add", name, boardId  }),
+        credentials: 'include',
+        body: JSON.stringify({ name}),
         headers: {
           "Content-Type": "application/json",
         },
