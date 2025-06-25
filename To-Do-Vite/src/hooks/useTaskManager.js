@@ -30,7 +30,6 @@ export const useTaskManager = (boardName) => {
     setCurrentPage(1);
   }, [itemsPerPage, setCurrentPage]);
 
-  // Parámetros para la query
   const queryParams = {
     page: currentPage,
     limit: itemsPerPage,
@@ -51,11 +50,9 @@ export const useTaskManager = (boardName) => {
   const deleteCompletedMutation = useDeleteCompletedTasks(boardName);
   const toggleTaskMutation = useToggleTask(boardName);
 
-  // Extraer datos de la respuesta paginada
   const { tasks, pagination } = result;
   const { totalTasks, totalPages, page: serverPage } = pagination;
 
-  // Contar tareas completadas (necesario para el filtro)
   const completedCount = tasks.filter(task => task.completed).length;
 
   const isLoading = isLoadingTasks || 

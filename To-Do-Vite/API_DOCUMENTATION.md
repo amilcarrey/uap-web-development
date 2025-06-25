@@ -16,7 +16,7 @@ Content-Type: application/json
 
 {
   "username": "nuevo_usuario",
-  "password": "mi_contraseña_segura"
+  "password": "contraseña segura"
 }
 ```
 

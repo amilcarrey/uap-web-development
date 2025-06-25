@@ -11,13 +11,12 @@ export function useBoardsQuery() {
   const boardsQuery = useQuery({
     queryKey: ['boards'],
     queryFn: fetchBoards,
-    staleTime: refetchInterval * 1000, // Usar configuración del servidor
-    gcTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: refetchInterval * 1000, 
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchInterval: refetchInterval * 1000, // Refetch automático
+    refetchInterval: refetchInterval * 1000,
   });
 
-  // Crear tablero
   const createBoardMutation = useMutation({
     mutationFn: ({ name, category }) => createBoard(name, category),
     onSuccess: () => {
@@ -25,7 +24,6 @@ export function useBoardsQuery() {
     },
   });
 
-  // Eliminar tablero
   const deleteBoardMutation = useMutation({
     mutationFn: (boardName) => deleteBoard(boardName),
     onSuccess: () => {

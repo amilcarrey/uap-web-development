@@ -4,7 +4,7 @@ const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-// Middleware para verificar que el usuario es admin (luca)
+// Middleware para ver si el usuario es admin
 const adminMiddleware = (req, res, next) => {
     if (req.user.username !== 'luca') {
         return res.status(403).json({ 
@@ -14,11 +14,9 @@ const adminMiddleware = (req, res, next) => {
     next();
 };
 
-// Aplicar middleware de autenticación y admin a todas las rutas
 router.use(authMiddleware);
 router.use(adminMiddleware);
 
-// Obtener estadísticas del dashboard
 router.get('/stats', async (req, res) => {
     try {
         const [usersCount, boardsCount, tasksCount] = await Promise.all([
@@ -38,7 +36,6 @@ router.get('/stats', async (req, res) => {
     }
 });
 
-// Obtener lista de usuarios con estadísticas
 router.get('/users', async (req, res) => {
     try {
         const usersResult = await query(`
@@ -105,7 +102,6 @@ router.delete('/users/:userId', async (req, res) => {
             return res.status(400).json({ error: 'No se puede eliminar al administrador' });
         }
 
-        // Obtener todos los tableros donde el usuario es propietario o participa
         const userBoards = await query(`
             SELECT DISTINCT b.id 
             FROM boards b 
@@ -116,16 +112,12 @@ router.delete('/users/:userId', async (req, res) => {
         const boardIds = userBoards.rows.map(board => board.id);
 
         if (boardIds.length > 0) {
-            // Eliminar tareas de todos los tableros del usuario
             await run('DELETE FROM tasks WHERE board_id IN (' + boardIds.map(() => '?').join(',') + ')', boardIds);
             
-            // Eliminar enlaces compartidos de los tableros
             await run('DELETE FROM shared_links WHERE board_id IN (' + boardIds.map(() => '?').join(',') + ')', boardIds);
             
-            // Eliminar relaciones de usuarios con tableros
             await run('DELETE FROM board_users WHERE board_id IN (' + boardIds.map(() => '?').join(',') + ')', boardIds);
             
-            // Eliminar los tableros
             await run('DELETE FROM boards WHERE id IN (' + boardIds.map(() => '?').join(',') + ')', boardIds);
         }
 
@@ -141,4 +133,4 @@ router.delete('/users/:userId', async (req, res) => {
     }
 });
 
-module.exports = router; 
+module.exports = router;

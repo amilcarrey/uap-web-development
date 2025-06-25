@@ -14,7 +14,6 @@ router.post('/register', async (req, res) => {
     }
 
     try {
-        // Verificar si el usuario ya existe
         const userExists = await query('SELECT * FROM users WHERE username = ?', [username]);
         if (userExists.rows.length > 0) {
             return res.status(409).json({ error: 'El usuario ya existe' });
@@ -23,7 +22,6 @@ router.post('/register', async (req, res) => {
         // Hashear la contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Guardar el usuario
         await run(
             'INSERT INTO users (username, password) VALUES (?, ?)',
             [username, hashedPassword]
@@ -45,7 +43,6 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        // Buscar el usuario
         const result = await query('SELECT * FROM users WHERE username = ?', [username]);
         const user = result.rows[0];
 
@@ -53,7 +50,6 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
         }
 
-        // Verificar la contraseña
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
             return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
@@ -83,7 +79,6 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Logout
 router.post('/logout', (req, res) => {
     res.clearCookie('token');
     res.json({ message: 'Logout exitoso' });

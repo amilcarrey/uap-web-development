@@ -10,7 +10,7 @@ const getTasks = async (req, res) => {
             return res.status(permission.status).json({ error: permission.error });
         }
 
-        // Extraer parámetros de paginación y filtros
+        // Paginación y filtros
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || '';
@@ -64,23 +64,19 @@ const updateTask = async (req, res) => {
             return res.status(400).json({ error: 'Se requieren campos para actualizar' });
         }
 
-        // Verificar que la tarea pertenece al tablero primero
         const task = await taskService.getTaskById(taskId);
         
-        // Obtener permisos del usuario
         const permission = await permissionService.checkBoardPermission(boardName, req.user.userId, 'viewer');
 
         if (!permission.hasPermission) {
             return res.status(permission.status).json({ error: permission.error });
         }
 
-        // Verificar que la tarea pertenece al tablero
         if (task.board_id !== permission.boardId) {
             return res.status(404).json({ error: 'Tarea no encontrada' });
         }
 
-        // Si solo está actualizando el estado 'completed', permitir para 'viewer'
-        // Si está actualizando texto u otros campos, requerir 'editor'
+        // Si sos viewer, solo podes actualizar el estado 'completed' y nda mas
         const isOnlyCompletedUpdate = Object.keys(updates).length === 1 && updates.completed !== undefined;
         
         if (!isOnlyCompletedUpdate) {
@@ -111,7 +107,6 @@ const deleteTask = async (req, res) => {
             return res.status(permission.status).json({ error: permission.error });
         }
 
-        // Verificar que la tarea pertenece al tablero
         const task = await taskService.getTaskById(taskId);
         if (task.board_id !== permission.boardId) {
             return res.status(404).json({ error: 'Tarea no encontrada' });

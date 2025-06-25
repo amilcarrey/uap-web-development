@@ -7,7 +7,7 @@ const getRequestConfig = (method = 'GET', body = null) => {
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include', // Incluir cookies para autenticación
+    credentials: 'include',
   };
 
   if (body) {
@@ -87,30 +87,6 @@ export const getBoardUsers = async (boardName) => {
 export const removeBoardUser = async (boardName, username) => {
   const response = await fetch(`${API_URL}/boards/${boardName}/users/${username}`, getRequestConfig('DELETE'));
   if (!response.ok) throw new Error('Error al remover usuario del tablero');
-};
-
-// Funciones para enlaces compartidos
-export const createShareLink = async (boardName, expiresInDays = 30) => {
-  const response = await fetch(`${API_URL}/boards/${boardName}/share-link`, getRequestConfig('POST', { expiresInDays }));
-  if (!response.ok) throw new Error('Error al crear enlace compartido');
-  return response.json();
-};
-
-export const revokeShareLink = async (boardName) => {
-  const response = await fetch(`${API_URL}/boards/${boardName}/share-link`, getRequestConfig('DELETE'));
-  if (!response.ok) throw new Error('Error al revocar enlace compartido');
-};
-
-export const getSharedBoard = async (token) => {
-  const response = await fetch(`${API_URL}/shared/${token}`, getRequestConfig());
-  if (!response.ok) throw new Error('Enlace no válido o expirado');
-  return response.json();
-};
-
-export const getSharedBoardTasks = async (token) => {
-  const response = await fetch(`${API_URL}/shared/${token}/tasks`, getRequestConfig());
-  if (!response.ok) throw new Error('Error al cargar tareas del tablero compartido');
-  return response.json();
 };
 
 // Funciones para el dashboard administrativo

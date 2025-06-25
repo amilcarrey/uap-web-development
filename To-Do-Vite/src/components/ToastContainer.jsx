@@ -66,7 +66,6 @@ const ToastItem = ({ toast, onRemove }) => {
 const ToastContainer = () => {
   const { toasts, removeToast } = useAppStore();
 
-  // Auto-remove toasts when they expire
   useEffect(() => {
     toasts.forEach(toast => {
       if (toast.duration) {

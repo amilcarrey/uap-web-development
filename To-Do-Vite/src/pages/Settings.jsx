@@ -9,7 +9,6 @@ const Settings = () => {
   const [localSettings, setLocalSettings] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Sincronizar ajustes locales cuando se cargan del servidor
   useEffect(() => {
     if (settings && Object.keys(settings).length > 0) {
       setLocalSettings(settings);
@@ -20,7 +19,6 @@ const Settings = () => {
     const { name, value, type, checked } = e.target;
     const newValue = type === 'checkbox' ? checked : Number(value);
     
-    // Actualizar estado local inmediatamente
     const updatedSettings = { ...localSettings, [name]: newValue };
     setLocalSettings(updatedSettings);
     setHasChanges(true);
@@ -33,12 +31,11 @@ const Settings = () => {
     }
   };
 
-  // Guardar cambios automáticamente después de un delay
   useEffect(() => {
     if (hasChanges) {
       const timeoutId = setTimeout(() => {
         handleSaveChanges();
-      }, 1000); // 1 segundo de delay
+      }, 1000);
 
       return () => clearTimeout(timeoutId);
     }

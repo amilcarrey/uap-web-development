@@ -27,13 +27,10 @@ export const useUpdateSettings = (showNotification = false) => {
   return useMutation({
     mutationFn: updateUserSettings,
     onSuccess: (data) => {
-      // Actualizar el cache con los nuevos ajustes
       queryClient.setQueryData(settingsKeys.user(), data.settings);
       
-      // Actualizar el store local
       useAppStore.getState().updateSettings(data.settings);
       
-      // Solo mostrar notificación si se solicita
       if (showNotification) {
         addToast('Ajustes actualizados correctamente', 'success');
       }

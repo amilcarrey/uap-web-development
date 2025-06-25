@@ -18,7 +18,6 @@ export default function TodoItem({
   const editInputRef = useRef(null);
   const isEditing = editingId === todo.id;
 
-  // Actualizar editText cuando cambia la tarea o cuando entra en modo edición
   useEffect(() => {
     setEditText(todo.text);
   }, [todo.text, isEditing]);

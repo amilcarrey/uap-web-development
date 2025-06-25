@@ -20,7 +20,6 @@ const AdminDashboard = () => {
             setLoading(true);
             setError(null);
 
-            // Obtener estadísticas y usuarios en paralelo
             const [statsData, usersData] = await Promise.all([
                 getAdminStats(),
                 getAdminUsers()
@@ -48,7 +47,6 @@ const AdminDashboard = () => {
             setDeletingUser(userId);
             await deleteAdminUser(userId);
             
-            // Actualizar la lista de usuarios y estadísticas
             await fetchData();
             alert('Usuario eliminado correctamente');
         } catch (err) {

@@ -47,7 +47,6 @@ const updateUserSettings = async (userId, settings) => {
         );
 
         if (result.rowCount === 0) {
-            // Si no existe, crear el registro
             await run(
                 'INSERT INTO user_settings (user_id, refetch_interval, items_per_page, uppercase_tasks) VALUES (?, ?, ?, ?)',
                 [userId, refetch_interval, items_per_page, uppercase_tasks ? 1 : 0]

@@ -11,13 +11,11 @@ const getTasks = async (boardId) => {
 const getTasksPaginated = async (boardId, page = 1, limit = 10, search = '', filter = 'all') => {
     const offset = (page - 1) * limit;
     
-    // Construir la consulta base
     let baseQuery = 'FROM tasks WHERE board_id = ?';
     let countQuery = 'SELECT COUNT(*) FROM tasks WHERE board_id = ?';
     let queryParams = [boardId];
     let paramCount = 1;
 
-    // Agregar filtros
     if (search) {
         baseQuery += ` AND text LIKE ?`;
         countQuery += ` AND text LIKE ?`;
@@ -32,11 +30,9 @@ const getTasksPaginated = async (boardId, page = 1, limit = 10, search = '', fil
         countQuery += ` AND completed = 1`;
     }
 
-    // Obtener el total de registros
     const countResult = await query(countQuery, queryParams);
     const totalTasks = parseInt(countResult.rows[0]['COUNT(*)']);
 
-    // Obtener las tareas paginadas
     const tasksQuery = `SELECT * ${baseQuery} ORDER BY created_at DESC LIMIT ? OFFSET ?`;
     queryParams.push(limit, offset);
     
@@ -61,7 +57,6 @@ const createTask = async (boardId, text) => {
         [boardId, text]
     );
     
-    // Obtener la tarea creada
     const taskResult = await query(
         'SELECT * FROM tasks WHERE id = ?',
         [result.rows[0].id]

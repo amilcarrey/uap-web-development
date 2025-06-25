@@ -52,7 +52,6 @@ const useAppStore = create((set, get) => ({
         const settings = await response.json();
         set({ settings });
       } else {
-        // Si hay error, usar ajustes por defecto
         set({ 
           settings: {
             refetchInterval: 30,
@@ -63,7 +62,6 @@ const useAppStore = create((set, get) => ({
       }
     } catch (error) {
       console.error('Error loading settings from server:', error);
-      // Usar ajustes por defecto en caso de error
       set({ 
         settings: {
           refetchInterval: 30,

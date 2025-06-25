@@ -19,7 +19,7 @@ npm --version     # Debe ser >= 8.0.0
 
 #### Opción A: Clonar con Git
 ```bash
-git clone <URL_DEL_REPOSITORIO>
+git clone <https://github.com/Lucavcolazo/progra3.git>
 cd To-Do-Vite
 ```
 

@@ -89,7 +89,6 @@ const Boards = () => {
       await shareBoard(shareModal.boardName, shareForm.username, shareForm.role);
       addToast('Tablero compartido exitosamente', 'success');
       
-      // Recargar usuarios del tablero
       const users = await getBoardUsers(shareModal.boardName);
       setShareModal(prev => ({ ...prev, boardUsers: users }));
       setShareForm({ username: '', role: 'viewer' });
@@ -103,7 +102,6 @@ const Boards = () => {
       await removeBoardUser(shareModal.boardName, username);
       addToast('Usuario removido exitosamente', 'success');
       
-      // Recargar usuarios del tablero
       const users = await getBoardUsers(shareModal.boardName);
       setShareModal(prev => ({ ...prev, boardUsers: users }));
     } catch (error) {
@@ -139,13 +137,7 @@ const Boards = () => {
     setFilter(newFilter);
   };
 
-  // Forzar 6 tableros por página para la paginación de boards
-  const boardsPerPage = 6;
-  const filteredBoards = boards.filter(board => {
-    const matchesCategory = filter === 'all' || board.category === filter;
-    const matchesSearch = !searchTerm || board.name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+
   const totalPages = Math.max(1, Math.ceil(filteredBoards.length / boardsPerPage));
   const paginatedBoards = filteredBoards.slice((currentPage - 1) * boardsPerPage, currentPage * boardsPerPage);
 

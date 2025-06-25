@@ -14,7 +14,6 @@ const getBoardsForUser = async (userId) => {
 
 const createBoard = async (name, category, userId) => {
     try {
-        // Insertar el tablero
         const boardResult = await run(
             'INSERT INTO boards (name, category, user_id) VALUES (?, ?, ?)',
             [name, category, userId]
@@ -22,7 +21,6 @@ const createBoard = async (name, category, userId) => {
         
         const boardId = boardResult.rows[0].id;
         
-        // Obtener el tablero creado
         const boardQuery = await query(
             'SELECT * FROM boards WHERE id = ?',
             [boardId]
@@ -30,7 +28,6 @@ const createBoard = async (name, category, userId) => {
         
         const board = boardQuery.rows[0];
         
-        // Insertar el usuario como propietario
         await run(
             'INSERT INTO board_users (board_id, user_id, role) VALUES (?, ?, ?)',
             [boardId, userId, 'owner']
@@ -98,7 +95,6 @@ const removeUserFromBoard = async (boardId, usernameToRemove) => {
     }
     const userIdToRemove = userResult.rows[0].id;
 
-    // Verificar que el usuario no sea el propietario del tablero
     const boardOwnerResult = await query(
         'SELECT user_id FROM boards WHERE id = ?',
         [boardId]
@@ -108,7 +104,6 @@ const removeUserFromBoard = async (boardId, usernameToRemove) => {
         throw { status: 403, message: 'No se puede remover al propietario del tablero' };
     }
 
-    // Verificar que el usuario tenga acceso al tablero antes de intentar removerlo
     const existingAccess = await query(
         'SELECT * FROM board_users WHERE board_id = ? AND user_id = ?',
         [boardId, userIdToRemove]

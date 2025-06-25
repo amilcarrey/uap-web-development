@@ -1,7 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-
-// Crear la base de datos en el directorio del proyecto
 const dbPath = path.join(__dirname, '..', 'database.sqlite');
 
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -17,7 +15,6 @@ const initializeDatabase = () => {
     // Habilitar foreign keys
     db.run('PRAGMA foreign_keys = ON');
 
-    // Crear tabla de usuarios
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,7 +25,6 @@ const initializeDatabase = () => {
         )
     `);
 
-    // Crear tabla de tableros
     db.run(`
         CREATE TABLE IF NOT EXISTS boards (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,7 +36,6 @@ const initializeDatabase = () => {
         )
     `);
 
-    // Crear tabla de usuarios de tableros
     db.run(`
         CREATE TABLE IF NOT EXISTS board_users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,7 +49,6 @@ const initializeDatabase = () => {
         )
     `);
 
-    // Crear tabla de tareas
     db.run(`
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,19 +60,7 @@ const initializeDatabase = () => {
         )
     `);
 
-    // Crear tabla de enlaces compartidos
-    db.run(`
-        CREATE TABLE IF NOT EXISTS shared_links (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            board_id INTEGER,
-            token TEXT UNIQUE NOT NULL,
-            expires_at DATETIME,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (board_id) REFERENCES boards (id) ON DELETE CASCADE
-        )
-    `);
 
-    // Crear tabla de ajustes de usuario
     db.run(`
         CREATE TABLE IF NOT EXISTS user_settings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -92,7 +74,7 @@ const initializeDatabase = () => {
         )
     `);
 
-    // Crear usuario admin por defecto si no existe
+    // Creamos el usuario admin por defecto si no existe
     db.get('SELECT * FROM users WHERE username = ?', ['luca'], (err, row) => {
         if (err) {
             console.error('Error al verificar usuario admin:', err);
@@ -109,7 +91,6 @@ const initializeDatabase = () => {
     });
 };
 
-// Función helper para promisificar las consultas
 const query = (sql, params = []) => {
     return new Promise((resolve, reject) => {
         db.all(sql, params, (err, rows) => {
@@ -122,7 +103,6 @@ const query = (sql, params = []) => {
     });
 };
 
-// Función helper para consultas que devuelven una sola fila
 const queryOne = (sql, params = []) => {
     return new Promise((resolve, reject) => {
         db.get(sql, params, (err, row) => {
@@ -135,7 +115,6 @@ const queryOne = (sql, params = []) => {
     });
 };
 
-// Función helper para consultas de inserción/actualización
 const run = (sql, params = []) => {
     return new Promise((resolve, reject) => {
         db.run(sql, params, function(err) {

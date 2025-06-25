@@ -9,7 +9,6 @@ import {
 import { useUserSettings } from './useSettings';
 import useAppStore from '../stores/appStore';
 
-// Query key factory para tareas
 export const taskKeys = {
   all: ['tasks'],
   lists: () => [...taskKeys.all, 'list'],
@@ -18,7 +17,6 @@ export const taskKeys = {
   detail: (boardName, taskId) => [...taskKeys.details(), boardName, taskId],
 };
 
-// Hook para obtener tareas de un tablero
 export const useTasks = (boardName, params = {}) => {
   const { data: settings = {} } = useUserSettings();
   const refetchInterval = settings.refetch_interval || 30;
@@ -26,14 +24,13 @@ export const useTasks = (boardName, params = {}) => {
   return useQuery({
     queryKey: taskKeys.list(boardName, params),
     queryFn: () => fetchTasks(boardName, params),
-    staleTime: refetchInterval * 1000, // Usar configuración del servidor
-    gcTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: refetchInterval * 1000, 
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchInterval: refetchInterval * 1000, // Refetch automático
+    refetchInterval: refetchInterval * 1000,
   });
 };
 
-// Hook para crear una tarea
 export const useCreateTask = (boardName) => {
   const queryClient = useQueryClient();
   const { addToast } = useAppStore();
@@ -41,7 +38,6 @@ export const useCreateTask = (boardName) => {
   return useMutation({
     mutationFn: ({ text }) => createTask(boardName, text),
     onSuccess: (newTask) => {
-      // Invalidar todas las queries de tareas para este tablero
       queryClient.invalidateQueries({ 
         queryKey: taskKeys.lists().concat(boardName)
       });
@@ -55,7 +51,6 @@ export const useCreateTask = (boardName) => {
   });
 };
 
-// Hook para actualizar una tarea
 export const useUpdateTask = (boardName) => {
   const queryClient = useQueryClient();
   const { addToast } = useAppStore();
@@ -63,7 +58,6 @@ export const useUpdateTask = (boardName) => {
   return useMutation({
     mutationFn: ({ taskId, updates }) => updateTask(boardName, taskId, updates),
     onSuccess: (updatedTask) => {
-      // Invalidar todas las queries de tareas para este tablero
       queryClient.invalidateQueries({ 
         queryKey: taskKeys.lists().concat(boardName)
       });
@@ -77,7 +71,6 @@ export const useUpdateTask = (boardName) => {
   });
 };
 
-// Hook para eliminar una tarea
 export const useDeleteTask = (boardName) => {
   const queryClient = useQueryClient();
   const { addToast } = useAppStore();
@@ -85,7 +78,6 @@ export const useDeleteTask = (boardName) => {
   return useMutation({
     mutationFn: ({ taskId }) => deleteTask(boardName, taskId),
     onSuccess: (_, { taskId }) => {
-      // Invalidar todas las queries de tareas para este tablero
       queryClient.invalidateQueries({ 
         queryKey: taskKeys.lists().concat(boardName)
       });
@@ -99,7 +91,6 @@ export const useDeleteTask = (boardName) => {
   });
 };
 
-// Hook para eliminar tareas completadas
 export const useDeleteCompletedTasks = (boardName) => {
   const queryClient = useQueryClient();
   const { addToast } = useAppStore();
@@ -107,7 +98,6 @@ export const useDeleteCompletedTasks = (boardName) => {
   return useMutation({
     mutationFn: () => deleteCompletedTasks(boardName),
     onSuccess: () => {
-      // Invalidar todas las queries de tareas para este tablero
       queryClient.invalidateQueries({ 
         queryKey: taskKeys.lists().concat(boardName)
       });
@@ -121,7 +111,6 @@ export const useDeleteCompletedTasks = (boardName) => {
   });
 };
 
-// Hook para optimistic updates (toggle completado)
 export const useToggleTask = (boardName) => {
   const queryClient = useQueryClient();
   const { addToast } = useAppStore();
@@ -129,17 +118,14 @@ export const useToggleTask = (boardName) => {
   return useMutation({
     mutationFn: ({ taskId, completed }) => updateTask(boardName, taskId, { completed }),
     onMutate: async ({ taskId, completed }) => {
-      // Cancelar queries en curso
       await queryClient.cancelQueries({ 
         queryKey: taskKeys.lists().concat(boardName)
       });
 
-      // Snapshot del valor anterior
       const previousQueries = queryClient.getQueriesData({ 
         queryKey: taskKeys.lists().concat(boardName)
       });
 
-      // Optimistic update para todas las queries activas
       queryClient.setQueriesData({ 
         queryKey: taskKeys.lists().concat(boardName)
       }, (oldData) => {
@@ -155,7 +141,6 @@ export const useToggleTask = (boardName) => {
       return { previousQueries };
     },
     onError: (err, variables, context) => {
-      // Revertir en caso de error
       if (context?.previousQueries) {
         context.previousQueries.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
@@ -165,7 +150,6 @@ export const useToggleTask = (boardName) => {
       console.error('Error toggling task:', err);
     },
     onSettled: () => {
-      // Invalidar para asegurar sincronización
       queryClient.invalidateQueries({ 
         queryKey: taskKeys.lists().concat(boardName)
       });

@@ -20,23 +20,17 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Rutas públicas
 app.use('/auth', authRoutes);
 
-// Rutas de administración (solo para luca)
 app.use('/admin', adminRoutes);
 
-// Rutas de ajustes (protegidas)
 app.use('/settings', settingsRoutes);
 
-// Rutas de tareas para cada tablero (deben ir antes que las rutas de tableros)
 app.use('/boards/:boardName/tasks', (req, res, next) => {
-    // Asegurar que el parámetro boardName esté disponible en las rutas hijas
     req.boardName = decodeURIComponent(req.params.boardName);
     next();
 }, taskRoutes);
 
-// Rutas protegidas de tableros
 app.use('/boards', boardRoutes);
 
 // Función para generar token único
@@ -66,36 +60,6 @@ app.get('/shared/:token', async (req, res) => {
     } catch (error) {
         console.error('Error al obtener tablero compartido:', error);
         res.status(500).json({ error: 'Error al obtener tablero compartido' });
-    }
-});
-
-// Obtener tareas de un tablero compartido (solo lectura)
-app.get('/shared/:token/tasks', async (req, res) => {
-    try {
-        const { token } = req.params;
-        
-        // Verificar que el enlace es válido
-        const linkResult = await query(
-            `SELECT board_id FROM shared_links 
-             WHERE token = ? AND (expires_at IS NULL OR expires_at > datetime('now'))`,
-            [token]
-        );
-        
-        if (linkResult.rows.length === 0) {
-            return res.status(404).json({ error: 'Enlace no válido o expirado' });
-        }
-        
-        const boardId = linkResult.rows[0].board_id;
-        
-        const result = await query(
-            'SELECT * FROM tasks WHERE board_id = ? ORDER BY created_at DESC',
-            [boardId]
-        );
-        
-        res.json(result.rows);
-    } catch (error) {
-        console.error('Error al obtener tareas del tablero compartido:', error);
-        res.status(500).json({ error: 'Error al obtener tareas' });
     }
 });
 
