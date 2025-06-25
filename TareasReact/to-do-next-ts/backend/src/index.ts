@@ -20,8 +20,9 @@ app.use(cors({
       callback(new Error('No permitido por CORS'));
     }
   },
-  credentials: true
+  credentials: true      
 }));
+
 
 app.use(cookieParser());
 app.use(express.json());

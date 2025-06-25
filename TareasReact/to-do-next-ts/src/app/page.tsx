@@ -21,7 +21,6 @@ export default function HomePage() {
   const limpiarUsuario = useUserStore((state) => state.limpiarUsuario);
   const { tableroId, setTableroId, rol, setRol } = useTableroStore();
 
-  const [tokenCargado, setTokenCargado] = useState(false);
   const [filtro, setFiltro] = useState('todas');
   const [pagina, setPagina] = useState(1);
   const [nuevoNombre, setNuevoNombre] = useState('');
@@ -32,13 +31,7 @@ export default function HomePage() {
   const [mensajeCompartir, setMensajeCompartir] = useState('');
   const [permisosUsuarios, setPermisosUsuarios] = useState<{ usuarioId: string; nombre: string; rol: 'editor' | 'lectura' }[]>([]);
   const [mostrarGestionPermisos, setMostrarGestionPermisos] = useState(false);
-
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
-  useEffect(() => {
-    if (!token) limpiarUsuario();
-    setTokenCargado(true);
-  }, []);
+  const [mostrarCompartir, setMostrarCompartir] = useState(false);
 
   const { tableros, crearTablero, eliminarTablero, isLoading } = useTableros();
   const tareasQuery = useTareas(filtro, pagina, tableroId);
@@ -49,6 +42,28 @@ export default function HomePage() {
   const limpiarTareas = useLimpiarTareas(filtro, pagina, tableroId || '');
   const API = process.env.NEXT_PUBLIC_API_URL;
 
+  if (!usuario) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-semibold text-gray-700">No has iniciado sesión</h1>
+          <a
+            href="/login"
+            className="inline-block bg-cyan-700 text-white px-4 py-2 rounded hover:bg-cyan-800"
+          >
+            Ir a iniciar sesión
+          </a>
+          <p className="text-sm text-gray-600">
+            ¿No tenés cuenta?{' '}
+            <a href="/register" className="text-cyan-700 hover:underline">
+              Registrate
+            </a>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white text-gray-800">
       <header className="flex justify-end p-4">
@@ -58,7 +73,6 @@ export default function HomePage() {
             <button
               onClick={() => {
                 limpiarUsuario();
-                localStorage.removeItem('token');
               }}
               className="flex items-center gap-1 text-red-600 hover:text-red-800 text-sm"
             >
@@ -72,6 +86,7 @@ export default function HomePage() {
           </div>
         )}
       </header>
+
 
       <main className="max-w-5xl mx-auto px-6 pb-10">
         <h1 className="text-4xl font-bold mb-6 text-cyan-800">📝 Gestor de Tareas</h1>
@@ -151,68 +166,90 @@ export default function HomePage() {
           </div>
 
           {tableroId && rol === 'propietario' && (
-            <div className="mt-6 p-4 border rounded bg-white shadow-sm">
-              <h3 className="text-md font-semibold mb-2 flex items-center gap-2"><Share2 size={18} /> Compartir tablero</h3>
-              <div className="flex flex-col md:flex-row gap-2">
-                <input
-                  type="email"
-                  value={emailCompartir}
-                  onChange={(e) => setEmailCompartir(e.target.value)}
-                  placeholder="Email del usuario"
-                  className="border px-3 py-2 rounded w-full md:w-auto"
-                />
-                <select
-                  value={rolCompartir}
-                  onChange={(e) => setRolCompartir(e.target.value as 'editor' | 'lectura')}
-                  className="border px-3 py-2 rounded"
-                >
-                  <option value="lectura">Solo lectura</option>
-                  <option value="editor">Editor</option>
-                </select>
-                <button
-                  onClick={async () => {
-                    try {
-                      const res = await fetch(`${API}/api/tableros/${tableroId}/compartir`, {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({ email: emailCompartir, rol: rolCompartir }),
-                      });
-                      const json = await res.json();
-                      if (!res.ok) throw new Error(json.error || 'Error al compartir');
-                      setMensajeCompartir('✅ Tablero compartido con éxito');
-                      setEmailCompartir('');
-                    } catch (error: any) {
-                      setMensajeCompartir(`❌ ${error.message}`);
-                    }
-                  }}
-                  className="bg-cyan-700 text-white px-4 py-2 rounded"
-                >
-                  Compartir
-                </button>
-              </div>
-              {mensajeCompartir && <p className="text-sm mt-2 text-gray-600">{mensajeCompartir}</p>}
+            <div className="mt-6">
+              <button
+                onClick={() => setMostrarCompartir(!mostrarCompartir)}
+                className="text-sm text-cyan-800 hover:underline"
+              >
+                📤 Compartir tablero
+              </button>
+
+              {mostrarCompartir && (
+                <div className="mt-2 p-4 border rounded bg-white shadow-sm">
+                  <h3 className="text-md font-semibold mb-2 flex items-center gap-2">
+                    <Share2 size={18} /> Compartir tablero
+                  </h3>
+                  <div className="flex flex-col md:flex-row gap-2">
+                    <input
+                      type="email"
+                      value={emailCompartir}
+                      onChange={(e) => setEmailCompartir(e.target.value)}
+                      placeholder="Email del usuario"
+                      className="border px-3 py-2 rounded w-full md:w-auto"
+                    />
+                    <select
+                      value={rolCompartir}
+                      onChange={(e) => setRolCompartir(e.target.value as 'editor' | 'lectura')}
+                      className="border px-3 py-2 rounded"
+                    >
+                      <option value="lectura">Solo lectura</option>
+                      <option value="editor">Editor</option>
+                    </select>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch(`${API}/api/tableros/${tableroId}/compartir`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            credentials: 'include',
+                            body: JSON.stringify({ email: emailCompartir, rol: rolCompartir }),
+                          });
+                          const json = await res.json();
+                          if (!res.ok) throw new Error(json.error || 'Error al compartir');
+                          setMensajeCompartir('✅ Tablero compartido con éxito');
+                          setEmailCompartir('');
+                        } catch (error: any) {
+                          setMensajeCompartir(`❌ ${error.message}`);
+                        }
+                      }}
+                      className="bg-cyan-700 text-white px-4 py-2 rounded"
+                    >
+                      Compartir
+                    </button>
+                  </div>
+                  {mensajeCompartir && (
+                    <p className="text-sm mt-2 text-gray-600">{mensajeCompartir}</p>
+                  )}
+                </div>
+              )}
             </div>
           )}
+
         </section>
         {tableroId && rol === 'propietario' && (
           <button
             onClick={async () => {
               try {
-                const res = await fetch(`${API}/api/tableros/${tableroId}/usuarios`, {
+                const res = await fetch(`${API}/api/tableros/${tableroId}/compartir`, {
+                  method: 'POST',
                   headers: {
-                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                   },
+                  credentials: 'include',
+                  body: JSON.stringify({ email: emailCompartir, rol: rolCompartir }),
                 });
-                const data = await res.json();
-                setPermisosUsuarios(data.usuarios); // este endpoint te lo explico si no lo tenés
-                setMostrarGestionPermisos(true);
-              } catch (e) {
-                console.error('Error al obtener permisos:', e);
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.error || 'Error al compartir');
+                setMensajeCompartir('✅ Tablero compartido con éxito');
+                setEmailCompartir('');
+                setMostrarCompartir(false); // 👈 esto
+              } catch (error: any) {
+                setMensajeCompartir(`❌ ${error.message}`);
               }
             }}
+
             className="mt-4 text-sm text-cyan-800 hover:underline"
           >
             Gestionar permisos
@@ -232,8 +269,8 @@ export default function HomePage() {
                         method: 'PUT',
                         headers: {
                           'Content-Type': 'application/json',
-                          Authorization: `Bearer ${token}`,
                         },
+                        credentials: 'include',
                         body: JSON.stringify({
                           usuarioId: u.usuarioId,
                           nuevoRol,

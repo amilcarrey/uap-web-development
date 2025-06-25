@@ -18,8 +18,10 @@ export const useTareas = (
     queryFn: async () => {
       //await delay(500);
       const res = await fetch(
-        `${API}/api/tareas?filtro=${filtro}&pagina=${pagina}&limit=5&tableroId=${tableroId}`
+        `${API}/api/tareas?filtro=${filtro}&pagina=${pagina}&limit=5&tableroId=${tableroId}`,
+        { credentials: 'include' }
       );
+
       if (!res.ok) throw new Error('Error al cargar tareas');
 
       const json = await res.json();
@@ -54,9 +56,11 @@ export const useAgregarTarea = (
 
       const res = await fetch(`${API}/api/tareas`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ texto, tableroId }),
       });
+
 
 
       if (!res.ok) throw new Error('Error al agregar tarea');
@@ -81,7 +85,9 @@ export const useToggleTarea = (
     mutationFn: async (id: string) => {
       const res = await fetch(`${API}/api/tareas/${id}/toggle`, {
         method: 'PUT',
+        credentials: 'include',
       });
+
 
       if (!res.ok) throw new Error('Error al actualizar tarea');
       return res.json();
@@ -102,7 +108,9 @@ export function useBorrarTarea(filtro: string, pagina: number, tableroId: string
     mutationFn: async (id: string) => {
       const res = await fetch(`${API}/api/tareas/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
+
       if (!res.ok) throw new Error('Error al borrar');
     },
     onSuccess: () => {
@@ -120,17 +128,17 @@ export const useLimpiarTareas = (
   tableroId: string
 ) => {
   const queryClient = useQueryClient();
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   return useMutation({
     mutationFn: async () => {
       const res = await fetch(`${API}/api/tareas/limpiar/${tableroId}`, {
         method: 'DELETE',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // ✅ agregar token aquí
         },
       });
+
 
       if (!res.ok) throw new Error('Error al limpiar tareas');
       return res.json();
@@ -155,9 +163,11 @@ export const useEditarTarea = (
     mutationFn: async ({ id, texto }: { id: string; texto: string }) => {
       const res = await fetch(`${API}/api/tareas/${id}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ texto }),
       });
+
 
       if (!res.ok) throw new Error('Error al editar tarea');
       console.log('Se editó:', { id, texto });

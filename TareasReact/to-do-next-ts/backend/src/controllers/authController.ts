@@ -65,5 +65,17 @@ export const loginUsuario = async (req: Request, res: Response): Promise<void> =
     { expiresIn: '2h' }
   );
 
-  res.json({ token });
+  res
+  .cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // solo en HTTPS si estás en prod
+    sameSite: 'lax', // o 'strict' si preferís más seguridad
+    maxAge: 2 * 60 * 60 * 1000, // 2 horas
+  })
+  .json({ mensaje: 'Inicio de sesión exitoso' });
+
+};
+
+export const logoutUsuario = (req: Request, res: Response) => {
+  res.clearCookie('token').json({ mensaje: 'Sesión cerrada' });
 };

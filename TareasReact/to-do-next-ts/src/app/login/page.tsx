@@ -3,15 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/stores/userStore';
-import { jwtDecode } from 'jwt-decode';
-
-type DecodedToken = {
-  id: string;
-  nombre: string;
-  email: string;
-  iat: number;
-  exp: number;
-};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,11 +15,11 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
-    
     try {
       const res = await fetch('http://localhost:4000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // ✅ Enviar cookie
         body: JSON.stringify({ email, contraseña }),
       });
 
@@ -38,16 +29,22 @@ export default function LoginPage() {
         return;
       }
 
-      const { token } = await res.json();
-      localStorage.setItem('token', token);
+      // ✅ Obtener usuario autenticado desde backend
+      const info = await fetch('http://localhost:4000/api/auth/test', {
+        credentials: 'include',
+      });
 
-      // Decodificar el token para obtener los datos del usuario
-      const decoded = jwtDecode<DecodedToken>(token);
+      if (!info.ok) {
+        setError('Error al obtener datos del usuario');
+        return;
+      }
+
+      const user = await info.json();
       setUsuario({
-        id: decoded.id,
-        nombre: decoded.nombre,
-        email: decoded.email,
-        token,
+        id: user.id,
+        nombre: user.nombre,
+        email: user.email,
+        token: '', // ya no se usa, pero mantenelo si querés compatibilidad
       });
 
       router.push('/');
