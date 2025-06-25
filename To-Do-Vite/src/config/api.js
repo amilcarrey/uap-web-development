@@ -120,3 +120,4 @@ export const updateUserSettings = async (settings) => {
   if (!response.ok) throw new Error('Error al actualizar ajustes');
   return response.json();
 }; 
+

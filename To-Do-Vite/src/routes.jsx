@@ -2,7 +2,6 @@ import { createBrowserRouter, Outlet } from 'react-router-dom';
 import Home from './pages/Home';
 import Boards from './pages/Boards';
 import BoardDetail from './pages/BoardDetail';
-import SharedBoard from './pages/SharedBoard';
 import Auth from './pages/Auth';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorPage from './components/ErrorPage';
