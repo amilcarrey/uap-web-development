@@ -1,6 +1,6 @@
 import React from "react";
 import type { Board } from "../types/api";
-import { Eye, X } from "lucide-react";
+import { X } from "lucide-react";
 
 interface TabItemProps {
   name: string;

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
 export interface AppConfig {
+  hideCompletedTasksByDefault: boolean;
   taskRefetchInterval: number;
   uppercaseDescriptions: boolean;
 }
