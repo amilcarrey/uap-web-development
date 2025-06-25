@@ -80,12 +80,12 @@ Incluye backend (Node.js + Express + Sequelize + SQLite) y frontend (React + Vit
   El frontend maneja esta cookie automáticamente en cada request, por lo que no necesitas preocuparte por el token.
 - **La base de datos es SQLite y se crea automáticamente al iniciar el backend.**
 
+- El proyecto utiliza **migraciones de Sequelize** para crear y actualizar el esquema de la base de datos.
+- Si necesitas reiniciar la base de datos o aplicar cambios de estructura, ejecuta estos comandos desde la carpeta `backend`:
+- Si quieres empezar de cero, puedes borrar el archivo `database.sqlite` y volver a correr los comandos anteriores.
 
-- usuario "patohe"
-- contraseña "12345"
-
-- usuario "ulises"
-- contraseña "cuarteto"
-
+- **Usuarios de prueba incluidos:**
+  - usuario: `patohe` | contraseña: `12345`
+  - usuario: `ulises` | contraseña: `cuarteto`
 
 ---
