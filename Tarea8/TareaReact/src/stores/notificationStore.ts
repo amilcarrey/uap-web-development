@@ -21,7 +21,7 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
     set((state) => ({
       notifications: [...state.notifications, { id, message, type }]
     }))
-    // Auto-remove after 3s
+    
     setTimeout(() => {
       set((state) => ({
         notifications: state.notifications.filter((n) => n.id !== id)

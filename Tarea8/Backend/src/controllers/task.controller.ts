@@ -10,7 +10,6 @@ export const getTasks = async (req: AuthRequest, res: Response) => {
     }
     const { boardId, page = 1, limit = 10, filter, search } = req.query
 
-    // Verifica permisos sobre el tablero
     const permission = await prisma.boardPermission.findUnique({
         where: { boardId_userId: { boardId: Number(boardId), userId } }
     })
@@ -43,7 +42,6 @@ export const getTasks = async (req: AuthRequest, res: Response) => {
     })
 }
 
-// Implementá createTask, updateTask, deleteTask, clearCompleted siguiendo la misma lógica
 
 export const createTask = async (req: AuthRequest, res: Response) => {
     const userId = req.userId
@@ -53,7 +51,6 @@ export const createTask = async (req: AuthRequest, res: Response) => {
     }
     const { boardId, title } = req.body
 
-    // Verifica permisos sobre el tablero
     const permission = await prisma.boardPermission.findUnique({
         where: { boardId_userId: { boardId: Number(boardId), userId } }
     })
@@ -66,7 +63,7 @@ export const createTask = async (req: AuthRequest, res: Response) => {
         data: {
             title,
             boardId: Number(boardId),
-            userId // Ahora sí, Prisma lo acepta
+            userId 
         }
     })
     res.status(201).json(task)
@@ -82,14 +79,12 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
     const { id } = req.params
     const { title, completed } = req.body
 
-    // Busca la tarea
     const task = await prisma.task.findUnique({ where: { id: Number(id) } })
     if (!task) {
         res.status(404).json({ message: 'Tarea no encontrada' })
         return
     }
 
-    // Chequea permisos en el tablero
     const permission = await prisma.boardPermission.findUnique({
         where: { boardId_userId: { boardId: task.boardId, userId } }
     })
@@ -119,7 +114,6 @@ export const deleteTask = async (req: AuthRequest, res: Response) => {
         return
     }
 
-    // Chequea permisos en el tablero
     const permission = await prisma.boardPermission.findUnique({
         where: { boardId_userId: { boardId: task.boardId, userId } }
     })
@@ -141,7 +135,6 @@ export const clearCompleted = async (req: AuthRequest, res: Response) => {
     }
     const { boardId } = req.body
 
-    // Verifica permisos sobre el tablero
     const permission = await prisma.boardPermission.findUnique({
         where: { boardId_userId: { boardId: Number(boardId), userId } }
     })

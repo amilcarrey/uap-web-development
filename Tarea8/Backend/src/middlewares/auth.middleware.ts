@@ -11,7 +11,7 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
   const token = req.cookies.token
   if (!token) {
     res.status(401).json({ message: 'No autenticado' })
-    return // <-- solo return, NO return res.status...
+    return 
   }
   try {
     const payload = jwt.verify(token, JWT_SECRET) as { userId: number }
@@ -19,6 +19,6 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
     next()
   } catch {
     res.status(401).json({ message: 'Token inválido o expirado' })
-    return // <-- solo return, NO return res.status...
+    return 
   }
 }

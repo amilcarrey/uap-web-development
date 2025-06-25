@@ -26,7 +26,6 @@ app.get('/', async (_req: Request, res: Response) => {
   res.send(`API funcionando. Usuarios en la base: ${userCount}`)
 })
 
-// Aquí irán tus rutas
 app.use('/api/boards', boardsRoutes)
 app.use('/api/tasks', tasksRoutes)
 app.use('/api/settings', settingsRoutes)

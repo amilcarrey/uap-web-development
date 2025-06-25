@@ -4,7 +4,6 @@ import { AuthRequest } from '../middlewares/auth.middleware'
 
 export const getBoards = async (req: AuthRequest, res: Response) => {
   const userId = req.userId
-  // Solo tableros donde el usuario tiene permisos
   const boards = await prisma.board.findMany({
     where: {
       permissions: {
@@ -15,7 +14,7 @@ export const getBoards = async (req: AuthRequest, res: Response) => {
   })
   res.json(boards)
 }
-//Recrear todo de nuevo con el authrequest
+
 
 export const createBoard = async (req: AuthRequest, res: Response) => {
   const userId = req.userId
@@ -179,7 +178,6 @@ export const updateBoardPermission = async (req: AuthRequest, res: Response) => 
   const targetUserId = Number(req.params.userId)
   const { role } = req.body
 
-  // Solo el owner puede cambiar permisos
   const ownerPerm = await prisma.boardPermission.findUnique({
     where: { boardId_userId: { boardId, userId } }
   })
@@ -188,7 +186,6 @@ export const updateBoardPermission = async (req: AuthRequest, res: Response) => 
     return
   }
 
-  // No permitir cambiar el rol del owner
   const targetPerm = await prisma.boardPermission.findUnique({
     where: { boardId_userId: { boardId, userId: targetUserId } }
   })
@@ -220,7 +217,6 @@ export const removeBoardPermission = async (req: AuthRequest, res: Response) => 
   const boardId = Number(req.params.id)
   const targetUserId = Number(req.params.userId)
 
-  // Solo el owner puede quitar usuarios
   const ownerPerm = await prisma.boardPermission.findUnique({
     where: { boardId_userId: { boardId, userId } }
   })
@@ -229,7 +225,6 @@ export const removeBoardPermission = async (req: AuthRequest, res: Response) => 
     return
   }
 
-  // No permitir quitar al owner
   const targetPerm = await prisma.boardPermission.findUnique({
     where: { boardId_userId: { boardId, userId: targetUserId } }
   })

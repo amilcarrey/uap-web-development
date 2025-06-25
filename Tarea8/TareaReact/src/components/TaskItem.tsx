@@ -16,7 +16,7 @@ export function TaskItem({
   boardId: string
 }) {
   const [value, setValue] = useState(task.title)
-  const editTask = useEditTaskMutation(boardId, 'all', 1, 5) // Ajustá los params si usás otros filtros/paginación
+  const editTask = useEditTaskMutation(boardId, 'all', 1, 5) 
   const { uppercaseDescriptions } = useSettingsStore()
 
   const handleSave = () => {

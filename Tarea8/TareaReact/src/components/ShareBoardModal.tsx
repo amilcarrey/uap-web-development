@@ -47,13 +47,11 @@ export function ShareBoardModal({
     e.preventDefault()
     setError("")
 
-    // Validar email simple
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("Email inválido")
       return
     }
 
-    // Chequear si ya está invitado
     if (permissions.some(p => p.email === email)) {
       setError("Ese usuario ya tiene acceso")
       return
@@ -68,7 +66,6 @@ export function ShareBoardModal({
     if (res.ok) {
       setEmail("")
       setRole("viewer")
-      // Refresca permisos
       fetch(`${BACKEND_URL}/boards/${boardId}`, { credentials: "include" })
         .then(res => res.json())
         .then(data => {

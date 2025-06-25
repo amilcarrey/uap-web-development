@@ -4,7 +4,7 @@ import * as taskController from '../controllers/task.controller'
 
 const router = Router()
 
-router.get('/', requireAuth, taskController.getTasks) // paginado, filtrado, búsqueda
+router.get('/', requireAuth, taskController.getTasks)
 router.post('/', requireAuth, taskController.createTask)
 router.put('/:id', requireAuth, taskController.updateTask)
 router.delete('/:id', requireAuth, taskController.deleteTask)

@@ -12,8 +12,6 @@ export function SettingsModal({ open, onClose }: { open: boolean, onClose: () =>
     if (data) {
       setAutoRefreshInterval(data.autoRefreshInterval ?? 10000)
       setViewMode(data.viewMode ?? 'normal')
-      // NO actualizar el estado global acá
-      // Solo actualizar los estados locales del modal
     }
   }, [data])
 
@@ -21,7 +19,7 @@ export function SettingsModal({ open, onClose }: { open: boolean, onClose: () =>
 
   const handleSave = async () => {
     await saveSettings({ autoRefreshInterval, viewMode })
-    setRefetchInterval(autoRefreshInterval) // Ahora sí, solo cuando guardás
+    setRefetchInterval(autoRefreshInterval)
     onClose()
   }
 

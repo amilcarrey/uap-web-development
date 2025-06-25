@@ -22,7 +22,6 @@ import './index.css'
 import { Login } from './components/Login.tsx'
 import { Register } from './components/Register.tsx'
 
-// Inicializamos el cliente de React Query
 const queryClient = new QueryClient()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

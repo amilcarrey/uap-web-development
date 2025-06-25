@@ -10,7 +10,7 @@ router.post('/', requireAuth, boardController.createBoard)
 router.get('/:id', requireAuth, boardController.getBoardById)
 router.put('/:id', requireAuth, boardController.updateBoard)
 router.delete('/:id', requireAuth, boardController.deleteBoard)
-router.post('/:id/share', requireAuth, boardController.shareBoard) // compartir tablero y asignar rol
+router.post('/:id/share', requireAuth, boardController.shareBoard) 
 router.put('/:id/permissions/:userId', requireAuth, boardController.updateBoardPermission)
 router.delete('/:id/permissions/:userId', requireAuth, boardController.removeBoardPermission)
 
