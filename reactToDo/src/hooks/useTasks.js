@@ -1,21 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useClientStore } from '../stores/clientStore';
 
-export const useTasksByCategory = (category, boardId) => {
-  const { settings } = useClientStore();
+export function useTasksByCategory({ category, boardId, page, pageSize }) {
   return useQuery({
-    queryKey: ['tasks', category, boardId],
+    queryKey: ['tasks', category, boardId, page, pageSize],
     queryFn: async () => {
-      const res = await fetch(`http://localhost:4000/api/tasks?boardId=${boardId}&category=${category || ''}`, {
-        credentials: 'include'
+      const params = new URLSearchParams();
+      if (category) params.append('category', category);
+      if (boardId) params.append('boardId', boardId);
+      if (page) params.append('page', page);
+      if (pageSize) params.append('pageSize', pageSize);
+
+      const res = await fetch(`/api/tasks?${params.toString()}`, {
+        credentials: 'include',
       });
-      if (!res.ok) throw new Error('No autorizado');
+      if (!res.ok) throw new Error('Error al cargar tareas');
       return res.json();
     },
-    initialData: [],
-    refetchInterval: settings.refetchInterval,
+    keepPreviousData: true,
   });
-};
+}
 
 export const useTaskMutations = (boardId) => {
   const queryClient = useQueryClient();

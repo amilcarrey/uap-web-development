@@ -1,9 +1,20 @@
+import { useState } from 'react';
 import { useTasksByCategory, useTaskMutations } from '../hooks/useTasks';
 import { useClientStore } from '../stores/clientStore';
 
-// Actualizar para usar boardId
 export default function TaskList({ category, boardId, filter }) {
-  const { data: tasks = [], isLoading, error } = useTasksByCategory(category, boardId);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  const { data, isLoading, error } = useTasksByCategory({
+    category,
+    boardId,
+    page,
+    pageSize,
+  });
+
+  const tasks = data?.tasks || [];
+  const totalPages = data?.totalPages || 1;
   const { toggleTask, deleteTask } = useTaskMutations(boardId);
   const { 
     modals, 
@@ -11,8 +22,6 @@ export default function TaskList({ category, boardId, filter }) {
     closeDeleteModal,
     openAddTaskModal,
     startEditing,
-    pagination: { currentPage, tasksPerPage },
-    setCurrentPage,
     settings
   } = useClientStore();
 
@@ -22,13 +31,6 @@ export default function TaskList({ category, boardId, filter }) {
     if (filter === 'completed') return task.completed;
     return true;
   });
-
-  // Calcular tareas paginadas
-  const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
-  const paginatedTasks = filteredTasks.slice(
-    (currentPage - 1) * tasksPerPage,
-    currentPage * tasksPerPage
-  );
 
   if (isLoading) return (
     <div className="p-4 text-center text-gray-500">
@@ -52,7 +54,7 @@ export default function TaskList({ category, boardId, filter }) {
     <div className="space-y-4">
       {/* Lista de tareas paginadas */}
       <ul className="space-y-3">
-        {paginatedTasks.map(task => (
+        {filteredTasks.map(task => (
           <li 
             key={task.id}
             className={`flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all ${
@@ -105,25 +107,40 @@ export default function TaskList({ category, boardId, filter }) {
       </ul>
 
       {/* Controles de paginación */}
-      {filteredTasks.length > 0 && (
-        <div className="flex justify-between items-center mt-4">
-          <button
-            onClick={() => setCurrentPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50"
-          >
-            Anterior
-          </button>
-          <span className="text-sm text-gray-600">
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50"
-          >
-            Siguiente
-          </button>
+      {tasks.length > 0 && (
+        <div className="flex items-center justify-between mt-4">
+          <div>
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+              className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+            >
+              Anterior
+            </button>
+            <span className="mx-2">Página {page} de {totalPages}</span>
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages}
+              className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+            >
+              Siguiente
+            </button>
+          </div>
+          <div>
+            <label className="mr-2">Tareas por página:</label>
+            <select
+              value={pageSize}
+              onChange={e => {
+                setPageSize(Number(e.target.value));
+                setPage(1); // vuelve a la primera página al cambiar el tamaño
+              }}
+              className="border rounded px-2 py-1"
+            >
+              {[3, 5, 10, 20].map(size => (
+                <option key={size} value={size}>{size}</option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 
@@ -147,8 +164,8 @@ export default function TaskList({ category, boardId, filter }) {
                     {
                       onSuccess: () => {
                         closeDeleteModal();
-                        if (paginatedTasks.length === 1 && currentPage > 1) {
-                          setCurrentPage(currentPage - 1);
+                        if (filteredTasks.length === 1 && page > 1) {
+                          setPage(page - 1);
                         }
                       },
                     }

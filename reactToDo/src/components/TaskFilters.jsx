@@ -9,7 +9,8 @@ export default function TaskFilters({
   boardId
 }) {
   const [showConfirm, setShowConfirm] = useState(false);
-  const { data: tasks = [] } = useTasksByCategory(category, boardId);
+  const { data } = useTasksByCategory({ category, boardId });
+  const tasks = data?.tasks || [];
   const { deleteCompletedTasks } = useTaskMutations(boardId);
 
   const activeCount = tasks.filter(t => !t.completed).length;

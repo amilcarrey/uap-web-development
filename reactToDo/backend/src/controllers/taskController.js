@@ -1,13 +1,29 @@
 const Task = require('../models/Task');
 
-// Obtener todas las tareas del usuario y board
+// Obtener todas las tareas del usuario y board, con paginación
 exports.getAll = async (req, res) => {
-  const { boardId, category } = req.query;
+  const { boardId, category, page = 1, pageSize = 5 } = req.query;
   const where = { userId: req.user.id };
   if (boardId) where.boardId = boardId;
   if (category) where.category = category;
-  const tasks = await Task.findAll({ where });
-  res.json(tasks);
+
+  const limit = parseInt(pageSize, 10) || 5;
+  const offset = ((parseInt(page, 10) || 1) - 1) * limit;
+
+  const { rows: tasks, count: total } = await Task.findAndCountAll({
+    where,
+    limit,
+    offset,
+    order: [['createdAt', 'DESC']],
+  });
+
+  res.json({
+    tasks,
+    total,
+    page: parseInt(page, 10) || 1,
+    pageSize: limit,
+    totalPages: Math.max(1, Math.ceil(total / limit)),
+  });
 };
 
 // Crear tarea
