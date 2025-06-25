@@ -42,6 +42,15 @@ export default function App() {
     setActiveTab(categories[0]);
   }
 
+  const handleLogout = async () => {
+    await fetch('http://localhost:4000/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    setIsAuthenticated(false);
+    // Opcional: aquí puedes limpiar el estado de boards/tareas si lo deseas
+  };
+
   if (showSettings) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
@@ -67,12 +76,22 @@ export default function App() {
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-center text-gray-800">Task Manager</h1>
-            <button
-              className="ml-4 px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-              onClick={() => setShowSettings(true)}
-            >
-              ⚙️
-            </button>
+            <div className="flex items-center">
+              <button
+                className="ml-4 px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={() => setShowSettings(true)}
+                title="Configuración"
+              >
+                ⚙️
+              </button>
+              <button
+                className="ml-2 px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 font-semibold"
+                onClick={handleLogout}
+                title="Cerrar sesión"
+              >
+                Logout
+              </button>
+            </div>
           </div>
           
           <BoardSwitcher />

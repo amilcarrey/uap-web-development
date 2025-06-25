@@ -3,14 +3,15 @@ import { useState } from 'react';
 export default function AuthForm({ onAuthSuccess }) {
   const [mode, setMode] = useState('login'); // 'login' o 'register'
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState(''); // Opcional, puedes omitir si no usas email
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(''); // Nuevo estado para mensajes de éxito
 
   const handleTab = (tab) => {
     setMode(tab);
     setError('');
+    setSuccess('');
     setUsername('');
     setPassword('');
     setEmail('');
@@ -20,6 +21,7 @@ export default function AuthForm({ onAuthSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     if (mode === 'register' && password !== confirm) {
       setError('Las contraseñas no coinciden');
       return;
@@ -43,7 +45,13 @@ export default function AuthForm({ onAuthSuccess }) {
       setPassword('');
       setEmail('');
       setConfirm('');
-      onAuthSuccess && onAuthSuccess();
+      if (mode === 'login') {
+        onAuthSuccess && onAuthSuccess();
+      } else {
+        // Opcional: muestra mensaje de éxito o cambia a la pestaña de login
+        setMode('login');
+        setSuccess('¡Registro exitoso! Ahora inicia sesión.');
+      }
     }
   };
 
@@ -77,17 +85,6 @@ export default function AuthForm({ onAuthSuccess }) {
             onChange={e => setUsername(e.target.value)}
             required
           />
-          {mode === 'register' && (
-            <input
-              type="email"
-              className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder="Email (opcional)"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              autoComplete="off"
-              disabled
-            />
-          )}
           <input
             type="password"
             className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -107,6 +104,7 @@ export default function AuthForm({ onAuthSuccess }) {
             />
           )}
           {error && <div className="text-red-500 text-sm">{error}</div>}
+          {success && <div className="text-green-600 text-sm">{success}</div>}
           <button
             type="submit"
             className={`w-full py-3 rounded font-bold text-white transition-all ${
