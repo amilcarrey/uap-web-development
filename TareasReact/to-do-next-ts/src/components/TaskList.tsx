@@ -1,45 +1,41 @@
 'use client';
 
 import TaskItem from './TaskItem';
-import { Tarea } from '@/lib/tareas';
-import { useConfigStore } from '@/stores/configStore';
 
-
-type Props = {
-    tareas: Tarea[];
-    onToggle?: (id: string) => void;
-    onDelete?: (id: string) => void;
-    onEdit?: (id: string, texto: string) => void;
+type Tarea = {
+  id: string;
+  texto: string;
+  completada: boolean;
+  tableroId: string;
 };
 
-export default function TaskList({ tareas, onToggle, onDelete, onEdit }: Props) {
-    const { mayusculas } = useConfigStore();
+type Props = {
+  tareas: Tarea[];
+  isLoading?: boolean;
+  onToggle?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onEdit?: (id: string, texto: string) => void;
+  rol?: string | null; // ← acá agregás null
+};
 
-    return (
-        <ul className="space-y-2">
-            {tareas.map((t) => {
-                const texto = mayusculas ? t.texto.toUpperCase() : t.texto;
-                return (
-                    <li key={t.id}>
-                        <TaskItem
-                            tarea={{ ...t, texto }} // sobreescribimos texto ya formateado
-                            onToggle={onToggle ? () => onToggle(t.id) : undefined}
-                            onDelete={onDelete ? () => onDelete(t.id) : undefined}
-                            onEdit={
-                                onEdit
-                                    ? () => {
-                                        const nuevoTexto = prompt('Editar tarea:', t.texto);
-                                        if (nuevoTexto !== null) {
-                                            onEdit(t.id, nuevoTexto);
-                                        }
-                                    }
-                                    : undefined
-                            }
-                        />
-                    </li>
-                );
-            })}
-        </ul>
-    );
+
+export default function TaskList({ tareas, onToggle, onDelete, onEdit, isLoading, rol }: Props) {
+  if (isLoading) {
+    return <p className="text-gray-500">Cargando tareas...</p>;
+  }
+
+  return (
+    <div className="flex flex-col gap-3 mt-4">
+      {tareas.map((tarea) => (
+        <TaskItem
+          key={tarea.id}
+          tarea={tarea}
+          onToggle={onToggle}
+          onDelete={onDelete}
+          onEdit={onEdit}
+          puedeEditar={rol === 'propietario' || rol === 'editor'}
+        />
+      ))}
+    </div>
+  );
 }
-
