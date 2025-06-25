@@ -10,8 +10,16 @@ import {
   getCategoryPermissions,
   updateCategoryPermission,
   removeCategoryPermission,
-  getUserByEmail
+  getUserByEmail,
+  getCategoriesWithUserInfo
 } from "../models/categoryModel.js";
+
+// tipo para categoría
+type CategoryWithUserId = {
+  id: string;
+  name: string;
+  userId: string;
+};
 
 export async function getAllCategories() {
   return await getCategories(); // Llama al modelo
@@ -109,4 +117,32 @@ export async function removeCategoryPermissionService(categoryId: string, target
   await removeCategoryPermission(categoryId, targetUserId);
 }
 
+// funcion para traer todas las categorías de un usuario donde tiene permisos
+
+export async function getCategoriesWithPermissions(userId: string) {
+  const categories = await getCategoriesWithUserInfo(userId); 
+  
+   return categories.map((category: any) => ({
+    id: category.id,
+    name: category.name,
+    userId: category.userId, 
+    userRole: category.userRole, // Viene del modelo ('owner', 'editor', 'viewer')
+    isShared: category.userRole !== 'owner' // owner = categoría propia, resto = compartida
+  }));
+}
+// Nueva función para obtener permisos específicos
+async function getUserPermissionInCategory(categoryId: string, userId: string) {
+  // Verificar roles en orden de permisos (mayor a menor)
+  if (await checkCategoryPermissionService(categoryId, userId, "owner")) {
+    return { role: "owner" };
+  }
+  if (await checkCategoryPermissionService(categoryId, userId, "editor")) {
+    return { role: "editor" };
+  }
+  if (await checkCategoryPermissionService(categoryId, userId, "viewer")) {
+    return { role: "viewer" };
+  }
+  
+  return null; // Sin permisos
+}
 

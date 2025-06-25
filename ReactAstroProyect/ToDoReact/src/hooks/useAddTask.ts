@@ -14,7 +14,11 @@ export function useAddTask() {
         credentials: "include", //Enviar cookies con la solicitud
         body: JSON.stringify({ text, categoriaId }),
       });
-      if (!res.ok) throw new Error("No se pudo agregar la tarea");
+       if (!res.ok) {
+        // podemos mostrar mensaje específico del backend
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error al agregar tarea");
+      }
       return res.json();
     },
     onError: (_, { categoriaId }) => {

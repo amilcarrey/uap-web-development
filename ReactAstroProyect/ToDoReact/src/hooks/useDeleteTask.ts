@@ -12,7 +12,11 @@ export function useDeleteTask() {
         method: "DELETE",
         credentials: "include", // Enviar cookies con la solicitud
       });
-      if (!res.ok) throw new Error("Error al eliminar la tarea");
+      if (!res.ok) { 
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error al eliminar tarea jeje");
+      }
+      
       return res.json();
     },
     onError: (_, { categoriaId, page }) => {

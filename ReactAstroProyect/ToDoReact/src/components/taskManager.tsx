@@ -41,6 +41,7 @@ function TaskManager() {
 
   // Categorias
   const { categoriasQuery, addCategoriaMutation, deleteCategoriaMutation } = useCategorias();
+  const currentCategory = categoriasQuery.data?.find((cat: Categoria) => cat.id === categoriaId);
 
 
 // Funciones para tareas
@@ -49,7 +50,11 @@ const handleAddTask = (text: string) => {
     { text, categoriaId},
     {
       onSuccess: () => useModalStore.getState().openModal("Tarea agregada", "success"),
-      onError: () => useModalStore.getState().openModal("Error al agregar tarea", "error"),
+      onError: (error: any) => {
+        // MOSTRAR mensaje específico del backend
+        const errorMessage = error?.response?.data?.error || error?.message || "Error al agregar tarea";
+        useModalStore.getState().openModal(errorMessage, "error");
+      },
     }
   );
 };
@@ -59,7 +64,10 @@ const handleDeleteTask = (id: number) => {
     { id, categoriaId, page}, 
     {
       onSuccess: () => useModalStore.getState().openModal("Tarea eliminada", "success"),
-      onError: () => useModalStore.getState().openModal("Error al eliminar tarea", "error"),
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.error || error?.message || "Error al eliminar tarea";
+        useModalStore.getState().openModal(errorMessage, "error");
+      },
     }
   );
 };
@@ -79,7 +87,10 @@ const handleToggleCompletion = (id: number) => {
           useModalStore.getState().openModal("Tarea marcada como completa", "success");
         }
       },
-      onError: () => useModalStore.getState().openModal("Error al cambiar estado de tarea", "error"),
+        onError: (error: any) => {
+        const errorMessage = error?.response?.data?.error || error?.message || "Error al cambiar estado de una tarea";
+        useModalStore.getState().openModal(errorMessage, "error");
+      },
     }
   );
 };
@@ -97,7 +108,10 @@ const handleDeleteCompleted = () => {
     {
     // No necesitamos pasar un id porque estamos eliminando todas las completadas
     onSuccess: () => useModalStore.getState().openModal("Tareas completadas eliminadas", "success"),
-    onError: () => useModalStore.getState().openModal("Error al eliminar tareas completadas", "error"),
+    onError: (error: any) => {
+        const errorMessage = error?.response?.data?.error || error?.message || "Error al eliminar las tareas completas";
+        useModalStore.getState().openModal(errorMessage, "error");
+      },
   });
 };
 const handleEditTask = (id: number, text: string) => {
@@ -106,7 +120,10 @@ const handleEditTask = (id: number, text: string) => {
     { id, text, categoriaId, page}, 
     {
       onSuccess: () => useModalStore.getState().openModal("Tarea editada", "success"),
-      onError: () => useModalStore.getState().openModal("Error al editar tarea", "error"),
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.error || error?.message || "Error al editar una tarea";
+        useModalStore.getState().openModal(errorMessage, "error");
+      },
     }
   );
 };
@@ -124,7 +141,11 @@ const handleAddCategoria = (name: string) => {
     { id, name }, // Pasa un objeto con `id` y `name`
     {
       onSuccess: () => useModalStore.getState().openModal("Categoría creada", "success"),
-      onError: () => useModalStore.getState().openModal("Error al crear la categoría", "error"),
+      onError: (error: any) => {
+        // MOSTRAR mensaje específico del backend
+        const errorMessage = error?.response?.data?.error || error?.message || "Error al agregar categoria";
+        useModalStore.getState().openModal(errorMessage, "error");
+      },
     }
   );
 };
@@ -145,19 +166,15 @@ const handleDeleteCategoria = () => {
       useModalStore.getState().openModal("Categoría eliminada", "success");
       setCategoryToDelete(null); // Limpia la categoría seleccionada
     },
-    onError: () => {
-      useModalStore.getState().openModal("Error al eliminar la categoría", "error");
-    },
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.error || error?.message || "Error al eliminar categoria";
+        useModalStore.getState().openModal(errorMessage, "error");
+      },
   });
   setIsDeleteCategoryModalOpen(false); 
 };
 
-console.log("Tareas pasadas a TaskList:", data?.tasks); // Agrega este log para verificar las tareas
-console.log("categoriaId en TaskManager:", categoriaId);
-console.log("filtro en TaskManager:", filtro);
-
 // Verificar si hay un error 404 cuando la url es inválida
-
 if (error?.message === "URL inválida: El tablero no existe") {
   return (
     <div className="flex flex-col items-center justify-center w-full h-full">
@@ -172,7 +189,6 @@ if (error?.message === "URL inválida: El tablero no existe") {
   );
 }
   
-
 return (
   <div className="TaskManager flex flex-col items-center justify-center w-full h-full">
     <Title />
@@ -195,6 +211,7 @@ return (
         onDeleteTask={handleDeleteTask} 
         onToggleCompletion={handleToggleCompletion} 
         onEditTasks={handleEditTask} 
+        currentCategory={currentCategory}
       />
     ) : (
         <p className="text-gray-500">

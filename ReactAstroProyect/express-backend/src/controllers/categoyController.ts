@@ -10,7 +10,8 @@ import {
   shareCategory,
   getCategoryPermissionsList,
   changeCategoryPermission,
-  removeCategoryPermissionService
+  removeCategoryPermissionService,
+  getCategoriesWithPermissions
 } from "../services/categoryServices.js";
 
 
@@ -26,8 +27,8 @@ export const getCategoriesHandler = async (req: Request, res: Response) => {
       // Si es admin, trae todas
       categories = await getAllCategories();
     } else {
-      // Si es usuario normal, trae solo las que pertenecen a su id
-      categories = await getCategoriesByUserId(user.id);
+      // TRAE LAS CATEGORÍAS DONDE EL USUARIO TIENE PERMISOS
+      categories = await getCategoriesWithPermissions(user.id);
     }
 
     res.json(categories);

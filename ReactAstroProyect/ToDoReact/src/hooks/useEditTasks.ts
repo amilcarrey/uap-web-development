@@ -18,7 +18,8 @@ export function useEditTask() {
     window.location.href = '/login';
     throw new Error('No autenticado');
   }
-  throw new Error("Error al EDITAR la tareas completadas")
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error al editar tarea");
       }
       return res.json();
     },

@@ -14,7 +14,10 @@ return useMutation({
         credentials: "include", // Enviar cookies con la solicitud
       });
 
-      if (!res.ok) throw new Error("Error al eliminar las tareas completadas");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error al eliminar tareas completadas");
+      }
       return res.json();
     },
 

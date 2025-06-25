@@ -11,7 +11,9 @@ export function useToggleTask() {
         method: "PATCH",
         credentials: "include", // Enviar cookies con la solicitud
       });
-      if (!res.ok) throw new Error("Error al alternar el estado de la tarea");
+      if (!res.ok) { const errorData = await res.json();
+        throw new Error(errorData.error || "Error al cambiar estado de tarea");
+      }
       return res.json();
     },
     onError: (_, { categoriaId, page}) => {

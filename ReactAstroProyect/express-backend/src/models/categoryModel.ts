@@ -98,3 +98,18 @@ export async function removeCategoryPermission(categoryId: string, userId: strin
 export async function getUserByEmail(email: string) {
   return await database.get("SELECT id, email, role FROM users WHERE email = ?", [email]);
 }
+
+// Obtener categorías con información del usuario (rol y ID) para el usuario actual
+export async function getCategoriesWithUserInfo(userId: string) {
+  return database.all(`
+    SELECT DISTINCT 
+      c.id, 
+      c.name,
+      cp.role as userRole,
+      (CASE WHEN cp.role = 'owner' THEN ? ELSE NULL END) as userId
+    FROM categories c 
+    INNER JOIN category_permissions cp ON c.id = cp.categoryId 
+    WHERE cp.userId = ?
+    ORDER BY c.name
+  `, [userId, userId]);
+}

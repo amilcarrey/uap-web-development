@@ -71,21 +71,17 @@ export const deleteTaskHandler = async (req: Request, res: Response) => {
   const user = req.user as { id: string, role: string}; 
 
   try {
-
       const task = await getTaskById(Number(id)); 
     if (!task) {
        res.status(404).json({ error: "Tarea no encontrada" });
        return; // corta la ejecución
     }
-
     // Verificar si el usuario tiene permisos como `editor` u `owner`
     const hasPermission = await hasAnyPermission(task.categoriaId, user.id, ["editor", "owner"], user.role);
-    if (!hasPermission) {
-      res.status(403).json({ error: "No tienes permisos para eliminar esta tarea." });
-      return; // corta la ejecución
+      if (!hasPermission) {
+      res.status(403).json({ error: "No tienes permisos para agregar tareas en esta categoría." });
+      return;
     }
-
-
     await removeTask(Number(id));
     res.status(200).json({ message: "Tarea eliminada exitosamente" });
   } catch (error) {

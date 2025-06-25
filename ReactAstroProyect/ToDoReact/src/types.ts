@@ -8,4 +8,7 @@ export type Task = {
 export type Categoria = {
   id: string;
   name: string;
-};
+  userId?: string;
+  userRole?: 'owner' | 'editor' | 'viewer';  // ← NUEVO
+  isShared?: boolean;                         // ← NUEVO
+}

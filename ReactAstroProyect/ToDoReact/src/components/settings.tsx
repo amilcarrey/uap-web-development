@@ -81,31 +81,52 @@ console.log("uppercaseDescriptions en Settings:", uppercaseDescriptions);
           <p>Cargando categorías...</p>
         ) : categoriasQuery.isError ? (
           <p>Error al cargar categorías</p>
-        ) : categoriasQuery.data && categoriasQuery.data.length > 0 ? ( // Verifica que data esté definido y tenga elementos
-          <ul className="mb-4">
-            {categoriasQuery.data.map((categoria: { id: string; name: string }) => (
-              <li key={categoria.id} className="flex items-center justify-between border-b py-2">
-                <span>{categoria.name}</span>
-                <div>
-                  <button
-                    onClick={() => (window.location.href = `/categorias/${categoria.id}`)}
-                    className="mr-2 bg-blue-500 text-white px-2 py-1 rounded"
-                  >
-                    Ir
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCategoria(categoria.id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No hay categorías disponibles.</p> // Maneja el caso donde data está vacío
-        )}
+        ) :categoriasQuery.data && categoriasQuery.data.length > 0 ? (
+  <ul className="mb-4">
+    {categoriasQuery.data.map((categoria: Categoria) => (
+      <li key={categoria.id} className={`flex items-center justify-between border-b py-2 px-2 rounded ${
+        categoria.isShared 
+          ? categoria.userRole === 'owner' 
+            ? 'bg-green-300 border-green-700' 
+            : categoria.userRole === 'editor'
+            ? 'bg-orange-300 border-red-700'
+            : 'bg-blue-300 border-blue-700'
+          : 'bg-gray-200'
+      }`}>
+        <span className="flex items-center">
+          {categoria.name}
+          {/*Indicadores en Settings también */}
+          {categoria.isShared && (
+            <span className="ml-2 text-xs">
+              {categoria.userRole === 'owner' && '👑 Owner compartido'}
+              {categoria.userRole === 'editor' && '✏️ Editor'}
+              {categoria.userRole === 'viewer' && '👁️ Solo lectura'}
+            </span>
+          )}
+        </span>
+        <div>
+          <button
+            onClick={() => (window.location.href = `/categorias/${categoria.id}`)}
+            className="mr-2 bg-blue-500 text-white px-2 py-1 rounded"
+          >
+            Ir
+          </button>
+          {/* Solo mostrar eliminar si es owner o propia */}
+          {(categoria.userRole === 'owner' || !categoria.isShared) && (
+            <button
+              onClick={() => handleDeleteCategoria(categoria.id)}
+              className="bg-red-500 text-white px-2 py-1 rounded"
+            >
+              Eliminar
+            </button>
+          )}
+        </div>
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>No hay categorías disponibles.</p>
+)}
 
         {/* Crear categoría nueva */}
         <div className="flex gap-2">

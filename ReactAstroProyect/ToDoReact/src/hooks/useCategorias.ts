@@ -35,7 +35,10 @@ export function useCategorias() {
         credentials: "include", 
         body: JSON.stringify({ id, name }),
       });
-      if (!res.ok) throw new Error("Error al agregar categoría");
+      if (!res.ok) { 
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error al agregar tarea");
+      }
       return res.json();
     },
     onSuccess: () => {
@@ -50,9 +53,12 @@ const deleteCategoriaMutation = useMutation({
       method: "DELETE",
       credentials: "include", 
     });
-    if (!res.ok) throw new Error("Error al eliminar categoría");
-    return res.json();
-  },
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error al eliminar tarea");
+      }
+      return res.json();
+    },
   onSuccess: (data) => {
     queryClient.invalidateQueries({ queryKey: ["categorias"] });
 
