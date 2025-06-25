@@ -128,7 +128,7 @@ export default function App() {
             tabs={categories}
           />
           
-          <AddTask category={activeTab} />
+          <AddTask category={activeTab} boardId={activeBoard} />
           
           <TaskFilters 
             currentFilter={filter}

@@ -17,9 +17,8 @@ export const useTasksByCategory = (category, boardId) => {
   });
 };
 
-export const useTaskMutations = () => {
+export const useTaskMutations = (boardId) => {
   const queryClient = useQueryClient();
-  const { activeBoard } = useClientStore();
 
   const addTask = useMutation({
     mutationFn: async ({ text, category }) => {
@@ -27,13 +26,29 @@ export const useTaskMutations = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ text, category, boardId: activeBoard }),
+        body: JSON.stringify({ text, category, boardId }),
       });
       if (!res.ok) throw new Error('Error al crear tarea');
       return res.json();
     },
     onSuccess: (_, { category }) => {
-      queryClient.invalidateQueries(['tasks', category, activeBoard]);
+      queryClient.invalidateQueries(['tasks', category, boardId]);
+    },
+  });
+
+  const updateTask = useMutation({
+    mutationFn: async ({ id, text, category }) => {
+      const res = await fetch(`http://localhost:4000/api/tasks/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ text, category }),
+      });
+      if (!res.ok) throw new Error('Error al actualizar tarea');
+      return res.json();
+    },
+    onSuccess: (_, { category }) => {
+      queryClient.invalidateQueries(['tasks', category, boardId]);
     },
   });
 
@@ -49,7 +64,7 @@ export const useTaskMutations = () => {
       return res.json();
     },
     onSuccess: (_, { category }) => {
-      queryClient.invalidateQueries(['tasks', category, activeBoard]);
+      queryClient.invalidateQueries(['tasks', category, boardId]);
     },
   });
 
@@ -62,7 +77,7 @@ export const useTaskMutations = () => {
       if (!res.ok) throw new Error('Error al borrar tarea');
     },
     onSuccess: (_, { category }) => {
-      queryClient.invalidateQueries(['tasks', category, activeBoard]);
+      queryClient.invalidateQueries(['tasks', category, boardId]);
     },
   });
 
@@ -72,39 +87,20 @@ export const useTaskMutations = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ category, boardId: activeBoard }),
+        body: JSON.stringify({ category, boardId }),
       });
       if (!res.ok) throw new Error('Error al borrar tareas completadas');
     },
     onSuccess: (_, { category }) => {
-      queryClient.invalidateQueries(['tasks', category, activeBoard]);
+      queryClient.invalidateQueries(['tasks', category, boardId]);
     },
-  });
-
-  const updateTask = useMutation({
-    mutationFn: async ({ id, text, category }) => {
-      const res = await fetch(`http://localhost:4000/api/tasks/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ text }),
-      });
-      if (!res.ok) throw new Error('Error al actualizar tarea');
-      return res.json();
-    },
-    onSuccess: (_, { category }) => {
-      queryClient.invalidateQueries(['tasks', category, activeBoard]);
-    },
-    onError: (error) => {
-      console.error('Error updating task:', error);
-    }
   });
 
   return {
     addTask,
+    updateTask,
     toggleTask,
     deleteTask,
     deleteCompletedTasks,
-    updateTask
   };
 };

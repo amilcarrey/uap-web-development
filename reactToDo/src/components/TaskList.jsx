@@ -4,7 +4,7 @@ import { useClientStore } from '../stores/clientStore';
 // Actualizar para usar boardId
 export default function TaskList({ category, boardId, filter }) {
   const { data: tasks = [], isLoading, error } = useTasksByCategory(category, boardId);
-  const { toggleTask, deleteTask } = useTaskMutations();
+  const { toggleTask, deleteTask } = useTaskMutations(boardId);
   const { 
     modals, 
     openDeleteModal, 

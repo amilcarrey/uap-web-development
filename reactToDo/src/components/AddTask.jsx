@@ -2,7 +2,7 @@ import { useClientStore } from '../stores/clientStore';
 import { useTaskMutations } from '../hooks/useTasks';
 import { useEffect } from 'react';
 
-export default function AddTask({ category }) {
+export default function AddTask({ category, boardId }) {
   const {
     modals,
     openAddTaskModal,
@@ -13,7 +13,7 @@ export default function AddTask({ category }) {
   } = useClientStore();
 
   const { isAddTaskModalOpen } = modals;
-  const { addTask, updateTask } = useTaskMutations();
+  const { addTask, updateTask } = useTaskMutations(boardId);
   const isEditing = !!editingTask;
 
   const handleSubmit = (e) => {

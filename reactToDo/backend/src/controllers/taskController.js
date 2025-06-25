@@ -1,5 +1,6 @@
 const Task = require('../models/Task');
 
+// Obtener todas las tareas del usuario y board
 exports.getAll = async (req, res) => {
   const { boardId, category } = req.query;
   const where = { userId: req.user.id };
@@ -9,9 +10,9 @@ exports.getAll = async (req, res) => {
   res.json(tasks);
 };
 
-exports.create = async (req, res) => {
+// Crear tarea
+exports.createTask = async (req, res) => {
   const { text, category, boardId } = req.body;
-  if (!text || !category || !boardId) return res.status(400).json({ error: 'Faltan datos' });
   const task = await Task.create({
     text,
     category,
@@ -22,30 +23,26 @@ exports.create = async (req, res) => {
   res.status(201).json(task);
 };
 
-exports.update = async (req, res) => {
+// Actualizar tarea
+exports.updateTask = async (req, res) => {
   const { id } = req.params;
-  const { text, completed } = req.body;
+  const { text, completed, category } = req.body;
   const task = await Task.findOne({ where: { id, userId: req.user.id } });
-  if (!task) return res.status(404).json({ error: 'No encontrada' });
+  if (!task) return res.status(404).json({ error: 'Task not found' });
+
   if (text !== undefined) task.text = text;
   if (completed !== undefined) task.completed = completed;
+  if (category !== undefined) task.category = category;
+
   await task.save();
   res.json(task);
 };
 
-exports.remove = async (req, res) => {
+// Borrar tarea
+exports.deleteTask = async (req, res) => {
   const { id } = req.params;
   const task = await Task.findOne({ where: { id, userId: req.user.id } });
-  if (!task) return res.status(404).json({ error: 'No encontrada' });
+  if (!task) return res.status(404).json({ error: 'Task not found' });
   await task.destroy();
-  res.status(204).end();
-};
-
-exports.clearCompleted = async (req, res) => {
-  const { boardId, category } = req.body;
-  const where = { userId: req.user.id, completed: true };
-  if (boardId) where.boardId = boardId;
-  if (category) where.category = category;
-  await Task.destroy({ where });
   res.status(204).end();
 };
