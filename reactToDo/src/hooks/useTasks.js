@@ -82,12 +82,10 @@ export const useTaskMutations = (boardId) => {
   });
 
   const deleteCompletedTasks = useMutation({
-    mutationFn: async ({ category }) => {
-      const res = await fetch(`http://localhost:4000/api/tasks/clear-completed`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+    mutationFn: async ({ boardId, category }) => {
+      const res = await fetch(`http://localhost:4000/api/tasks/clear-completed/${boardId}`, {
+        method: 'DELETE',
         credentials: 'include',
-        body: JSON.stringify({ category, boardId }),
       });
       if (!res.ok) throw new Error('Error al borrar tareas completadas');
     },

@@ -46,3 +46,21 @@ exports.deleteTask = async (req, res) => {
   await task.destroy();
   res.status(204).end();
 };
+
+// Borrar todas las tareas completadas de un board para el usuario actual
+exports.clearCompleted = async (req, res) => {
+  try {
+    const boardId = Number(req.params.boardId); // <-- fuerza a número
+    const userId = req.user.id;
+    await Task.destroy({
+      where: {
+        completed: true,
+        boardId,
+        userId,
+      },
+    });
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al borrar tareas completadas' });
+  }
+};

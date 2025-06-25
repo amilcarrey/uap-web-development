@@ -8,5 +8,6 @@ router.get('/', auth, taskController.getAll);
 router.post('/', auth, taskController.createTask);
 router.patch('/:id', auth, taskController.updateTask);
 router.delete('/:id', auth, taskController.deleteTask);
+router.delete('/clear-completed/:boardId', auth, taskController.clearCompleted);
 
 module.exports = router;

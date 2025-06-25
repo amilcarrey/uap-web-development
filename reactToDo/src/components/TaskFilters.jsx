@@ -10,14 +10,14 @@ export default function TaskFilters({
 }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const { data: tasks = [] } = useTasksByCategory(category, boardId);
-  const { deleteCompletedTasks } = useTaskMutations();
+  const { deleteCompletedTasks } = useTaskMutations(boardId);
 
   const activeCount = tasks.filter(t => !t.completed).length;
 
   const handleClearCompleted = () => setShowConfirm(true);
 
   const handleConfirm = () => {
-    deleteCompletedTasks.mutate({ category }, {
+    deleteCompletedTasks.mutate({ boardId, category }, {
       onSettled: () => setShowConfirm(false)
     });
   };
