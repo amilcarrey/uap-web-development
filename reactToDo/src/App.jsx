@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Tabs from './components/Tabs';
 import TaskList from './components/TaskList';
 import AddTask from './components/AddTask';
@@ -8,12 +8,19 @@ import BoardSwitcher from './components/BoardSwitcher';
 import BoardModal from './components/BoardModal';
 import Settings from './components/Settings';
 import { useClientStore } from './stores/clientStore';
+import AuthForm from './components/AuthForm';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('');
   const [filter, setFilter] = useState('all');
   const [showSettings, setShowSettings] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { activeBoard, boards } = useClientStore();
+
+  useEffect(() => {
+    fetch('http://localhost:4000/api/tasks', { credentials: 'include' })
+      .then(res => setIsAuthenticated(res.ok));
+  }, []);
 
   // Encuentra el board activo y sus categorías
   const board = useMemo(() => boards.find(b => b.id === activeBoard), [boards, activeBoard]);
@@ -47,6 +54,10 @@ export default function App() {
         <Settings />
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthForm onAuthSuccess={() => setIsAuthenticated(true)} />;
   }
 
   return (
