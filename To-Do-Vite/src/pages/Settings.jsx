@@ -54,7 +54,7 @@ const Settings = () => {
             </span>
           </div>
           <p className="text-sm mt-2 text-white/60">
-            Las tareas se actualizarán automáticamente cada {settings.refetchInterval} segundos.
+            Las tareas y tableros se actualizarán automáticamente cada {settings.refetchInterval} segundos.
           </p>
         </div>
 
