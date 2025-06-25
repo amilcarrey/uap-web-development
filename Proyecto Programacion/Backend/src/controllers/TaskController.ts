@@ -11,18 +11,22 @@ export class TaskController {
 
     //Crear Tarea
     static async createTask(req: Request, res: Response) {
-        //Validar con zod
         const parseResult = CreateTaskSchema.safeParse(req.body);
-        if(!parseResult.success){
+        if (!parseResult.success) {
             const error = new Error("Datos inválidos");
             (error as any).status = 400;
             (error as any).details = parseResult.error.errors;
             throw error;
-        }  
+        }
 
         const data: CreateTaskDTO = parseResult.data;
         const currentUserId = (req as any).user?.id;
-        const boardId = Number(req.params.boardId);
+        const boardId = Number(req.params.boardId); // Extraer boardId de la URL
+
+        console.log(`currentUserId: ${currentUserId}, boardId: ${boardId}`);
+        console.log(`req.params: ${JSON.stringify(req.params)}`);
+        console.log(`req.url: ${req.url}`);
+        console.log(`req.originalUrl: ${req.originalUrl}`);
 
         if (!currentUserId || isNaN(boardId)) {
             const error = new Error("ID de usuario o tablero inválido");
@@ -32,7 +36,7 @@ export class TaskController {
 
         const task = await taskService.createTask(currentUserId, boardId, data);
         res.status(201).json(task);
-    }
+        }
 
     //Obtener tareas de un tablero (paginadas)
     static async getTaks(req: Request, res: Response){

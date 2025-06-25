@@ -173,6 +173,7 @@ export class TaskDbService implements ITaskService {
     // Función privada para mapear a DTO
     private mapToTaskDTO(task: any): TaskDTO {
         return {
+            id: task.id,
             boardId: task.boardId,
             content: task.content,
             active: task.active

@@ -11,7 +11,7 @@ router.use((req, res, next) => {
 router.get('/', BoardController.getBoards); // Obtiene todos los tableros del usuario autenticado
 router.post('/', BoardController.createBoard);
 router.put('/:boardId', BoardController.updateBoard);
-router.delete('/:userId/:boardId', BoardController.deleteBoard);
+router.delete('/:boardId', BoardController.deleteBoard);
 
 //router.get('/:boardId', BoardController.getBoardById); // <-- Servia para realizar pruebas
 //router.get('/user/:userId', BoardController.getBoardsByuser); // <-- Servia para realizar pruebas

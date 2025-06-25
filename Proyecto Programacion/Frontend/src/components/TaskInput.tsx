@@ -42,24 +42,31 @@ export function TaskInput({ tabId, onTaskAdded }: Props) {
    * Valida que el texto no esté vacío, envía la tarea al backend y muestra toasts de éxito o error.
    */
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-
-    e.preventDefault(); // Evita el comportamiento por defecto del form (recargar la página)
+    e.preventDefault();
     
-    if (!text.trim()) return; // No permite agregar tareas vacías
-    setLoading(true); // Activamos el estado de carga
+    if (!text.trim()) return;
+    setLoading(true);
 
     try {
-      const data = await mutateAsync({ text, tabId }); // Envía la tarea al backend
-      setText(""); // Limpia el input
-      onTaskAdded(data); // Callback (opcional si usas React Query para refrescar)
-      toast.success('Tarea Agregada'); // Notificación de éxito
+      const boardId = parseInt(tabId, 10);
+      console.log('TaskInput - tabId original:', tabId);
+      console.log('TaskInput - boardId convertido:', boardId);
+      
+      if (isNaN(boardId)) {
+        throw new Error('ID de tablero inválido');
+      }
+      
+      const data = await mutateAsync({ text, tabId: boardId });
+      setText("");
+      onTaskAdded(data);
+      toast.success('Tarea Agregada');
 
     } catch (err) {
-      console.error("Error al enviar la tarea:", err);
-      toast.error("No se pudo agregar la tarea."); // Notificación de error
+      console.error("Error completo al enviar la tarea:", err);
+      toast.error("No se pudo agregar la tarea.");
 
     } finally {
-      setLoading(false); // Quitamos el estado de carga, pase lo que pase
+      setLoading(false);
     }
   };
 

@@ -1,4 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getUserFromToken } from '../utils/auth';
+
 
 export interface Tab {
   id: string;
@@ -18,8 +20,14 @@ async function fetchTabs(): Promise<Tab[]> {
     throw new Error('Error al obtener tableros');
   }
   const data = await res.json();
-  // Extrae el array de la propiedad 'tabs'
-  return data.tabs ?? [];
+  //console.log('Datos recibidos del backend:', data);
+  
+
+   return data.map((board: any) => ({
+     id: board.id.toString(), 
+     title: board.name
+   }));
+  
 }
 
 // Crear tablero
@@ -28,7 +36,7 @@ async function createTabRequest(title: string): Promise<Tab> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', accept: 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ action: 'create', title }),
+    body: JSON.stringify({ action: 'create', name: title }),
   });
   if (!res.ok) throw new Error('Error al crear tablero');
   const data = await res.json();
@@ -36,24 +44,44 @@ async function createTabRequest(title: string): Promise<Tab> {
 }
 
 // Eliminar tablero
-async function deleteTabRequest(id: string): Promise<any> {
-  const res = await fetch('http://localhost:3000/api/boards', {
-    method: 'POST',
+async function deleteTabRequest(boardId: string): Promise<any> {
+  console.log('=== INICIO deleteTabRequest ===');
+  console.log('boardId recibido:', boardId);
+
+  // No extraer userId manualmente, dejar que el backend lo haga desde la cookie
+  const url = `http://localhost:3000/api/boards/${boardId}`;
+  console.log('URL de eliminación:', url);
+
+  const res = await fetch(url, {
+    method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ action: 'delete', tabId: id }),
+    credentials: 'include', // Esto envía las cookies automáticamente
   });
-  if (!res.ok) throw new Error('Error al eliminar tablero');
-  return res.json();
+  
+  console.log('Respuesta del servidor:', {
+    status: res.status,
+    ok: res.ok,
+    statusText: res.statusText
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('Error del servidor:', errorText);
+    throw new Error(`Error al eliminar tablero: ${res.status} - ${errorText}`);
+  }
+  
+  const result = await res.json();
+  console.log('Resultado de eliminación:', result);
+  return result;
 }
 
 // Renombrar tablero
 async function renameTabRequest({ id, newTitle }: { id: string; newTitle: string }): Promise<Tab> {
-  const res = await fetch('http://localhost:3000/api/boards', {
-    method: 'POST',
+  const res = await fetch(`http://localhost:3000/api/boards/${id}`, {
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ action: 'rename', tabId: id, newTitle: newTitle }),
+    body: JSON.stringify({ action: 'rename', name: newTitle }),
   });
   if (!res.ok) throw new Error('Error al renombrar tablero');
   return res.json();
@@ -75,22 +103,17 @@ export function useTabs() {
 export function useCreateTab() {
   const queryClient = useQueryClient();
 
-    try {
-        return useMutation({
-            mutationFn: createTabRequest,
-            onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tabs'] });
-            },
-        });
-    } catch (error) {
-        console.log("Error en la funcion useCreateTab");
-    }
-
-  
+  return useMutation({
+    mutationFn: createTabRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tabs'] });
+    },
+  });
 }
 
 export function useDeleteTab() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: deleteTabRequest,
     onSuccess: () => {
@@ -99,20 +122,15 @@ export function useDeleteTab() {
   });
 }
 
+
 export function useRenameTab() {
   const queryClient = useQueryClient();
 
-    try {
-        return useMutation({
-            mutationFn: renameTabRequest,
-            onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tabs'] });
-            },
-        });
-    } catch (error) {
-        console.log("Error en la funcion useRenameTab");
-    }
-
-  
+  return useMutation({
+    mutationFn: renameTabRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tabs'] });
+    },
+  });
 }
 

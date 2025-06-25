@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node src/server.js",
     "start:dev": "ts-node src/server.ts",
-    "dev": "ts-node src/app",
+    "dev": "ts-node src/server.ts",
     "setup": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

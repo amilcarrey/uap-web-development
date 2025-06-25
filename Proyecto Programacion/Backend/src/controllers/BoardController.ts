@@ -8,35 +8,23 @@ export class BoardController {
 
 
   static async getBoards(req: Request, res: Response){
-    const currentUserId = (req as any).user?.id;
-
-    if (!currentUserId) {
-      const error = new Error("Usuario no autenticado");
-      (error as any).status = 401;
-      throw error;
-    }
-
+    const currentUserId = (req as any).user.id; // Removido el ?. porque siempre existe
     const bords = await boardService.getBoardsForUser(currentUserId);
     res.json(bords);
   }
 
 
   static async createBoard(req: Request, res: Response) {
-    const currentUserId = (req as any).user?.id;
-    const { name, active } = req.body;
+    const currentUserId = (req as any).user.id; 
+    const { name } = req.body;
 
-    if (!currentUserId) {
-      const error = new Error("Usuario no autenticado");
-      (error as any).status = 401;
-      throw error;
-    }
     if (!name) {
       const error = new Error("El nombre del tablero es obligatorio");
       (error as any).status = 400;
       throw error;
     }
 
-    const board = await boardService.createBoard(currentUserId, { name, active });
+    const board = await boardService.createBoard(currentUserId, { name });
     
     res.status(201).json(board);
   }
@@ -44,16 +32,11 @@ export class BoardController {
 
   static async updateBoard(req: Request, res: Response){
     const boardId = Number(req.params.boardId);
-    const currentUserId = (req as any).user?.id;
+    const currentUserId = (req as any).user.id; 
 
     if (isNaN(boardId)) {
       const error = new Error("ID de tablero inválido");
       (error as any).status = 400;
-      throw error;
-    }
-    if (!currentUserId) {
-      const error = new Error("Usuario no autenticado");
-      (error as any).status = 401;
       throw error;
     }
 
@@ -91,14 +74,9 @@ export class BoardController {
   }
 
   static async deleteBoard(req: Request, res: Response) {
-    const currentUserId = (req as any).user?.id;
+    const currentUserId = (req as any).user.id; 
     const boardId = Number(req.params.boardId);
 
-    if (!currentUserId) {
-      const error = new Error("Usuario no autenticado");
-      (error as any).status = 401;
-      throw error;
-    }
     if (isNaN(boardId)) {
       const error = new Error('Id de tablero invalido');
       (error as any).status = 400;

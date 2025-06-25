@@ -18,10 +18,14 @@ import { useConfigStore } from '../stores/configStore';
 */
 const fetchTasks = async (tabId: string, page: number, limit: number) => {
   //console.log(`[Refetch] Solicitando tareas para ${tabId} a las ${new Date().toLocaleTimeString()}`);
-  const res = await fetch(`http://localhost:4321/api/tasks?tab=${tabId}&page=${page}&limit=${limit}`, {
+  const res = await fetch(`http://localhost:3000/api/boards/${tabId}/tasks`, {
     method: 'GET',
-    headers: { accept: 'application/json' },
+    credentials: 'include',
   });
+  if (!res.ok) {
+    console.log('Error al obtener tareas:', res.status);
+    throw new Error('Error al obtener tareas');
+  }
   const result = await res.json()
   //console.log(result);
   
@@ -54,26 +58,54 @@ export function useTasks(tabId: string, page:number=1, limit:number=5) { //Agreg
    para que se vuelva a hacer el fetch y se actualice la lista automáticamente.
 */
 export function useAddTask() {
-  const queryClient = useQueryClient(); // permite interactuar con la caché
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ text, tabId }: { text: string; tabId: string }) => {
-      const res = await fetch('http://localhost:4321/api/tasks', {
+    mutationFn: async ({ text, tabId }: { text: string; tabId: number }) => {
+      console.log('=== INICIO useAddTask ===');
+      console.log('Datos enviados:', { text, tabId });
+      console.log('URL:', `http://localhost:3000/api/boards/${tabId}/tasks`);
+      
+      const requestBody = {
+        content: text,
+        active: false // Por defecto, la tarea no está completada
+      };
+      console.log('Body a enviar:', requestBody);
+      
+      const res = await fetch(`http://localhost:3000/api/boards/${tabId}/tasks`, {
         method: 'POST',
-        headers: { accept: 'application/json' },
-        body: new URLSearchParams({
-          action: 'add',
-          text,
-          tabId, // el backend espera tabId
-        }),
+        headers: { 
+          'Content-Type': 'application/json',
+          accept: 'application/json' 
+        },
+        credentials: 'include',
+        body: JSON.stringify(requestBody),
       });
-      return res.json(); // devuelve la tarea agregada (opcionalmente)
+      
+      console.log('Respuesta del servidor:', {
+        status: res.status,
+        statusText: res.statusText,
+        ok: res.ok
+      });
+      
+      if (!res.ok) {
+        let errorMessage = 'Error al crear tarea';
+        try {
+          const errorData = await res.text();
+          console.log('Error del backend:', errorData);
+          errorMessage = `Error ${res.status}: ${errorData}`;
+        } catch (e) {
+          console.log('No se pudo obtener el detalle del error');
+        }
+        throw new Error(errorMessage);
+      }
+      
+      const result = await res.json();
+      console.log('Tarea creada exitosamente:', result);
+      return result;
     },
-    // Esto se ejecuta si la mutación fue exitosa.
-    // Invalidamos la query de tareas para que se recargue desde el servidor.
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
-
     },
   });
 }

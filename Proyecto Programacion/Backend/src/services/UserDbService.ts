@@ -124,10 +124,11 @@ export class UserDbService implements IUserService {
 
         // Mapear boards a BoardDTO
         const boards: BoardDTO[] = user.boards.map(board => ({
+            id: board.id,
             name: board.name,
-            active: board.active,
             ownerId: board.ownerId,
             tasks: board.tasks.map(task => ({
+                id: task.id,
                 content: task.content,
                 active: task.active,
                 boardId: task.boardId,

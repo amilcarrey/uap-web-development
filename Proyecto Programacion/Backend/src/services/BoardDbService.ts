@@ -22,9 +22,9 @@ export class BoardService implements IBoardService{
         return boards.map(board => ({
             id: board.id,
             name: board.name,
-            active: board.active,
             ownerId: board.ownerId,
             tasks: board.tasks.map(task => ({
+                id: task.id,
                 content: task.content,
                 active: task.active,
                 boardId: task.boardId
@@ -55,11 +55,16 @@ export class BoardService implements IBoardService{
             );
 
         return allBoards.map(board => ({
+            id: board.id,
             name: board.name,
-            active: board.active,
-            ownerId : board.ownerId,
-            tasks: board.tasks,
-            permissionsId: board.permissions.map(P => P.id)
+            ownerId: board.ownerId,
+            tasks: board.tasks.map(task => ({
+                id: task.id,
+                content: task.content,
+                active: task.active,
+                boardId: task.boardId
+            })),
+            permissionsId: board.permissions.map(perm => perm.id)
         }));
     }
 
@@ -77,10 +82,15 @@ export class BoardService implements IBoardService{
         }
 
         return {
+            id: board.id,
             name: board.name,
-            active: board.active,
             ownerId: board.ownerId,
-            tasks: board.tasks,
+            tasks: board.tasks.map(task => ({
+                id: task.id,
+                content: task.content,
+                active: task.active,
+                boardId: task.boardId
+            })),
             permissionsId: board.permissions.map(p => p.id)
         };
     }
@@ -151,7 +161,6 @@ export class BoardService implements IBoardService{
         const board = await prisma.board.create({
             data: {
                 name: data.name,
-                active: data.active,
                 ownerId: userId,
             },
         });
@@ -183,10 +192,11 @@ export class BoardService implements IBoardService{
 
     private mapToBoardDTO(board: any): BoardDTO {
         return{
+            id: board.id,
             name: board.name,
-            active: board.active,
             ownerId: board.ownerId,
             tasks: board.tasks ? board.tasks.map((task: any) => ({
+                id: task.id,
                 content: task.content,
                 active: task.active,
                 boardId: task.boardId

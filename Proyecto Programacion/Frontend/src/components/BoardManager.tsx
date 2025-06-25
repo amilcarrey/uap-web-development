@@ -31,10 +31,13 @@ export function BoardManager() {
 
   // Eliminar tablero
   const handleRemoveTab = (id: string) => {
+    console.log('handleRemoveTab llamado con id:', id);
+    console.log('deleteTab objeto:', deleteTab);
+
     deleteTab.mutate(id, {
       onSuccess: () => {
         const removedTab = tabs.find(tab => tab.id === id);
-        toast.success(`Tablero "${removedTab ? removedTab.title : ''}" eliminado`);
+        toast.success(`Tablero "${removedTab ? removedTab.title : id}" eliminado`);
         const remaining = tabs.filter(tab => tab.id !== id);
         if (removedTab && boardTitleParam === removedTab.title && remaining.length > 0) {
           navigate(`/board/${encodeURIComponent(remaining[0].title)}`);
@@ -42,7 +45,8 @@ export function BoardManager() {
           navigate('/');
         }
       },
-      onError: () => {
+      onError: (error) => {
+        console.error('Error en eliminación:', error);
         toast.error("Error al eliminar el tablero");
       }
     });
@@ -54,7 +58,7 @@ export function BoardManager() {
       renameTab.mutate({ id, newTitle }, {
         onSuccess: (updatedTab) => {
           toast.success("Tablero renombrado");
-          navigate(`/board/${encodeURIComponent(updatedTab.title)}`);
+          navigate(`/board/${encodeURIComponent(updatedTab.title || newTitle)}`);
         },
         onError: () => {
           toast.error("Error al renombrar el tablero");
@@ -72,9 +76,10 @@ export function BoardManager() {
 
       <TabsContainer
         tabs={tabs}
-        activeTab={boardTitleParam ?? ""}
-        setActiveTab={id => {
-          const tab = tabs.find(t => t.id === id);
+        activeTab={activeTab?.id ?? ""}
+        setActiveTab={tabId => {
+          // Buscar la pestaña por ID y navegar usando su título
+          const tab = tabs.find(t => t.id === tabId);
           if (tab) {
             navigate(`/board/${encodeURIComponent(tab.title)}`);
           }
