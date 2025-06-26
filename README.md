@@ -27,12 +27,12 @@ npm install
 El backend usa SQLite y ya está configurado para ser desarrollado. Para crear las tablas, se utiliza knex: 
 
 cd ../backend
-npx knex migrate:latest --knexfile 
+npx knex migrate:latest --knexfile src/knexfile.ts
 
 ### 4. Iniciar el backend
 npx ts-node src/server.ts
 
-El backend debe correr en https://localhost:8008.
+El backend debe correr en http://localhost:8008.
 
 ### 5. Iniciar el frontend
 cd ../tareas-react
@@ -224,7 +224,7 @@ GET /api/tableros/ID_DEL_TABLERO/rol
 
 #### Listar tareas (con paginación)
 ```http
-
+GET /api/tareas?tableroId=ID_DEL_TABLERO&pagina=1&porPagina=3
 ```
 
 #### Crear tarea
