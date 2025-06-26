@@ -1,13 +1,11 @@
 import { useAuthUser } from '../hooks/useAuthUser';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode; // El componente que quieres proteger
+  children: React.ReactNode; // El componente hijo que se va a proteger
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { data: user, isLoading, error } = useAuthUser();
-
-  // Mientras está cargando, mostrar spinner
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-amber-50">

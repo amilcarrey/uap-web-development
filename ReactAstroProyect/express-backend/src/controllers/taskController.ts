@@ -28,7 +28,7 @@ export async function hasAnyPermission(categoryId: string, userId: string, roles
 }
 
 export const getTasksHandler = async (req: Request, res: Response) => {
-  const { filtro, categoriaId, page = 1, pageSize = 7, search } = req.query; // Agregar search
+  const { filtro, categoriaId, page = 1, pageSize = 7, search } = req.query; 
 
   try {
     const { tasks, totalCount } = await listarTareasPaginadas(
@@ -76,7 +76,7 @@ export const deleteTaskHandler = async (req: Request, res: Response) => {
        res.status(404).json({ error: "Tarea no encontrada" });
        return; // corta la ejecución
     }
-    // Verificar si el usuario tiene permisos como `editor` u `owner`
+    // Verificar si el usuario tiene permisos como editor u owner
     const hasPermission = await hasAnyPermission(task.categoriaId, user.id, ["editor", "owner"], user.role);
       if (!hasPermission) {
       res.status(403).json({ error: "No tienes permisos para agregar tareas en esta categoría." });

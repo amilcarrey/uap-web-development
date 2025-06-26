@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLogin, useRegister } from '../hooks/useAuthUser';
-import { useModalStore } from '../store/modalStore'; // ✅ Usar tu sistema existente
+import { useModalStore } from '../store/modalStore'; 
 
 export default function Login() {
   // Estados para Login

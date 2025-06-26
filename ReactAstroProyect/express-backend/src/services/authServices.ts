@@ -15,8 +15,7 @@ export class AuthService {
     const isFirstUser = (await getAllUsers()).length === 0;
     // Si es el primer usuario del sistema lo hacemos admin automáticamente
     const finalRole = isFirstUser ? "admin" : (role || "user");
-
-
+    
     const user = await createUser(email, hashed, finalRole);
     return { id: user.id, email: user.email, role: user.role };
 }

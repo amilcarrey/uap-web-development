@@ -96,7 +96,6 @@ const handleToggleCompletion = (id: number) => {
 };
 
 const handleDeleteCompleted = () => {
-  console.log("Datos enviados desde TaskManager:", { categoriaId });
   // Filtra las tareas completadas
   const completedTasks = tasks.filter(task => task.completed);
   if (completedTasks.length === 0) {
@@ -115,7 +114,6 @@ const handleDeleteCompleted = () => {
   });
 };
 const handleEditTask = (id: number, text: string) => {
-   console.log("Llamando a mutate con:", { id, text, categoriaId, page});
   editTaskMutation.mutate(
     { id, text, categoriaId, page}, 
     {

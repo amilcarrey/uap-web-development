@@ -53,7 +53,6 @@ export const loginHandler = async (req: Request, res: Response) => {
      path: "/", // la cookie estará disponible en todas las rutas de la aplicación
     });
 
-    console.log('🍪 Cookie enviada:', token.substring(0, 20) + '...'); // ← LOG TEMPORAL
 
     res.status(200).json({ message: "Inicio de sesión exitoso" });
   } catch (error) {
@@ -64,16 +63,12 @@ export const loginHandler = async (req: Request, res: Response) => {
 export const getCurrentUserHandler = async (req: Request, res: Response) => {
   try {
     const user = req.user as { id: string; email: string; role: string };
-    
-    console.log('👤 Usuario autenticado:', user); // ← LOG TEMPORAL
-    
     res.status(200).json({
       id: user.id,
       email: user.email,
       role: user.role
     });
   } catch (error) {
-    console.log('❌ Error en getCurrentUser:', error); // ← LOG TEMPORAL
     res.status(401).json({ error: "Usuario no autenticado" });
   }
 };

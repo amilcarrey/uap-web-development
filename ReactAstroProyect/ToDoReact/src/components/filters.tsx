@@ -4,7 +4,7 @@ import {useState} from "react";
 function FiltersButtons() {
   const { categoriaId } = useParams({ from: "/categorias/$categoriaId" }); // Obtiene el categoriaId de la URL
   const search = useSearch({ from: "/categorias/$categoriaId" }); // Obtiene los parámetros de búsqueda
-  const filtro = search.filtro || "all"; // Obtiene el filtro actual, por defecto "all"
+  const filtro = search.filtro || "all"; 
   const [searchTerm, setSearchTerm] = useState('');
 
   //FUNCIÓN: de buscar tareas

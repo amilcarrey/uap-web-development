@@ -14,7 +14,7 @@ interface TaskItemProps {
 function TaskItem({ task, onDelete, onToggleCompletion, onEditTasks }: TaskItemProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedText, setEditedText] = useState(task.text);
-    const uppercaseDescriptions = useSettingsStore((state) => state.uppercaseDescriptions);
+    const { uppercaseDescriptions } = useSettingsStore();
 
     const handleEditClick = () => {
       setIsEditing(true);
@@ -24,8 +24,6 @@ function TaskItem({ task, onDelete, onToggleCompletion, onEditTasks }: TaskItemP
       onEditTasks(editedText); // Llama a la función con el nuevo texto
       setIsEditing(false); // Sale del modo edición
     };
-    console.log("uppercaseDescriptions en TaskItem:", uppercaseDescriptions);
-console.log("Texto de la tarea:", task.text);
   return (
       <div className="Task flex justify-between items-center w-[83%] p-[10px] rounded-[5px] bg-[rgb(83,57,88)]">
         <input
@@ -66,7 +64,7 @@ console.log("Texto de la tarea:", task.text);
     <button
       onClick={() => {
         setIsEditing(false);
-        setEditedText(task.text); // Revierte el texto editado
+        setEditedText(task.text); // cambia el texto editado
       }}
       className="flex items-center gap-2 bg-gray-500 text-white rounded-[5px] px-5 py-2 mr-[8px] cursor-pointer text-[16px] hover:bg-gray-700 transition"
       type="button">

@@ -32,7 +32,7 @@ export function useEditTask() {
     onSuccess: (_, { categoriaId }) => {
       queryClient.invalidateQueries({
         predicate: (query) => // predicate se usa para filtrar las queries que queremos invalidar
-          Array.isArray(query.queryKey) && // Verifica que queryKey sea un array
+          Array.isArray(query.queryKey) && 
           query.queryKey[0] === "tasks" && //buscamos que el primer elemento sea tasks
           query.queryKey.includes(categoriaId), // 
       });

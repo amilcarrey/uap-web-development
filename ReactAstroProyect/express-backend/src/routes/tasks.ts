@@ -27,6 +27,6 @@ router.delete("/:id", authMiddleware,deleteTaskHandler);
 router.patch("/:id/toggle", authMiddleware,toggleTaskHandler);
 
 // Editar una tarea
-router.put("/:id",authMiddleware,  editTaskHandler); // Ruta para editar una tarea
+router.put("/:id",authMiddleware,  editTaskHandler); 
 
 export default router;

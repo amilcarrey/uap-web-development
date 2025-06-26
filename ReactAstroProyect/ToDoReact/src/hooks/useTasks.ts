@@ -12,7 +12,9 @@ const API_URL = import.meta.env.VITE_API_URL;
   };
 
   export function useTasks(filtro?: "completadas" | "pendientes", page = 1, pageSize = 7, categoriaId?: string, search?: string) {
-    const refetchInterval = useSettingsStore((state) => state.refetchInterval);
+    // usamos configuraciones del store
+  const { refetchInterval, tasksPerPage } = useSettingsStore();
+  const finalPageSize = tasksPerPage;
 
     return useQuery<TasksResponse>({
     queryKey: ["tasks", filtro, categoriaId, page, pageSize, search],
@@ -23,7 +25,7 @@ const API_URL = import.meta.env.VITE_API_URL;
       if (filtro) params.append("filtro", filtro);        // Solo agregar si existe
       if (categoriaId) params.append("categoriaId", categoriaId);               // Solo si existe
       params.append("page", page.toString());                                   // Siempre presente  
-      params.append("pageSize", pageSize.toString());                           // Siempre presente
+      params.append("pageSize", finalPageSize.toString());                       // Siempre presente y la que definimos en settings
       if (search) params.append("search", search);                              // Solo  si existe
 
       const res = await fetch(`${API_URL}/api/tasks?${params.toString()}`, {
@@ -43,6 +45,6 @@ const API_URL = import.meta.env.VITE_API_URL;
       }
       return res.json();
     },
-    refetchInterval: refetchInterval * 1000,
+    refetchInterval: refetchInterval * 1000, // tambien definido en settings
   });
 }

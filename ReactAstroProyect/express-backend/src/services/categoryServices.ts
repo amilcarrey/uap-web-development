@@ -1,4 +1,3 @@
-// filepath: c:\Progra3\uap-web-development\ReactAstroProyect\express-backend\src\services\categoryService.ts
 import { 
   addCategory, 
   deleteCategory, 
@@ -14,7 +13,7 @@ import {
   getCategoriesWithUserInfo
 } from "../models/categoryModel.js";
 
-// tipo para categoría
+// tipo categoría
 type CategoryWithUserId = {
   id: string;
   name: string;
@@ -34,7 +33,7 @@ export async function createCategory(id: string, name: string, userId: string) {
     throw new Error("La categoría ya existe");
   }
 
-  await addCategory(id, name); // Usa el ID proporcionado por el frontend
+  await addCategory(id, name); // Usa el ID por el frontend
   await addCategoryPermission(id, userId, "owner"); // El creador es el propietario
 }
 
@@ -85,7 +84,7 @@ export async function shareCategory(categoryId: string, userEmail: string, role:
   await addCategoryPermission(categoryId, targetUser.id, role);
 }
 
-// Obtener permisos de una categoría (solo si el usuario tiene al menos rol "viewer")
+// Obtener permisos de una categoría (solo si el usuario tiene al menos rol viewer)
 // Devuelve una lista de usuarios con sus roles
 export async function getCategoryPermissionsList(categoryId: string, userId: string) {
   // Verificar que el usuario tenga permisos (al menos viewer)

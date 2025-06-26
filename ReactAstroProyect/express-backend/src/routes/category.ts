@@ -17,7 +17,7 @@ router.delete("/:id", authMiddleware, deleteCategoryHandler);
 
 // Compartir una categoría con otro usuario
 router.post("/:id/share", authMiddleware, shareCategoryHandler);
-// Frontend: POST /api/categorias/trabajo123/share
+// Front: POST /api/categorias/trabajo123/share
 // Body: { userEmail: "user@email.com", role: "editor" }
 
 // Obtener permisos de una categoría  

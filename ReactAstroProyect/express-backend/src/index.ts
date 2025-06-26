@@ -36,12 +36,11 @@ app.use(cookieParser()); //
   console.log("Tablas inicializadas correctamente");
 })();
 
-// Rutas
-app.use("/api/categorias", categoryRoutes); // Usando las rutas importadas
-app.use("/api/tasks", taskRoutes); // Usando las rutas importadas
-app.use("/api/auth", authRoutes); // Usando las rutas de autenticación
-app.use("/api/userSettings", userSettingsRoutes); // Usando las rutas de configuración de usuario
-
+// Rutas importadas
+app.use("/api/categorias", categoryRoutes); 
+app.use("/api/tasks", taskRoutes); 
+app.use("/api/auth", authRoutes); 
+app.use("/api/userSettings", userSettingsRoutes); 
 // Iniciar servidor
 const PORT = process.env.PORT || 4000; 
 app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));

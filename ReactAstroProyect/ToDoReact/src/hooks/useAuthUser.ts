@@ -10,10 +10,10 @@ export interface User {
 
 // Autenticación del usuario
 export function useAuthUser() {
-  return useQuery<User>({ // devueleve data como User pero tambien puede devolver error, isLoading, etc.
+  return useQuery<User>({ // devueleve data como User pero tambien puede devolver error, isLoading, etc
     queryKey: ["auth", "user"],
     queryFn: async () => {
-      const res = await fetch(`${API_URL}/api/auth/me`, { // Leer datos
+      const res = await fetch(`${API_URL}/api/auth/me`, { 
         credentials: 'include', // envía la cookie JWT
       });
       
@@ -23,9 +23,8 @@ export function useAuthUser() {
       
       return res.json();
     },
-    retry: false, // Si falla, no reintenta (significa que no está logueado)
+    retry: false, // Si falla, no reintenta no está logueado
     staleTime: 5 * 60 * 1000, // 5 minutos para que no se vuelvan viejos los datos, evitamos peticiones innecesarias el user puede seguir 
-    // autenticado lo que definamos en el back cuando se vence la cookie 
   });
 }
 

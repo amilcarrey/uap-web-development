@@ -1,4 +1,3 @@
-// filepath: c:\Progra3\uap-web-development\ReactAstroProyect\express-backend\src\controllers\categoryController.ts
 import { Request, Response } from "express";
 import { 
   getAllCategories, 

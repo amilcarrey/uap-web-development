@@ -10,7 +10,7 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// Obtener todas las configuraciones del usuario
+// traer todas las configuraciones del usuario
 router.get("/", authMiddleware, getUserSettingsHandler);
 
 // Obtener una configuración específica

@@ -1,16 +1,15 @@
 import TaskItem from './taskItem';
-import type { Task } from '../types'; // Conservamos el tipo
+import type { Task } from '../types'; 
 
 type TaskListProps = {
   tasks: Task[];
   onDeleteTask: (id: number) => void;
   onToggleCompletion: (id: number) => void;
-  onEditTasks: (id: number, text: string) => void; // Agregamos la función para editar tareas
-    currentCategory?: {
+  onEditTasks: (id: number, text: string) => void;
     userRole?: 'owner' | 'editor' | 'viewer';
     isShared?: boolean;
   };
-};
+
 
 function TaskList({ tasks, onDeleteTask, onToggleCompletion, onEditTasks, currentCategory }: TaskListProps) {
 

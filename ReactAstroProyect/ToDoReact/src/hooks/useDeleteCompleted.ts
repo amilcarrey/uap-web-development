@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-//import { toast } from "react-hot-toast";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export function useDeleteCompletedTasks() {
@@ -7,8 +6,6 @@ export function useDeleteCompletedTasks() {
 
 return useMutation({
     mutationFn: async ({ categoriaId }: { categoriaId: string }) => {
-      console.log("categoriaId enviado desde el frontend:", categoriaId);
-
       const res = await fetch(`${API_URL}/api/tasks/completed?categoriaId=${categoriaId}`, {
         method: "DELETE",
         credentials: "include", // Enviar cookies con la solicitud
