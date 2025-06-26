@@ -5,7 +5,7 @@ import { useBoardStore } from "../store/useBoardStore";
 import { useSettingsStore } from "../store/useSettingsStore";
 
 export type TaskFilter = "all" | "completed" | "incomplete";
-export const BASE_URL = "http://localhost:4321/api";
+export const BASE_URL = "http://localhost:3000/api";
 
 type UseTasksResult = {
   tasks: Task[];
@@ -23,8 +23,9 @@ export function useTasks( page: number, limit = 5) {
     queryKey,
     queryFn: async () => {
       await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate a delay
-      const response = await fetch(`${BASE_URL}/filtros?activeBoardId=${activeBoardId}&filter=${filter}&page=${page}&limit=${limit}`, {
+      const response = await fetch(`${BASE_URL}/filter?activeBoardId=${activeBoardId}&filter=${filter}&page=${page}&limit=${limit}`, {
         method: "GET",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },

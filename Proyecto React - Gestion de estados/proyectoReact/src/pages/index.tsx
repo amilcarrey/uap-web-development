@@ -6,13 +6,25 @@ import { useEffect, useState } from "react";
 import { FiltersForm } from "../components/FiltersForm";
 import { ClearCompleted } from "../components/ClearCompleted";
 import { useFilterStore } from "../store/useFilterStore";
-import { useParams } from '@tanstack/react-router';
+import { useParams , Link, useNavigate} from '@tanstack/react-router';
 import { BoardsNav } from '../components/BoardsNav';
 import { useBoardStore } from '../store/useBoardStore';
-import { Link } from '@tanstack/react-router';
+import { useAuth } from "../hooks/useAuth";
 
 
 export function Index() {
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
+  // Si no está logueado, redirigir a /auth
+  useEffect(() => {
+    if (!token) {
+      navigate({ to: "/auth" });
+    }
+  }, [token, navigate]);
+
+  if (!token) return null;
+
   const filter = useFilterStore((state) => state.filter);
   const { boardId = "general" } = useParams({ strict: false }); //strict: false allows for optional boardId, strict: true would require it to be present
   const setFilter = useFilterStore((state) => state.setFilter);

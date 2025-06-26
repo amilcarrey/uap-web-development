@@ -16,8 +16,9 @@ export function BoardItem({ board }: BoardItemProps) {
   
   const { mutate: deleteBoard } = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`${BASE_URL}/eliminarTablero`, {
-        method: 'POST',
+      const response = await fetch(`${BASE_URL}/boards/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
         headers: {
         'Content-Type': 'application/json',
         },

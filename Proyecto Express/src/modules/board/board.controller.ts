@@ -1,0 +1,77 @@
+import { Request, Response } from "express";
+import { BoardService } from "./board.service";
+import { CreateBoardRequest } from "../../types";
+
+export class BoardController {
+  constructor(private readonly boardService: BoardService) {}
+
+  getAllBoards = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const userId = req.user.id;
+
+      const boards = await this.boardService.getAllBoards(userId);
+      res.json(boards);
+    } catch (error) {
+      console.error("Error getting boards:", error);
+      res.status(500).json({ error: "Failed to retrieve boards" });
+    }
+  };
+
+  getBoardById = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const board = await this.boardService.getBoardById(id);
+
+      if (!board) {
+        res.status(404).json({ error: "Board not found" });
+        return;
+      }
+
+      res.json({ board });
+    } catch (error) {
+      console.error("Error getting board:", error);
+      res.status(500).json({ error: "Failed to retrieve board" });
+    }
+  };
+
+  createBoard = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const userId = req.user.id;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      const boardData: CreateBoardRequest = req.body;
+
+      if (!boardData.name) {
+        res.status(400).json({ error: "Board name is required" });
+        return;
+      }
+
+      const board = await this.boardService.createBoard(boardData, userId);
+      res.status(201).json({ board });
+    } catch (error) {
+      console.error("Error creating board:", error);
+      res.status(500).json({ error: "Failed to create board" });
+    }
+  };
+
+  deleteBoard = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const exists = await this.boardService.boardExists(id);
+
+      if (!exists) {
+        res.status(404).json({ error: "Board not found" });
+        return;
+      }
+
+      await this.boardService.deleteBoard(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting board:", error);
+      res.status(500).json({ error: "Failed to delete board" });
+    }
+  };
+}

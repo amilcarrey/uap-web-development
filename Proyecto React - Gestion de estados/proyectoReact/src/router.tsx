@@ -2,6 +2,7 @@ import { createRouter, createRootRoute, createRoute } from "@tanstack/react-rout
 import { App } from "./App";
 import { Index } from "./pages";
 import { Settings } from "./pages/Settings";
+import { AuthPage } from "./pages/Auth";
 
 const rootRoute = createRootRoute({
   component: App,
@@ -11,6 +12,12 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   component: Index,
   path: "/",
+});
+
+const authRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/auth",
+  component: AuthPage,
 });
 
 const boardsRoute = createRoute({
@@ -27,6 +34,7 @@ const settingsRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  authRoute,
   boardsRoute,
   settingsRoute,
 ]);

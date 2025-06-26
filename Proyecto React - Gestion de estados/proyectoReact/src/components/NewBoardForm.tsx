@@ -13,12 +13,13 @@ export function NewBoardForm() {
 
   const { mutate: addBoard } = useMutation({
     mutationFn: async (name: string) => {
-      const response = await fetch(`${BASE_URL}/agregarTablero`, {
+      const response = await fetch(`${BASE_URL}/boards`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: name }),
+        body: JSON.stringify({ name }),
       });
 
       if (!response.ok) {

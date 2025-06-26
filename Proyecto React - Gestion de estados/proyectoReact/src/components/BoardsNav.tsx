@@ -11,6 +11,7 @@ export function BoardsNav() {
   const { data } = useBoards();
 
   const boards = data ?? [];
+  console.log("boards:", boards);
 
   return (
     <nav className="flex gap-2 bg-white p-2 border-b-[2px] border-[#ddd] w-full">
@@ -28,7 +29,7 @@ export function BoardsNav() {
           )}
         </Link>
       ))}
-      <div className='flex items-center gat-4 ml-auto'>
+      <div className='flex items-center gap-4 ml-auto'>
         <NewBoardForm />
       </div>
       

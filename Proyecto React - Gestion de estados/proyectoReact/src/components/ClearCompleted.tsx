@@ -12,15 +12,14 @@ export function ClearCompleted() {
   
   const { mutate: clearCompleted } = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`${BASE_URL}/clear-completed`, {
-        method: "POST",
+      const response = await fetch(`${BASE_URL}/tasks/clear-completed?activeBoardId=${activeBoardId}`, {
+        method: "DELETE",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ activeBoardId })
       });
-      const data: Task[] = await response.json();
-      return data;
+      return;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });

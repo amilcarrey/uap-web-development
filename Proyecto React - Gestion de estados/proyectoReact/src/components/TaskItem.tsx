@@ -22,8 +22,9 @@ export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
 
 	const { mutate: toggleTask } = useMutation({
 		mutationFn: async (id: string) => {
-			const response = await fetch(`${BASE_URL}/completar`, {
-				method: 'POST',
+			const response = await fetch(`${BASE_URL}/tasks/${id}/toggle`, {
+				method: 'PATCH',
+        credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json',
 				},
@@ -55,8 +56,9 @@ export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
 
   const { mutate: deleteTask } = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`${BASE_URL}/eliminar`, {
-        method: 'POST',
+      const response = await fetch(`${BASE_URL}/tasks/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

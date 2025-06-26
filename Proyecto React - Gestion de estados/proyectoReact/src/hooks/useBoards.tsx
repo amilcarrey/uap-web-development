@@ -9,12 +9,18 @@ export function useBoards() {
   return useQuery<Board[]>({
     queryKey,
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/listarTableros`, {
+      const response = await fetch(`${BASE_URL}/boards`, {
         method: "GET",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch boards: ${errorText}`);
+      }
 
       const data: Board[] = await response.json();
       return data;

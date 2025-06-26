@@ -24,8 +24,9 @@ export function NewTaskForm({ page, setPage, taskEditing, setTaskEditing }: NewT
 
   const { mutate: addTask } = useMutation({
     mutationFn: async ({ text, activeBoardId }: {text: string; activeBoardId: string}) => {
-      const response = await fetch(`${BASE_URL}/agregar`, {
+      const response = await fetch(`${BASE_URL}/tasks`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -48,8 +49,9 @@ export function NewTaskForm({ page, setPage, taskEditing, setTaskEditing }: NewT
 
   const { mutate: editTask } = useMutation({
     mutationFn: async ({ id, text }: { id: string; text: string }) => {
-      const response = await fetch(`${BASE_URL}/editar`, {
-        method: "PUT",
+      const response = await fetch(`${BASE_URL}/tasks/${id}`, {
+        method: "PATCH",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
