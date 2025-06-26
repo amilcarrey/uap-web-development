@@ -1,6 +1,6 @@
 // src/pages/Reminders.tsx
 import { useMatch, Link } from "@tanstack/react-router";
-import { ChevronLeft, MoreHorizontal } from "lucide-react";
+import { ChevronLeft, MoreHorizontal, Users } from "lucide-react";
 import { useTasks } from "../hooks/useTasks";
 import { useToggleTask } from "../hooks/useToggleTask";
 import { useDeleteTask } from "../hooks/useDeleteTask";
@@ -10,10 +10,13 @@ import { useConfigStore } from "../store/configStore";
 import TaskForm from "../components/TaskForm";
 import CreateReminder from "../components/CreateReminder";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
+import { InviteUserDialog } from "../components/InviteUserDialog";
 import { useBoards } from "../hooks/useBoard"; 
+import { useUsers } from "../hooks/useUsers";
 import { useDebounce } from "../utils/useDobounce"; 
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 
 const FILTERS = [
   { key: "all", label: "Todos" },
@@ -30,10 +33,13 @@ export default function RemindersPage() {
   const limit = 10;
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 300);
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
 
   const { data: boards } = useBoards();
+  const { data: availableUsers = [] } = useUsers();
+  const { user } = useAuth();
   const board = boards?.find((b: any) => b.id === boardId);
-  const { uppercaseDescriptions } = useConfigStore();
+  const uppercaseDescriptions = useConfigStore((state: any) => state.uppercaseDescriptions);
   const { selectedTask, setSelectedTask, setConfirmDeleteTask, filter, setFilter } = useTaskStore();
 
   const { data, isLoading, isError } = useTasks(boardId, page, limit);
@@ -58,6 +64,13 @@ export default function RemindersPage() {
   if (isLoading) return <p className="p-4 text-center">Cargando tareas…</p>;
   if (isError) return <p className="p-4 text-red-600 text-center">Error al cargar tareas</p>;
 
+  // Solo mostrar botón de invitar si el usuario es el propietario del tablero
+  const canInviteUsers = user && board && board.owner_id === user.id;
+
+  const handleOpenInviteDialog = () => {
+    setShowInviteDialog(true);
+  };
+//console.log("Available Users:", availableUsers);
   return (
     <div className="min-h-screen bg-pink-50 flex flex-col">
       {/* ENCABEZADO */}
@@ -75,9 +88,23 @@ export default function RemindersPage() {
             )}
           </h1>
         </div>
-        <Link to="/boards/configuracion">
-          <MoreHorizontal className="text-pink-600 w-6 h-6 hover:text-pink-800 transition" />
-        </Link>
+        
+        <div className="flex items-center gap-2">
+          {canInviteUsers && (
+            <button
+              onClick={handleOpenInviteDialog}
+              className="flex items-center gap-1 px-3 py-1 text-sm rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 transition"
+              title="Invitar usuario"
+            >
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline">Invitar</span>
+            </button>
+          )}
+          
+          <Link to="/boards/configuracion">
+            <MoreHorizontal className="text-pink-600 w-6 h-6 hover:text-pink-800 transition" />
+          </Link>
+        </div>
       </header>
 
       {/* PRINCIPAL */}
@@ -203,6 +230,37 @@ export default function RemindersPage() {
         )}
 
         <ConfirmDeleteModal />
+
+        {/* Modal de invitar usuario */}
+        {showInviteDialog && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+            <div className="bg-white p-6 rounded-2xl shadow-xl w-[400px] max-w-full">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-gray-800">Invitar Usuario</h2>
+                <button
+                  onClick={() => setShowInviteDialog(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+                  <InviteUserDialog
+              boardId={boardId}
+              users={availableUsers ?? []}
+              onClose={() => setShowInviteDialog(false)}
+            />
+              
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={() => setShowInviteDialog(false)}
+                  className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* PIE DE PÁGINA */}

@@ -23,7 +23,7 @@ router.get("/user",boardController.getBoardsByUserId);
 router.get("/:id", boardController.getBoardById);
 router.post("/", boardController.createBoard);
 router.delete("/:id",  boardController.deleteBoard);
-router.post("/:id/invite",requirePermission(AccessLevel.owner), boardController.inviteUserToBoard);
+router.post("/:id/invite",requirePermission(AccessLevel.owner), boardController.inviteUser);
 
 
 //A POR VER
