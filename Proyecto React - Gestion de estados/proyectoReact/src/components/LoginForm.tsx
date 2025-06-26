@@ -1,6 +1,7 @@
 import type { FormEvent } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "@tanstack/react-router";
+import { showToast } from "../utils/showToast";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -15,7 +16,11 @@ export function LoginForm() {
     };
     login(data, {
       onSuccess: () => {
+        showToast("Logged in successfully!", "success");
         navigate({ to: "/" });
+      },
+      onError: (error) => {
+        showToast((error as Error).message, "error");
       },
     });
   }

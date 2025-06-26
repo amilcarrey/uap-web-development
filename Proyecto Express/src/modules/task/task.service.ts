@@ -22,7 +22,8 @@ export class TaskService {
 
   async createTask(userId: string, taskData: CreateTaskRequest): Promise<Task> {
     const role = await this.boardRepository.getBoardRole(userId, taskData.activeBoardId);
-    if (!role || role.role !== "viwer") {
+    console.log("Role:", role);
+    if (!role || role.role === "viwer") {
       throw new Error("You do not have permission to create tasks in this board.");
     }
     return this.taskRepository.createTask(taskData);
@@ -64,6 +65,7 @@ export class TaskService {
 
   async clearCompleted(userId: string, activeBoardId: string): Promise<void> {
     const role = await this.boardRepository.getBoardRole(userId, activeBoardId);
+    console.log("Role:", role);
     if (!role || (role.role !== "owner" && role.role !== "editor")) {
       throw new Error("You do not have permission to delete these tasks.");
     }

@@ -2,7 +2,7 @@ import type { Task } from '../types';
 // import { ToastContainer } from "../components/ToastContainer";
 import { NewTaskForm } from "../components/NewTaskForm";
 import { TaskList } from "../components/TaskList";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { FiltersForm } from "../components/FiltersForm";
 import { ClearCompleted } from "../components/ClearCompleted";
 import { useFilterStore } from "../store/useFilterStore";
@@ -14,11 +14,13 @@ import { useBoards } from "../hooks/useBoards";
 import { LogoutButton } from '../components/LogoutButton';
 import { ShareBoardModal } from '../components/ShareBoardModal';
 import { BoardRoleBadge } from '../components/BoardRoleBage';
+import { useSettings } from '../hooks/useSettings';
 
 
 export function Index() {
   const { token } = useAuth();
   const navigate = useNavigate();
+  const { loadSettings } = useSettings();
 
   const { boardId } = useParams({ strict: false }); //strict: false allows for optional boardId, strict: true would require it to be present
   const { data: boards } = useBoards();
@@ -29,6 +31,12 @@ export function Index() {
       navigate({ to: "/auth" });
     }
   }, [token, navigate]);
+
+  useEffect(() => {
+    if (token) {
+      loadSettings();
+    }
+  }, [token, loadSettings]);
 
   useEffect(() => {
     if (token && !boardId && boards?.length) {

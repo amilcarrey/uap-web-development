@@ -6,6 +6,7 @@ import { taskRoutes } from "./routes/task.route";
 import { authRoutes } from "./routes/auth.route";
 import cookieParser from "cookie-parser";
 import { filterRoutes } from "./routes/filter.route";
+import { settingsRoutes } from "./routes/settings.route";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +26,7 @@ app.use("/api/boards", boardRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/filter", filterRoutes);
+app.use("/api/settings", settingsRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

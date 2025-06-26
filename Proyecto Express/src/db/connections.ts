@@ -56,10 +56,14 @@ class Database {
         )
       `);
 
-      // await this.run(`
-      //   INSERT INTO boards (id, name) VALUES ('1', 'General');
-      //   INSERT INTO tasks (id, activeBoardId, text) VALUES ('1', '1', 'Hello, world!');
-      // `);
+      await this.run(`
+        CREATE TABLE IF NOT EXISTS settings (
+          user_id TEXT PRIMARY KEY,
+          refetch_interval INTEGER DEFAULT 10000,
+          uppercase_descriptions BOOLEAN DEFAULT false,
+          FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+      `);
 
       // await this.run(`CREATE INDEX IF NOT EXISTS idx_tasks_done ON tasks (done)`);
       // await this.run(`CREATE INDEX IF NOT EXISTS idx_tasks_activeBoardId ON tasks(activeBoardId)`);

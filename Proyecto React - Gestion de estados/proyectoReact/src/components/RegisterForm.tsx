@@ -1,10 +1,11 @@
 import type { FormEvent } from "react";
 import { useRegister } from "../hooks/useRegister";
 import { useNavigate } from "@tanstack/react-router";
+import { showToast } from "../utils/showToast";
 
 export function RegisterForm() {
   const navigate = useNavigate();
-  const { mutate: register, isPending, isSuccess, isError, error } = useRegister();
+  const { mutate: register, isPending, error } = useRegister();
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -45,9 +46,6 @@ export function RegisterForm() {
       >
         {isPending ? "Registering..." : "Register"}
       </button>
-
-      {isSuccess && <p className="text-green-600">User registered successfully!</p>}
-      {isError && <p className="text-red-600">{(error as Error).message}</p>}
     </form>
   );
 }

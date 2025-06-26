@@ -22,10 +22,10 @@ export function Settings() {
     });
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    await saveSettings(tempRefetchInterval, tempUppercaseDescriptions);
     setRefetchInterval(tempRefetchInterval);
     setUppercaseDescriptions(tempUppercaseDescriptions);
-    saveSettings();
   };
 
   const navigate = useNavigate();

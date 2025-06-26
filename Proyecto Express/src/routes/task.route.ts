@@ -3,10 +3,13 @@ import { TaskRepository } from "../modules/task/task.repository";
 import { TaskService } from "../modules/task/task.service";
 import { TaskController } from "../modules/task/task.controller";
 import { authWithCookiesMiddleware } from "../middleware/auth.middleware";
+import { BoardRepository } from "../modules/board/board.repository";
 
 const router = Router();
+const boardRepository = new BoardRepository();
+
 const taskRepository = new TaskRepository();
-const taskService = new TaskService(taskRepository);
+const taskService = new TaskService(taskRepository, boardRepository);
 const taskController = new TaskController(taskService);
 
 router.use(authWithCookiesMiddleware);

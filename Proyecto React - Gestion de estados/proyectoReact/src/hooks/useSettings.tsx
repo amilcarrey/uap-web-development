@@ -14,6 +14,7 @@ export function useSettings() {
   const loadSettings = useCallback(async () => {
     const response = await fetch(`${BASE_URL}/settings`, {
       method: "GET",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -29,13 +30,14 @@ export function useSettings() {
     }
   }, [setRefetchInterval, toggleUppercaseDescriptions, uppercaseDescriptions]);
 
-  const saveSettings = useCallback(async () => {
+  const saveSettings = useCallback(async (refetchIntervalToSave: number, uppercaseDescriptionsToSave: boolean) => {
     const response = await fetch(`${BASE_URL}/settings`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ refetchInterval, uppercaseDescriptions }),
+      body: JSON.stringify({ refetchInterval: refetchIntervalToSave, uppercaseDescriptions: uppercaseDescriptionsToSave }),
     });
 
     if (!response.ok) throw new Error("Error saving settings");

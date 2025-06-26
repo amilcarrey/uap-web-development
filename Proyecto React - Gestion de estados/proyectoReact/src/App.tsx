@@ -1,18 +1,9 @@
 import { ToastContainer } from "./components/ToastContainer";
-import { Link, Outlet } from "@tanstack/react-router";
+import { Outlet } from "@tanstack/react-router";
 
 
-export function App() {
-  // const filter = useFilterStore((state) => state.filter);
-  // const setFilter = useFilterStore((state) => state.setFilter);
-  // const [page, setPage] = useState(1);
-  // const [taskEditing, setTaskEditing] = useState<Task | null>(null);
+export function App() {  
 
-  // useEffect(() => {
-  //   setPage(1); // Reset page to 1 when filter changes
-  // }, [filter]);
-
-  
   return (
     <>
       <ToastContainer />
@@ -22,8 +13,6 @@ export function App() {
       </header>
       
       <Outlet />
-
-      
     </>
   );
 }
