@@ -60,6 +60,22 @@ async function getUsersWithPermissions(boardId: string) {
   );
 }
 
+async function getUserByEmail(email: string) {
+  return await database.get<{ id: string }>(
+    `SELECT id FROM users WHERE email = ?`,
+    [email]
+  );
+}
+
+async function hasPermission(boardId: string, userId: string) {
+  const result = await database.get(
+    `SELECT 1 FROM board_permissions WHERE board_id = ? AND user_id = ?`,
+    [boardId, userId]
+  );
+  return !!result;
+}
+
+
 export const BoardRepository = {
   getAll,
   getById,
@@ -67,4 +83,6 @@ export const BoardRepository = {
   addPermission,
   delete: deleteBoard,
   getUsersWithPermissions,
+  getUserByEmail,
+  hasPermission
 };

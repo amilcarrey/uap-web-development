@@ -14,14 +14,19 @@ export const TaskController = {
     const limit = parseInt(req.query.limit?.toString() || "5");
     const boardId = req.query.boardId?.toString();
     const search = req.query.search?.toString();
+    const user = req.user;
 
+      if (!user || !user.id) {
+    return res.status(401).json({ error: "No autorizado" });
+  }
     try {
       const { tasks, totalPages } = await TaskRepository.getPaginated(
         filter, 
         page, 
         limit, 
         boardId,
-        search
+        search,
+        user.id
       );
       res.json({ tasks, totalPages });
     } catch (err) {

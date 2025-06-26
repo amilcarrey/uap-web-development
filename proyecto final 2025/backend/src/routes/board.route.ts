@@ -24,11 +24,27 @@ router.delete("/:id", checkBoardPermission(["owner"]), deleteBoard);
 // Compartir un tablero con otro usuario
 router.post("/:id/share", checkBoardPermission(["owner"]), async (req, res) => {
   const boardId = req.params.id;
-  const { userId, role } = req.body;
+  const { email, role = "viewer" } = req.body; // email en vez de userId
+
+  if (!email) {
+    return res.status(400).json({ error: "Falta el email del usuario" });
+  }
 
   try {
-    await BoardRepository.addPermission(boardId, userId, role);
-    res.status(200).json({ message: "Permiso asignado" });
+    const user = await BoardRepository.getUserByEmail(email);
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Prevenir duplicados
+    const exists = await BoardRepository.hasPermission(boardId, user.id);
+    if (exists) {
+      return res.status(400).json({ error: "El usuario ya tiene acceso" });
+    }
+
+    await BoardRepository.addPermission(boardId, user.id, role);
+    res.status(200).json({ message: "Permiso asignado correctamente" });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "No se pudo compartir el tablero" });

@@ -30,12 +30,23 @@ export const TaskRepository = {
     page: number,
     pageSize: number,
     boardId?: string,
-    search?: string
+    search?: string,
+    userId?: string
     ): Promise< {tasks: Task[]; totalPages: number}> {
-    let query = "SELECT * FROM tasks";
+   let query = `
+    SELECT t.*
+    FROM tasks t
+    JOIN boards b ON b.id = t.board_id
+    JOIN board_permissions bp ON bp.board_id = b.id
+  `;    
+  
     const conditions: string[] = [];
     const params: any[] = [];
 
+  if (userId) {
+    conditions.push("bp.user_id = ?");
+    params.push(userId);
+  }
     if (filter === "done") {
       conditions.push("completed = 1"); //completado true
     }
@@ -43,16 +54,16 @@ export const TaskRepository = {
       conditions.push("completed = 0"); //completado false
     }
     //si existe board id, 
-    if (typeof boardId === "string" && boardId.trim() !== "") {
-      conditions.push("board_id = ?");
-      params.push(boardId);
-    } 
+     if (boardId) {
+    conditions.push("t.board_id = ?");
+    params.push(boardId);
+   }
 
-    if (typeof search === "string" && search.trim() !== "") {
-      conditions.push("LOWER(text) LIKE ?");
-      params.push(`%${search.toLowerCase()}%`);
-    }
-    
+    if (search) {
+    conditions.push("LOWER(t.text) LIKE ?");
+    params.push(`%${search.toLowerCase()}%`);
+   }
+
     //si hay filtros dentro del array, le agregamos a la query
     if (conditions.length > 0) {
       query += " WHERE " + conditions.join(" AND ");

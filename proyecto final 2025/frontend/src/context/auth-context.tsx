@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       body: JSON.stringify({ email, password }),
     });
     if (!res.ok) throw new Error("Credenciales incorrectas");
-    // await checkSession();
+    await checkSession();
   };
 
   const register = async (email: string, password: string) => {
