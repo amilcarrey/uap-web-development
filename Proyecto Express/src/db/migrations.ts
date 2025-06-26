@@ -18,6 +18,13 @@ const migrations: Migration[] = [
       `);
 
       await database.run(`
+        INSERT OR IGNORE INTO users (id, email, password)
+        VALUES 
+          ('user-1-id', 'user1@example.com', 'hashed_password_1'),
+          ('user-2-id', 'user2@example.com', 'hashed_password_2')
+      `)
+
+      await database.run(`
         CREATE TABLE IF NOT EXISTS boards (
           id TEXT PRIMARY KEY,
           name TEXT NOT NULL,
