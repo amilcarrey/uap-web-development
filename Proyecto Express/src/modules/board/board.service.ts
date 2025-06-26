@@ -30,4 +30,14 @@ export class BoardService {
     console.log(`Adding user ${userId} to board ${boardId} with role ${role}`);
     await this.boardRepository.addUserToBoard(userId, boardId, role);
   }
+
+  async getBoardRole(userId: string, boardId: string): Promise<{ role: string } | undefined> {
+    return this.boardRepository.getBoardRole(userId, boardId);
+  }
+
+  async isOwner(userId: string, boardId: string): Promise<boolean> {
+    const result = await this.boardRepository.getBoardRole(userId, boardId);
+    console.log(`User ${userId} role in board ${boardId}:`, result?.role);
+    return result?.role === "owner";
+  }
 }

@@ -12,6 +12,8 @@ import { useBoardStore } from '../store/useBoardStore';
 import { useAuth } from "../hooks/useAuth";
 import { useBoards } from "../hooks/useBoards";
 import { LogoutButton } from '../components/LogoutButton';
+import { ShareBoardModal } from '../components/ShareBoardModal';
+import { BoardRoleBadge } from '../components/BoardRoleBage';
 
 
 export function Index() {
@@ -34,6 +36,7 @@ export function Index() {
     }
   }, [token, boardId, boards]);
 
+  const [showShareModal, setShowShareModal] = useState(false);
   const filter = useFilterStore((state) => state.filter);
   const setFilter = useFilterStore((state) => state.setFilter);
   const [page, setPage] = useState(1);
@@ -52,6 +55,7 @@ export function Index() {
   return (
     <>
       <LogoutButton />
+      {boardId && <BoardRoleBadge boardId={boardId} />}
       <Link
         to="/settings"
         className="fixed top-4 right-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition"
@@ -59,6 +63,14 @@ export function Index() {
       >
         ⚙️
       </Link>
+
+      <button
+        onClick={() => setShowShareModal(true)}
+        className="fixed top-4 right-15 p-2 bg-[#65b8d8] text-white rounded-md shadow-lg hover:bg-[#4a9cbd] transition cursor-pointer"
+      >
+        Share Board
+      </button>
+
       <BoardsNav />
       <FiltersForm />
 
@@ -67,6 +79,10 @@ export function Index() {
         <TaskList page={page} setPage={setPage} setTaskEditing={setTaskEditing} />
         <ClearCompleted />
       </main>
+
+      { showShareModal && (
+        <ShareBoardModal boardId={boardId} onClose={() => setShowShareModal(false)} />
+      )}
     </> 
   );
 }

@@ -4,6 +4,7 @@ import { AuthService } from "../modules/auth/auth.service";
 import { AuthController } from "../modules/auth/auth.controller";
 import { BoardService } from "../modules";
 import { BoardRepository } from "../modules/board/board.repository";
+import { authWithCookiesMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();
 
@@ -16,6 +17,7 @@ const authController = new AuthController(authService);
 
 router.get("/", authController.getAllUsers);
 router.post("/register", authController.createUser);
+router.get("/me", authWithCookiesMiddleware, authController.getCurrentUser);
 router.post("/login", authController.login);
 router.post("/logout", authController.logout);
 

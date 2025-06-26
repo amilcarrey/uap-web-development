@@ -50,7 +50,9 @@ export class BoardRepository {
 
   async addUserToBoard(userId: string, boardId: string, role: string): Promise<void> {
     await database.run(
-      "INSERT OR IGNORE INTO board_users (user_id, board_id, role) VALUES (?, ?, ?)",
+      `INSERT INTO board_users (user_id, board_id, role)
+      VALUES (?, ?, ?)
+      ON CONFLICT(user_id, board_id) DO UPDATE SET role = excluded.role`,
       [userId, boardId, role]
     );
   }
@@ -61,5 +63,12 @@ export class BoardRepository {
       [userId, boardId]
     );
     return !!result;
+  }
+
+  async getBoardRole(userId: string, boardId: string): Promise<{ role: string } | undefined> {
+    return database.get(
+      "SELECT role FROM board_users WHERE user_id = ? AND board_id = ?",
+      [userId, boardId]
+    );
   }
 }

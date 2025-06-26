@@ -33,6 +33,22 @@ export class AuthController {
     }
   };
 
+  getCurrentUser = async (req: Request, res: Response) => {
+    try {
+      const user = req.user;
+
+      if (!user) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      res.json({ user });
+    } catch (error) {
+      console.error("Error gettitng current user:", error);
+      res.status(500).json({ error: "Failed to get current user" });
+    }
+  };
+
   login = async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;

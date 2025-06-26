@@ -5,7 +5,6 @@ export class TaskService {
   constructor(private readonly taskRepository: TaskRepository) {}
 
   async getAllTasks(): Promise<Task[]> {
-    // Here we can implement some business logic
     return this.taskRepository.getAllTasks();
   }
 
@@ -14,7 +13,6 @@ export class TaskService {
   }
 
   async createTask(taskData: CreateTaskRequest): Promise<Task> {
-    // Here we can implement some business logic like validation, etc.
     return this.taskRepository.createTask(taskData);
   }
 

@@ -74,4 +74,42 @@ export class BoardController {
       res.status(500).json({ error: "Failed to delete board" });
     }
   };
+
+  getBoardRole = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const userId = req.user.id;
+      const boardId = req.params.id;
+
+      const role = await this.boardService.getBoardRole(userId, boardId);
+      if (!role) {
+        res.status(404).json({ error: "Role not found for this board" });
+        return;
+      }
+
+      res.json({ role: role.role });
+    } catch (error) {
+      console.error("Error getting board role:", error);
+      res.status(500).json({ error: "Failed to retrieve board role" });
+    }
+  };
+
+  shareBoard = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { boardId, targetUserId, role } = req.body;
+      const requesterId = req.user.id;
+      console.log("Sharing board:", { boardId, targetUserId, role, requesterId });
+
+      const isOwner = await this.boardService.isOwner(requesterId, boardId);
+      if (!isOwner) {
+        res.status(403).json({ error: "Only the owner can share boards" });
+        return;
+      }
+
+      await this.boardService.addUserToBoard(targetUserId, boardId, role);
+      res.status(200).json({ message: "Board shared successfully" });
+    } catch (error) {
+      console.error("Error sharing board:", error);
+      res.status(500).json({ error: "Failed to share board" });
+    }
+  }
 }
