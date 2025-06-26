@@ -26,7 +26,7 @@ export const useTaskStore = create<TaskStore>((set) => ({
 
   setEditingText: (text) => set({ editingText: text }),
   setSelectedTask: (task) =>
-    set({ selectedTask: task, editingText: task?.text ?? "" }),
+    set({ selectedTask: task, editingText: task?.name ?? "" }),
   setConfirmDeleteTask: (task) => set({ confirmDeleteTask: task }),
   setFilter: (filter) => set({ filter }),
   setPage: (page) => set({ page }),

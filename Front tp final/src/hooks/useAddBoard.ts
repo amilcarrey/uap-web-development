@@ -1,6 +1,7 @@
 // hooks/useCreateBoard.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "./useAuth";  
+import { useToastStore } from '../store/toastStore';
+//import { useAuth } from "./useAuth";  
 
 export function useCreateBoard() {
   const queryClient = useQueryClient();
@@ -19,11 +20,26 @@ export function useCreateBoard() {
       
 
       });
-      if (!res.ok) throw new Error("Error al crear el board");
+      
+      if (!res.ok) {
+        // Manejar diferentes tipos de errores
+        if (res.status === 403) {
+          throw new Error("No tienes permisos para crear tableros");
+        } else if (res.status === 401) {
+          throw new Error("Debes iniciar sesión para realizar esta acción");
+        }
+        
+        throw new Error("Error al crear el tablero");
+      }
+      
       return await res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["boards"] });
+      useToastStore.getState().showToast("Tablero creado correctamente", "success");
+    },
+    onError: (error: any) => {
+      useToastStore.getState().showToast(error.message || "Error al crear el tablero", "error");
     },
   });
 }

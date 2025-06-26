@@ -5,7 +5,7 @@ export function useAuth() {
   const queryClient = useQueryClient();
 
   // Query para validar autenticación con cookies
-  const { data: authData, isLoading, error } = useQuery({
+  const { data: authData, isLoading } = useQuery({
     queryKey: ["auth-status"],
     queryFn: async () => {
       const response = await fetch("http://localhost:3000/api/auth/validate", {

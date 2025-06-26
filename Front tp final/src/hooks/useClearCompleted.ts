@@ -1,7 +1,7 @@
 // src/hooks/useClearCompleted.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastStore } from '../store/toastStore';
-import { useAuth } from "./useAuth";
+
 
 const BASE_URL = "http://localhost:3000/api";
 

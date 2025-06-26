@@ -1,12 +1,6 @@
-  // src/hooks/useTasks.ts
+
   import { useQuery } from "@tanstack/react-query";
-  //import type { Reminder } from "../types";
-  //import { useConfigStore } from "../store/configStore";
-  //import { useTaskStore } from "../store/taskStore"; 
-  import { useAuth } from "./useAuth"; 
-
-
-
+  
 export const useTasks = (boardId: string, page = 1, limit = 10) =>
   useQuery({
     queryKey: ["tasks", boardId, page, limit],

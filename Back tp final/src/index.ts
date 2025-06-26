@@ -9,9 +9,8 @@ import {permissionRoutes} from "./routes/permission.route";
 import {userSettingsRoutes} from "./routes/userSettings.route";
 import  {boardRoutes} from "./routes/board.route";
 import cookieParser from "cookie-parser";
-// import { messageRoutes } from "./routes/message.route";
-import dbConfig from './db/dbconfig'; 
-import { hash } from 'argon2';
+
+
 
 
 const app = express();

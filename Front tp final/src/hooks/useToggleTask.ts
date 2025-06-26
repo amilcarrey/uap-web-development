@@ -1,7 +1,6 @@
 // src/hooks/useToggleTask.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastStore } from '../store/toastStore';
-import { useAuth } from "./useAuth";
 
 const BASE_URL = "http://localhost:3000/api";
 
@@ -20,20 +19,26 @@ export function useToggleTask() {
         },
         body: JSON.stringify({ id, boardId }),
       });
-      if (!res.ok) throw new Error("Error al cambiar el estado del recordatorio");
+      
+      if (!res.ok) {
+        // Manejar diferentes tipos de errores
+        if (res.status === 403) {
+          throw new Error("No tienes permisos para modificar esta tarea");
+        } else if (res.status === 401) {
+          throw new Error("Debes iniciar sesión para realizar esta acción");
+        } else if (res.status === 404) {
+          throw new Error("La tarea no existe o no tienes acceso");
+        }
+        
+        throw new Error("Error al cambiar el estado del recordatorio");
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      useToastStore.getState().addToast({
-        message: "Estado de tarea actualizado",
-        type: "info",
-      });
+      useToastStore.getState().showToast("Estado de tarea actualizado", "info");
     },
-    onError: () => {
-      useToastStore.getState().addToast({
-        message: "Error al actualizar el estado de la tarea",
-        type: "error",
-      });
+    onError: (error: any) => {
+      useToastStore.getState().showToast(error.message || "Error al actualizar el estado de la tarea", "error");
     },
   });
 }

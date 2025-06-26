@@ -33,8 +33,25 @@ export function useAddTask(boardId: string) {
       });
 
       if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error?.error || "Error al agregar tarea");
+        const errorText = await res.text();
+        let errorData: { message?: string; error?: string } = {};
+        
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (e) {
+          console.error("Could not parse error as JSON:", e);
+        }
+
+        // Manejar diferentes tipos de errores
+        if (res.status === 403) {
+          throw new Error("No tienes permisos para agregar tareas a este tablero");
+        } else if (res.status === 401) {
+          throw new Error("Debes iniciar sesión para realizar esta acción");
+        } else if (res.status === 404) {
+          throw new Error("El tablero no existe o no tienes acceso");
+        }
+        
+        throw new Error(errorData.error || errorData.message || "Error al agregar tarea");
       }
 
       return res.json();
@@ -42,10 +59,10 @@ export function useAddTask(boardId: string) {
     onSuccess: () => {
       // Opcional: actualiza la cache de tasks del board
       queryClient.invalidateQueries({ queryKey: ['tasks', boardId] });
-      useToastStore.getState().showToast("Tarea agregada correctamente");
+      useToastStore.getState().showToast("Tarea agregada correctamente", "success");
     },
     onError: (error: any) => {
-      useToastStore.getState().showToast(error.message || "Error al agregar tarea");
+      useToastStore.getState().showToast(error.message || "Error al agregar tarea", "error");
     }
   });
 }

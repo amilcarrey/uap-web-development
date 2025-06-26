@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastStore } from "../store/toastStore";
-import { useAuth } from "./useAuth";
+
 
 export function useUpdateTask() {
   const queryClient = useQueryClient();
@@ -25,22 +25,29 @@ export function useUpdateTask() {
         },
         body: JSON.stringify({ id, name, board_id }),
       });
-      if (!res.ok) throw new Error("No se pudo actualizar");
+      
+      if (!res.ok) {
+        // Manejar diferentes tipos de errores
+        if (res.status === 403) {
+          throw new Error("No tienes permisos para actualizar esta tarea");
+        } else if (res.status === 401) {
+          throw new Error("Debes iniciar sesión para realizar esta acción");
+        } else if (res.status === 404) {
+          throw new Error("La tarea no existe o no tienes acceso");
+        }
+        
+        throw new Error("No se pudo actualizar la tarea");
+      }
+      
       return res.json();
     },
     onSuccess: (_data, variables) => {
       //console.log("Tarea actualizada correctamente");
       queryClient.invalidateQueries({ queryKey: ["tasks", variables.board_id] });
-      useToastStore.getState().addToast({
-        message: "Tarea actualizada correctamente",
-        type: "success",
-      });
+      useToastStore.getState().showToast("Tarea actualizada correctamente", "success");
     },
-    onError: () => {
-      useToastStore.getState().addToast({
-        message: "Error al actualizar la tarea",
-        type: "error",
-      });
+    onError: (error: any) => {
+      useToastStore.getState().showToast(error.message || "Error al actualizar la tarea", "error");
     },
   });
 }

@@ -3,10 +3,10 @@ import { useInviteUser } from "../hooks/useInviteUser";
 import { useToastStore } from "../store/toastStore";
 import { useState } from "react";
 import { UserPlus } from "lucide-react";
-interface User {
-  id: string;
-  username: string;
-}
+// interface User {
+//   id: string;
+//   username: string;
+// }
 
 interface InviteUserDialogProps {
   boardId: string;
