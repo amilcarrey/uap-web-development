@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "types": ["vite/client", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/frontend/components/*"],
+      "@hooks/*": ["src/frontend/hooks/*"],
+      "@store/*": ["src/frontend/store/*"],
+      "@types/*": ["src/frontend/types/*"],
+      "@utils/*": ["src/frontend/utils/*"],
+      "@db/*": ["src/backend/db/*"],
+      "@modules/*": ["src/backend/modules/*"],
+      "@routes/*": ["src/backend/routes/*"],
+      "@middleware/*": ["src/backend/middleware/*"]
+    },
+    "typeRoots": ["./node_modules/@types", "./src/backend/types"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": [
+    "src/frontend",
+    "src/backend",
+    "src/vite-env.d.ts",
+    "vite.config.ts"
+  ]
+}
