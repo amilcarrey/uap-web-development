@@ -23,6 +23,20 @@ export class AuthController {
       if (!userData.password) {
         return res.status(400).json({ error: "Password is required" });
       }
+      if (userData.name.length < 3) {
+        return res.status(400).json({ error: "Name must be at least 3 characters long" });
+      }
+      if (userData.password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters long" });
+      }
+       // Verificar si el username ya existe
+      const existingUser = await this.authService.findUserByUsername(userData.name);
+      if (existingUser) {
+        return res.status(409).json({ 
+          error: "El nombre de usuario ya está en uso. Por favor, elige otro." 
+        });
+      }
+
 
       const user = await this.authService.createUser(userData);
       res.status(201).json(user);
@@ -53,7 +67,7 @@ export class AuthController {
     } catch (error) {
       //res.status(500).json({ error: "Failed to login" });
       if (error instanceof Error) {
-        res.status(500).json({ error: error.message || "Failed to login" });
+        res.status(402).json({ error: error.message || "Failed to login" });
       } else {
         res.status(500).json({ error: "Failed to login" });
       }

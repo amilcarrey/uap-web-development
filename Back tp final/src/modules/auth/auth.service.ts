@@ -49,4 +49,14 @@ export class AuthService {
     //console.log("Generated token:", token);
     return token;
   }
+
+  async findUserByUsername(username: string) {
+    try {
+       return await this.authRepository.getUserByName(username);
+
+    } catch (error) {
+      console.error("Error finding user by username:", error);
+      throw new Error("Error al buscar usuario");
+    }
+  }
 }

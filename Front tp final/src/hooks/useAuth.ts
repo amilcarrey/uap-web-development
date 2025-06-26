@@ -40,7 +40,9 @@ export function useAuth() {
         body: JSON.stringify({ name, password }),
         headers: { "Content-Type": "application/json" },
       });
-      if (!response.ok) throw new Error("Error al iniciar sesión");
+      if (!response.ok) {
+        console.error("Error al iniciar sesión:", response.json());
+        throw new Error("Usuario o contraseña incorrectos");}
       return true; // No necesitamos el token aquí
     },
     onSuccess: () => {
