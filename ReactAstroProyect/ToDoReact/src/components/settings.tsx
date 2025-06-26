@@ -93,6 +93,16 @@ export default function Settings() {
   );
 };
 
+const handleDeleteCategoria = (id: string) => {
+  deleteCategoriaMutation.mutate(id, {
+    onSuccess: () => useModalStore.getState().openModal("Categoría eliminada", "success"),
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.error || error?.message || "Error al eliminar la categoría";
+      useModalStore.getState().openModal(errorMessage, "error");
+    },
+  });
+};
+
   const handleLogout = () => {
     logout.mutate();
   };
