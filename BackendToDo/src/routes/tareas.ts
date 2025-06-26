@@ -16,10 +16,9 @@ const router = express.Router();
 router.use(requireAuth);
 
 // Rutas protegidas por permisos
-router.get('/', getTareas); // Leer tareas: todos los que tengan acceso pueden ver
+router.get('/', getTareas); 
 router.get('/buscar', buscarTareas);
 
-// Solo propietario/editor pueden crear, editar, eliminar, marcar tareas
 router.post('/', requirePermission('escribir'), createTarea);
 router.put('/:id', requirePermission('escribir'), updateDescripcionTarea);
 router.delete('/:id', requirePermission('escribir'), deleteTarea);

@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { Configuraciones } from '../types/Tarea';
 
-// Hook para obtener configuraciones
 export const useConfiguraciones = () => {
   return useQuery<{ configuraciones: Configuraciones }>({
     queryKey: ['configuraciones'],
@@ -16,7 +15,6 @@ export const useConfiguraciones = () => {
   });
 };
 
-// Hook para actualizar configuraciones
 export const useActualizarConfiguraciones = () => {
   const queryClient = useQueryClient();
   
@@ -24,7 +22,7 @@ export const useActualizarConfiguraciones = () => {
     mutationFn: async (configuraciones: Partial<Configuraciones>) => {
       const response = await fetch('http://localhost:3001/api/configuraciones', {
         method: 'PUT',
-        credentials: "include", // Ya lo tienes, pero asegúrate
+        credentials: "include", 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(configuraciones),
       });
@@ -42,7 +40,6 @@ export const useActualizarConfiguraciones = () => {
   });
 };
 
-// Hook para resetear configuraciones
 export const useResetearConfiguraciones = () => {
   const queryClient = useQueryClient();
   
@@ -50,7 +47,7 @@ export const useResetearConfiguraciones = () => {
     mutationFn: async () => {
       const response = await fetch('http://localhost:3001/api/configuraciones/reset', {
         method: 'POST',
-        credentials: "include", // AGREGAR ESTA LÍNEA
+        credentials: "include", 
       });
       
       if (!response.ok) throw new Error('Error al resetear configuraciones');

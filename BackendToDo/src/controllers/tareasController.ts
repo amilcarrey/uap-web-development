@@ -18,7 +18,6 @@ export async function getTareas(req: Request, res: Response) {
       return res.status(400).json({ error: "idTablero es requerido" });
     }
 
-    // Console.log para verificar el refetch automatico
     console.log(`🔄 [${new Date().toLocaleTimeString()}] GET /tareas - Refetch automático`);
     
     const paginaNum = parseInt(pagina as string);
@@ -122,13 +121,16 @@ export async function deleteTarea(req: Request, res: Response) {
 // DELETE /tareas/completadas - Eliminar todas las tareas completadas
 export async function deleteCompletadas(req: Request, res: Response) {
   try {
-    const idTablero = req.query.idTablero as string;
-    console.log("Query recibida:", req.query);
+    const idTablero = (req as any).tableroId as string;
+    console.log("Controller idTablero:", idTablero);
+
     if (!idTablero) {
+      console.log("Controller error: idTablero es requerido");
       return res.status(400).json({ error: "idTablero es requerido" });
     }
-    console.log("idTablero recibido:", idTablero);
+
     const idsEliminados = await eliminarCompletadas(idTablero);
+    console.log("Controller idsEliminados:", idsEliminados);
 
     res.json({
       success: true,
@@ -136,6 +138,7 @@ export async function deleteCompletadas(req: Request, res: Response) {
       idsEliminados,
     });
   } catch (error) {
+    console.error('Error al eliminar tareas completadas:', error);
     res.status(500).json({ error: "Error al eliminar tareas completadas" });
   }
 }
@@ -168,7 +171,7 @@ export async function updateDescripcionTarea(req: Request, res: Response) {
   }
 }
 
-// POST /tareas/filtro - Filtrar tareas (para compatibilidad con frontend actual)
+// POST /tareas/filtro - Filtrar tareas 
 export async function filtrarTareas(req: Request, res: Response) {
   try {
     const { filtro, idTablero } = req.body;

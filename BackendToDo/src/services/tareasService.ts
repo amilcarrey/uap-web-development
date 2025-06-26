@@ -17,14 +17,12 @@ export async function listarTareas(idTablero: string, filtrar?: "completadas" | 
 }
 
 export async function agregarTarea(descripcion: string, idTablero: string): Promise<Tarea | null> {
-  // Verificar si ya existe
   const existe = await db.query("SELECT * FROM tareas WHERE descripcion = ? AND idTablero = ?", [descripcion, idTablero]);
   if (existe.length > 0) return null;
   
   const query = "INSERT INTO tareas (descripcion, completada, idTablero) VALUES (?, ?, ?)";
   const result = await db.run(query, [descripcion, false, idTablero]);
   
-  // Retornar la tarea creada
   const tareas = await db.query("SELECT * FROM tareas WHERE id = ?", [result.lastID]);
   return tareas.length > 0 ? tareas[0] as Tarea : null;
 }
@@ -42,12 +40,17 @@ export async function eliminarTarea(id: number): Promise<boolean> {
 }
 
 export async function eliminarCompletadas(idTablero: string): Promise<number[]> {
-  // Obtener IDs antes de eliminar (solo del tablero específico)
-  const completadas = await db.query("SELECT id FROM tareas WHERE completada = 1 AND idTablero = ?", [idTablero]);
-  const ids = completadas.map(t => t.id);
-  
-  // Eliminar solo las completadas del tablero específico
-  await db.run("DELETE FROM tareas WHERE completada = 1 AND idTablero = ?", [idTablero]);
+  const completadas = await db.query(
+    "SELECT id FROM tareas WHERE completada = 1 AND idTablero = ?", 
+    [idTablero]
+  );
+  const ids = completadas.map((t: any) => t.id);
+
+  await db.run(
+    "DELETE FROM tareas WHERE completada = 1 AND idTablero = ?", 
+    [idTablero]
+  );
+
   return ids;
 }
 
@@ -59,12 +62,10 @@ export async function actualizarDescripcion(id: number, nuevaDescripcion: string
 
 export async function obtenerTareaPorId(id: number) {
   const tareas = await db.query("SELECT * FROM tareas WHERE id = ?", [id]);
-  console.log('Buscando tarea', id, '->', tareas);
   return tareas.length > 0 ? tareas[0] : null;
 }
 
 export async function buscarTareasPorUsuario(userId: string, texto: string) {
-  // Buscar tareas solo en tableros propios o compartidos
   const query = `
     SELECT tareas.*, tableros.nombre as nombreTablero, tableros.alias as aliasTablero
     FROM tareas

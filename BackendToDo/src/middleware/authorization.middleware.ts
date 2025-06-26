@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { verificarPermisoTablero, esPropietarioTablero, obtenerRolUsuario } from '../services/permisosService';
+import { verificarPermisoTablero, obtenerRolUsuario } from '../services/permisosService';
 import { obtenerTablero } from '../services/tablerosService'; 
 import { obtenerTareaPorId } from '../services/tareasService';
 import { AuthRequest } from './error.middleware';
@@ -113,35 +113,35 @@ export const requirePermission = (accionRequerida: 'leer' | 'escribir' | 'gestio
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const usuarioId = req.userId;
-      let tableroId = req.body.idTablero || req.query.idTablero;
+      let tableroId = req.body.idTablero || req.query.idTablero || req.params.idTablero;
 
-      // Si no viene el idTablero pero sí el id de la tarea (por ejemplo, para editar/eliminar una tarea)
       if (!tableroId && req.params.id) {
         const tarea = await obtenerTareaPorId(Number(req.params.id));
         tableroId = tarea?.idTablero;
       }
 
-      console.log('usuarioId:', usuarioId, 'tableroId:', tableroId);
+      if (tableroId) tableroId = String(tableroId);
+
 
       if (!usuarioId || !tableroId) {
         return res.status(400).json({ error: "Usuario y tablero requeridos" });
       }
 
-      // Verificar el rol del usuario
       const rolUsuario = await obtenerRolUsuario(usuarioId, tableroId as string);
-      
+
       if (!rolUsuario) {
         return res.status(403).json({ error: "Sin acceso a este tablero" });
       }
 
-      // Verificar permisos según el rol
       const tienePermiso = verificarPermisoPorRol(rolUsuario, accionRequerida);
-      
+
       if (!tienePermiso) {
-        return res.status(403).json({ 
-          error: `Permisos insuficientes. Requiere: ${accionRequerida}, tienes rol: ${rolUsuario}` 
+        return res.status(403).json({
+          error: `Permisos insuficientes. Requiere: ${accionRequerida}, tienes rol: ${rolUsuario}`
         });
       }
+
+      (req as any).tableroId = tableroId;
 
       next();
     } catch (error) {

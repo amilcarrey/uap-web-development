@@ -7,10 +7,8 @@ import Notificacion from './components/Notificacion'
 import EliminarCompletadas from './components/EliminarCompletadas'
 import { useClientStore } from './store/clientStore'
 import { useTablero } from './hooks/useTableros'
-import App from './App'
 import Configuraciones from './components/Configuraciones'
 import AuthPage from './components/AutenticacionPagina';
-import { useAuthStatus } from './hooks/useAutenticacion';
 
 // 1. Crear ruta raíz
 const rootRoute = createRootRoute({
@@ -21,7 +19,7 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: () => <AuthPage />, // SIEMPRE login/registro
+  component: () => <AuthPage />, 
 });
 
 // 3. Crear ruta de tablero

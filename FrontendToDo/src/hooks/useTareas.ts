@@ -38,7 +38,6 @@ export const useTareas = (tableroAlias?: string, filtro?: 'todas' | 'completadas
   return useQuery({
     queryKey: ['tareas', tableroAlias, filtro, paginaActual, tareasPorPagina],
     queryFn: async () => {
-      console.log(`🔄 [${new Date().toLocaleTimeString()}] Frontend - Refetch automático iniciado`); 
       const tableroId = await getTableroIdFromAlias(tableroAlias);
       
       let url = `http://localhost:3001/api/tareas`;
@@ -56,7 +55,6 @@ export const useTareas = (tableroAlias?: string, filtro?: 'todas' | 'completadas
       });
       if (!response.ok) throw new Error('Error al obtener tareas');
       const data = await response.json();
-      console.log(`✅ Frontend - Refetch completado: ${data.tareas?.length || 0} tareas recibidas`); 
       
       return data;
     },
@@ -74,7 +72,7 @@ export const useCrearTarea = (tableroAlias: string | undefined) => {
       
       const response = await fetch("http://localhost:3001/api/tareas", {
         method: "POST",
-        credentials: "include", // Agregar esto
+        credentials: "include", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           descripcion, 
@@ -97,14 +95,13 @@ export const useEliminarCompletadas = (tableroId: string | undefined) => {
   return useMutation({
     mutationFn: async () => {
       if (!tableroId) throw new Error("No se proporcionó el id del tablero");
-
+      console.log(`Eliminando tareas completadas del tablero: ${tableroId}`);
       const response = await fetch(`http://localhost:3001/api/tareas/completadas?idTablero=${tableroId}`, {
         method: "DELETE",
         credentials: "include",
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
         throw new Error("Error al eliminar tareas completadas");
       }
       return response.json();
@@ -122,7 +119,7 @@ export const useEliminarTareaMutation = () => {
     mutationFn: async (id: number) => {
       const res = await fetch(`http://localhost:3001/api/tareas/${id}`, {
         method: 'DELETE',
-        credentials: "include", // Agregar esto
+        credentials: "include", 
         headers: { 'Content-Type': 'application/json' },
       });
       if (!res.ok) throw new Error('Error al eliminar tarea');

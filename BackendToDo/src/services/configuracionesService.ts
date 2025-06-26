@@ -23,7 +23,7 @@ export function resetearConfiguraciones(): Configuraciones {
   configuraciones = {
     intervaloRefetch: 10,
     descripcionMayusculas: false,
-    tareasPorPagina: 5, // <-- AGREGAR ESTA LÍNEA
+    tareasPorPagina: 5, 
   };
   return configuraciones;
 }

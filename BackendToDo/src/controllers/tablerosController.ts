@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import { agregarTablero, listarTableros, eliminarTablero, obtenerTablero, obtenerTableroPorId, listarTablerosDeUsuario} from '../services/tablerosService';
 import { 
   compartirTablero as compartirTableroService, 
-  obtenerUsuariosConAcceso, 
-  revocarAcceso, 
+  obtenerUsuariosConAcceso,  
   esPropietarioTablero,
   obtenerUsuarioPorEmail
 } from '../services/permisosService';
@@ -50,7 +49,6 @@ export async function createTablero(req: Request, res: Response) {
 
     res.status(201).json({ success: true, tablero: nuevoTablero });
   } catch (error) {
-    console.error('❌ Error al crear tablero:', error); 
     res.status(500).json({ error: "Error al crear tablero" });
   }
 }
@@ -115,7 +113,7 @@ export async function deleteTablero(req: Request, res: Response) {
       return res.status(404).json({ error: "Tablero no encontrado" });
     }
 
-    // Verificar que no sea un tablero protegido
+    // Verificar que no sea configuracion asi no puede ser eliminado
     if (alias === "configuracion") {
       return res.status(403).json({ 
         error: "No se puede eliminar el tablero de configuración" 
@@ -143,53 +141,11 @@ export async function deleteTablero(req: Request, res: Response) {
   }
 }
 
-// DELETE /tableros/id/:id - Eliminar tablero por ID (alternativo)
-export async function deleteTableroPorId(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
-    
-    if (!id) {
-      return res.status(400).json({ error: "ID requerido" });
-    }
-
-    // Obtener datos del tablero antes de eliminar
-    const tablero = await obtenerTableroPorId(id);
-    
-    if (!tablero) {
-      return res.status(404).json({ error: "Tablero no encontrado" });
-    }
-
-    // Verificar que no sea un tablero protegido
-    if (tablero.alias === "configuracion") {
-      return res.status(403).json({ 
-        error: "No se puede eliminar el tablero de configuración" 
-      });
-    }
-
-    const eliminado = await eliminarTablero(id);
-    
-    if (!eliminado) {
-      return res.status(500).json({ error: "Error al eliminar tablero" });
-    }
-
-    res.json({ 
-      success: true, 
-      mensaje: `Tablero "${tablero.nombre}" eliminado correctamente`,
-      tablero
-    });
-  } catch (error) {
-    console.error('Error al eliminar tablero por ID:', error);
-    res.status(500).json({ error: "Error al eliminar tablero" });
-  }
-}
-
 // POST /tableros/:id/compartir - Compartir tablero con otro usuario
 export async function compartirTablero(req: Request, res: Response) {
   try {
     const { alias } = req.params;
     const { emailUsuario } = req.body;
-
-    console.log('Rol recibido para compartir:', req.body.rol); // <-- LOG AQUÍ
 
     if (!emailUsuario) {
       return res.status(400).json({ error: "Email del usuario es requerido" });
@@ -212,7 +168,6 @@ export async function compartirTablero(req: Request, res: Response) {
       return res.status(400).json({ error: "No puedes compartir contigo mismo" });
     }
 
-    // Compartir el tablero usando el id real
     const compartido = await compartirTableroService(tablero.id, usuario.id, req.body.rol);
 
     if (!compartido) {
@@ -231,59 +186,6 @@ export async function compartirTablero(req: Request, res: Response) {
   } catch (error) {
     console.error('Error al compartir tablero:', error);
     res.status(500).json({ error: "Error al compartir tablero" });
-  }
-}
-
-// GET /tableros/:id/usuarios - Listar usuarios con acceso al tablero
-export async function obtenerUsuariosTablero(req: Request, res: Response) {
-  try {
-    const { id: tableroId } = req.params;
-    
-    const usuarios = await obtenerUsuariosConAcceso(tableroId);
-    
-    res.json({ 
-      success: true, 
-      usuarios: usuarios.map(u => ({
-        id: u.id,
-        nombre: u.nombre,
-        email: u.email,
-        esPropietario: u.esPropietario
-      }))
-    });
-  } catch (error) {
-    console.error('Error al obtener usuarios del tablero:', error);
-    res.status(500).json({ error: "Error al obtener usuarios" });
-  }
-}
-
-// DELETE /tableros/:id/acceso/:usuarioId - Revocar acceso a usuario
-export async function revocarAccesoTablero(req: Request, res: Response) {
-  try {
-    const { id: tableroId, usuarioId } = req.params;
-    
-    // No permitir revocar acceso al propietario
-    const esPropietario = await esPropietarioTablero(usuarioId, tableroId);
-    if (esPropietario) {
-      return res.status(400).json({ 
-        error: "No se puede revocar acceso al propietario" 
-      });
-    }
-
-    const revocado = await revocarAcceso(tableroId, usuarioId);
-    
-    if (!revocado) {
-      return res.status(404).json({ 
-        error: "Usuario no tenía acceso al tablero" 
-      });
-    }
-
-    res.json({ 
-      success: true, 
-      mensaje: "Acceso revocado correctamente" 
-    });
-  } catch (error) {
-    console.error('Error al revocar acceso:', error);
-    res.status(500).json({ error: "Error al revocar acceso" });
   }
 }
 

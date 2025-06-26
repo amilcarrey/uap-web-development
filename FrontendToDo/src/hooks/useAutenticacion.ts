@@ -21,7 +21,6 @@ export function useAuth() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  // Mutation para login
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
       const res = await fetch("http://localhost:3001/api/usuarios/login", {
@@ -49,7 +48,6 @@ export function useAuth() {
     },
   });
 
-  // Mutation para registro
   const registerMutation = useMutation({
     mutationFn: async ({ nombre, email, password }: { nombre: string; email: string; password: string }) => {
       const res = await fetch("http://localhost:3001/api/usuarios", {
@@ -74,7 +72,6 @@ export function useAuth() {
     },
   });
 
-  // Funciones que el componente puede usar
   const login = async (email: string, password: string) => {
     setError(null);
     loginMutation.mutate({ email, password });

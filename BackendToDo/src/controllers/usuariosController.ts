@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { AuthRequest } from '../middleware/error.middleware'; // AGREGAR ESTA LÍNEA
 import {
   registrarUsuario,
   autenticarUsuario,
@@ -24,7 +23,6 @@ export async function createUsuario(req: Request, res: Response) {
   try {
     const { nombre, email, password } = req.body;
     
-    // Validaciones
     if (!nombre || !email || !password) {
       return res.status(400).json({ 
         error: "Nombre, email y password son requeridos" 
@@ -43,7 +41,7 @@ export async function createUsuario(req: Request, res: Response) {
       return res.status(400).json({ error: "El usuario ya existe" });
     }
 
-    // No devolver la contraseña hasheada
+    // No devolvemos la contraseña hasheada
     const { password: _, ...usuarioSinPassword } = nuevoUsuario;
     res.status(201).json({ 
       success: true, 
@@ -103,7 +101,6 @@ export async function getUsuarioPorId(req: Request, res: Response) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // No devolver la contraseña
     const { password: _, ...usuarioSinPassword } = usuario;
     res.json({ usuario: usuarioSinPassword });
   } catch (error) {
@@ -128,39 +125,27 @@ export async function logoutUsuario(req: Request, res: Response) {
 
 // GET /usuarios/check-auth - Verificar si el usuario está autenticado
 export async function checkAuth(req: Request, res: Response) {
-  console.log('🔍 === EJECUTANDO checkAuth ==='); // DEBUG
-  console.log('🔍 Cookies recibidas:', req.cookies); // DEBUG
-  console.log('🔍 Headers:', req.headers.cookie); // DEBUG
-  
   try {
     const token = req.cookies?.token;
-    console.log('🔍 Token extraído:', token ? 'SÍ EXISTE' : 'NO EXISTE'); // DEBUG
     
     if (!token) {
-      console.log('🔍 Sin token - devolviendo 401'); // DEBUG
       return res.status(401).json({ error: 'No autenticado' });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: string };
-    console.log('🔍 Token decodificado:', decoded); // DEBUG
     
     const usuario = await obtenerUsuarioPorId(decoded.id);
-    console.log('🔍 Usuario encontrado:', usuario ? 'SÍ' : 'NO'); // DEBUG
     
     if (!usuario) {
-      console.log('🔍 Usuario no encontrado - devolviendo 401'); // DEBUG
       return res.status(401).json({ error: 'Usuario no encontrado' });
     }
 
-    // No devolver la contraseña
     const { password: _, ...usuarioSinPassword } = usuario;
-    console.log('🔍 Devolviendo 200 OK'); // DEBUG
     res.json({ 
       success: true, 
       usuario: usuarioSinPassword 
     });
   } catch (error) {
-    console.error('🔍 Error en checkAuth:', error);
     res.status(401).json({ error: 'Token inválido' });
   }
 }

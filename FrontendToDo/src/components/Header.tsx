@@ -25,15 +25,12 @@ const Header = ({ tableroNombre }: HeaderProps) => {
   const { mostrarToast } = useClientStore();
   const navigate = useNavigate();
 
-  // Alias actual de la URL
   const params = useParams({ strict: false });
   const aliasActual = params?.alias as string;
 
-  // Usuario autenticado y tablero actual (React Query)
   const { data: authData } = useAuthStatus();
   const { data: tableroData } = useTablero(aliasActual);
 
-  // ¿Es propietario?
   const soyPropietario = !!(
     authData?.usuario &&
     tableroData?.tablero &&
@@ -48,14 +45,12 @@ const Header = ({ tableroNombre }: HeaderProps) => {
       const data = await res.json();
       return data.usuarios || [];
     },
-    enabled: mostrarCompartir, // Solo consulta cuando se abre el modal
+    enabled: mostrarCompartir, 
   });
 
-  // Compartir tablero
   const handleCompartir = async (rol: 'lector' | 'editor') => {
     if (!usuarioSeleccionado) return;
     setCompartiendo(true);
-    console.log('Compartiendo con rol:', rol); // <-- LOG AQUÍ
     try {
       const res = await fetch(`http://localhost:3001/api/tableros/${aliasActual}/compartir`, {
         method: 'POST',
@@ -124,14 +119,14 @@ const Header = ({ tableroNombre }: HeaderProps) => {
 
   return (
     <header>
-      {/* Botón casita arriba a la izquierda */}
+      {/*Botón casita*/}
       <button
         onClick={() => navigate({ to: "/" })}
         className="absolute top-4 left-4 bg-white rounded-full p-2 shadow hover:bg-pink-100 transition"
         title="Ir al inicio"
         style={{ zIndex: 1000 }}
       >
-        {/* SVG de casita */}
+        {/*SVG de casita*/}
         <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0h6" />
         </svg>
@@ -162,7 +157,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
           </button>
         ))}
         
-        {/* Botón + para crear tablero */}
+        {/*Botón + para crear tablero*/}
         <button 
           type="button" 
           className="boton-estilo bg-green-500 hover:bg-green-600"
@@ -172,7 +167,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
           +
         </button>
 
-        {/* eliminar tablero actual */}
+        {/*eliminar tablero actual*/}
         {aliasActual && (
           <button 
             type="button" 
@@ -186,7 +181,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
         )}
       </div>
 
-      {/* crear tablero */}
+      {/*crear tablero*/}
       {mostrarFormulario && (
         <div className="mt-4 bg-pink-400 p-4 rounded-lg shadow-md max-w-md mx-auto">
           <h3 className="text-lg font-semibold mb-3 text-center">Crear Nuevo Tablero</h3>
@@ -223,7 +218,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
         </div>
       )}
 
-      {/* Botón compartir */}
+      {/*Botón compartir*/}
       {aliasActual && aliasActual !== 'configuracion' && (
         <button
           onClick={() => setMostrarCompartir(true)}
@@ -231,14 +226,14 @@ const Header = ({ tableroNombre }: HeaderProps) => {
           title="Compartir tablero"
           style={{ zIndex: 1000 }}
         >
-          {/* SVG de compartir */}
+          {/*SVG de compartir*/}
           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 8a3 3 0 11-6 0 3 3 0 016 0zm6 8a6 6 0 10-12 0h12zm-6-6v6" />
           </svg>
         </button>
       )}
 
-      {/* Modal de compartir */}
+      {/*Modal de compartir*/}
       {mostrarCompartir && (
         <div
           className="absolute left-4 top-28 bg-white p-4 rounded shadow-lg border w-72 z-50"
@@ -286,7 +281,7 @@ const Header = ({ tableroNombre }: HeaderProps) => {
         </div>
       )}
 
-      <BarraBusquedaTareas /> {/* <-- Agregalo aquí */}
+      <BarraBusquedaTareas /> 
     </header>
   );
 };

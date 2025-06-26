@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import cookieParser from 'cookie-parser'; // AGREGAR ESTA LÍNEA
+import cookieParser from 'cookie-parser'; 
 import dotenv from 'dotenv';
 import tareasRoutes from './routes/tareas';
 import tablerosRoutes from './routes/tableros';
@@ -29,15 +29,13 @@ app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'production') {
   app.use((req, res, next) => {
     console.log(`📡 ${req.method} ${req.path} - ${new Date().toLocaleTimeString()}`);
-    if (req.path.includes('check-auth')) {
-      console.log('🍪 Cookies en server:', req.cookies); // DEBUG
-    }
     next();
   });
 }
 
 // Rutas de la API
 app.use('/api/tareas', tareasRoutes);
+console.log("Montando rutas de tareas en /api/tareas");
 app.use('/api/tableros', tablerosRoutes);
 app.use('/api/configuraciones', configuracionesRoutes);
 app.use('/api/usuarios', usuariosRoutes);

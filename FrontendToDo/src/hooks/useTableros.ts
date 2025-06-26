@@ -10,7 +10,6 @@ interface TablerosResponse {
   tableros: Tablero[];
 }
 
-// Hook para obtener SOLO los tableros propios y compartidos
 export const useTableros = () => {
   return useQuery<TablerosResponse>({
     queryKey: ['tableros'],
@@ -24,7 +23,6 @@ export const useTableros = () => {
   });
 };
 
-// Hook para crear un nuevo tablero
 export const useCrearTablero = () => {
   const queryClient = useQueryClient();
   
@@ -32,7 +30,7 @@ export const useCrearTablero = () => {
     mutationFn: async ({ nombre, alias }: { nombre: string; alias: string }) => {
       const response = await fetch("http://localhost:3001/api/tableros", {
         method: "POST",
-        credentials: "include", // Agregar esto
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre, alias }),
       });
@@ -46,7 +44,6 @@ export const useCrearTablero = () => {
   });
 };
 
-// Hook para eliminar tablero
 export const useEliminarTablero = () => {
   const queryClient = useQueryClient();
   
@@ -54,7 +51,7 @@ export const useEliminarTablero = () => {
     mutationFn: async (alias: string) => {
       const response = await fetch(`http://localhost:3001/api/tableros/${alias}`, {
         method: 'DELETE',
-        credentials: "include", // AGREGAR ESTA LÍNEA
+        credentials: "include", 
       });
       
       if (!response.ok) {
@@ -71,7 +68,6 @@ export const useEliminarTablero = () => {
   });
 };
 
-// Hook para obtener un tablero específico por alias
 export const useTablero = (alias: string) => {
   return useQuery({
     queryKey: ['tablero', alias],

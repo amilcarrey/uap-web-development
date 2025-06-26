@@ -11,9 +11,9 @@ export default function AutenticacionPagina() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLogin) {
-      login(email, password); // Quitar await - ahora no es necesario
+      login(email, password); 
     } else {
-      register(nombre, email, password); // Quitar await - ahora no es necesario
+      register(nombre, email, password); 
     }
   };
 

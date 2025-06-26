@@ -1,26 +1,21 @@
-// BackendToDo/src/services/permisosService.ts
 import { Database } from "../db/connection";
-import { AccesoTablero } from "../models/types";
 
 const db = new Database();
 
 // Verificar si un usuario tiene acceso a un tablero
 export async function verificarPermisoTablero(usuarioId: string, tableroId: string): Promise<boolean> {
-  // 1. Verificar si es propietario
   const esPropietario = await db.query(
     "SELECT * FROM tableros WHERE id = ? AND propietarioId = ?", 
     [tableroId, usuarioId]
   );
   if (esPropietario.length > 0) return true;
   
-  // 2. Verificar si el tablero es público
   const esPublico = await db.query(
     "SELECT * FROM tableros WHERE id = ? AND publico = 1", 
     [tableroId]
   );
   if (esPublico.length > 0) return true;
   
-  // 3. Verificar si tiene acceso compartido
   const tieneAcceso = await db.query(
     "SELECT * FROM accesos_tablero WHERE idTablero = ? AND idUsuario = ?", 
     [tableroId, usuarioId]
@@ -81,55 +76,32 @@ export async function obtenerUsuariosConAcceso(tableroId: string): Promise<any[]
   return db.query(query, [tableroId, tableroId]);
 }
 
-// Revocar acceso a un tablero
-export async function revocarAcceso(tableroId: string, usuarioId: string): Promise<boolean> {
-  try {
-    const result = await db.run(
-      "DELETE FROM accesos_tablero WHERE idTablero = ? AND idUsuario = ?",
-      [tableroId, usuarioId]
-    );
-    return result.changes > 0;
-  } catch (error) {
-    console.error('Error al revocar acceso:', error);
-    return false;
-  }
-}
-
 // Obtener rol del usuario en un tablero específico
 export async function obtenerRolUsuario(usuarioId: string, tableroId: string): Promise<'propietario' | 'editor' | 'lector' | null> {
-    console.log('🔍 obtenerRolUsuario llamado con:', { usuarioId, tableroId });
     
-  // 1. Verificar si es propietario
   const esPropietario = await db.query(
     "SELECT * FROM tableros WHERE id = ? AND propietarioId = ?", 
     [tableroId, usuarioId]
   );
     
-  // 2. Verificar si tiene acceso compartido y su rol
   const acceso = await db.query(
     "SELECT rol FROM accesos_tablero WHERE idTablero = ? AND idUsuario = ?", 
     [tableroId, usuarioId]
   );
     
-  // 3. Verificar si es tablero público
   const esPublico = await db.query(
     "SELECT * FROM tableros WHERE id = ? AND publico = 1", 
     [tableroId]
   );
 
-
   if (esPropietario.length > 0) {
-    console.log('Rol detectado: propietario');
     return 'propietario';
   }
   if (acceso.length > 0) {
-    console.log('Rol detectado:', acceso[0].rol);
     return acceso[0].rol;
   }
   if (esPublico.length > 0) {
-    console.log('Rol detectado: lector (público)');
     return 'lector';
   }
-  console.log('❌ Sin acceso al tablero');
-  return null; // Sin acceso
+  return null; 
 }

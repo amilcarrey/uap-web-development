@@ -70,7 +70,6 @@ export interface AuthRequest extends Request {
 
 export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction): void => {
   try {
-    // Solo usar cookies para simplicidad
     const token = req.cookies?.token;
     
     if (!token) {
