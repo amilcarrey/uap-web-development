@@ -83,7 +83,7 @@ export default function Settings() {
   addCategoriaMutation.mutate(
     { id, name }, // ESTO se manda al backend
     { 
-      // ESTOS son callbacks locales del frontend que se ejecutan después de la respuesta del backend
+      //  ESTOS son callbacks locales del frontend que se ejecutan después de la respuesta del backend
       onSuccess: () => useModalStore.getState().openModal("Categoría creada", "success"),
       onError: (error: any) => {
         const errorMessage = error?.response?.data?.error || error?.message || "Error al crear la categoría";

@@ -5,11 +5,12 @@ type TaskListProps = {
   tasks: Task[];
   onDeleteTask: (id: number) => void;
   onToggleCompletion: (id: number) => void;
-  onEditTasks: (id: number, text: string) => void;
+  onEditTasks: (id: number, text: string) => void; 
+    currentCategory?: {
     userRole?: 'owner' | 'editor' | 'viewer';
     isShared?: boolean;
   };
-
+};
 
 function TaskList({ tasks, onDeleteTask, onToggleCompletion, onEditTasks, currentCategory }: TaskListProps) {
 
