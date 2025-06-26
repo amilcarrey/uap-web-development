@@ -1,8 +1,14 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+import Home from "./pages/Home";
+import Settings from "./pages/Settings";
+
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center text-center text-2xl font-bold text-gray-700">
-      Gestor de tareas base
-    </div>
+    <Routes>
+      <Route path="/" element={<Navigate to="/boards/1" />} />
+      <Route path="/boards/:boardId" element={<Home />} />
+      <Route path="/settings" element={<Settings />} />
+    </Routes>
   );
 }
 
