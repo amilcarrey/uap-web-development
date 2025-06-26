@@ -1,8 +1,8 @@
-//import React, { useState } from 'react'
+
 import type { FormEvent } from 'react'
 import { useMatch } from '@tanstack/react-router'
 import { useAddTask } from '../hooks/useAddTask'
-import { useConfigStore } from '../store/configStore' // ← agregamos el store
+import { useConfigStore } from '../store/configStore'
 import { useState } from 'react'
 
 export default function AddReminderForm() {
@@ -13,7 +13,7 @@ export default function AddReminderForm() {
   const [text, setText] = useState('')
   const addTaskMutation = useAddTask(boardId)
 
-  const { uppercaseDescriptions } = useConfigStore() // ← obtenemos la config
+  const { uppercaseDescriptions } = useConfigStore() 
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()

@@ -1,11 +1,8 @@
-// src/components/BoardSettings.tsx
 
 import { useState } from "react";
 import { useCreateBoard } from "../hooks/useAddBoard";
 //import { useDeleteBoard } from "../hooks/useDeleteBoard";
 import { useToastStore } from "../store/toastStore";
-//import { useMatch } from "@tanstack/react-router"; // 👈 importante: usa useMatch
-//import { router } from "../router"; // 👈 importa tu instancia de router desde donde la defines
 import { Plus } from "lucide-react";
 export function BoardSettings() {
 

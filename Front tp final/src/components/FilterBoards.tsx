@@ -1,6 +1,5 @@
-// src/components/FilterBoards.tsx
-//import React from "react";
-import { useBoardStore } from "../store/boardStore"; // Asegúrate de tener este store
+
+import { useBoardStore } from "../store/boardStore"; 
 
 const filters: { key: "all" | "owned" | "shared"; label: string }[] = [
   { key: "all", label: "Todos" },

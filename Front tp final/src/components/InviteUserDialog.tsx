@@ -19,10 +19,7 @@ export function InviteUserDialog({ boardId, users, onClose }: InviteUserDialogPr
   const { showToast } = useToastStore();
   const [selectedUser, setSelectedUser] = useState("");
   const [accessLevel, setAccessLevel] = useState("viewer");
-// Debug logs
-  //console.log("InviteUserDialog props:", { boardId, users, onClose });
-  //console.log("Users type:", typeof users);
-  //console.log("Users value:", users);
+
   const handleInvite = () => {
     if (!selectedUser) {
       showToast("Por favor selecciona un usuario", "error");
