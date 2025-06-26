@@ -65,18 +65,19 @@ class Database {
         )
       `);
 
-      // await this.run(`CREATE INDEX IF NOT EXISTS idx_tasks_done ON tasks (done)`);
-      // await this.run(`CREATE INDEX IF NOT EXISTS idx_tasks_activeBoardId ON tasks(activeBoardId)`);
-      // // Indice para acelerar consultas por estado de tarea y tablero activo
-      // await this.run(`CREATE INDEX IF NOT EXISTS idx_tasks_done_activeBoardId ON tasks (done, activeBoardId)`);
+      // Indices sobre tareas
+      await this.run(`CREATE INDEX IF NOT EXISTS idx_tasks_done ON tasks (done)`);
+      await this.run(`CREATE INDEX IF NOT EXISTS idx_tasks_activeBoardId ON tasks(activeBoardId)`);
+      // Indice para acelerar consultas por estado de tarea y tablero activo
+      await this.run(`CREATE INDEX IF NOT EXISTS idx_tasks_done_activeBoardId ON tasks (done, activeBoardId)`);
 
-      // // Indices para acelerar filtros por usuario
-      // await this.run(`CREATE INDEX IF NOT EXISTS idx_board_users_user_id ON board_users (user_id)`);
-      // await this.run(`CREATE INDEX IF NOT EXISTS idx_board_users_board_id ON board_users (board_id)`);
+      // Indices sobre relaciones de usuarios y tableros
+      await this.run(`CREATE INDEX IF NOT EXISTS idx_board_users_user_id ON board_users (user_id)`);
+      await this.run(`CREATE INDEX IF NOT EXISTS idx_board_users_board_id ON board_users (board_id)`);
 
-      // // Indices para acelerar consultas por fecha de creacion
-      // await this.run(`CREATE INDEX IF NOT EXISTS idx_boards_created_at ON boards (created_at)`);
-      // await this.run(`CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks (created_at)`);
+      // Indices por fecha de creacion
+      await this.run(`CREATE INDEX IF NOT EXISTS idx_boards_created_at ON boards (created_at)`);
+      await this.run(`CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks (created_at)`);
     }
   }
 
