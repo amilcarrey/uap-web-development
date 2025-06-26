@@ -1,0 +1,69 @@
+### 0. Register New User
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "usuario_tareas_final",
+    "email": "tareas.final@dominio.com",
+    "password": "PasswordFinal123!"
+}
+
+### 1. User Login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "tareas.final@dominio.com",
+    "password": "PasswordFinal123!"
+}
+
+### 2. Create Board
+POST http://localhost:5000/api/boards
+Content-Type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJ1c2VybmFtZSI6InVzdWFyaW9fdGFyZWFzX2ZpbmFsIiwiZW1haWwiOiJ0YXJlYXMuZmluYWxAZG9taW5pby5jb20ifSwiaWF0IjoxNzUwOTE3NDkyLCJleHAiOjE3NTA5MjEwOTJ9.9EBJRByo6OfV_IcGQzcjSX8j0En_ZQyKAKO6kNFZjIc
+
+{
+    "name": "Mi Primer Tablero de Tareas",
+    "description": "Tablero para organizar las nuevas tareas."
+}
+
+
+### 3. Create Task for a Board
+POST http://localhost:5000/api/boards/1/tasks
+Content-Type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJ1c2VybmFtZSI6InVzdWFyaW9fdGFyZWFzX2ZpbmFsIiwiZW1haWwiOiJ0YXJlYXMuZmluYWxAZG9taW5pby5jb20ifSwiaWF0IjoxNzUwOTE3NDkyLCJleHAiOjE3NTA5MjEwOTJ9.9EBJRByo6OfV_IcGQzcjSX8j0En_ZQyKAKO6kNFZjIc
+
+
+{
+    "title": "Configurar Entorno de Desarrollo",
+    "description": "Instalar Node.js, VS Code y dependencias.",
+    "status": "to-do",
+    "dueDate": "2025-07-05T12:00:00Z"
+}
+
+### 4. Get All Tasks for a Board
+GET http://localhost:5000/api/boards/1/tasks
+Content-Type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJ1c2VybmFtZSI6InVzdWFyaW9fdGFyZWFzX2ZpbmFsIiwiZW1haWwiOiJ0YXJlYXMuZmluYWxAZG9taW5pby5jb20ifSwiaWF0IjoxNzUwOTE3NDkyLCJleHAiOjE3NTA5MjEwOTJ9.9EBJRByo6OfV_IcGQzcjSX8j0En_ZQyKAKO6kNFZjIc
+
+### 5. Get Task by ID
+GET http://localhost:5000/api/tasks/1
+Content-Type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJ1c2VybmFtZSI6InVzdWFyaW9fdGFyZWFzX2ZpbmFsIiwiZW1haWwiOiJ0YXJlYXMuZmluYWxAZG9taW5pby5jb20ifSwiaWF0IjoxNzUwOTE3NDkyLCJleHAiOjE3NTA5MjEwOTJ9.9EBJRByo6OfV_IcGQzcjSX8j0En_ZQyKAKO6kNFZjIc
+
+### 6. Update Task by ID
+PUT http://localhost:5000/api/tasks/1
+Content-Type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJ1c2VybmFtZSI6InVzdWFyaW9fdGFyZWFzX2ZpbmFsIiwiZW1haWwiOiJ0YXJlYXMuZmluYWxAZG9taW5pby5jb20ifSwiaWF0IjoxNzUwOTE3NDkyLCJleHAiOjE3NTA5MjEwOTJ9.9EBJRByo6OfV_IcGQzcjSX8j0En_ZQyKAKO6kNFZjIc
+
+
+{
+    "title": "Configurar Entorno de Desarrollo (¡Hecho!)",
+    "description": "Node.js y VS Code instalados y funcionando.",
+    "status": "done"
+}
+
+### 7. Delete Task by ID
+DELETE http://localhost:5000/api/tasks/1
+Content-Type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJ1c2VybmFtZSI6InVzdWFyaW9fdGFyZWFzX2ZpbmFsIiwiZW1haWwiOiJ0YXJlYXMuZmluYWxAZG9taW5pby5jb20ifSwiaWF0IjoxNzUwOTE3NDkyLCJleHAiOjE3NTA5MjEwOTJ9.9EBJRByo6OfV_IcGQzcjSX8j0En_ZQyKAKO6kNFZjIc
