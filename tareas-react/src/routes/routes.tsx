@@ -5,6 +5,7 @@ import Configuracion from "../components/Configuracion";
 import Login from "../components/Login";
 import Register from "../components/Register"; 
 import HomeTableros from "../components/HomeTableros"; // <-- importa tu componente
+import Landing from "../components/Landing";
 
 const rootRoute = createRootRoute({
   component: RootLayout,
@@ -37,11 +38,19 @@ export const registerRoute = new Route({
 export const homeRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/",
+  component: Landing, // <-- Landing es ahora la raíz
+});
+
+// Agrega una ruta para HomeTableros, por ejemplo:
+export const tablerosRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/tableros",
   component: HomeTableros,
 });
 
 export const routeTree = rootRoute.addChildren([
-  homeRoute,        // <-- agrega aquí la ruta raíz
+  homeRoute,
+  tablerosRoute,
   tableroRoute,
   configRoute,
   loginRoute,

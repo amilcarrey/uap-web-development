@@ -6,6 +6,7 @@ import {
   deleteTablero,
   compartirTablero,
   obtenerUsuariosCompartidos,
+  eliminarColaborador,
 } from "./tablero.service";
 import db from "../../db/knex";
 import { obtenerRolUsuario } from "../../utils/permisos";
@@ -15,6 +16,7 @@ export const listarTableros = async (req: AuthRequest, res: Response) => {
     const userId = req.userId;
     if (!userId) throw new Error("No autenticado");
     const tableros = await getTablerosByUser(userId);
+    console.log(tableros); // <-- ¿Ves "propietario" aquí?
     res.json(tableros);
   } catch (error) {
     if (error instanceof Error && error.message === "No autenticado") {
@@ -120,6 +122,30 @@ export const obtenerRol = async (req: AuthRequest, res: Response) => {
       res.status(404).json({ error: error.message });
     } else {
       res.status(500).json({ error: "Error al obtener rol" });
+    }
+  }
+};
+
+export const eliminarColaboradorController = async (req: AuthRequest, res: Response) => {
+  const { tableroId, usuarioId } = req.params;
+  const userId = req.userId;
+  try {
+    const permiso = await db("tablero_usuarios")
+      .where({ tablero_id: tableroId, usuario_id: userId })
+      .first();
+
+    // Lanza error si no es propietario
+    if (!permiso || permiso.rol !== "propietario") {
+      throw new Error("Solo el propietario puede eliminar colaboradores");
+    }
+
+    await eliminarColaborador(tableroId, usuarioId);
+    res.json({ mensaje: "Colaborador eliminado" });
+  } catch (error: any) {
+    if (error.message === "Solo el propietario puede eliminar colaboradores") {
+      res.status(403).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: error.message || "Error al eliminar colaborador" });
     }
   }
 };

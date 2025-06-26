@@ -65,7 +65,47 @@ export class TableroRepository {
   async getTablerosByUser(userId: string) {
     return db("tableros")
       .join("tablero_usuarios", "tableros.id", "tablero_usuarios.tablero_id")
+      .join("users as propietario", "tableros.userId", "propietario.id")
       .where("tablero_usuarios.usuario_id", userId)
-      .select("tableros.*", "tablero_usuarios.rol");
+      .select(
+        "tableros.*",
+        "tablero_usuarios.rol",
+        "propietario.nombre as propietario" // <-- nombre del propietario
+      );
   }
+
+  async countTareas(tableroId: string) {
+    const total = await db("tareas").where({ tableroId }).count<{ count: number }>("id as count").first();
+    const completadas = await db("tareas").where({ tableroId, completada: true }).count<{ count: number }>("id as count").first();
+    const activas = await db("tareas").where({ tableroId, completada: false }).count<{ count: number }>("id as count").first();
+    return {
+      total: total?.count ?? 0,
+      completadas: completadas?.count ?? 0,
+      activas: activas?.count ?? 0,
+    };
+  }
+
+  async updateTotales(tableroId: string, totales: { total: number; completadas: number; activas: number }) {
+    await db("tableros")
+      .where({ id: tableroId })
+      .update({
+        total_tareas: totales.total,
+        total_activas: totales.activas,
+        total_completadas: totales.completadas,
+      });
+  }
+
+  async eliminarColaborador(tableroId: string, usuarioId: string) {
+    // No permitas que el propietario se elimine a sí mismo
+    const colaborador = await db("tablero_usuarios")
+      .where({ tablero_id: tableroId, usuario_id: usuarioId })
+      .first();
+    if (colaborador && colaborador.rol === "propietario") {
+      throw new Error("No puedes eliminar al propietario del tablero");
+    }
+    await db("tablero_usuarios")
+      .where({ tablero_id: tableroId, usuario_id: usuarioId })
+      .delete();
+  }
+
 }

@@ -15,7 +15,7 @@ export class AuthRepository {
     const [user] = await db("users")
       .insert({
         id: uuidv4(),
-        nombre: userData.nombre, // <--- usa el nombre recibido
+        nombre: userData.nombre,
         email: userData.email,
         password: passwordHash,
         role: userData.role || "user",

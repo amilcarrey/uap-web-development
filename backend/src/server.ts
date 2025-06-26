@@ -3,6 +3,9 @@ import router from "./routes";
 import cors from "cors";
 import { requestLogger } from "./middleware/request-logger.middleware";
 import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 const PORT = 8008;

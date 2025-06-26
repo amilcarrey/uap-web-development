@@ -2,10 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import HomeTableros from "./components/HomeTableros";
 import ListaTareas from "./components/ListaTareas";
-import Header from "./components/Header";
 import Notificaciones from "./components/Notificaciones";
 import { useParams } from "@tanstack/react-router";
-
 
 const App = () => {
   const { tableroId } = useParams({ from: "/tablero/$tableroId" });
@@ -21,7 +19,6 @@ const App = () => {
   if (!tableroId || tableros.length === 0) {
     return (
       <div>
-        <Header />
         <Notificaciones />
         <HomeTableros />
       </div>
@@ -31,14 +28,10 @@ const App = () => {
   // Si hay tablero seleccionado, muestra la lista de tareas
   return (
     <div className="w-full flex flex-col items-center px-4 relative p-6">
-      <Header />
       <Notificaciones />
-
       <main className="w-full flex justify-center mt-8 px-4">
         <div className="tareas w-full max-w-xl mx-auto mt-5 p-4">
-         
-            <ListaTareas />
-          
+          <ListaTareas />
         </div>
       </main>
     </div>

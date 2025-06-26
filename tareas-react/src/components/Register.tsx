@@ -21,7 +21,7 @@ const Register = () => {
   };
 
   return (
-    <div className="mt-40 bg-gray-150 bg-opacity-10 backdrop-blur-md border border-white border-opacity-20 rounded-3xl shadow-lg w-[90%] max-w-2xl mx-auto p-8 flex flex-col gap-6 text-gray-800">
+    <div className="mt-40 bg-gray-150 bg-opacity-10 backdrop-blur-md border border-white border-opacity-20 rounded-3xl shadow-lg w-[90%] max-w-2xl mx-auto p-8 flex flex-col gap-6 text-white">
       <form
         onSubmit={handleSubmit}
         className="max-w-xs mx-auto flex flex-col gap-4"

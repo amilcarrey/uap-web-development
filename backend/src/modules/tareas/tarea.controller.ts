@@ -3,6 +3,7 @@ import { createTarea, deleteTarea, updateTarea, getAllTareas, toggleCompletada, 
 import db from "../../db/knex";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import { obtenerRolUsuario } from "../../utils/permisos";
+import { actualizarTotalesTablero } from "../tableros/tablero.service";
 
 export const listarTareas = async (req: Request, res: Response) => {
   try {
@@ -52,6 +53,7 @@ export const agregarTarea = async (req: AuthRequest, res: Response) => {
     }
 
     const nuevaTarea = await createTarea(texto, tableroId);
+    await actualizarTotalesTablero(tableroId);
     res.status(201).json(nuevaTarea);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Faltan campos o datos inválidos";
@@ -76,6 +78,7 @@ export const borrarTareasCompletadas = async (req: AuthRequest, res: Response) =
       throw new Error("No tienes permisos para eliminar tareas completadas");
     }
     const deleted = await deleteCompletadas(tableroId as string);
+    await actualizarTotalesTablero(tableroId as string);
     res.json({ mensaje: "Tareas completadas eliminadas", deleted });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Error al eliminar tareas completadas";
@@ -99,6 +102,7 @@ export const borrarTarea = async (req: AuthRequest, res: Response) => {
       throw new Error("No tienes permisos para eliminar tareas");
     }
     const deleted = await deleteTarea(id);
+    await actualizarTotalesTablero(tarea.tableroId);
     if (deleted) {
       res.json({ mensaje: "Tarea eliminada" });
     } else {
@@ -164,6 +168,9 @@ export const completarTarea = async (req: AuthRequest, res: Response) => {
     }
 
     const tareaActualizada = await completarTareaPorId(id);
+
+    await actualizarTotalesTablero(tarea.tableroId);
+
     res.json(tareaActualizada);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Error al completar la tarea";

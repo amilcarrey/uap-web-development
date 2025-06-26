@@ -15,3 +15,11 @@ export const compartirTablero = (tableroId: string, usuarioId: string, rol: stri
 
 export const obtenerUsuariosCompartidos = (tableroId: string) =>
   tableroRepository.obtenerUsuariosCompartidos(tableroId);
+
+export async function actualizarTotalesTablero(tableroId: string) {
+  const totales = await tableroRepository.countTareas(tableroId);
+  await tableroRepository.updateTotales(tableroId, totales);
+}
+
+export const eliminarColaborador = (tableroId: string, usuarioId: string) =>
+  tableroRepository.eliminarColaborador(tableroId, usuarioId);

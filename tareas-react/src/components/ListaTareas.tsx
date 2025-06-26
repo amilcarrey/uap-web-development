@@ -6,18 +6,19 @@ import { tableroRoute } from "../routes/routes";
 import { useNotificacionesStore } from "./store/useNotificacionesStore";
 import { useConfigStore } from "./store/useConfigStore";
 import type { Tarea } from "../types";
-import { useAgregarTarea } from "./hooks/useAgregarTarea";
 import { useTareas } from "./hooks/useTareas";
 import { useEliminarCompletadas } from "./hooks/useEliminarCompletadas";
 import { ModalCompartir } from "./ModalCompartir";
 import { FaShareAlt } from "react-icons/fa";
 import { useRolTablero } from "./hooks/useRolTablero";
+import { useTareaAction } from "./hooks/useTareaAction";
 
 const ListaTareas = () => {
   const match = useMatch({ from: tableroRoute.id });
   const tableroId = match?.params.tableroId ?? "";
 
   const [pagina, setPagina] = useState(1);
+  const [busqueda, setBusqueda] = useState("");
 
   const porPagina = useConfigStore((s) => s.tareasPorPagina);
 
@@ -29,47 +30,61 @@ const ListaTareas = () => {
   // Usa porPagina en el hook de tareas
   const { data = { tareas: [], totalPaginas: 1 }, isLoading } = useTareas({ tableroId, pagina, porPagina });
 
+  // Cuando cambian las tareas, si la página actual queda vacía y no es la 1, retrocede una página
+  useEffect(() => {
+    if (
+      data?.tareas &&
+      data.tareas.length === 0 &&
+      pagina > 1
+    ) {
+      setPagina(pagina - 1);
+    }
+  }, [data?.tareas, pagina]);
+
   const { filtro, setFiltro } = useUIStore();
   const [texto, setTexto] = useState("");
   const { agregar: notificar } = useNotificacionesStore();
+  const tareaAction = useTareaAction(notificar);
   const descripcionMayusculas = useConfigStore((state) => state.descripcionMayusculas);
-  const agregarTareaMutation = useAgregarTarea(tableroId);
   const eliminarCompletadasMutation = useEliminarCompletadas(tableroId, notificar);
   const { data: rol, isLoading: loadingRol } = useRolTablero(tableroId);
 
   const [mostrarModal, setMostrarModal] = useState(false);
 
+  // Limpiar input al agregar tarea exitosamente
   useEffect(() => {
-    if (agregarTareaMutation.isSuccess) {
+    if (tareaAction.isSuccess && tareaAction.variables?.type === "add") {
       setTexto("");
     }
-  }, [agregarTareaMutation.isSuccess]);
+  }, [tareaAction.isSuccess, tareaAction.variables]);
 
   // Filtrado de tareas
-  const tareasFiltradas = React.useMemo(() => {
+  const tareasFiltradas = useMemo(() => {
     if (!data?.tareas) return [];
+    let filtradas = data.tareas;
     if (filtro === "activas") {
-      return data.tareas.filter((t: Tarea) => !t.completada);
+      filtradas = filtradas.filter((t: Tarea) => !t.completada);
     }
     if (filtro === "completadas") {
-      return data.tareas.filter((t: Tarea) => t.completada);
+      filtradas = filtradas.filter((t: Tarea) => t.completada);
     }
-    return data.tareas;
-  }, [data?.tareas, filtro]);
-
-  useEffect(() => {
-    console.log("ASDJHASKJDHKAJSDHKJASHDKJAS:", data);
-    console.log("Página actual:", pagina);
-  }, [data]);
+    if (busqueda.trim() !== "") {
+      filtradas = filtradas.filter((t: Tarea) =>
+        t.texto.toLowerCase().includes(busqueda.trim().toLowerCase())
+      );
+    }
+    return filtradas;
+  }, [data?.tareas, filtro, busqueda]);
 
   if (isLoading) return <p>Cargando tareas...</p>;
   if (loadingRol) return <p>Cargando permisos...</p>;
   if (!rol) return <p>No tienes acceso a este tablero.</p>;
 
+  // Agregar tarea usando el hook genérico
   const agregarTarea = (e: React.FormEvent) => {
     e.preventDefault();
     if (texto.trim() === "") return;
-    agregarTareaMutation.mutate(texto.trim());
+    tareaAction.mutate({ type: "add", tableroId, texto: texto.trim() });
   };
 
   const handleEliminarCompletadas = () => {
@@ -80,11 +95,11 @@ const ListaTareas = () => {
   return (
     <>
       {/* Botón de compartir fuera del contenedor principal */}
-      <div className="w-full flex justify-end max-w-3xl mx-auto ">
+      <div className="w-full flex justify-end mx-auto ">
         <button
           title="Compartir tablero"
           onClick={() => setMostrarModal(true)}
-          className="text-blue-500 hover:text-blue-700 text-2xl -mb-15"
+          className="text-white hover:text-blue-200 text-2xl -mb-15"
         >
           <FaShareAlt />
         </button>
@@ -93,7 +108,7 @@ const ListaTareas = () => {
       {/* Contenedor flex para lista y modal */}
       <div className="flex w-full justify-center">
         {/* Lista de tareas */}
-        <div className="backdrop-blur-md bg-white/70 bg-opacity-10 backdrop-blur-md border border-white border-opacity-20 rounded-3xl shadow-lg w-[90%] max-w-3xl mx-auto p-8 flex flex-col gap-6 text-gray-500">
+        <div className="backdrop-blur-md bg-opacity-10 backdrop-blur-md border border-white border-opacity-20 rounded-3xl shadow-lg w-[90%] max-w-3xl mx-auto p-8 flex flex-col gap-6 text-gray-500">
           {/* Formulario de nueva tarea */}
           <form onSubmit={agregarTarea} className="flex gap-2 mb-4">
             <input
@@ -105,8 +120,8 @@ const ListaTareas = () => {
             rounded-xl
             h-16
             border-white
-            placeholder-gray-400
-            text-gray-600
+            placeholder-white/30
+            text-white/50
             px-4
             w-full
             focus:outline-none
@@ -114,7 +129,7 @@ const ListaTareas = () => {
             focus:ring-0
             focus:shadow-[0_0_8px_2px_rgba(69,140,255,0.5)]
           "
-              disabled={agregarTareaMutation.isPending}
+              disabled={tareaAction.isPending}
             />
           </form>
 
@@ -126,8 +141,8 @@ const ListaTareas = () => {
                 onClick={() => setFiltro(f)}
                 className={`text-sm font-semibold transition ${
                   filtro === f
-                    ? "text-blue-600 underline underline-offset-4"
-                    : "text-gray-500 hover:text-blue-500"
+                    ? "text-blue-500 underline underline-offset-4"
+                    : "text-white/50 hover:text-blue-500"
                 }`}
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -135,9 +150,20 @@ const ListaTareas = () => {
             ))}
           </div>
 
+          {/* Barra de búsqueda */}
+          <div className="flex justify-center mt-2 mb-4">
+            <input
+              type="text"
+              value={busqueda}
+              onChange={e => setBusqueda(e.target.value)}
+              placeholder="Buscar tarea por texto..."
+              className="rounded-lg px-3 py-1 w-full max-w-xs border border-white/20 bg-black/20 text-white placeholder-white/40 focus:outline-none"
+            />
+          </div>
+
           {/* Lista de tareas */}
           {!tareasFiltradas.length ? (
-            <p className="text-center text-gray-500">No hay tareas para mostrar</p>
+            <p className="text-center text-white/50">No hay tareas para mostrar</p>
           ) : (
             tareasFiltradas.map((tarea: Tarea) => (
               <TareaItem
@@ -148,7 +174,7 @@ const ListaTareas = () => {
                 fecha_realizada={tarea.fecha_realizada ?? ""}
                 tableroId={tarea.tableroId ?? ""}
                 descripcionMayusculas={descripcionMayusculas}
-                rol={rol} // <-- pasa el rol como prop
+                rol={rol}
               />
             ))
           )}
@@ -156,13 +182,14 @@ const ListaTareas = () => {
           {/* Paginación */}
           <div className="flex items-center justify-between mt-4">
             <button
-              onClick={() => setPagina(Math.max(1, pagina - 1))}
-              disabled={pagina === 1}
-              className={`px-4 py-2 rounded-lg font-semibold text-white transition-colors ${
-                pagina === 1
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
-              }`}
+              onClick={() => setPagina(p => Math.max(1, p - 1))}
+              disabled={pagina === 1 || isLoading}
+              className={`px-4 py-2 rounded-lg font-semibold text-white transition-colors border border-white/20
+      ${pagina === 1 || isLoading
+        ? "bg-transparent text-gray-400 cursor-not-allowed"
+        : "bg-black/80 text-white hover:bg-black/90"
+      }`}
+              style={{ backgroundColor: pagina === 1 ? "transparent" : undefined }}
             >
               ← Anterior
             </button>
@@ -172,13 +199,14 @@ const ListaTareas = () => {
             </span>
 
             <button
-              onClick={() => setPagina(Math.min(data?.totalPaginas ?? 1, pagina + 1))}
-              disabled={!data || pagina === (data?.totalPaginas ?? 1)}
-              className={`px-4 py-2 rounded-lg font-semibold text-white transition-colors ${
-                pagina === (data?.totalPaginas ?? 1)
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
-              }`}
+              onClick={() => setPagina(p => Math.min((data?.totalPaginas ?? 1), p + 1))}
+              disabled={isLoading || pagina >= (data?.totalPaginas ?? 1)}
+              className={`px-4 py-2 rounded-lg font-semibold text-white transition-colors border border-white/20
+      ${pagina >= (data?.totalPaginas ?? 1) || isLoading
+        ? "bg-transparent text-gray-400 cursor-not-allowed"
+        : "bg-black/80 text-white hover:bg-black/90"
+      }`}
+              style={{ backgroundColor: (pagina >= (data?.totalPaginas ?? 1)) ? "transparent" : undefined }}
             >
               Siguiente →
             </button>

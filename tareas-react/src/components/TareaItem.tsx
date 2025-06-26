@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { useActualizarTarea } from "./hooks/useActualizarTarea";
-import { useToggleCompletada } from "./hooks/useToggleCompletada";
-import { useEliminarTarea } from "./hooks/useEliminarTarea";
 import { useConfigStore } from "./store/useConfigStore";
 import { useHandleEditarTexto } from "./hooks/useHandleEditarTexto";
+import { useTareaAction } from "./hooks/useTareaAction";
+import { useNotificacionesStore } from "./store/useNotificacionesStore";
 
 type Props = {
   id: string;
@@ -55,7 +54,7 @@ const TrashIcon = () => (
 
 const EditIcon = () => (
   <svg
-    className="w-5 h-5 text-gray-400 hover:text-white transition-colors duration-300 cursor-pointer"
+    className="w-5 h-5 text-white/40 hover:text-white transition-colors duration-300 cursor-pointer"
     fill="none"
     stroke="currentColor"
     strokeWidth={2}
@@ -84,17 +83,21 @@ const TareaItem = ({
   const [editando, setEditando] = useState(false);
   const [nuevoTexto, setNuevoTexto] = useState(texto);
 
-  // Hooks personalizados
-  const actualizarTarea = useActualizarTarea(id);
-  const toggleCompletada = useToggleCompletada(id, completada);
-  const eliminarTarea = useEliminarTarea(tableroId);
+  // Obtén la función de notificación
+  const { agregar: notificar } = useNotificacionesStore();
+  // Pásala al hook
+  const tareaAction = useTareaAction(notificar);
+  const tareaBgColor = useConfigStore((s) => s.tareaBgColor) || "#111827";
 
   const handleEditarTexto = useHandleEditarTexto(
     texto,
     nuevoTexto,
     setNuevoTexto,
     setEditando,
-    actualizarTarea
+    {
+      mutate: ({ texto: nuevo }) =>
+        tareaAction.mutate({ type: "update", id, data: { texto: nuevo } }),
+    }
   );
 
   const formatFecha = (fecha?: string | null) => {
@@ -109,13 +112,16 @@ const TareaItem = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 bg-black/90 backdrop-blur-lg rounded-xl border border-white/20 p-4 shadow-md shadow-black/20 hover:shadow-lg transition-shadow duration-300 text-white">
+    <div
+      className="flex flex-col gap-2 backdrop-blur-lg rounded-xl border border-white/20 p-4 shadow-md shadow-black/20 hover:shadow-lg transition-shadow duration-300 text-white"
+      style={{ backgroundColor: tareaBgColor }}
+    >
       <div className="flex items-center justify-between">
         <button
-          onClick={() => toggleCompletada.mutate()}
+          onClick={() => tareaAction.mutate({ type: "toggle", id, estadoActual: completada })}
           aria-label="Toggle complete"
           className="focus:outline-none"
-          disabled={toggleCompletada.isPending}
+          disabled={tareaAction.isPending}
         >
           <CheckIcon completed={completada} />
         </button>
@@ -131,12 +137,12 @@ const TareaItem = ({
                 setNuevoTexto(texto);
                 setEditando(false);
               }}
-              className="bg-transparent border-b border-gray-500 text-white text-center outline-none"
+              className="bg-transparent border-b border-white/40 text-white text-center outline-none"
             />
           ) : (
             <p
               className={`font-medium transition-colors duration-300 cursor-pointer ${
-                completada ? "line-through text-gray-400" : ""
+                completada ? "line-through text-white/40" : ""
               }`}
               onClick={() => setEditando(true)}
               title="Haz clic para editar"
@@ -159,10 +165,10 @@ const TareaItem = ({
               </button>
 
               <button
-                onClick={() => eliminarTarea.mutate(id)}
+                onClick={() => tareaAction.mutate({ type: "delete", id, tableroId })}
                 aria-label="Delete task"
                 className="focus:outline-none"
-                disabled={eliminarTarea.isPending}
+                disabled={tareaAction.isPending}
               >
                 <TrashIcon />
               </button>
@@ -171,7 +177,7 @@ const TareaItem = ({
         </div>
       </div>
 
-      <div className="text-xs text-gray-400 flex flex-col sm:flex-row sm:justify-between sm:gap-4">
+      <div className="text-xs text-white/30 flex flex-col sm:flex-row sm:justify-between sm:gap-4">
         <p>Creada: {formatFecha(fecha_creacion)}</p>
         <p>Última modificación: {formatFecha(fecha_modificacion)}</p>
         <p>Realizada: {formatFecha(fecha_realizada)}</p>
