@@ -4,13 +4,17 @@ import { checkBoardPermission } from "../middleware/checkBoardPermission";
 import { getTasks, createTask } from "../controllers/taskController";
 
 const router = express.Router();
-
 router.use(requireAuth);
 
-// Obtener tareas de un tablero
-router.get("/", checkBoardPermission(["owner", "editor", "viewer"]), getTasks);
-
-// Crear nueva tarea
-router.post("/", checkBoardPermission(["owner", "editor"]), createTask);
+router.get(
+  "/", 
+  checkBoardPermission(["owner","editor","viewer"]), 
+  getTasks
+);
+router.post(
+  "/", 
+  checkBoardPermission(["owner","editor"]), 
+  createTask
+);
 
 export default router;

@@ -4,7 +4,12 @@ import { prisma } from '../../prisma/client';
 
 export const checkBoardPermission = (roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const boardId = req.params.id;
+    const boardId = typeof req.params.id === "string"
+      ? req.params.id
+      : typeof req.query.boardId === "string"
+        ? req.query.boardId
+        : null;
+
     const userId = req.user?.id;
 
     if (!boardId || !userId) {
