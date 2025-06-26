@@ -5,6 +5,7 @@ import { BoardController } from "../modules/board/board.controller";
 import { authWithCookiesMiddleware, authWithHeadersMiddleware } from "../middleware/auth.middleware";
 import { requirePermission } from '../middleware/permission.middleware';
 import { AccessLevel } from '../enum/access-level.enum';
+import { boardValidators, handleValidationErrors } from "../validators";
 
 const router = Router();
 
@@ -18,11 +19,28 @@ router.use(authWithCookiesMiddleware);
 
 // Rutas para Boards
 //router.get("/", boardController.getAllBoards);//aca tiene que ser una de get all boards by user
-router.post("/invite-user/:board_id",requirePermission(AccessLevel.owner), boardController.inviteUser);
-router.get("/user",boardController.getBoardsByUserId);
-router.get("/:id", boardController.getBoardById);
-router.post("/", boardController.createBoard);
-router.delete("/:id",  boardController.deleteBoard);
+router.post("/invite-user/:board_id", 
+  boardValidators.inviteUser, 
+  handleValidationErrors, 
+  requirePermission(AccessLevel.owner), 
+  boardController.inviteUser
+);
+router.get("/user", boardController.getBoardsByUserId);
+router.get("/:id", 
+  boardValidators.boardId, 
+  handleValidationErrors, 
+  boardController.getBoardById
+);
+router.post("/", 
+  boardValidators.create, 
+  handleValidationErrors, 
+  boardController.createBoard
+);
+router.delete("/:id", 
+  boardValidators.boardId, 
+  handleValidationErrors, 
+  boardController.deleteBoard
+);
 
 
 

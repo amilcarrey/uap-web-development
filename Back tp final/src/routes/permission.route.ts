@@ -5,6 +5,7 @@ import { PermissionController } from "../modules/permission/permission.controlle
 import { authWithCookiesMiddleware } from "../middleware/auth.middleware";
 import { requirePermission } from '../middleware/permission.middleware';
 import { AccessLevel } from '../enum/access-level.enum';
+import { permissionValidators, handleValidationErrors } from "../validators";
 
 const router = Router();
 const permissionRepository = new PermissionRepository();
