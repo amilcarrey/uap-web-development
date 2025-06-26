@@ -52,7 +52,11 @@ export class AuthController {
   };
 
   logout = async (req: Request, res: Response) => {
-    res.clearCookie("userId");
-    res.json({ message: "Logged out" });
+    res.clearCookie("token", {
+      secure: true,
+      signed: true,
+      httpOnly: true,
+    });
+    res.status(200).json({ message: "Logged out" });
   };
 }

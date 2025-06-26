@@ -40,7 +40,7 @@ export function RegisterForm() {
       />
       <button
         type="submit"
-        className="bg-green-500 text-white rounded-md p-2"
+        className="bg-green-500 text-white rounded-md p-2 cursor-pointer"
         disabled={isPending}
       >
         {isPending ? "Registering..." : "Register"}

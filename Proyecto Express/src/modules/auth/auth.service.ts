@@ -96,7 +96,7 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const board = await this.boardService.createBoard({ name: "General" }, newUser.id, "general");
+    const board = await this.boardService.createBoard({ name: "General" }, newUser.id);
 
     await this.boardService.addUserToBoard(newUser.id, board.id, "owner");
 

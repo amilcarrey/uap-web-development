@@ -3,6 +3,7 @@ import type { Board } from '../store/useBoardStore';
 import { BASE_URL } from '../hooks/useTasks';
 import { showToast } from '../utils/showToast';
 import { useNavigate } from '@tanstack/react-router';
+import { useUserBoards } from '../hooks/useUserBoards';
 
 type BoardItemProps = {
   board: Board;
@@ -13,6 +14,9 @@ export function BoardItem({ board }: BoardItemProps) {
   const queryKey = ['boards'];
 
   const navigate = useNavigate();
+
+  const { data: boards } = useUserBoards();
+  const isGeneralBoard = boards?.[boards.length - 1]?.id === board.id;
   
   const { mutate: deleteBoard } = useMutation({
     mutationFn: async (id: string) => {
@@ -44,7 +48,7 @@ export function BoardItem({ board }: BoardItemProps) {
     },
   });
 
-  if (board.id === "general") return null;
+  if (isGeneralBoard) return null;
   
   return (
     <button

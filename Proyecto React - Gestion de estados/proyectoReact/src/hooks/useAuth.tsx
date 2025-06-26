@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./useTasks";
+import { useNavigate } from "@tanstack/react-router";
 
 const authQueryKey = ["auth-token"];
 
 export function useAuth() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: token } = useQuery({
     queryKey: authQueryKey,
@@ -26,7 +28,7 @@ export function useAuth() {
     }) => {
       const response = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
-        credentials: "include", // OJO ACA
+        credentials: "include", // OJO ACA atencion revisar
         body: JSON.stringify({ email, password }),
         headers: {
           "Content-Type": "application/json",
@@ -48,9 +50,25 @@ export function useAuth() {
     },
   });
 
-  const logout = () => {
-    queryClient.setQueryData(authQueryKey, null);
-  };
+  const { mutate: logout, ...logoutMutation } = useMutation({
+    mutationKey: ["logout"],
+    mutationFn: async () => {
+      const response = await fetch(`${BASE_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
 
-  return { token: token as string | null, login, logout, ...loginMutation };
+      if (!response.ok) {
+        throw new Error("Failed to logout");
+      }
+    },
+    onSuccess: () => {
+      // On successful logout, clear the auth query data.
+      queryClient.setQueryData(authQueryKey, null);
+      queryClient.invalidateQueries();
+      navigate({ to: "/auth" });
+    },
+  });
+
+  return { token: token as string | null, login, logout, ...loginMutation, ...logoutMutation };
 }

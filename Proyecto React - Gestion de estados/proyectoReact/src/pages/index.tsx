@@ -10,11 +10,16 @@ import { useParams , Link, useNavigate} from '@tanstack/react-router';
 import { BoardsNav } from '../components/BoardsNav';
 import { useBoardStore } from '../store/useBoardStore';
 import { useAuth } from "../hooks/useAuth";
+import { useBoards } from "../hooks/useBoards";
+import { LogoutButton } from '../components/LogoutButton';
 
 
 export function Index() {
   const { token } = useAuth();
   const navigate = useNavigate();
+
+  const { boardId } = useParams({ strict: false }); //strict: false allows for optional boardId, strict: true would require it to be present
+  const { data: boards } = useBoards();
 
   // Si no está logueado, redirigir a /auth
   useEffect(() => {
@@ -23,10 +28,13 @@ export function Index() {
     }
   }, [token, navigate]);
 
-  if (!token) return null;
+  useEffect(() => {
+    if (token && !boardId && boards?.length) {
+      navigate({ to: `/boards/${boards[0].id}` });
+    }
+  }, [token, boardId, boards]);
 
   const filter = useFilterStore((state) => state.filter);
-  const { boardId = "general" } = useParams({ strict: false }); //strict: false allows for optional boardId, strict: true would require it to be present
   const setFilter = useFilterStore((state) => state.setFilter);
   const [page, setPage] = useState(1);
   const [taskEditing, setTaskEditing] = useState<Task | null>(null);
@@ -39,8 +47,11 @@ export function Index() {
     useBoardStore.setState({ activeBoardId: boardId });
   }, [boardId]);
 
+  if (!token || !boardId) return null;
+
   return (
     <>
+      <LogoutButton />
       <Link
         to="/settings"
         className="fixed top-4 right-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition"

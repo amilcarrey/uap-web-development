@@ -38,7 +38,7 @@ export function LoginForm() {
         placeholder="Password"
         className="border border-gray-300 rounded-md p-2"
       />
-      <button type="submit" className="bg-blue-500 text-white rounded-md p-2">
+      <button type="submit" className="bg-blue-500 text-white rounded-md p-2 cursor-pointer">
         Login
       </button>
     </form>
