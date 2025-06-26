@@ -35,7 +35,6 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Rutas de la API
 app.use('/api/tareas', tareasRoutes);
-console.log("Montando rutas de tareas en /api/tareas");
 app.use('/api/tableros', tablerosRoutes);
 app.use('/api/configuraciones', configuracionesRoutes);
 app.use('/api/usuarios', usuariosRoutes);
