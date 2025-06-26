@@ -27,6 +27,9 @@ const Home = () => {
   if (isLoading) return <p>Cargando...</p>;
   if (isError) return <p>Error cargando tareas</p>;
 
+  // ✅ Solo el console.log, sin redeclarar
+  console.log('TAREAS:', tasks);
+
   return (
     <div className="max-w-xl mx-auto p-4 space-y-4">
       <TaskForm />

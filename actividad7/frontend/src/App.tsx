@@ -5,8 +5,13 @@ import Settings from "./pages/Settings";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/boards/1" />} />
+      {/* Redirige de la raíz a /boards/1 */}
+      <Route path="/" element={<Navigate to="/boards/1" replace />} />
+
+      {/* Página principal con tareas */}
       <Route path="/boards/:boardId" element={<Home />} />
+
+      {/* Página de configuración */}
       <Route path="/settings" element={<Settings />} />
     </Routes>
   );
