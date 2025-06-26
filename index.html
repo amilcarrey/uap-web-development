@@ -10,43 +10,44 @@
 </head>
 
 <body>
-    <!--Titulo-->
+    <!-- Título -->
     <div class="Titulo">
         <h1>TARENEITOR</h1>
     </div>
 
-    <!--Imagen-->
+    <!-- Imagen -->
     <div class="Imagen">
         <hr>
-        <img id="logo" src="Imágenes/e.png" alt="Imagen para reflexionar sobre la vida y tus tareas">
+        <img src="Imágenes/e.png" alt="Imagen para reflexionar sobre la vida y tus tareas">
     </div>
 
-
-    <!--formulario con 1 input (con su etiqueta) y 1 boton-->
+    <!-- Formulario -->
     <div class="Formulario">
-        <form id="form-tarea">
-            <input id="input-tarea" type="text" placeholder="Que tenemos que hacer hoy?">
-            <button id="btn-agregar" type="submit">Agregar</button>
+        <form>
+            <input type="text" placeholder="¿Qué tenemos que hacer hoy?" disabled>
+            <button type="button" disabled>Agregar</button>
         </form>
     </div>
 
-    <!--Funciones para ver tareas por filtro-->
+    <!-- Filtros -->
     <div class="Filtros">
-        <button id="mostrar-completadas" class="filtro-btn">Mostrar tareas completadas</button>
-        <button id="mostrar-incompletas" class="filtro-btn">Mostrar tareas sin completar</button>
+        <button class="filtro-btn" disabled>Mostrar tareas completadas</button>
+        <button class="filtro-btn" disabled>Mostrar tareas sin completar</button>
     </div>
 
-    <!--Lista: tarea, texto, boton de completar-->
+    <!-- Lista de tareas -->
     <div class="Tareas">
-        <ul class="Lista" id="lista-tareas"></ul>
+        <ul class="Lista">
+            <!-- Ejemplo visual de tareas estáticas -->
+            <li>Tarea 1</li>
+            <li>Tarea 2</li>
+        </ul>
     </div>
 
-    <!-- Eliminar tareas completadas-->
-     <div class="Borrar-completadas">
-        <button id="eliminar-completadas" class="eliminar-btn">Eliminar tareas completadas</button>
-     </div>
-
-    <script src="script.js"></script>
+    <!-- Botón de eliminar -->
+    <div class="Borrar-completadas">
+        <button class="eliminar-btn" disabled>Eliminar tareas completadas</button>
+    </div>
 </body>
 
 </html>
