@@ -5,11 +5,16 @@ import AgregarTarea from './components/AgregarTarea';
 import Notificacion from './components/Notificacion';
 import EliminarCompletadas from './components/EliminarCompletadas';
 import { useClientStore } from './store/clientStore';
+import { useParams } from '@tanstack/react-router';
+import { useTablero } from './hooks/useTableros';
 import './App.css';
 import './index.css';
 
 function App() {
   const { toast, cerrarToast } = useClientStore();
+  const params = useParams({ strict: false });
+  const aliasActual = params?.alias as string;
+  const { data: tableroData } = useTablero(aliasActual);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-pink-200 h-screen w-screen">
@@ -24,7 +29,7 @@ function App() {
           <AgregarTarea />
           <FiltroTareas />
           <ListaTareas />
-          <EliminarCompletadas />
+          <EliminarCompletadas tableroAlias={aliasActual} />
         </div>
       </div>
       {toast && <Notificacion {...toast} onCerrar={cerrarToast} />}

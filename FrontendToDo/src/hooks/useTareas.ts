@@ -11,7 +11,7 @@ export interface PaginatedResponse {
 }
 
 // Función helper para convertir alias a ID de tablero
-const getTableroIdFromAlias = async (alias: string | undefined): Promise<string> => {
+export const getTableroIdFromAlias = async (alias: string | undefined): Promise<string> => {
   if (!alias) return "tb-1"; 
   
   try {
@@ -33,9 +33,10 @@ export const useTareas = (tableroAlias?: string, filtro?: 'todas' | 'completadas
   const { data: configData } = useConfiguraciones();
   const { paginaActual } = useClientStore();
   const intervaloRefetch = configData?.configuraciones?.intervaloRefetch ?? 10;
-  
+  const tareasPorPagina = configData?.configuraciones?.tareasPorPagina ?? 5;
+
   return useQuery({
-    queryKey: ['tareas', tableroAlias, filtro, paginaActual],
+    queryKey: ['tareas', tableroAlias, filtro, paginaActual, tareasPorPagina],
     queryFn: async () => {
       console.log(`🔄 [${new Date().toLocaleTimeString()}] Frontend - Refetch automático iniciado`); 
       const tableroId = await getTableroIdFromAlias(tableroAlias);
@@ -46,6 +47,7 @@ export const useTareas = (tableroAlias?: string, filtro?: 'todas' | 'completadas
       params.append('idTablero', tableroId);
       params.append('pagina', paginaActual.toString()); 
       if (filtro && filtro !== 'todas') params.append('filtro', filtro);
+      params.append('limite', tareasPorPagina.toString());
       
       url += `?${params.toString()}`;
       
@@ -89,20 +91,18 @@ export const useCrearTarea = (tableroAlias: string | undefined) => {
   });
 };
 
-export const useEliminarCompletadas = (tableroAlias: string | undefined) => {
+export const useEliminarCompletadas = (tableroId: string | undefined) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async () => {
-      const idTablero = await getTableroIdFromAlias(tableroAlias);
-      
-      const response = await fetch("http://localhost:3001/api/tareas/completadas", {
+      if (!tableroId) throw new Error("No se proporcionó el id del tablero");
+
+      const response = await fetch(`http://localhost:3001/api/tareas/completadas?idTablero=${tableroId}`, {
         method: "DELETE",
-        credentials: "include", // Agregar esto
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idTablero }),
+        credentials: "include",
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error("Error al eliminar tareas completadas");
@@ -158,7 +158,7 @@ export const useEditarTareaMutation = () => {
     mutationFn: async ({ id, descripcion }: { id: number; descripcion: string }) => {
       const res = await fetch(`http://localhost:3001/api/tareas/${id}`, {
         method: 'PUT',
-        credentials: "include", // Agregar esto
+        credentials: "include", 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, descripcion }),
       });

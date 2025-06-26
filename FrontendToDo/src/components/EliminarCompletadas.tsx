@@ -1,4 +1,6 @@
 import { useEliminarCompletadas } from "../hooks/useTareas";
+import { useEffect, useState } from "react";
+import { getTableroIdFromAlias } from "../hooks/useTareas"; // Usa tu helper
 import { useClientStore } from "../store/clientStore";
 
 interface EliminarCompletadasProps {
@@ -7,9 +9,20 @@ interface EliminarCompletadasProps {
 
 export default function EliminarCompletadas({ tableroAlias }: EliminarCompletadasProps) {
   const { mostrarToast } = useClientStore();
-  const eliminarMutation = useEliminarCompletadas(tableroAlias);
+  console.log("🟢 [FRONT] EliminarCompletadas recibe alias:", tableroAlias); // LOG
+
+  const [tableroId, setTableroId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (tableroAlias) {
+      getTableroIdFromAlias(tableroAlias).then(setTableroId);
+    }
+  }, [tableroAlias]);
+
+  const eliminarMutation = useEliminarCompletadas(tableroId);
 
   const handleEliminar = () => {
+    console.log("🟢 [FRONT] handleEliminar ejecutado con alias:", tableroAlias); // LOG
     eliminarMutation.mutate(undefined, {
       onSuccess: () => mostrarToast("Tareas completadas eliminadas", "exito"),
       onError: (error) => {

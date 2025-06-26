@@ -122,21 +122,20 @@ export async function deleteTarea(req: Request, res: Response) {
 // DELETE /tareas/completadas - Eliminar todas las tareas completadas
 export async function deleteCompletadas(req: Request, res: Response) {
   try {
-    const { idTablero } = req.body;
-    
+    const idTablero = req.query.idTablero as string;
+    console.log("Query recibida:", req.query);
     if (!idTablero) {
       return res.status(400).json({ error: "idTablero es requerido" });
     }
-
+    console.log("idTablero recibido:", idTablero);
     const idsEliminados = await eliminarCompletadas(idTablero);
-    
+
     res.json({
       success: true,
       mensaje: "Tareas completadas eliminadas",
       idsEliminados,
     });
   } catch (error) {
-    console.error('Error al eliminar completadas:', error);
     res.status(500).json({ error: "Error al eliminar tareas completadas" });
   }
 }

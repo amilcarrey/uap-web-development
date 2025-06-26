@@ -1,9 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-export interface Configuraciones {
-  intervaloRefetch: number;
-  descripcionMayusculas: boolean;
-}
+import type { Configuraciones } from '../types/Tarea';
 
 // Hook para obtener configuraciones
 export const useConfiguraciones = () => {

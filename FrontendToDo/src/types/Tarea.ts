@@ -9,3 +9,9 @@ export interface Usuario {
   nombre: string;
   email: string;
 }
+
+export interface Configuraciones {
+  intervaloRefetch: number;
+  descripcionMayusculas: boolean;
+  tareasPorPagina: number;
+}

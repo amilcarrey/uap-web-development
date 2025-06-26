@@ -26,7 +26,7 @@ export async function updateConfiguraciones(req: Request, res: Response) {
     }
 
     // Validar campos válidos
-    const camposValidos = ['intervaloRefetch', 'descripcionMayusculas'];
+    const camposValidos = ['intervaloRefetch', 'descripcionMayusculas', 'tareasPorPagina'];
     const camposEnviados = Object.keys(nuevasConfiguraciones);
     const camposInvalidos = camposEnviados.filter(campo => !camposValidos.includes(campo));
     
@@ -49,6 +49,14 @@ export async function updateConfiguraciones(req: Request, res: Response) {
       if (typeof nuevasConfiguraciones.descripcionMayusculas !== 'boolean') {
         return res.status(400).json({ 
           error: "descripcionMayusculas debe ser un valor booleano" 
+        });
+      }
+    }
+
+    if (nuevasConfiguraciones.tareasPorPagina !== undefined) {
+      if (typeof nuevasConfiguraciones.tareasPorPagina !== 'number' || nuevasConfiguraciones.tareasPorPagina < 1) {
+        return res.status(400).json({ 
+          error: "tareasPorPagina debe ser un número mayor a 0" 
         });
       }
     }
