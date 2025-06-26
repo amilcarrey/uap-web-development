@@ -42,22 +42,16 @@ export const useTasks = () => {
 
   // Delete task - versión mejorada
   const deleteMutation = useMutation({
-  mutationFn: async (id: number) => {
-    await axios.delete(`${TASKS_ENDPOINT}/${id}`);
-      try {
-        await axios.delete(`${TASKS_ENDPOINT}/${id}`);
-      } catch (error) {
-        console.error('Error deleting task:', error);
-        throw error;
-      }
-    },
+  mutationFn: (id: number) => axios.delete(`${TASKS_ENDPOINT}/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
-    },
-    onError: (error) => {
-      console.error('Delete error:', error);
-    }
-  });
+        },
+      onError: (error) => {
+        console.error('❌ Error deleting task:', error);
+       alert('Error al eliminar la tarea: ' + (axios.isAxiosError(error) ? error.response?.statusText : error.message));
+        },
+   });
+   
 
   // Clear completed - versión mejorada
   const clearMutation = useMutation({

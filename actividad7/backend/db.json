@@ -1,17 +1,12 @@
 {
   "tasks": [
     {
-      "id": "a2b5",
-      "text": "hola2",
-      "completed": false
-    },
-    {
-      "id": "d274",
+      "id": "4afe",
       "text": "hola3",
-      "completed": false
+      "completed": true
     },
     {
-      "id": "6292",
+      "id": "7109",
       "text": "hola4",
       "completed": false
     }
