@@ -20,7 +20,7 @@ export interface CreateBoardRequest {
 
 export interface CreateTaskRequest {
     text: string;
-    activeBoardId?: string;
+    activeBoardId: string;
 }
 
 export interface User {

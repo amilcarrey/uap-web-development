@@ -5,6 +5,7 @@ import { useFilterStore } from '../store/useFilterStore';
 import { showToast } from '../utils/showToast';
 import { useBoardStore } from '../store/useBoardStore';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { canPerform } from '../utils/permissions';
 
 type TaskItemProps = {
 	task: Task;
@@ -15,6 +16,7 @@ type TaskItemProps = {
 export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
   const filter = useFilterStore((state) => state.filter);
   const boardId = useBoardStore((state) => state.activeBoardId);
+  const currentRole = useBoardStore((state) => state.currentRole);
 	const queryClient = useQueryClient();
 	const queryKey = ['tasks', filter, boardId];
 
@@ -83,6 +85,22 @@ export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
     },
   })
 
+  function handleToggleTask(id: string) {
+    if (!canPerform(currentRole, 'toggle')) {
+      showToast('You do not have permission to toggle tasks', 'error');
+      return;
+    }
+    toggleTask(id);
+  }
+
+  function handleDeleteTask(id: string) {
+    if (!canPerform(currentRole, 'delete')) {
+      showToast('You do not have permission to delete tasks', 'error');
+      return;
+    }
+    deleteTask(id);
+  }
+
   return (
 		<li className="flex justify-between items-center border-b-[1px] p-[10px] border-[#ccc] px-4">
 			<form method="POST" className="flex jusitify-between items-center w-[100%]" name="task-form" action="/api/completar">
@@ -91,7 +109,7 @@ export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
 						<input type="hidden" name="task-id" value={task.id} />
 						<button type="submit" className="text-[18px] cursor-pointer" name="task-btn" onClick={(e) => {
 							e.preventDefault()
-							toggleTask(task.id);
+							handleToggleTask(task.id);
 						}}>{task.done ? "✅" : "⬜"}</button>
 						<span>{uppercase ? task.text.toUpperCase() : task.text }</span>
 					</label>
@@ -99,7 +117,7 @@ export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
 			</form>
       <div>
         <button className="text-[18px] cursor-pointer"
-            onClick={() => setTaskEditing(task)}
+          onClick={() => setTaskEditing(task)}
         >
           ✏️
         </button>
@@ -108,7 +126,7 @@ export function TaskItem({ task, setTaskEditing }: TaskItemProps) {
 				<input type="hidden" name="task-id" value={task.id} />
 				<button type="submit" className="text-[18px] cursor-pointer" name="delete-btn" onClick={(e) => {
 					e.preventDefault()
-					deleteTask(task.id);
+					handleDeleteTask(task.id);
 				}}>🗑️</button>
 			</form>
 		</li>

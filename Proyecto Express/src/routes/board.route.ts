@@ -17,5 +17,6 @@ router.post("/", boardController.createBoard);
 router.delete("/:id", boardController.deleteBoard);
 router.get("/:id/role", boardController.getBoardRole);
 router.post("/share", boardController.shareBoard);
+router.post("/remove-user", boardController.removeUserFromBoard);
 
 export { router as boardRoutes };

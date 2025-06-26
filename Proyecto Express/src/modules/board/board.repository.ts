@@ -71,4 +71,12 @@ export class BoardRepository {
       [userId, boardId]
     );
   }
+
+  async removeUserFromBoard(userId: string, boardId: string): Promise<void> {
+    await database.run(
+      "DELETE FROM board_users WHERE user_id = ? AND board_id = ?",
+      [userId, boardId]
+    );
+  }
+
 }

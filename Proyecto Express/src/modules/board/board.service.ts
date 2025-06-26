@@ -40,4 +40,8 @@ export class BoardService {
     console.log(`User ${userId} role in board ${boardId}:`, result?.role);
     return result?.role === "owner";
   }
+
+  async removeUserFromBoard(userId: string, boardId: string): Promise<void> {
+    await this.boardRepository.removeUserFromBoard(userId, boardId);
+  }
 }

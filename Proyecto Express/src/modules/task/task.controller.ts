@@ -35,6 +35,7 @@ export class TaskController {
 
   createTask = async (req: Request, res: Response): Promise<void> => {
     try {
+      const userId = req.user.id;
       const taskData: CreateTaskRequest = req.body;
 
       if (!taskData.text) {
@@ -42,7 +43,7 @@ export class TaskController {
         return;
       }
 
-      const task = await this.taskService.createTask(taskData);
+      const task = await this.taskService.createTask(userId, taskData);
       res.status(201).json({ task });
     } catch (error) {
       console.error("Error creating task:", error);
@@ -52,6 +53,7 @@ export class TaskController {
 
   deleteTask = async (req: Request, res: Response): Promise<void> => {
     try {
+      const userId = req.user.id;
       const { id } = req.params;
       const exists = await this.taskService.taskExists(id);
 
@@ -60,7 +62,7 @@ export class TaskController {
         return;
       }
 
-      await this.taskService.deleteTask(id);
+      await this.taskService.deleteTask(userId, id);
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -70,6 +72,7 @@ export class TaskController {
 
   updateTask = async (req: Request, res: Response): Promise<void> => {
     try {
+      const userId = req.user.id;
       const { id } = req.params;
       const { text } = req.body;
 
@@ -78,7 +81,7 @@ export class TaskController {
         return;
       }
 
-      const task = await this.taskService.updateTask(id, text);
+      const task = await this.taskService.updateTask(userId, id, text);
       res.json({ task });
     } catch (error) {
       console.error("Error updating task:", error);
@@ -88,9 +91,10 @@ export class TaskController {
 
   toggleTask = async (req: Request, res: Response): Promise<void> => {
     try {
+      const userId = req.user.id;
       const { id } = req.params;
 
-      const task = await this.taskService.toggleTask(id);
+      const task = await this.taskService.toggleTask(userId, id);
       res.json({ task });
     } catch (error) {
       console.error("Error toggling task:", error);
@@ -100,6 +104,7 @@ export class TaskController {
 
   clearCompleted = async (req: Request, res: Response): Promise<void> => {
     try {
+      const userId = req.user.id;
       const activeBoardId = req.query.activeBoardId as string;
 
       if (!activeBoardId) {
@@ -107,7 +112,7 @@ export class TaskController {
         return;
       }
 
-      await this.taskService.clearCompleted(activeBoardId);
+      await this.taskService.clearCompleted(userId, activeBoardId);
       res.status(204).send();
     } catch (error) {
       console.error("Error clearing completed tasks:", error);

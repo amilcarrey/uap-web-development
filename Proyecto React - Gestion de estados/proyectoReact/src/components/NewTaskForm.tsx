@@ -5,6 +5,7 @@ import type { Task } from "../types";
 import { useFilterStore } from "../store/useFilterStore";
 import { showToast } from "../utils/showToast";
 import { useBoardStore } from "../store/useBoardStore";
+import { canPerform } from "../utils/permissions";
 
 type NewTaskFormProps = {
   page: number;
@@ -17,6 +18,7 @@ export function NewTaskForm({ page, setPage, taskEditing, setTaskEditing }: NewT
   const filter = useFilterStore((state) => state.filter);
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
   console.log("Active Board ID in NewTaskForm:", activeBoardId);
+  const currentRole = useBoardStore((state) => state.currentRole);
   const queryClient = useQueryClient();
   const queryKey = ["tasks", filter, activeBoardId, page];
 
@@ -82,6 +84,12 @@ export function NewTaskForm({ page, setPage, taskEditing, setTaskEditing }: NewT
       return alert("Please enter a task");
     }
 
+    const action = isEditing ? "edit" : "add";
+    if (!canPerform(currentRole, action)) {
+      showToast(`You do not have permission to ${action} tasks`, "error");
+      return;
+    }
+
     if (isEditing && taskEditing) {
       editTask({ id: taskEditing.id, text });
     } else {
@@ -98,7 +106,8 @@ export function NewTaskForm({ page, setPage, taskEditing, setTaskEditing }: NewT
   }, [taskEditing]);
 
   return (
-    <form method="POST" action="/api/agregar" className="flex justify-center items-center my-5 mx-auto max-w-xl" id="task-input" onSubmit={handleSubmit}>
+    <form method="POST" action="/api/agregar" className="flex justify-center items-center my-5 mx-auto max-w-xl" id="task-input"
+      onSubmit={handleSubmit}>
       <input type="text" className="w-[60%] py-2 px-2 rounded-[20px] bg-[#eadecf] border-none placeholder:text-[13px] placeholder:text-[#888]" name="task" placeholder="What do you need to do?" required
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}

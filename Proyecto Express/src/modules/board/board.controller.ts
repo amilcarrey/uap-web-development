@@ -112,4 +112,23 @@ export class BoardController {
       res.status(500).json({ error: "Failed to share board" });
     }
   }
+
+  removeUserFromBoard = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { boardId, targetUserId } = req.body;
+      const requesterId = req.user.id;
+
+      const isOwner = await this.boardService.isOwner(requesterId, boardId);
+      if (!isOwner) {
+        res.status(403).json({ error: "Only the owner can remove users" });
+        return;
+      }
+
+      await this.boardService.removeUserFromBoard(targetUserId, boardId);
+      res.status(200).json({ message: "User removed from board" });
+    } catch (error) {
+      console.error("Error removing user from board:", error);
+      res.status(500).json({ error: "Failed to remove user" });
+    }
+  };
 }

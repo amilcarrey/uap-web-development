@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "../hooks/useTasks";
-import { useAuth } from "../hooks/useAuth";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 
 
@@ -11,7 +10,6 @@ type ShareBoardModalProps = {
 
 export function ShareBoardModal({ boardId, onClose }: ShareBoardModalProps) {
   const queryClient = useQueryClient();
-  const { token } = useAuth();
 
   const { data: users = [] } = useQuery({
     queryKey: ["users"],
@@ -54,9 +52,29 @@ export function ShareBoardModal({ boardId, onClose }: ShareBoardModalProps) {
     },
   });
 
+  const { mutate: removeUser } = useMutation({
+    mutationFn: async ({ userId }: { userId: string }) => {
+      const response = await fetch(`${BASE_URL}/boards/remove-user`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ boardId, targetUserId: userId }),
+      });
+
+      if (!response.ok) throw new Error("Failed to remove user");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["boards"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    });
+
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-      <div className="bg-white p-4 rounded shadow-md w-96">
+      <div className="bg-white p-4 rounded shadow-md w-[450px]">
         <h2 className="text-xl font-bold mb-4">Share Board</h2>
         <ul className="space-y-2 max-h-64 overflow-y-auto">
           {filteredUsers.map((user: any) => (
@@ -68,6 +86,9 @@ export function ShareBoardModal({ boardId, onClose }: ShareBoardModalProps) {
                 </button>
                 <button onClick={() => shareBoard({ userId: user.id, role: "viewer" })} className="text-gray-600">
                   Viewer
+                </button>
+                <button onClick={() => removeUser({ userId: user.id })} className="text-red-600">
+                  Remove
                 </button>
               </div>
             </li>
