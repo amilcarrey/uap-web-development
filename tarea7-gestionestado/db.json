@@ -1,0 +1,32 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "description": "Estudiar para el parcial",
+      "completed": false,
+      "boardId": 1
+    },
+    {
+      "id": 2,
+      "description": "Hacer compras",
+      "completed": true,
+      "boardId": 1
+    },
+    {
+      "id": 3,
+      "description": "Leer progra",
+      "completed": false,
+      "boardId": 2
+    }
+  ],
+  "boards": [
+    {
+      "id": 1,
+      "name": "Principal"
+    },
+    {
+      "id": 2,
+      "name": "Secundario"
+    }
+  ]
+}
