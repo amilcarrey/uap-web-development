@@ -1,0 +1,102 @@
+{
+  "tableros": [
+    {
+      "id": "personal",
+      "nombre": "Personal"
+    },
+    {
+      "id": "trabajo",
+      "nombre": "Trabajo"
+    },
+    {
+      "id": "tareas",
+      "nombre": "Tareas"
+    }
+  ],
+  "tasks": [
+    {
+      "descripcion": "aa",
+      "completada": false,
+      "tableroId": "trabajo",
+      "id": "76vcPsG"
+    },
+    {
+      "descripcion": "a",
+      "completada": false,
+      "tableroId": "trabajo",
+      "id": "RQLHFeE"
+    },
+    {
+      "descripcion": "wop",
+      "completada": true,
+      "tableroId": "personal",
+      "id": "aEi5Zlp"
+    },
+    {
+      "descripcion": "1",
+      "completada": true,
+      "tableroId": "personal",
+      "id": "6wO6pq8"
+    },
+    {
+      "descripcion": "2",
+      "completada": true,
+      "tableroId": "personal",
+      "id": "lMbD3d_"
+    },
+    {
+      "descripcion": "3",
+      "completada": false,
+      "tableroId": "personal",
+      "id": "KMoAQjT"
+    },
+    {
+      "descripcion": "3",
+      "completada": false,
+      "tableroId": "personal",
+      "id": "g36_agD"
+    },
+    {
+      "descripcion": "4",
+      "completada": false,
+      "tableroId": "personal",
+      "id": "kPFc_ER"
+    },
+    {
+      "descripcion": "5",
+      "completada": false,
+      "tableroId": "personal",
+      "id": "nVig5pa"
+    },
+    {
+      "descripcion": "holis",
+      "completada": false,
+      "tableroId": "personal",
+      "id": "VoIpmP6"
+    },
+    {
+      "descripcion": "1231",
+      "completada": false,
+      "tableroId": "trabajo",
+      "id": "dbh7rcI"
+    },
+    {
+      "descripcion": "313",
+      "completada": false,
+      "tableroId": "trabajo",
+      "id": "k5PY96t"
+    },
+    {
+      "descripcion": "vsfd",
+      "completada": false,
+      "tableroId": "trabajo",
+      "id": "bTJa_kH"
+    },
+    {
+      "descripcion": "sdfsdf",
+      "completada": false,
+      "tableroId": "trabajo",
+      "id": "t7_GDrH"
+    }
+  ]
+}

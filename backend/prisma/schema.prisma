@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String            @id @default(uuid())
+  email        String            @unique
+  password     String
+  boards       Board[]           @relation("owner")
+  preferences  UserPreferences?
+  permissions  BoardPermission[]
+  createdAt    DateTime          @default(now())
+}
+
+model UserPreferences {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id])
+  refreshInterval     Int      @default(60)
+  capitalizeTasks     Boolean  @default(false)
+}
+
+model Board {
+  id          String            @id @default(uuid())
+  title       String
+  owner       User              @relation("owner", fields: [ownerId], references: [id])
+  ownerId     String
+  tasks       Task[]
+  permissions BoardPermission[]
+  createdAt   DateTime          @default(now())
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  description String
+  completed   Boolean   @default(false)
+  board       Board     @relation(fields: [boardId], references: [id])
+  boardId     String
+  createdAt   DateTime  @default(now())
+}
+
+model BoardPermission {
+  id       String @id @default(uuid())
+
+  user     User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId   String
+
+  board    Board  @relation(fields: [boardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  boardId  String
+
+  role     String
+}
