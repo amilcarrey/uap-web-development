@@ -158,7 +158,7 @@ export const ShareBoardDialog: React.FC<ShareBoardDialogProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-orange-950 border-4 border-amber-300 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl">
+      <div className="bg-orange-950 border-4 border-amber-300 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl max-h-[90vh] flex flex-col">
         {/* Header decorativo */}
         <div className="text-center mb-4">
           <div className="inline-flex items-center gap-2 bg-amber-800/30 px-4 py-2 rounded-full border border-amber-400">
@@ -179,17 +179,40 @@ export const ShareBoardDialog: React.FC<ShareBoardDialogProps> = ({
           </div>
         </div>
 
-        <div className="space-y-4">
-          {/* User selection using PermissionsList in select mode */}
-          <PermissionsList
-            mode="select"
-            users={users}
-            selectedUsers={selectedUsers}
-            isLoading={usersLoading || permissionsLoading || isUpdating}
-            onUserToggle={handleUserToggle}
-            title="Manage board access (✓ = already has access)"
-            emptyMessage="No other users available to share with"
-          />
+        {/* Scrollable user list container */}
+        <div className="flex-1 overflow-hidden relative">
+          <div className="max-h-64 overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-track-amber-900/20 scrollbar-thumb-amber-600 hover:scrollbar-thumb-amber-500">
+            {/* User selection using PermissionsList in select mode */}
+            <PermissionsList
+              mode="select"
+              users={users}
+              selectedUsers={selectedUsers}
+              isLoading={usersLoading || permissionsLoading || isUpdating}
+              onUserToggle={handleUserToggle}
+            />
+          </div>
+
+          {/* Indicador de scroll - aparece solo si hay muchos usuarios */}
+          {users.length > 5 && (
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-orange-950 via-orange-950/80 to-transparent h-12 flex items-end justify-center pb-2 pointer-events-none">
+              <div className="flex items-center gap-1 text-amber-300 text-xs animate-bounce">
+                <span>Ver más usuarios</span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                  />
+                </svg>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Action buttons */}
