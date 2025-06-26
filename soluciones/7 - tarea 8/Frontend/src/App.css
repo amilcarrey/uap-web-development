@@ -1,0 +1,77 @@
+/* App.css */
+
+/* Fondo general */
+body {
+  background-color: #e6f2e6; /* verde muy suave */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2e4d25; /* verde oscuro para texto */
+  margin: 0;
+  padding: 0;
+}
+
+/* Contenedor principal */
+#root > div {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #d4ecd4; /* verde claro */
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(46, 77, 37, 0.3);
+}
+
+/* Títulos */
+h2 {
+  color: #1a3a13; /* verde más intenso */
+}
+
+/* Botones */
+button {
+  background-color: #4caf50; /* verde principal */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #367a30; /* verde oscuro */
+}
+
+/* Enlaces (como el volver) */
+a {
+  color: #4caf50;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #2e7d32;
+}
+
+/* Inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+  border: 1px solid #a9d5a9;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 1rem;
+  margin-right: 8px;
+  outline-color: #4caf50;
+}
+
+/* Formularios */
+form {
+  margin-bottom: 20px;
+}
+
+/* Mensajes de error */
+p[style*="color: red"] {
+  font-weight: 600;
+  color: #d32f2f;
+}

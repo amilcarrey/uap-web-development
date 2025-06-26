@@ -1,14 +1,20 @@
 {
-  // Lista de archivos específicos que este tsconfig debe compilar (vacío en este caso, ya que se usa como proyecto raíz)
-  "files": [],
-
-  // Referencias a otros archivos de configuración tsconfig, lo que permite usar Project References
-  // Esto divide el proyecto en partes reutilizables y mejora el rendimiento en builds grandes.
-  "references": [
-    // Apunta al archivo de configuración de la aplicación (frontend con React, por ejemplo)
-    { "path": "./tsconfig.app.json" },
-
-    // Apunta al archivo de configuración del entorno Node.js (puede incluir scripts, configuraciones de build, etc.)
-    { "path": "./tsconfig.node.json" }
-  ]
+  "compilerOptions": {
+    "target": "ES2020",                        // Versión de JS generada
+    "lib": ["DOM", "DOM.Iterable", "ESNext"], // Librerías que incluye
+    "allowJs": false,                          // No permitir archivos JS, solo TS
+    "skipLibCheck": true,                      // Saltar chequeo de tipos en libs
+    "esModuleInterop": true,                   // Para importar módulos comunes correctamente
+    "allowSyntheticDefaultImports": true,     // Permite importaciones por defecto sintéticas
+    "strict": true,                            // Habilita todas las opciones estrictas
+    "forceConsistentCasingInFileNames": true, // Nombres de archivos case-sensitive
+    "module": "ESNext",                        // Módulo usado en el proyecto (para bundlers modernos)
+    "moduleResolution": "node",                // Resolver módulos como Node
+    "resolveJsonModule": true,                 // Permite importar archivos JSON
+    "isolatedModules": true,                   // Para herramientas como Babel
+    "noEmit": true,                            // No generar archivos JS, sólo chequeo de tipos
+    "jsx": "react-jsx"                         // Nueva transformación JSX de React 17+
+  },
+  "include": ["src"],                          // Archivos incluidos en el proyecto
+  "exclude": ["node_modules", "build"]        // Archivos excluidos
 }

@@ -1,58 +1,25 @@
 {
   "compilerOptions": {
-    // Archivo donde se guarda información incremental de compilación para acelerar builds posteriores
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-
-    // Define la versión de JavaScript que se va a generar tras compilar (ES2022 en este caso)
-    "target": "ES2022",
-
-    // Librerías disponibles para el código, aquí se usa ES2023 para características modernas
+    "target": "ES2023",
     "lib": ["ES2023"],
-
-    // Tipo de módulo que se genera (ESNext permite usar import/export nativo de ES modules)
     "module": "ESNext",
-
-    // Omite la comprobación de tipos dentro de archivos de definición de librerías para acelerar compilación
     "skipLibCheck": true,
 
-    /* Configuraciones para modo Bundler (herramienta que agrupa módulos para navegador o Node) */
-    
-    // Cómo resolver módulos importados, 'bundler' está optimizado para bundlers modernos
+    /* Bundler mode */
     "moduleResolution": "bundler",
-
-    // Permite importar archivos TypeScript con extensiones explícitas (.ts, .tsx)
     "allowImportingTsExtensions": true,
-
-    // Preserva la sintaxis del módulo exactamente como está sin transformarla
     "verbatimModuleSyntax": true,
-
-    // Detecta los módulos de forma forzada (más estricta)
     "moduleDetection": "force",
-
-    // No genera archivos JS, solo hace la comprobación de tipos (útil para proyectos que solo usan TS para tipado)
     "noEmit": true,
 
-    /* Reglas estrictas de chequeo para mantener alta calidad de código */
-
-    // Activa el modo estricto que incluye múltiples reglas para evitar errores comunes
+    /* Linting */
     "strict": true,
-
-    // Error si hay variables locales declaradas pero no usadas
     "noUnusedLocals": true,
-
-    // Error si hay parámetros de función declarados pero no usados
     "noUnusedParameters": true,
-
-    // Solo permite sintaxis que puede ser eliminada sin afectar el comportamiento (evita código muerto)
     "erasableSyntaxOnly": true,
-
-    // Evita que haya caídas de caso en switch sin break (errores silenciosos)
     "noFallthroughCasesInSwitch": true,
-
-    // Evita importar módulos por sus efectos secundarios sin usarlos (mejora mantenimiento)
     "noUncheckedSideEffectImports": true
   },
-
-  // Archivos incluidos en esta configuración: solo el archivo vite.config.ts, que es la configuración de Vite
   "include": ["vite.config.ts"]
 }
