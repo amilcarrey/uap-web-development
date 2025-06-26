@@ -26,10 +26,10 @@ export default dbConfig;
 export const poolPromise = new sql.ConnectionPool(dbConfig)
   .connect()
   .then(pool => {
-    console.log('✔️ SQL Server conectado correctamente');
+    console.log(' SQL Server conectado correctamente');
     return pool;
   })
   .catch(err => {
-    console.error('❌ Error al conectar con SQL Server:', err);
+    console.error(' Error al conectar con SQL Server:', err);
     throw err;
   });

@@ -110,19 +110,37 @@ console.log('boardData final:', boardData);
 
 
   inviteUser = async (req: Request, res: Response) => {
-    const boardId = req.params.boardId;
+    const board_id = req.params.board_id;
     const { user_id, access_level } = req.body;
     const ownerId = req.user?.id;
 
-    if (!boardId || !user_id || !access_level) {
+    console.log("=== INVITE USER BACKEND DEBUG ===");
+    console.log("Board ID from params:", board_id);
+    console.log("User ID from body:", user_id);
+    console.log("Access level from body:", access_level);
+    console.log("Owner ID from req.user:", ownerId);
+
+    if (!board_id || !user_id || !access_level) {
       return res.status(400).json({ error: "Faltan campos requeridos" });
     }
 
+    if (!ownerId) {
+      return res.status(401).json({ error: "Usuario no autenticado" });
+    }
+
     try {
-      await this.boardService.inviteUserToBoard(ownerId, user_id, boardId, access_level);
+      await this.boardService.inviteUserToBoard(ownerId, user_id, board_id, access_level);
       res.status(201).json({ message: "Usuario invitado correctamente" });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error invitando usuario:", err);
+      
+      // Manejo específico de errores
+      if (err.message === "No tienes permisos para invitar usuarios") {
+        return res.status(403).json({ error: err.message });
+      } else if (err.message === "El usuario ya tiene permisos en este board") {
+        return res.status(409).json({ error: err.message });
+      }
+      
       res.status(500).json({ error: "No se pudo invitar al usuario" });
     }
   };
