@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  username    String       @unique
+  password    String
+  config      UserConfig?
+  boards      Board[] // Un usuario puede tener muchos tableros
+  permissions Permission[] // Permisos en tableros compartidos
+}
+
+model Board {
+  id          String       @id @default(cuid())
+  name        String
+  owner       User         @relation(fields: [ownerId], references: [id])
+  ownerId     String
+  tasks       Task[]       @relation("BoardTasks")
+  permissions Permission[] @relation("BoardPermissions")
+  @@unique([name, ownerId]) // Un tablero no puede tener el mismo nombre para el mismo propietario
+}
+
+model Task {
+  id         String  @id @default(cuid())
+  text       String
+  completada Boolean @default(false)
+  board      Board   @relation("BoardTasks", fields: [boardId], references: [id], onDelete: Cascade)
+  boardId    String
+}
+
+model Permission {
+  id      String @id @default(cuid())
+  board   Board  @relation("BoardPermissions", fields: [boardId], references: [id], onDelete: Cascade)
+  boardId String
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+  role    String // 'owner', 'editor', 'viewer'
+
+  @@unique([boardId, userId])
+}
+
+model UserConfig {
+  id                  String  @id @default(cuid())
+  user                User    @relation(fields: [userId], references: [id])
+  userId              String  @unique
+  allTasksUppercase   Boolean @default(false)
+  theme               String  @default("light") // "light" o "dark"
+  autoRefreshInterval Int     @default(10) // segundos
+  tareasPorPagina     Int     @default(5) 
+}
