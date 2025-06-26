@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { api } from "../api"
 import { useDarkMode } from "../hooks/useDarkMode"
 import { useViewMode } from "../hooks/useViewMode"
+import { useToast } from "../hooks/useToast"
 import {
   CogIcon,
   Squares2X2Icon,
@@ -23,6 +24,7 @@ type Preferences = {
 export default function Preferences() {
   const { isDark, toggleDarkMode, isTransitioning } = useDarkMode()
   const { viewMode, setViewMode } = useViewMode()
+  const { showPreferencesSaved, updateNotificationPreference } = useToast()
   const toggleButtonRef = useRef<HTMLButtonElement>(null)
   const [prefs, setPrefs] = useState<Preferences>({
     autoRefreshInterval: 30,
@@ -66,8 +68,18 @@ export default function Preferences() {
         method: "PUT",
         body: JSON.stringify(prefs),
       })
+
+      // Actualizar el contexto de toast con la nueva preferencia
+      updateNotificationPreference(prefs.notifications)
+
       setOriginalPrefs(prefs)
       setSaved(true)
+
+      // 🎉 Toast notification (solo si las notificaciones están habilitadas)
+      if (prefs.notifications) {
+        showPreferencesSaved()
+      }
+
       setTimeout(() => setSaved(false), 2000)
     } finally {
       setSaving(false)
@@ -76,6 +88,14 @@ export default function Preferences() {
 
   const handleDarkModeToggle = () => {
     toggleDarkMode(toggleButtonRef.current || undefined)
+  }
+
+  const handleNotificationToggle = () => {
+    const newNotificationState = !prefs.notifications
+    setPrefs({ ...prefs, notifications: newNotificationState })
+
+    // Actualizar inmediatamente el contexto para que el usuario vea el cambio
+    updateNotificationPreference(newNotificationState)
   }
 
   const hasChanges = JSON.stringify(prefs) !== JSON.stringify(originalPrefs)
@@ -285,7 +305,7 @@ export default function Preferences() {
               </div>
 
               <button
-                onClick={() => setPrefs({ ...prefs, notifications: !prefs.notifications })}
+                onClick={handleNotificationToggle}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
                   prefs.notifications ? "bg-gradient-to-r from-red-600 to-yellow-600" : "bg-gray-300 dark:bg-gray-600"
                 }`}
@@ -310,6 +330,7 @@ export default function Preferences() {
                   <button
                     onClick={() => {
                       setPrefs(originalPrefs)
+                      updateNotificationPreference(originalPrefs.notifications)
                     }}
                     className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
                   >

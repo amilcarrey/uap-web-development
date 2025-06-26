@@ -55,7 +55,7 @@ export default function Navbar() {
           {/* User Menu */}
           <div className="flex items-center space-x-4">
             <div className="hidden sm:block text-sm text-gray-600 dark:text-gray-300">
-              Hola, <span className="font-semibold text-gray-900 dark:text-gray-100">{user?.email}</span>
+              Hola, <span className="font-semibold text-gray-900 dark:text-gray-100">{user?.name}</span>
             </div>
             <button
               onClick={async () => {

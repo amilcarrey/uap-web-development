@@ -1,115 +1,100 @@
-# TaskFlow - Gestor de Tareas Colaborativo
+# 🛠️ Setup “from scratch” with Neon
 
-Una aplicación web moderna para gestión de tareas y tableros colaborativos, construida con React, TypeScript, Node.js y PostgreSQL.
+This guide walks you through spinning up the project *from zero* using a free PostgreSQL database on **Neon**.
 
-## 🚀 Características
+---
 
-- ✅ **Autenticación segura** con JWT
-- 📋 **Tableros colaborativos** con roles (Owner, Editor, Viewer)
-- 🌙 **Modo oscuro** con persistencia
-- 📱 **Diseño responsive** con Tailwind CSS
-- 🔄 **Actualización automática** configurable
-- 👥 **Compartir tableros** con diferentes permisos
-- 🎨 **Vista cuadrícula/lista** personalizable
+## 1  Install backend dependencies
 
-## 📁 Estructura del Proyecto
-
-```
-taskflow/
-├── backend/          # API REST con Express + Prisma
-├── frontend/         # React + TypeScript + Tailwind
-├── backend/prisma/   # Migraciones y esquemas de Prisma
-└── docs/             # Documentación
-```
-
-## Tecnologías
-
-### Backend
-- **Node.js** + **Express** - API REST
-- **Prisma** - ORM y migraciones
-- **PostgreSQL** - Base de datos (Neon)
-- **JWT** - Autenticación
-- **bcrypt** - Hash de contraseñas
-- **Swagger** - Documentación API
-
-### Frontend
-- **React 18** + **TypeScript**
-- **Tailwind CSS** - Estilos
-- **React Router** - Navegación
-- **Heroicons** - Iconografía
-- **Vite** - Build tool
-
-## Instalación y Configuración
-
-### 1. Clonar y configurar
-```bash
-git clone https://github.com/noahludi/advanced-backend.git
-cd advanced-backend
-
-# Backend
-cd backend
-npm install
-cp .env.example .env
-# Editar .env con tus datos
-
-# Frontend  
-cd ../frontend
-npm install
-cp .env.example .env
-# Editar .env con URL del backend
-```
-
-### 2. Base de datos
 ```bash
 cd backend
+npm install
+```
 
-# Generar cliente Prisma
+---
+
+## 2  Create your database in Neon
+
+1. Sign up / log in to **[Neon](https://neon.tech)**.  
+2. Click **“New Project”**, pick a name and region.  
+3. When it finishes, open **“Connect to your database”** and copy the **connection string**  
+   *(starts with `postgresql://` and ends with `sslmode=require`)*.
+
+---
+
+## 3  Environment variables
+
+```bash
+# copy the template provided in the repo
+cp .env.example .env
+```
+
+Edit **`backend/.env`**:
+
+```env
+# ⇩ paste the Neon connection string here
+DATABASE_URL="postgresql://<user>:<password>@<host>/<db>?sslmode=require&pgbouncer=true"
+
+# at least 32 random bytes – generate with `openssl rand -base64 32`
+JWT_SECRET="your-super-secret-jwt-key"
+```
+
+> **Tip ** `pgbouncer=true` lets Prisma work smoothly with Neon’s connection pooler.
+
+---
+
+## 4  Create the schema in Neon
+
+### Option A  (keep migration history)
+
+If you have migrations committed under `prisma/migrations/`:
+
+```bash
+npx prisma migrate deploy        # applies them to Neon
+```
+
+### Option B  (just push the current model) — **recommended for fresh dev**
+
+```bash
+# generate/update Prisma Client
 npx prisma generate
 
-# Ejecutar migraciones
-npx prisma migrate deploy
+# create all tables as defined in schema.prisma
+npx prisma db push
+# add --force-reset to drop everything first (dev only):
+# npx prisma db push --force-reset
+```
 
-# (Opcional) Datos de prueba
+*(Optional) seed initial data if you have a seed script:*
+
+```bash
 npx prisma db seed
 ```
 
-### 3. Ejecutar
+---
+
+## 5  Run in development
+
 ```bash
-# Terminal 1 - Backend
-cd backend
-npm run dev
-
-# Terminal 2 - Frontend
-cd frontend  
+# still inside backend/
 npm run dev
 ```
 
-## 🌐 Para Deploy
+API available at **`http://localhost:4000`**  
+Swagger docs at **`http://localhost:4000/docs`**
 
-### Variables requeridas:
+---
 
-**Backend (.env):**
-```env
-DATABASE_URL="postgresql://..."  # Neon connection string
-JWT_SECRET="..."                 # openssl rand -base64 32
-```
+## 6  (Frontend – optional)
 
-**Frontend (.env):**
-```env
-VITE_API="http://localhost:puerto"
-```
-
-### Comandos de deploy:
-
-**Backend:**
 ```bash
+cd ../frontend
+npm install
+
+# copy & tweak env
+cp .env.example .env
+# .env
+VITE_API=http://localhost:4000/api
+
 npm run dev
 ```
-
-**Frontend:**
-```bash
-npm run dev
-```
-
-¡Listo! 🚀
-

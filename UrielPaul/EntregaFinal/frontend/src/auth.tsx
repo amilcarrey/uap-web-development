@@ -5,7 +5,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { api } from "./api"
 
-type User = { id: number; email: string }
+type User = { id: number; email: string; name: string }
 interface AuthCtx {
   user: User | null
   loading: boolean

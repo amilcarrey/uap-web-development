@@ -1,4 +1,13 @@
 // src/routes/auth.routes.ts
+// ---------------------------------------------------------------------------
+//  Authentication Routes
+// ---------------------------------------------------------------------------
+//  Este módulo define los endpoints de autenticación y genera la documentación
+//  OpenAPI consumida por Swagger. Los bloques `/** @openapi ... */` NO deben
+//  eliminarse: son parseados para construir la spec.  Encima de cada ruta
+//  encontrarás un encabezado breve `//` que resume la lógica interna.
+// ---------------------------------------------------------------------------
+
 import type { Express } from "express"
 import jwt from "jsonwebtoken"
 import { prisma } from "../db"
@@ -6,6 +15,9 @@ import { validate } from "../validate"
 import { registerSchema, loginSchema } from "../schemas"
 import { authRequired } from "../auth"
 
+/* --------------------------------------------------------------------------
+ * Helper: Generar JWT
+ * -------------------------------------------------------------------------- */
 const signToken = (id: number) =>
   jwt.sign({}, process.env.JWT_SECRET!, {
     expiresIn: "7d",
@@ -13,6 +25,9 @@ const signToken = (id: number) =>
   })
 
 export function authRoutes(app: Express): void {
+  // ------------------------------------------------------------------------
+  // Registro de usuario
+  // ------------------------------------------------------------------------
   /**
    * @openapi
    * /auth/register:
@@ -38,11 +53,14 @@ export function authRoutes(app: Express): void {
       const token = signToken(user.id)
       res.cookie("token", token, { httpOnly: true, sameSite: "lax" })
       res.status(201).json({ id: user.id, email: user.email })
-    } catch (error) {
+    } catch {
       res.status(409).json({ message: "Email en uso" })
     }
   })
 
+  // ------------------------------------------------------------------------
+  // Inicio de sesión
+  // ------------------------------------------------------------------------
   /**
    * @openapi
    * /auth/login:
@@ -79,6 +97,9 @@ export function authRoutes(app: Express): void {
     res.json({ id: user.id, email: user.email })
   })
 
+  // ------------------------------------------------------------------------
+  // Cierre de sesión
+  // ------------------------------------------------------------------------
   /**
    * @openapi
    * /auth/logout:
@@ -94,7 +115,28 @@ export function authRoutes(app: Express): void {
     res.json({ message: "Bye!" })
   })
 
-  // Endpoint to get current user data
+  // ------------------------------------------------------------------------
+  // Obtener usuario actual
+  // ------------------------------------------------------------------------
+  /**
+   * @openapi
+   * /auth/me:
+   *   get:
+   *     tags: [Auth]
+   *     summary: Obtener usuario autenticado
+   *     security: [{ cookieAuth: [] }]
+   *     responses:
+   *       200:
+   *         description: Datos del usuario
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 id: { type: integer }
+   *                 email: { type: string }
+   *                 name: { type: string }
+   */
   app.get("/api/auth/me", authRequired, async (req, res) => {
     const user = await prisma.user.findUnique({
       where: { id: req.userId! },

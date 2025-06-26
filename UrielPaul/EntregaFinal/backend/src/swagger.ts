@@ -12,7 +12,7 @@ const options: swaggerJSDoc.Options = {
       description: 'Backend UAP – Tableros, Tareas y Auth',
     },
     servers: [
-      { url: 'http://localhost:4000/api' } // ← todas tus rutas empiezan con /api
+      { url: 'http://localhost:4000/api' }
     ],
     components: {
       securitySchemes: {
@@ -24,7 +24,7 @@ const options: swaggerJSDoc.Options = {
       },
     },
   },
-  apis: ['./src/routes/**/*.ts'], // ⬅️ solo módulos de rutas
+  apis: ['./src/routes/**/*.ts'],
 }
 
 const spec = swaggerJSDoc(options)

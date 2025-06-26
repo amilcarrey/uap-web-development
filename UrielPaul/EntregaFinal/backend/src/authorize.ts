@@ -1,6 +1,6 @@
 // src/authorize.ts
 import { Request, Response, NextFunction } from 'express'
-import { prisma, Role } from './db'   // Role viene del client
+import { prisma, Role } from './db'
 
 export function authorize (minimum: Role) {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
