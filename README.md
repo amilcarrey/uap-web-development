@@ -1,12 +1,36 @@
-# React + Vite
+# Gestor de tareas
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A lo largo de la materia vamos a ir realizando una aplicación de gestion de tareas.
 
-Currently, two official plugins are available:
+Esta primera versión solo tendrá HTML.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Crear un `index.html` donde mostraran:
+  * un titulo
+  * una imagen
+  * un formulario con 1 input (con su etiqueta) y 1 boton
+  * una lista de tareas donde cada elemento de la lista tiene:
+    * Un texto
+    * Un boton de completar
+   
+Este es otro cambio para ver como sincronizar una pull request. 
 
-## Expanding the ESLint configuration
+## Tarea 2
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+Agregar CSS a la página creada la clase anterior, para que se vea similar a la imagen.
+Se puede ser creativo en el diseño.
+
+![Diseño](./img/todo.png)
+
+### Bonus + practica en casa
+
+Implementar el siguiente diseño utilizando los conceptos vistos en clase.
+
+![Diseño](./img/random-business.png)
+
+### Frontend Mentor
+- [Summary component](https://www.frontendmentor.io/challenges/results-summary-component-CE_K6s0maV)
+- [Stats preview card](https://www.frontendmentor.io/challenges/stats-preview-card-component-8JqbgoU62)
+
+
+
