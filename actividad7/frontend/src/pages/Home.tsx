@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
 import FilterButtons from '../components/FilterButtons';
@@ -8,6 +9,8 @@ import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
 
 const Home = () => {
+  const { boardId } = useParams(); // Añadido: obtener boardId de la URL
+  
   const {
     tasks,
     total,
@@ -18,7 +21,7 @@ const Home = () => {
     toggleTask,
     deleteTask,
     clearCompleted,
-  } = useTasks();
+  } = useTasks(boardId || ''); // Modificado: pasar boardId al hook
 
   const filter = useUIStore((state) => state.filter);
   const setFilter = useUIStore((state) => state.setFilter);
@@ -36,7 +39,7 @@ const Home = () => {
 
   return (
     <div className="max-w-xl mx-auto p-4 space-y-4">
-      <TaskForm />
+      <TaskForm boardId={boardId || ''} /> {/* Modificado: pasar boardId */}
       <TaskList
         tasks={filtered}
         onToggle={toggleTask}

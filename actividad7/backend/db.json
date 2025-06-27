@@ -1,49 +1,38 @@
 {
   "tasks": [
     {
-      "id": "e638",
-      "text": "hola5",
-      "completed": false
+      "id": 3,
+      "text": "Estudiar React",
+      "completed": false,
+      "boardId": "trabajo"
     },
     {
-      "text": "hola8",
+      "text": "Limpiar arenero",
       "completed": false,
-      "id": "-P2fTOf"
+      "boardId": "ui-r3ki",
+      "id": 4
     },
     {
-      "text": "hola11",
+      "text": "Cargar agua",
       "completed": false,
-      "id": "U_BQnxY"
+      "boardId": "ui-r3ki",
+      "id": 5
     },
     {
-      "text": "hola10",
+      "text": "Dar comida",
       "completed": false,
-      "id": "axOrV7S"
+      "boardId": "ui-r3ki",
+      "id": 6
+    }
+  ],
+  "boards": [
+    {
+      "id": "trabajo",
+      "name": "Trabajo"
     },
     {
-      "text": "hola1",
-      "completed": false,
-      "id": "mFUa9vy"
-    },
-    {
-      "text": "hola2",
-      "completed": false,
-      "id": "jMVLGpT"
-    },
-    {
-      "text": "hola3",
-      "completed": false,
-      "id": "ZVzwGXA"
-    },
-    {
-      "text": "hola4",
-      "completed": false,
-      "id": "hM8ADGq"
-    },
-    {
-      "text": "hola6",
-      "completed": false,
-      "id": "G1pOrht"
+      "name": "Sassy",
+      "id": "ui-r3ki"
     }
   ]
 }

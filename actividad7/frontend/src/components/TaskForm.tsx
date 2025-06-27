@@ -3,10 +3,14 @@ import { useAddTask } from '../hooks/useAddTask';
 import { useTasks } from '../hooks/useTasks';
 import { useUIStore } from '../store/uiStore';
 
-const TaskForm = () => {
+interface TaskFormProps {
+  boardId: string;
+}
+
+const TaskForm = ({ boardId }: TaskFormProps) => {
   const [text, setText] = useState('');
   const addTask = useAddTask();
-  const { updateTask } = useTasks(); // Nueva función para editar
+  const { updateTask } = useTasks(boardId);
   const editingTask = useUIStore((s) => s.editingTask);
   const setEditingTask = useUIStore((s) => s.setEditingTask);
 
@@ -44,7 +48,7 @@ const TaskForm = () => {
         className="border p-2 flex-1"
         type="text"
         value={text}
-        onChange={e => setText(e.target.value)}
+        onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={editingTask ? "Editar tarea..." : "Agregar tarea..."}
       />
