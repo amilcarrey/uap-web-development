@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id           Int        @id @default(autoincrement())
+  nombre       String
+  email        String     @unique
+  contraseña   String
+  creadoEn     DateTime   @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  tableros     Tablero[]  @relation("CreadosPorUsuario")
+  permisos     Permiso[]
+  configuracion Configuracion?
+}
+
+model Tablero {
+  id          String     @id @default(uuid())
+  nombre      String
+  descripcion String?
+  creadoPor   Usuario    @relation("CreadosPorUsuario", fields: [creadoPorId], references: [id], onDelete: Cascade)
+  creadoPorId Int
+  tareas      Tarea[]
+  permisos    Permiso[]
+  creadoEn    DateTime   @default(now())
+  actualizadoEn DateTime @default(now()) @updatedAt
+}
+
+model Permiso {
+  id         String   @id @default(uuid())
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId  Int
+  tablero    Tablero  @relation(fields: [tableroId], references: [id], onDelete: Cascade)
+  tableroId  String
+  rol        Rol
+  creadoEn   DateTime @default(now())
+
+  @@unique([usuarioId, tableroId])
+}
+
+model Tarea {
+  id          String   @id @default(uuid())
+  titulo      String
+  descripcion String?
+  completada  Boolean  @default(false)
+  prioridad   Prioridad @default(MEDIA)
+  tablero     Tablero  @relation(fields: [tableroId], references: [id], onDelete: Cascade)
+  tableroId   String
+  creadoEn    DateTime @default(now())
+  actualizadoEn DateTime @default(now()) @updatedAt
+  completadoEn DateTime?
+}
+
+model Configuracion {
+  id              String   @id @default(uuid())
+  usuario         Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId       Int      @unique
+  intervaloActualizacion Int @default(30) // segundos
+  mostrarCompletadas Boolean @default(true)
+  ordenarPor      String @default("creadoEn")
+  notificaciones  Boolean @default(true)
+  creadoEn        DateTime @default(now())
+  actualizadoEn   DateTime @default(now()) @updatedAt
+}
+
+enum Rol {
+  PROPIETARIO
+  EDITOR
+  LECTOR
+}
+
+enum Prioridad {
+  BAJA
+  MEDIA
+  ALTA
+  URGENTE
+}
