@@ -1,5 +1,6 @@
 import { useUIStore } from '../store/uiStore';
 import type { Task } from '../types/Task';
+import { useSettings } from '../context/SettingsContext';
 
 interface Props {
   task: Task;
@@ -9,6 +10,7 @@ interface Props {
 
 const TaskItem = ({ task, onToggle, onDelete }: Props) => {
   const setEditingTask = useUIStore((s) => s.setEditingTask);
+  const { uppercaseDescriptions } = useSettings();
 
   return (
     <li className="flex justify-between items-center border-b py-2">
@@ -19,7 +21,7 @@ const TaskItem = ({ task, onToggle, onDelete }: Props) => {
           onChange={() => onToggle(task.id, !task.completed)}
         />
         <span className={task.completed ? 'line-through text-gray-500' : ''}>
-          {task.text}
+          {uppercaseDescriptions ? task.text.toUpperCase() : task.text}
         </span>
       </div>
       <div className="space-x-2">

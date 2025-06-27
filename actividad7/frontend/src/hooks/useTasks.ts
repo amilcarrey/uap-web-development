@@ -4,6 +4,8 @@ import { toast } from 'react-hot-toast';
 import { useState } from 'react';
 //import { useParams } from 'react-router-dom';
 import type { Task } from '../types/Task';
+import { useSettings } from '../context/SettingsContext'; // 👈 Agrega esto
+
 
 const TASKS_ENDPOINT = 'http://localhost:3000/tasks';
 
@@ -15,6 +17,7 @@ type TasksResponse = {
 export const useTasks = (boardId: string) => {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const { refetchInterval } = useSettings();
   const limit = 5;
 
   const { data, isLoading, isError } = useQuery<TasksResponse, Error>({
@@ -26,6 +29,7 @@ export const useTasks = (boardId: string) => {
       const total = parseInt(res.headers['x-total-count'] || '0', 10);
       return { tasks: res.data, total };
     },
+    refetchInterval,
   });
 
   const toggleMutation = useMutation({
