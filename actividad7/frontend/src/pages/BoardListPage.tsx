@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useBoards } from '../hooks/useBoards';
 import { useState } from 'react';
 import { useSettings } from '../context/SettingsContext';
-import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+//import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 const BoardListPage = () => {
   const [newBoardName, setNewBoardName] = useState('');
@@ -33,7 +33,7 @@ const BoardListPage = () => {
 
       {/* Contenedor principal (formulario + boards) */}
       <div className="container mx-auto px-4">
-        {/* Nueva sección del formulario CENTRADO */}
+        {/* Nueva sección */}
         <div className="flex justify-center mb-8">
           <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow-md w-full max-w-2xl">
             <div className="flex flex-col md:flex-row gap-8">
@@ -58,7 +58,7 @@ const BoardListPage = () => {
                 </div>
               </div>
 
-              {/* Controles (derecha) - Se mantienen igual pero con mejor espaciado */}
+              {/* Controles (derecha) */}
               <div className="bg-gray-50 p-6 rounded-lg w-full md:w-64">
                 <h2 className="text-xl font-semibold mb-4 text-center">Configuración</h2>
                 <div className="space-y-6">
@@ -94,7 +94,7 @@ const BoardListPage = () => {
           </div>
         </div>
 
-        {/* Lista de boards (se mantiene igual) */}
+        {/* Lista de boards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {boards.map((board) => (
             <div 

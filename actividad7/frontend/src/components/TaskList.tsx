@@ -1,4 +1,3 @@
-// actividad7/frontend/src/components/TaskList.tsx
 import React from 'react';
 import type { Task } from '../types/Task';
 import TaskItem from './TaskItem';
