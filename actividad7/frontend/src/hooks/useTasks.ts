@@ -1,86 +1,91 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { useState } from 'react';
 import type { Task } from '../types/Task';
 
 const TASKS_ENDPOINT = 'http://localhost:3000/tasks';
 
+type TasksResponse = {
+  tasks: Task[];
+  total: number;
+};
+
 export const useTasks = () => {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const limit = 5;
 
-  const { data = [], isLoading, isError } = useQuery<Task[], Error>({
-    queryKey: ['tasks'],
+  const { data, isLoading, isError } = useQuery<TasksResponse, Error>({
+    queryKey: ['tasks', page],
     queryFn: async () => {
-      try {
-        const res = await axios.get<Task[]>(TASKS_ENDPOINT);
-        return res.data;
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-        throw error;
-      }
+      const res = await axios.get<Task[]>(`${TASKS_ENDPOINT}?_page=${page}&_limit=${limit}`);
+      const total = parseInt(res.headers['x-total-count'] || '0', 10);
+
+      return { tasks: res.data, total };
     },
+    // keepPreviousData: true,
   });
 
-  // ✅ Toggle completed
   const toggleMutation = useMutation({
-    mutationFn: async ({ id, completed }: { id: number; completed: boolean }) => {
-      const response = await axios.patch(`${TASKS_ENDPOINT}/${id}`, { completed });
-      return response.data;
+    mutationFn: async ({ id, completed }: { id: string; completed: boolean }) => {
+      const res = await axios.patch(`${TASKS_ENDPOINT}/${id}`, { completed });
+      return res.data;
     },
     onSuccess: () => {
       toast.success('✅ Tarea actualizada');
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', page] });
     },
-    onError: (error) => {
-      console.error('❌ Error al actualizar tarea:', error);
+    onError: () => {
       toast.error('❌ Error al actualizar tarea');
     },
   });
 
-  // ✅ Delete task
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => axios.delete(`${TASKS_ENDPOINT}/${id}`),
+    mutationFn: (id: string) => axios.delete(`${TASKS_ENDPOINT}/${id}`),
     onSuccess: () => {
       toast.success('🗑️ Tarea eliminada');
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', page] });
     },
-    onError: (error) => {
-      console.error('❌ Error al eliminar tarea:', error);
+    onError: () => {
       toast.error('❌ No se pudo eliminar la tarea');
     },
   });
 
-  // ✅ Clear completed
   const clearMutation = useMutation({
     mutationFn: async () => {
-      const completedTasks = data.filter(task => task.completed);
+      if (!data) return;
+
+      const completedTasks = data.tasks.filter(task => task.completed);
       await Promise.all(
         completedTasks.map(task =>
-          axios.delete(`${TASKS_ENDPOINT}/${task.id}`).catch(error => {
-            console.error(`Error deleting task ${task.id}:`, error);
-            throw error;
+          axios.delete(`${TASKS_ENDPOINT}/${task.id}`).catch(err => {
+            console.error(`Error deleting task ${task.id}`, err);
+            throw err;
           })
         )
       );
     },
     onSuccess: () => {
       toast.success('🧹 Tareas completadas eliminadas');
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', page] });
     },
-    onError: (error) => {
-      console.error('❌ Error al limpiar tareas completadas:', error);
+    onError: () => {
       toast.error('❌ No se pudieron eliminar las tareas completadas');
     },
   });
 
   return {
-    data,
+    tasks: data?.tasks || [],
+    total: data?.total || 0,
     isLoading,
     isError,
-    toggleTask: (id: number, completed: boolean) => toggleMutation.mutate({ id, completed }),
-    deleteTask: (id: number) => deleteMutation.mutate(id),
+    page,
+    setPage,
+    toggleTask: (id: string, completed: boolean) => toggleMutation.mutate({ id, completed }),
+    deleteTask: (id: string) => deleteMutation.mutate(id),
     clearCompleted: () => {
-      if (data.some(task => task.completed)) {
+      if (data?.tasks.some(task => task.completed)) {
         clearMutation.mutate();
       }
     },

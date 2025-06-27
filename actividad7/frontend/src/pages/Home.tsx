@@ -4,12 +4,17 @@ import FilterButtons from '../components/FilterButtons';
 import ClearCompleted from '../components/ClearCompleted';
 import { useTasks } from '../hooks/useTasks';
 import { useUIStore } from '../store/uiStore';
+import Loader from '../components/Loader';
+import ErrorMessage from '../components/ErrorMessage';
 
 const Home = () => {
   const {
-    data: tasks = [],
+    tasks,
+    total,
     isLoading,
     isError,
+    page,
+    setPage,
     toggleTask,
     deleteTask,
     clearCompleted,
@@ -24,11 +29,10 @@ const Home = () => {
     return true;
   });
 
-  if (isLoading) return <p>Cargando...</p>;
-  if (isError) return <p>Error cargando tareas</p>;
+  const totalPages = Math.ceil(total / 5);
 
-  // ✅ Solo el console.log, sin redeclarar
-  console.log('TAREAS:', tasks);
+  if (isLoading) return <Loader />;
+  if (isError) return <ErrorMessage message="Error al cargar las tareas" />;
 
   return (
     <div className="max-w-xl mx-auto p-4 space-y-4">
@@ -40,6 +44,27 @@ const Home = () => {
       />
       <FilterButtons currentFilter={filter} onChange={setFilter} />
       <ClearCompleted onClear={clearCompleted} />
+
+      {/* ✅ Paginación */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page === 1}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Anterior
+        </button>
+        <span className="text-sm">
+          Página {page} de {totalPages}
+        </span>
+        <button
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={page === totalPages}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
   );
 };

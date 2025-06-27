@@ -5,8 +5,8 @@ import TaskItem from './TaskItem';
 
 interface TaskListProps {
   tasks: Task[];
-  onToggle: (id: number, completed: boolean) => void;
-  onDelete: (id: number) => void;
+  onToggle: (id: string, completed: boolean) => void;
+  onDelete: (id: string) => void;
 }
 
 const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onDelete }) => {
