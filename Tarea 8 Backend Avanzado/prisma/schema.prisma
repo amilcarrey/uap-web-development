@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int             @id @default(autoincrement())
+  email        String          @unique
+  password     String          // Corregido: debe coincidir con lo que usás en controllers
+  boards       Board[]         @relation("BoardOwner")
+  accesses     BoardAccess[]
+  settings     UserSettings?
+}
+
+model Board {
+  id        Int             @id @default(autoincrement())
+  name      String
+  ownerId   Int
+  owner     User            @relation("BoardOwner", fields: [ownerId], references: [id])
+  tasks     Task[]
+  accesses  BoardAccess[]
+  createdAt DateTime        @default(now())
+}
+
+model Task {
+  id        Int      @id @default(autoincrement())
+  content   String
+  completed Boolean  @default(false)
+  boardId   Int
+  board     Board    @relation(fields: [boardId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model BoardAccess {
+  id      Int    @id @default(autoincrement())
+  userId  Int
+  boardId Int
+  role    Role
+  user    User   @relation(fields: [userId], references: [id])
+  board   Board  @relation(fields: [boardId], references: [id])
+
+  @@unique([boardId, userId])
+}
+
+model UserSettings {
+  userId           Int     @id
+  refetchInterval  Int     @default(10)
+  uppercaseContent Boolean @default(false)
+  user             User    @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  OWNER
+  EDITOR
+  VIEWER
+}
