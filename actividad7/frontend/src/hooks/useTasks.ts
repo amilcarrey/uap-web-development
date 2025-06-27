@@ -75,6 +75,22 @@ export const useTasks = () => {
     },
   });
 
+  // ✅ Actualizar tarea
+const updateMutation = useMutation({
+  mutationFn: async ({ id, text }: { id: string; text: string }) => {
+    const response = await axios.patch(`${TASKS_ENDPOINT}/${id}`, { text });
+    return response.data;
+  },
+  onSuccess: () => {
+    toast.success('✏️ Tarea actualizada');
+    queryClient.invalidateQueries({ queryKey: ['tasks'] });
+  },
+  onError: (error) => {
+    console.error('❌ Error al editar tarea:', error);
+    toast.error('❌ No se pudo editar la tarea');
+  },
+});
+
   return {
     tasks: data?.tasks || [],
     total: data?.total || 0,
@@ -89,5 +105,6 @@ export const useTasks = () => {
         clearMutation.mutate();
       }
     },
+    updateTask: (id: string, text: string) => updateMutation.mutate({ id, text }),
   };
 };

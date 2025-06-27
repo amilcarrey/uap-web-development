@@ -1,42 +1,31 @@
-// actividad7/frontend/src/components/TaskItem.tsx
-import React from 'react';
+import { useUIStore } from '../store/uiStore';
 import type { Task } from '../types/Task';
 
-interface TaskItemProps {
+interface Props {
   task: Task;
-  onToggle: (id: number, completed: boolean) => void;
-  onDelete: (id: number) => void;
+  onToggle: (id: string, completed: boolean) => void;
+  onDelete: (id: string) => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete }) => {
-  // Añadir console.log para depuración
-  console.log('Current task:', task);
-  
+const TaskItem = ({ task, onToggle, onDelete }: Props) => {
+  const setEditingTask = useUIStore((s) => s.setEditingTask);
+
   return (
-    <li className="flex items-center justify-between bg-white p-3 rounded shadow">
-      <label className="flex items-center space-x-2">
+    <li className="flex justify-between items-center border-b py-2">
+      <div className="flex items-center space-x-2">
         <input
           type="checkbox"
           checked={task.completed}
-          onChange={() => {
-            console.log('Toggling task ID:', task.id); // Debug
-            onToggle(task.id, !task.completed);
-          }}
-          className="form-checkbox"
+          onChange={() => onToggle(task.id, !task.completed)}
         />
         <span className={task.completed ? 'line-through text-gray-500' : ''}>
           {task.text}
         </span>
-      </label>
-      <button
-        onClick={() => {
-          console.log('Deleting task ID:', task.id); // Debug
-          onDelete(task.id);
-        }}
-        className="text-red-500 hover:text-red-700"
-      >
-        ✕
-      </button>
+      </div>
+      <div className="space-x-2">
+        <button onClick={() => setEditingTask(task)} className="text-blue-500">✏️</button>
+        <button onClick={() => onDelete(task.id)} className="text-red-500">🗑️</button>
+      </div>
     </li>
   );
 };

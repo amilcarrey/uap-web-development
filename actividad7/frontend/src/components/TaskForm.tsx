@@ -1,19 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAddTask } from '../hooks/useAddTask';
+import { useTasks } from '../hooks/useTasks';
+import { useUIStore } from '../store/uiStore';
 
 const TaskForm = () => {
   const [text, setText] = useState('');
   const addTask = useAddTask();
+  const { updateTask } = useTasks(); // Nueva función para editar
+  const editingTask = useUIStore((s) => s.editingTask);
+  const setEditingTask = useUIStore((s) => s.setEditingTask);
 
-  const handleAdd = () => {
-    if (text.trim()) {
-      addTask.mutate(text.trim());
-      setText('');
+  useEffect(() => {
+    if (editingTask) {
+      setText(editingTask.text);
     }
+  }, [editingTask]);
+
+  const handleAddOrEdit = () => {
+    if (!text.trim()) return;
+
+    if (editingTask) {
+      updateTask(editingTask.id, text.trim());
+      setEditingTask(null);
+    } else {
+      addTask.mutate(text.trim());
+    }
+
+    setText('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleAdd();
+    if (e.key === 'Enter') handleAddOrEdit();
+  };
+
+  const handleCancel = () => {
+    setEditingTask(null);
+    setText('');
   };
 
   return (
@@ -24,11 +46,16 @@ const TaskForm = () => {
         value={text}
         onChange={e => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Agregar tarea..."
+        placeholder={editingTask ? "Editar tarea..." : "Agregar tarea..."}
       />
-      <button className="bg-blue-500 text-white px-4" onClick={handleAdd}>
-        Agregar
+      <button className="bg-blue-500 text-white px-4" onClick={handleAddOrEdit}>
+        {editingTask ? 'Guardar' : 'Agregar'}
       </button>
+      {editingTask && (
+        <button className="bg-gray-400 text-white px-4" onClick={handleCancel}>
+          Cancelar
+        </button>
+      )}
     </div>
   );
 };
