@@ -1,38 +1,73 @@
 {
-  "tasks": [
-    {
-      "id": 3,
-      "text": "Estudiar React",
-      "completed": false,
-      "boardId": "trabajo"
-    },
-    {
-      "text": "Limpiar arenero",
-      "completed": false,
-      "boardId": "ui-r3ki",
-      "id": 4
-    },
-    {
-      "text": "Cargar agua",
-      "completed": false,
-      "boardId": "ui-r3ki",
-      "id": 5
-    },
-    {
-      "text": "Dar comida",
-      "completed": false,
-      "boardId": "ui-r3ki",
-      "id": 6
-    }
-  ],
   "boards": [
     {
-      "id": "trabajo",
-      "name": "Trabajo"
+      "id": "1",
+      "name": "Trabajo",
+      "taskCount": 3
     },
     {
-      "name": "Sassy",
-      "id": "ui-r3ki"
+      "name": "Mascota",
+      "id": "kLkLz5N"
+    },
+    {
+      "name": "Estudio",
+      "id": "QFKzVSF"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1",
+      "text": "Revisar correos",
+      "completed": false,
+      "boardId": "1"
+    },
+    {
+      "text": "Presentar informe",
+      "completed": false,
+      "boardId": "1",
+      "id": "u8RtTQ2"
+    },
+    {
+      "text": "Enviar nota",
+      "completed": false,
+      "boardId": "1",
+      "id": "lVP8ksJ"
+    },
+    {
+      "text": "Servir agua",
+      "completed": false,
+      "boardId": "kLkLz5N",
+      "id": "2JHPKlz"
+    },
+    {
+      "text": "Peinar",
+      "completed": false,
+      "boardId": "kLkLz5N",
+      "id": "bXrzlD0"
+    },
+    {
+      "text": "Limpiar bandeja",
+      "completed": false,
+      "boardId": "kLkLz5N",
+      "id": "BAtTRdP"
+    },
+    {
+      "text": "Pasar apuntes",
+      "completed": false,
+      "boardId": "QFKzVSF",
+      "id": "QpIyWjO"
+    },
+    {
+      "text": "Leer capitulo 4",
+      "completed": false,
+      "boardId": "QFKzVSF",
+      "id": "p2xrVhd"
+    },
+    {
+      "text": "Ver video del campus",
+      "completed": false,
+      "boardId": "QFKzVSF",
+      "id": "OZPunsM"
     }
   ]
 }
