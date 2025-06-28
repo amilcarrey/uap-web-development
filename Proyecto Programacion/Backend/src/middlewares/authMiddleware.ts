@@ -20,7 +20,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction){
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret") as JwtPayload;
-        console.log('Token decodificado:', decoded); // Registro de depuración
+        //console.log('Token decodificado:', decoded); // Registro de depuración
         if (!decoded.id) {
             res.status(401).json({ error: "Token inválido: ID de usuario no encontrado" });
             return;

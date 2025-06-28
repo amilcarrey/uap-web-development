@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import { PermissionController } from '../controllers/PermissionController';
-const router = Router();
+
 
 // Rutas anidadas bajo: /api/boards/:boardId/permissions
 
+const router = Router({ mergeParams: true });
+
 router.get('/', PermissionController.getBoardPermissions);
 router.post('/', PermissionController.grantPermission);
-router.put('/:permissionId', PermissionController.updatePermission);
-router.delete('/:permissionId"', PermissionController.revokePermission);
+router.put('/:userId', PermissionController.updatePermission);
+router.delete('/:userId', PermissionController.revokePermission);
 
 export default router;

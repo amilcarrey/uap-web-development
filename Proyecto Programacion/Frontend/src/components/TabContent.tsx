@@ -3,6 +3,7 @@
 import { TaskInput } from './TaskInput';            // Componente para ingresar nuevas tareas
 import { TaskList } from './TaskList';              // Componente que muestra la lista de tareas
 import { FilterControls } from './FilterControls';  // Componente para cambiar el filtro (ver todas, completadas, etc.)
+import { TaskSearch } from './TaskSearch'; // Agregar import
 import { useTasks, useClearCompletedTasks } from '../hooks/task';
 import { useUIStore } from '../stores/uiStore';
 import { useMemo, useState } from 'react';          
@@ -13,8 +14,8 @@ import toast from 'react-hot-toast';
 // Estructura base de una tarea: un identificador, un texto y si está completada o no
 export interface Task {
   id: string;
-  text: string;
-  completed: boolean;
+  content: string;
+  active: boolean;
 }
 
 // Props que recibe el componente TabContent, una por cada pestaña de tareas
@@ -39,13 +40,11 @@ export function TabContent({
   isActive = false,
   onRenameTab,
 }: Props) {
-
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5); // Número de tareas a mostrar por página (En el backen el numero por defecto es 10, en el caso de que no se envíe el parámetro limit, se usa el valor por defecto del backend)
-
-  //Estado para la edición del titulo de la pestaña
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
+  const [showSearch, setShowSearch] = useState(false); // Nuevo estado para mostrar búsqueda
 
   //Si cambia el titulo desde fuera, sincroniza el input con el nuevo título
   React.useEffect(() => {
@@ -88,8 +87,8 @@ export function TabContent({
    - 'all': muestra todas las tareas
   */
  const filteredTasks = useMemo(() => {
-  if (taskFilter === "active") return tasks.filter((task: Task) => !task.completed);
-  if (taskFilter === "completed") return tasks.filter((task: Task) => task.completed);
+  if (taskFilter === "active") return tasks.filter((task: Task) => !task.active);
+  if (taskFilter === "completed") return tasks.filter((task: Task) => task.active);
   return tasks; // Por defecto, devuelve todas las tareas si no hay filtro
 }, [taskFilter, tasks]);
 
@@ -114,15 +113,30 @@ export function TabContent({
           onBlur={handleRename}
         /> 
       ):(
-        <h3
-          className="text-xl font-bold mb-2 cursor-pointer"
-          onClick={() => setIsEditingTitle(true)}
-          title="Haz clic para renombrar"
-        >
-          {title}
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3
+            className="text-xl font-bold cursor-pointer"
+            onClick={() => setIsEditingTitle(true)}
+            title="Haz clic para renombrar"
+          >
+            {title}
+          </h3>
+          {/* Botón para mostrar/ocultar búsqueda */}
+          <button
+            onClick={() => setShowSearch(!showSearch)}
+            className="flex items-center space-x-2 px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+            title={showSearch ? "Ocultar búsqueda" : "Buscar tareas"}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span>{showSearch ? "Ocultar búsqueda" : "Buscar"}</span>
+          </button>
+        </div>
       )}
   
+      {/* Componente de búsqueda */}
+      {showSearch && <TaskSearch tabId={tabId} />}
 
       {/* Input para agregar nuevas tareas */}
       <TaskInput tabId={tabId} onTaskAdded={() => {}} />

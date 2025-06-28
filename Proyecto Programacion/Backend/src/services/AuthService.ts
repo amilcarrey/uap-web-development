@@ -23,6 +23,7 @@ export class AuthService {
         }
 
         const hashedPassword = await argon2.hash(data.password);
+        // Verifica si el usuario ya existe
 
         const newUser = await userService.createUser({ ...data, password: hashedPassword });
 

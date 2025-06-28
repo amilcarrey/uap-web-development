@@ -9,17 +9,33 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Task } from '../components/TaskItem';
 import { useConfigStore } from '../stores/configStore';
+import type { TaskFilter } from '../types';
 
+// Función helper para obtener headers de autenticación
+function getAuthHeaders() {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  // Intentar obtener token de localStorage
+  const storedToken = localStorage.getItem('authToken');
+  if (storedToken) {
+    headers['Authorization'] = `Bearer ${storedToken}`;
+  }
+  
+  return headers;
+}
 
 /*
  Función que obtiene las tareas desde el backend según el ID de la pestaña actual (tabId).
  Se hace una petición GET al endpoint `/api/tasks?tabId=...`
  y se espera una respuesta JSON.
 */
-const fetchTasks = async (tabId: string, page: number, limit: number) => {
+const fetchTasks = async (tabId: string, _page: number, _limit: number) => {
   //console.log(`[Refetch] Solicitando tareas para ${tabId} a las ${new Date().toLocaleTimeString()}`);
-  const res = await fetch(`http://localhost:3000/api/boards/${tabId}/tasks`, {
+  const res = await fetch(`/api/boards/${tabId}/tasks`, {
     method: 'GET',
+    headers: getAuthHeaders(),
     credentials: 'include',
   });
   if (!res.ok) {
@@ -29,9 +45,8 @@ const fetchTasks = async (tabId: string, page: number, limit: number) => {
   const result = await res.json()
   //console.log(result);
   
-  return result.tasks // devuelve el array de tareas
+  return result.items // devuelve el array de tareas
 };
-
 
 /*
  Hook personalizado que usa useQuery para obtener las tareas.
@@ -39,7 +54,7 @@ const fetchTasks = async (tabId: string, page: number, limit: number) => {
    Se usa un array con 'tasks' y el tabId, para que cada pestaña tenga su propia caché.
  - queryFn: es la función que se ejecuta para hacer la petición real.
 */
-export function useTasks(tabId: string, page:number=1, limit:number=5) { //Agrego valores por defecto en el caso de que al Hook no se le pase el page y limit
+export function useTasks(tabId: string, page: number = 1, limit: number = 5) { //Agrego valores por defecto en el caso de que al Hook no se le pase el page y limit
   const refetchInterval = useConfigStore(s => s.refetchInterval);
 
   return useQuery<Task[]>({
@@ -49,7 +64,6 @@ export function useTasks(tabId: string, page:number=1, limit:number=5) { //Agreg
     refetchInterval, // intervalo para volver a hacer fetch automáticamente
   });
 }
-
 
 /*
  Hook personalizado para agregar una nueva tarea usando useMutation.
@@ -62,9 +76,9 @@ export function useAddTask() {
 
   return useMutation({
     mutationFn: async ({ text, tabId }: { text: string; tabId: number }) => {
-      console.log('=== INICIO useAddTask ===');
-      console.log('Datos enviados:', { text, tabId });
-      console.log('URL:', `http://localhost:3000/api/boards/${tabId}/tasks`);
+      //console.log('=== INICIO useAddTask ===');
+      //console.log('Datos enviados:', { text, tabId });
+      //console.log('URL:', `http://localhost:3000/api/boards/${tabId}/tasks`);
       
       const requestBody = {
         content: text,
@@ -72,27 +86,18 @@ export function useAddTask() {
       };
       console.log('Body a enviar:', requestBody);
       
-      const res = await fetch(`http://localhost:3000/api/boards/${tabId}/tasks`, {
+      const res = await fetch(`/api/boards/${tabId}/tasks`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          accept: 'application/json' 
-        },
+        headers: getAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify(requestBody),
-      });
-      
-      console.log('Respuesta del servidor:', {
-        status: res.status,
-        statusText: res.statusText,
-        ok: res.ok
       });
       
       if (!res.ok) {
         let errorMessage = 'Error al crear tarea';
         try {
           const errorData = await res.text();
-          console.log('Error del backend:', errorData);
+          //console.log('Error del backend:', errorData);
           errorMessage = `Error ${res.status}: ${errorData}`;
         } catch (e) {
           console.log('No se pudo obtener el detalle del error');
@@ -115,15 +120,12 @@ export function useDeleteTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ taskId, tabId }: { taskId: string; tabId: string }) => {
-      const res = await fetch('http://localhost:4321/api/tasks', {
-        method: 'POST',
-        headers: { accept: 'application/json' },
-        body: new URLSearchParams({
-          action: 'delete',
-          taskId,
-          tabId,
-        }),
+      const res = await fetch(`/api/boards/${tabId}/tasks/${taskId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+        credentials: 'include',
       });
+      
       if (!res.ok) throw new Error('Error al eliminar tarea');
       return res.json();
     },
@@ -138,14 +140,12 @@ export function useToggleTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ taskId, tabId, completed }: { taskId: string; tabId: string; completed: boolean }) => {
-      const res = await fetch('http://localhost:4321/api/tasks', {
-        method: 'POST',
-        headers: { accept: 'application/json' },
-        body: new URLSearchParams({
-          action: 'toggle',
-          taskId,
-          tabId,
-          completed: String(completed),
+      const res = await fetch(`/api/boards/${tabId}/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+        body: JSON.stringify({
+          active: completed
         }),
       });
       if (!res.ok) throw new Error('Error al alternar tarea');
@@ -162,14 +162,12 @@ export function useEditTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ taskId, tabId, text }: { taskId: string; tabId: string; text: string }) => {
-      const res = await fetch('http://localhost:4321/api/tasks', {
-        method: 'POST',
-        headers: { accept: 'application/json' },
-        body: new URLSearchParams({
-          action: 'edit',
-          taskId,
-          tabId,
-          text,
+      const res = await fetch(`/api/boards/${tabId}/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+        body: JSON.stringify({
+          content: text
         }),
       });
       if (!res.ok) throw new Error('Error al editar tarea');
@@ -186,14 +184,11 @@ export function useClearCompletedTasks() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (tabId: string) => {
-      //console.log('Enviando petición clear-completed para tabId:', tabId);
-      const res = await fetch('http://localhost:4321/api/tasks', {
-        method: 'POST',
-        headers: { accept: 'application/json' },
-        body: new URLSearchParams({
-          action: 'clear-completed',
-          tabId,
-        }),
+      console.log('Enviando petición clear-completed para tabId:', tabId);
+      const res = await fetch(`/api/boards/${tabId}/tasks`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+        credentials: 'include',
       });
       if (!res.ok) throw new Error('Error al limpiar tareas completadas');
       return res.json();
@@ -201,5 +196,33 @@ export function useClearCompletedTasks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
     },
+  });
+}
+
+// Hook para búsqueda de tareas
+export function useSearchTasks(tabId: string, searchTerm: string, filter: TaskFilter = 'all') {
+  return useQuery<Task[]>({
+    queryKey: ['search-tasks', tabId, searchTerm, filter],
+    queryFn: async () => {
+      if (!searchTerm.trim() || searchTerm.length < 2) return [];
+      
+      const params = new URLSearchParams({
+        search: searchTerm, // Usar 'search' en lugar de 'q' según la documentación
+        filter: filter,
+        page: '1',
+        limit: '20', // Limitar resultados para mejor rendimiento
+      });
+
+      const res = await fetch(`/api/boards/${tabId}/tasks?${params}`, { // Usar el endpoint correcto
+        headers: getAuthHeaders(),
+        credentials: 'include',
+      });
+      
+      if (!res.ok) throw new Error('Error al buscar tareas');
+      
+      const result = await res.json();
+      return result.items || result; // Adaptar según estructura del backend
+    },
+    enabled: searchTerm.length >= 2, // Solo buscar si hay al menos 2 caracteres
   });
 }

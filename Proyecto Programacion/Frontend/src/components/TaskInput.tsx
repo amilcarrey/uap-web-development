@@ -14,7 +14,7 @@ export interface Props {
 }
 
 // URL base del backend (se obtiene desde las variables de entorno si estuviera configurado)
-const BASE_URL = import.meta.env.API_BASE_URL;
+// const BASE_URL = import.meta.env.API_BASE_URL;
 
 /**
  * Componente TaskInput

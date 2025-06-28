@@ -1,11 +1,13 @@
 import {Router} from 'express';
 import { TaskController } from '../controllers/TaskController';
-const router = Router();
+import express from 'express';
+
+const router = Router({ mergeParams: true });
 
 //Rutas anidadas bajo: /api/boards/:boardId/tasks
 
 router.get('/', TaskController.getTaks);
-router.post('/:boardId/tasks', TaskController.createTask);
+router.post('/', TaskController.createTask);
 router.delete('/', TaskController.deleteCompletedTasks);
 router.put('/:taskId', TaskController.updateTask);
 router.delete('/:taskId', TaskController.deleteTask);

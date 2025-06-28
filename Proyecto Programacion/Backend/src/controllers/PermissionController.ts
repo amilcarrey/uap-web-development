@@ -9,21 +9,25 @@ export class PermissionController {
     // Otorga permisos de un tablero
     static async grantPermission(req:Request, res: Response){
         const boardId = Number(req.params.boardId);
-        const {userId, level} = req.body;
+        const {userId, level, permissionLevel} = req.body;
         const currentUserId = Number((req as any).user?.id);
 
+        // Aceptar tanto 'level' como 'permissionLevel' para compatibilidad
+        const permLevel = level || permissionLevel;
+        console.log("ID TABLERO: ", boardId);
+        console.log("ID USUARIO: ", userId);
         if (isNaN(boardId) || !userId) {
             const error = new Error("ID de tablero o usuario inválido");
             (error as any).status = 400;
             throw error;
         }
-        if(!Object.values(PermissionLevel).includes(level)){
+        if(!Object.values(PermissionLevel).includes(permLevel)){
             const error = new Error("Nivel de permiso inválido");
             (error as any).status = 400;
             throw error;
         }
 
-        await permissionService.grantPermission(boardId, userId, level, currentUserId);
+        await permissionService.grantPermission(boardId, userId, permLevel, currentUserId);
         res.status(200).json({message: "Permiso otorgado correctamente"});
     };
 

@@ -160,11 +160,11 @@ export class TaskDbService implements ITaskService {
             throw error;
         }
 
-        // 2. Elimina todas las tareas completadas (active: false)
+        // 2. Elimina todas las tareas completadas (active: true)
         const result = await prisma.task.deleteMany({
             where: {
                 boardId,
-                active: false
+                active: true
             }
         });
         return result.count; // Devuelve cuántas tareas fueron eliminadas

@@ -6,8 +6,8 @@ import { TaskItem } from "./TaskItem";
 // Definición de la estructura básica de una tarea
 export interface Task {
   id: string;          // Identificador único de la tarea
-  text: string;        // Texto descriptivo de la tarea
-  completed: boolean;  // Estado de la tarea: completada o no
+  content: string;        // Texto descriptivo de la tarea
+  active: boolean;  // Estado de la tarea: completada o no
 }
 
 // Props que recibe el componente TaskList

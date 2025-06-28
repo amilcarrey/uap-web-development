@@ -1,27 +1,25 @@
 import { useState } from "react";
 import { useAuthStore } from "../stores/authStore";
+import { useNavigate } from "react-router-dom";
 
 export function useLogin() {
-  const setUser = useAuthStore(s => s.setUser);
+  const login = useAuthStore(s => s.login);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const login = async (alias: string, password: string) => {
+  const handleLogin = async (alias: string, password: string) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ alias, password }),
-      });
-      if (!res.ok) {
+      const success = await login(alias, password);
+      if (!success) {
         setError("Credenciales incorrectas");
         return false;
       }
-      const data = await res.json();
-      setUser(data.user);
+      // Navegación después de login exitoso
+      console.log("Login exitoso, navegando...");
+      navigate("/", { replace: true });
       return true;
     } catch {
       setError("Error de red");
@@ -31,5 +29,5 @@ export function useLogin() {
     }
   };
 
-  return { login, loading, error, setError };
+  return { login: handleLogin, loading, error, setError };
 }

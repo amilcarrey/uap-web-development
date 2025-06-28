@@ -62,4 +62,32 @@ export class AuthController{
         res.clearCookie("token");
         res.json({message: "Logged out"});
     }
+
+    //Obtener información del usuario autenticado
+    static async getMe(req: Request, res: Response) {
+        const currentUser = (req as any).user;
+        
+        if (!currentUser) {
+            const error = new Error("Usuario no autenticado");
+            (error as any).status = 401;
+            throw error;
+        }
+
+        // Obtener información completa del usuario desde la base de datos
+        const userService = new (await import('../services/UserDbService')).UserDbService();
+        const userDetails = await userService.getUserById(currentUser.id);
+        
+        if (!userDetails) {
+            const error = new Error("Usuario no encontrado");
+            (error as any).status = 404;
+            throw error;
+        }
+
+        res.json({
+            id: currentUser.id,
+            alias: userDetails.alias,
+            firstName: userDetails.firstName,
+            lastName: userDetails.lastName
+        });
+    }
 }

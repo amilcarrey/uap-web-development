@@ -25,12 +25,12 @@ app.use(express.json());
 
 // Rutas que NO necesitan autenticación
 app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes); // <-- Servia para realizar pruebas
 
 // Rutas que SÍ necesitan autenticación (aplicamos middleware específicamente)
+app.use('/api/users', userRoutes); // Rutas de usuario autenticadas
 app.use('/api/boards', authMiddleware, boardRoutes); // Tableros del usuario autenticado
-app.use('/api/boards/:boardId/tasks', authMiddleware, taskRoutes); // Tareas de un tablero específico
-app.use('/api/boards/:boardId/permissions', authMiddleware, permissionRoutes);
+// app.use('/api/boards/:boardId/tasks', authMiddleware, taskRoutes); // Tareas de un tablero específico
+//app.use('/api/boards/:boardId/permissions', authMiddleware, permissionRoutes);
 app.use('/api/preferences', authMiddleware, preferenciaRoutes); // Preferencias del usuario autenticado
 
 

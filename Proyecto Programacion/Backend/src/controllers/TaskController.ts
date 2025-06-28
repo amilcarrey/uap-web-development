@@ -48,6 +48,9 @@ export class TaskController {
             active: req.query.active !== undefined ? req.query.active === "true" : undefined,
         };
 
+        //console.log(req.params)
+        const boardId = Number(req.params.boardId);
+
         const parseResult = TaskQuerySchema.safeParse(query);
         if(!parseResult.success){
             const error = new Error("Datos inválidos");
@@ -57,10 +60,10 @@ export class TaskController {
         }
 
         const parsedQuery = parseResult.data;
-        const boardId = Number(req.params.boardId);
         const currentUserId = (req as any).user?.id;
 
         if (!currentUserId || isNaN(boardId)) {
+            //console.log(`currentUserId: ${currentUserId}, boardId: ${boardId}`);
             const error = new Error("ID de usuario o tablero inválido");
             (error as any).status = 400;
             throw error;

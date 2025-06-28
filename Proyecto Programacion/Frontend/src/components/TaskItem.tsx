@@ -13,8 +13,9 @@ import toast from "react-hot-toast";
 // - completed: si está completada o no
 export interface Task {
   id: string;
-  text: string;
-  completed: boolean;
+  content: string;
+  active: boolean;
+  boardId?: number;
 }
 
 // Props que recibe este componente:
@@ -47,8 +48,6 @@ export function TaskItem({ task, tabId }: Props) {
   const { mutate: editTask, isPending: isEditing } = useEditTask();
 
   // Estado global de edición (Zustand)
-  // editingTaskId: id de la tarea que está en modo edición (o null)
-  // setEditingTaskId: función para cambiar la tarea en edición
   const editingTaskId = useUIStore(state => state.editingTaskId);
   const setEditingTaskId = useUIStore(state => state.setEditingTaskId);
 
@@ -56,18 +55,17 @@ export function TaskItem({ task, tabId }: Props) {
   const isEditingMode = editingTaskId === task.id;
 
   // Estado local para el texto del input de edición
-  const [editText, setEditText] = useState(task.text);
+  const [editText, setEditText] = useState(task.content); // Cambiado de task.text a task.content
 
   /**
    * handleToggle
    * Marca o desmarca la tarea como completada.
-   * Llama a la mutación de React Query y muestra un toast de éxito o error.
    */
   const handleToggle = (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      toggleTask({ taskId: task.id, tabId, completed: !task.completed });
+      toggleTask({ taskId: task.id, tabId, completed: !task.active }); // Cambiado de task.completed a task.active
       toast.success("Estado de la tarea actualizado");
 
     } catch (err) {
@@ -105,7 +103,7 @@ export function TaskItem({ task, tabId }: Props) {
       toast.error("El texto de la tarea no puede estar vacio");
       return;
     }
-    if (editText === task.text) {
+    if (editText === task.content) { // Cambiado de task.text a task.content
       setEditingTaskId(null);
       return;
     }
@@ -128,14 +126,14 @@ export function TaskItem({ task, tabId }: Props) {
    */
   const handleCancelEdit = () => {
     setEditingTaskId(null);
-    setEditText(task.text);
+    setEditText(task.content); // Cambiado de task.text a task.content
   };
 
   return (
     <li
       className={`task-item 
         flex items-center justify-between py-[10px] border-b border-[#d3d3d3]
-        ${task.completed ? "line-through opacity-70" : ""}`} // Si está completada, tachamos el texto y bajamos la opacidad
+        ${task.active ? "line-through opacity-70" : ""}`} // Cambiado de task.completed a task.active
     >
       {isEditingMode ? (
         // Formulario para editar la tarea
@@ -154,22 +152,20 @@ export function TaskItem({ task, tabId }: Props) {
       ) : (
         // Vista normal de la tarea
         <>
-          {/* Formulario para marcar/desmarcar la tarea como completada */}
           <form onSubmit={handleToggle} className="task-form">
             <label className="form-label">
               <button
                 type="submit"
                 className="form-button"
-                disabled={isToggling} // desactivamos si está cargando
+                disabled={isToggling}
                 title="Completar tarea"
               />
               <span>
-                {upperCase ? task.text.toUpperCase() : task.text} {/* Mostramos el texto de la tarea, en mayúsculas si corresponde */}
-              </span> {/* Mostramos el texto de la tarea */}
+                {upperCase ? task.content.toUpperCase() : task.content} {/* Cambiado de task.text a task.content */}
+              </span>
             </label>
           </form>
 
-          {/* Controles para editar o eliminar la tarea */}
           <div className="flex gap-2">
             <button
               type="button"
@@ -180,12 +176,11 @@ export function TaskItem({ task, tabId }: Props) {
             >
               ✏️
             </button>
-            {/* Formulario para eliminar la tarea */}
             <form onSubmit={handleDelete} className="delete-form">
               <button
                 type="submit"
                 className="delete-button"
-                disabled={isDeleting} // desactivamos si está en proceso de borrado
+                disabled={isDeleting}
                 title="Eliminar tarea"
               >
                 🗑️

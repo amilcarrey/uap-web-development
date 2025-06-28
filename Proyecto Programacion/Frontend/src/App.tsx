@@ -14,10 +14,16 @@ import { useEffect } from "react";
 import { useAuthStore } from "./stores/authStore";
 import { useTabs } from "./hooks/tabs";
 import { useQueryClient } from '@tanstack/react-query';
+import { UserSettings } from './components/UserSettings';
+import { UserProfile } from './components/UserProfile'; // Agregar import
+import { NotFound } from './components/ErrorBoundary';
+import { FunctionalityDemo } from './components/FunctionalityDemo'; // Agregar demo
+//import { AuthDebug } from './components/AuthDebug';
 
 export default function App() {
   const checkAuth = useAuthStore((s) => s.checkAuth);
   const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const location = useLocation();
   const isHome = location.pathname === '/'; // Verifica si la ruta actual es la raíz (home)
   const { data: tabs = [] } = useTabs();
@@ -34,11 +40,17 @@ export default function App() {
     }
   }, [user, queryClient]);
 
+  // Log para debugging
+  /*
+  useEffect(() => {
+    console.log("Estado de autenticación:", { user, isAuthenticated, location: location.pathname });
+  }, [user, isAuthenticated, location.pathname]);
+  */
   // Encuentra el primer tablero si existe
   const firstBoardPath = tabs.length > 0 ? `/board/${encodeURIComponent(tabs[0].title)}` : "/board";
 
   // Si el usuario NO está autenticado y está en la raíz, muestra el login
-  if (!user && location.pathname === "/") {
+  if (!isAuthenticated && location.pathname === "/") {
     return (
       <>
         <Toaster position="top-right" />
@@ -58,12 +70,13 @@ export default function App() {
   }
 
   // Redirige solo si usuario autenticado, tableros listos y está en "/" Y hay tableros
-  if (user && tabs.length > 0 && location.pathname === "/") {
+  if (isAuthenticated && tabs.length > 0 && location.pathname === "/") {
+    console.log("Redirigiendo a primer tablero:", firstBoardPath);
     return <Navigate to={firstBoardPath} replace />;
   }
 
   // Si el usuario está autenticado y no tiene tableros, muestra una pantalla de bienvenida o dashboard vacío
-  if (user && tabs.length === 0 && location.pathname === "/") {
+  if (isAuthenticated && tabs.length === 0 && location.pathname === "/") {
     return (
       <>
         <Toaster position="top-right" />
@@ -89,6 +102,7 @@ export default function App() {
     <>
       {/* Encabezado de la aplicación (título, logo, etc.) */}
       <Toaster position="top-right" /> {/* Notificaciones emergentes */}
+      {/* <AuthDebug /> */}
       <Header />
       {/* Contenedor principal con estilo centrado y tarjeta */}
       <main style={{
@@ -103,11 +117,15 @@ export default function App() {
         {/* Rutas de la aplicación */}
         <Routes>
           <Route path="/" element={<AuthPage />} />
-          <Route path="/board/:boardId" element={user ? <BoardManager /> : <Navigate to="/" replace />} />
-          <Route path="/configuracion" element={user ? <Configuracion /> : <Navigate to="/" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/board/:boardId" element={isAuthenticated ? <BoardManager /> : <Navigate to="/" replace />} />
+          <Route path="/profile" element={isAuthenticated ? <UserProfile /> : <Navigate to="/" replace />} />
+          <Route path="/settings" element={isAuthenticated ? <UserSettings /> : <Navigate to="/" replace />} />
+          <Route path="/configuracion" element={isAuthenticated ? <Configuracion /> : <Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+      {/* Demo de funcionalidades */}
+      <FunctionalityDemo />
     </>
   );
 }

@@ -212,4 +212,107 @@ export class UserDbService implements IUserService {
     }));
 }
 
+    // Actualizar perfil del usuario
+    async updateUserProfile(userId: number, data: { firstName: string; lastName: string }): Promise<UserDTO> {
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                firstName: data.firstName,
+                lastName: data.lastName
+            }
+        });
+
+        return {
+            firstName: updatedUser.firstName,
+            lastName: updatedUser.lastName,
+            alias: updatedUser.username,
+            boards: [],
+            permissions: [],
+            settings: null
+        };
+    }
+
+    // Buscar usuarios por alias
+    async searchUsersByAlias(query: string): Promise<UserDTO[]> {
+        const users = await prisma.user.findMany({
+            where: {
+                username: {
+                    contains: query
+                }
+            },
+            take: 10, // Limitar a 10 resultados
+            select: {
+                id: true,              // ← ✅ Agregar ID al select
+                firstName: true,
+                lastName: true,
+                username: true
+            }
+        });
+
+        return users.map(user => ({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            alias: user.username,
+            boards: [],
+            permissions: [],
+            settings: null,
+            // Campos adicionales para compatibilidad
+            id: user.id             // ← ✅ Incluir ID en el resultado
+        }));
+    }
+
+    // Obtener todos los usuarios excluyendo al usuario actual (con paginación)
+    async getAllUsersExcludingCurrent(
+        currentUserId: number, 
+        limit: number = 50, 
+        offset: number = 0
+    ): Promise<{ users: UserDTO[]; total: number }> {
+        
+        // Contar total de usuarios (excluyendo el actual)
+        const totalCount = await prisma.user.count({
+            where: {
+                id: {
+                    not: currentUserId
+                }
+            }
+        });
+
+        // Obtener usuarios con paginación
+        const users = await prisma.user.findMany({
+            where: {
+                id: {
+                    not: currentUserId
+                }
+            },
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                username: true
+            },
+            orderBy: {
+                username: 'asc' // Ordenar alfabéticamente por alias
+            },
+            take: limit,
+            skip: offset
+        });
+
+        const userDTOs = users.map(user => ({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            alias: user.username,
+            boards: [],
+            permissions: [],
+            settings: null,
+            // Campos adicionales para compatibilidad
+            id: user.id,
+            createdAt: new Date().toISOString() // Placeholder temporal
+        }));
+
+        return {
+            users: userDTOs,
+            total: totalCount
+        };
+    }
+
 }
