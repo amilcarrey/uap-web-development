@@ -2,16 +2,22 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  // Limpiar base de datos
+  await prisma.task.deleteMany();
+  await prisma.sharedBoard.deleteMany();
+  await prisma.board.deleteMany();
+  await prisma.userSettings.deleteMany();
+  await prisma.user.deleteMany();
+
   // Crear un usuario de prueba
   const user = await prisma.user.create({
     data: {
       email: 'demo@ejemplo.com',
-      password: '1234segura', // ⚠️ En producción esto debe ir hasheado
+      password: '1234segura',
       name: 'Usuario de prueba',
     },
   });
 
-  // Tableros y tareas
   const boardsWithTasks = [
     {
       name: 'trabajo',
@@ -33,9 +39,7 @@ async function main() {
         name: boardData.name,
         ownerId: user.id,
         tasks: {
-          create: boardData.tasks.map((text) => ({
-            text,
-          })),
+          create: boardData.tasks.map((text) => ({ text })),
         },
       },
     });
@@ -43,6 +47,7 @@ async function main() {
     console.log(`Tablero creado: ${board.name}`);
   }
 }
+
 
 main()
   .then(() => {
