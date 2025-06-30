@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  boards    Board[]  @relation("UserBoards")
+  shared    SharedBoard[] @relation("SharedAccess")
+  settings  UserSettings?
+  createdAt DateTime @default(now())
+}
+
+model Board {
+  id        String        @id @default(uuid())
+  name      String
+  owner     User          @relation("UserBoards", fields: [ownerId], references: [id])
+  ownerId   String
+  tasks     Task[]
+  shared    SharedBoard[]
+  createdAt DateTime      @default(now())
+}
+
+model SharedBoard {
+  id        String   @id @default(uuid())
+  user      User     @relation("SharedAccess", fields: [userId], references: [id])
+  userId    String
+  board     Board    @relation(fields: [boardId], references: [id])
+  boardId   String
+  role      Role
+}
+
+model Task {
+  id        String   @id @default(uuid())
+  text      String
+  completed Boolean  @default(false)
+  board     Board    @relation(fields: [boardId], references: [id])
+  boardId   String
+  createdAt DateTime @default(now())
+}
+
+model UserSettings {
+  id             String   @id @default(uuid())
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String   @unique
+  refetchInterval Int     @default(10)
+  uppercaseDescriptions Boolean @default(false)
+}
+
+enum Role {
+  OWNER
+  EDITOR
+  VIEWER
+}
