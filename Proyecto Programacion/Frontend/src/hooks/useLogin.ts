@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useAuthStore } from "../stores/authStore";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useLogin() {
   const login = useAuthStore(s => s.login);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,6 +19,11 @@ export function useLogin() {
         setError("Credenciales incorrectas");
         return false;
       }
+      
+      // Invalidar todas las consultas después de login exitoso
+      console.log("Login exitoso, invalidando consultas...");
+      await queryClient.invalidateQueries();
+      
       // Navegación después de login exitoso
       console.log("Login exitoso, navegando...");
       navigate("/", { replace: true });

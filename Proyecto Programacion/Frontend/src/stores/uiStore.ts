@@ -20,13 +20,7 @@ export const useUIStore = create<UIState>((set) => ({
   setTaskFilter: (filter) => set({ taskFilter: filter }),
   // Estados para el modal de compartir
   isShareModalOpen: false,
-  setShareModalOpen: (open) => {
-    console.log('🔄 uiStore: setShareModalOpen llamado con:', open);
-    set({ isShareModalOpen: open });
-  },
+  setShareModalOpen: (open) => set({ isShareModalOpen: open }),
   shareModalBoardId: null,
-  setShareModalBoardId: (boardId) => {
-    console.log('🔄 uiStore: setShareModalBoardId llamado con:', boardId);
-    set({ shareModalBoardId: boardId });
-  },
+  setShareModalBoardId: (boardId) => set({ shareModalBoardId: boardId }),
 }));

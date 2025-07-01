@@ -5,7 +5,6 @@ interface UserPreferences {
   userId: number;
   itemsPerPage: number;
   updateInterval: number;
-  upperCaseAlias: boolean;
 }
 
 // Estructura del perfil de usuario completo (con datos del backend)
@@ -131,10 +130,10 @@ export function useAllUsers() {
     queryFn: async () => {
       const token = localStorage.getItem('token');
       
-      console.log('🚀 useAllUsers: EJECUTÁNDOSE - token existe:', !!token);
+      //console.log('🚀 useAllUsers: EJECUTÁNDOSE - token existe:', !!token);
       
       try {
-        console.log('🔍 Obteniendo lista completa de usuarios desde /api/users...');
+        //console.log('🔍 Obteniendo lista completa de usuarios desde /api/users...');
         
         const res = await fetch('/api/users?limit=50&offset=0', {
           credentials: 'include',
@@ -143,14 +142,14 @@ export function useAllUsers() {
           },
         });
         
-        console.log('🔍 Respuesta del endpoint /api/users:', res.status, res.statusText);
+        //console.log('🔍 Respuesta del endpoint /api/users:', res.status, res.statusText);
         
         if (!res.ok) {
           throw new Error(`Error ${res.status}: ${res.statusText}`);
         }
         
         const data = await res.json();
-        console.log('🔍 Datos RAW recibidos del backend:', data);
+        //console.log('🔍 Datos RAW recibidos del backend:', data);
         
         // Manejar la nueva estructura de respuesta del backend
         let users: any[] = [];
@@ -158,21 +157,9 @@ export function useAllUsers() {
         if (data.users && Array.isArray(data.users)) {
           // Nueva estructura con metadatos
           users = data.users;
-          console.log('✅ Usuarios obtenidos exitosamente (con metadatos):', {
-            total: data.total || users.length,
-            currentUser: data.currentUser?.alias || 'desconocido',
-            usuarios: users.map((u: any) => `${u.alias}(id:${u.id})`).join(', '),
-            paginacion: data.pagination,
-            primerosUsuarios: users.slice(0, 3) // Mostrar primeros 3 usuarios completos
-          });
         } else if (Array.isArray(data)) {
           // Estructura simple (fallback)
           users = data;
-          console.log('✅ Usuarios obtenidos exitosamente (estructura simple):', {
-            total: users.length,
-            usuarios: users.map((u: any) => `${u.alias}(id:${u.id})`).join(', '),
-            primerosUsuarios: users.slice(0, 3) // Mostrar primeros 3 usuarios completos
-          });
         } else {
           console.warn('⚠️ Estructura de respuesta inesperada:', data);
           users = [];
@@ -219,13 +206,13 @@ async function getFallbackUsers(token: string | null) {
   }
 
   const finalUsers = Array.from(allUsers.values());
-  console.log('✅ Fallback completado. Usuarios únicos encontrados:', finalUsers.length);
+  //console.log('✅ Fallback completado. Usuarios únicos encontrados:', finalUsers.length);
   return finalUsers;
 }
 
 // ✅ Obtener usuarios que tienen acceso a un tablero específico
 export function useBoardSharedUsers(boardId: string) {
-  return useQuery<{ id: number; alias: string; firstName: string; lastName: string }[]>({
+  return useQuery<{ id: number; alias: string; firstName: string; lastName: string; permissionId?: number; level?: string }[]>({
     queryKey: ['board-shared-users', boardId],
     queryFn: async () => {
       if (!boardId) return [];
@@ -249,22 +236,96 @@ export function useBoardSharedUsers(boardId: string) {
       
       const data = await res.json();
       
+      console.log('📥 Datos RAW recibidos del backend (usuarios compartidos):', data);
+      
+      // Logging detallado de la estructura
+      if (Array.isArray(data) && data.length > 0) {
+        console.log('🔍 Primer elemento de data:', data[0]);
+        console.log('🔍 Estructura de user:', data[0].user);
+        console.log('🔍 Claves disponibles en permission:', Object.keys(data[0]));
+        if (data[0].user) {
+          console.log('🔍 Claves disponibles en user:', Object.keys(data[0].user));
+        }
+      }
+      
       // El endpoint de permisos devuelve objetos con información del usuario y permisos
       // Extraer solo la información del usuario
       if (Array.isArray(data)) {
-        return data.map(permission => ({
-          id: permission.user?.id || permission.userId,
-          alias: permission.user?.alias || permission.alias,
-          firstName: permission.user?.firstName || permission.firstName || '',
-          lastName: permission.user?.lastName || permission.lastName || '',
-          permissionId: permission.id, // Guardar el ID del permiso para poder eliminarlo
-          level: permission.level || permission.permissionLevel // Usar level como principal, permissionLevel como fallback
-        }));
+        return data.map(permission => {
+          const level = permission.level || permission.permissionLevel;
+          
+          console.log('🔍 Permission original del backend:', permission);
+          console.log('🔧 Level antes del mapeo:', level);
+          
+          // Extraer información del usuario desde diferentes ubicaciones posibles
+          const userInfo = permission.user || permission;
+          
+          const mappedUser = {
+            id: userInfo.id || permission.userId,
+            alias: userInfo.alias || userInfo.userName || userInfo.name || '',
+            firstName: userInfo.firstName || userInfo.first_name || '',
+            lastName: userInfo.lastName || userInfo.last_name || '',
+            permissionId: permission.id, // Guardar el ID del permiso para poder eliminarlo
+            level: level || 'VIEWER' // Mantener el nivel original del backend
+          };
+          
+          console.log('✅ Usuario mapeado final:', mappedUser);
+          console.log('🔍 Alias del usuario:', mappedUser.alias);
+          console.log('🔍 userInfo:', userInfo);
+          
+          // Validación adicional: Si no hay alias, usar firstName + lastName
+          if (!mappedUser.alias && (mappedUser.firstName || mappedUser.lastName)) {
+            mappedUser.alias = `${mappedUser.firstName} ${mappedUser.lastName}`.trim();
+            console.log('🔄 Alias generado a partir del nombre:', mappedUser.alias);
+          }
+          
+          return mappedUser;
+        });
       }
       
       return data.permissions || data.users || [];
     },
     enabled: !!boardId,
     staleTime: 2 * 60 * 1000, // 2 minutos de cache
+  });
+}
+
+// ✅ Actualizar permisos de un usuario en un tablero específico
+export function useUpdateBoardPermission() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ boardId, userId, newLevel }: {
+      boardId: string;
+      userId: number;
+      newLevel: 'OWNER' | 'EDITOR' | 'VIEWER';
+    }) => {
+      const token = localStorage.getItem('token');
+      
+      console.log('🔄 Actualizando permiso:', { boardId, userId, newLevel });
+      
+      const response = await fetch(`/api/boards/${boardId}/permissions/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ newLevel })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || errorData.message || `Error ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Permiso actualizado exitosamente:', result);
+      return result;
+    },
+    onSuccess: (_, variables) => {
+      // Invalidar las queries relacionadas para que se actualicen
+      queryClient.invalidateQueries({ queryKey: ['board-shared-users', variables.boardId] });
+    },
   });
 }

@@ -11,6 +11,7 @@ interface AuthUser {
 interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (alias: string, password: string) => Promise<boolean>;
   register: (firstName: string, lastName: string, alias: string, password: string) => Promise<boolean>;
   logout: () => void;
@@ -20,9 +21,12 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
+  isLoading: true, // Empieza en loading hasta que checkAuth termine
 
   login: async (alias: string, password: string) => {
     try {
+      set({ isLoading: true }); // Marcar como cargando durante el login
+      
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,9 +62,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               firstName: userInfo.firstName,
               lastName: userInfo.lastName
             }, 
-            isAuthenticated: true 
+            isAuthenticated: true,
+            isLoading: false
           });
+          
           console.log("Estado actualizado - usuario autenticado:", userInfo.alias, "ID:", userId);
+          
+          // Pequeña espera para asegurar que las cookies se establezcan completamente
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
           return true;
         } else {
           console.error("Estructura de respuesta inesperada:", loginResponse);
@@ -68,9 +78,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } else {
         console.error("Login falló con status:", res.status);
       }
+      
+      set({ isLoading: false });
       return false;
     } catch (error) {
       console.error("Error al hacer login:", error);
+      set({ isLoading: false });
       return false;
     }
   },
@@ -106,7 +119,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } finally {
       // Limpiar localStorage también
       localStorage.removeItem('authToken');
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, isLoading: false });
     }
   },
 
@@ -132,11 +145,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           id: userData.id, 
           alias: userData.alias 
         }, 
-        isAuthenticated: true 
+        isAuthenticated: true,
+        isLoading: false
       });
       console.log("checkAuth: Usuario autenticado", userData.alias);
     } else {
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, isLoading: false });
       console.log("checkAuth: Usuario no autenticado");
     }
   },

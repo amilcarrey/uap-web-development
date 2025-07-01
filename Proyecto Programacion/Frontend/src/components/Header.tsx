@@ -1,5 +1,6 @@
-//src\components\FilterControls.tsx
+//src\components\Header.tsx
 import { UserProfileDropdown } from './UserProfileDropdown';
+import { SettingsButton, SettingsModal, useSettingsModal } from './SettingsModal';
 import { useAuthStore } from '../stores/authStore';
 
 /**
@@ -8,6 +9,7 @@ import { useAuthStore } from '../stores/authStore';
  */
 export function Header() {
   const user = useAuthStore(state => state.user);
+  const { isOpen, openSettings, closeSettings } = useSettingsModal();
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -26,11 +28,22 @@ export function Header() {
               <span className="text-sm text-gray-600 hidden md:block">
                 ¡Hola, {user.alias}!
               </span>
+              
+              {/* Botón de configuraciones */}
+              <SettingsButton 
+                onOpenSettings={openSettings} 
+                variant="icon"
+                className="hidden sm:block"
+              />
+              
               <UserProfileDropdown />
             </div>
           )}
         </div>
       </div>
+      
+      {/* Modal de configuraciones */}
+      <SettingsModal isOpen={isOpen} onClose={closeSettings} />
     </header>
   );
 }

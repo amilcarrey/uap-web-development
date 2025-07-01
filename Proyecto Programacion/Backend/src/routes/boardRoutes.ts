@@ -31,6 +31,9 @@ router.use('/:boardId/tasks', getCurrentBoardId, taskRoutes);
 
 //Monto las rutas de permisos como subrutas
 router.use('/:boardId/permissions', getCurrentBoardId, permissionRoutes)
+
+
+
 //router.get('/:boardId', BoardController.getBoardById); // <-- Servia para realizar pruebas
 //router.get('/user/:userId', BoardController.getBoardsByuser); // <-- Servia para realizar pruebas
 

@@ -4,6 +4,20 @@ import {PermissionLevel} from '@prisma/client';
 
 const permissionService = new PermissionService();
 
+// Helper function para normalizar niveles de permisos (acepta mayúsculas y minúsculas)
+function normalizePermissionLevel(level: string): PermissionLevel | null {
+    if (!level || typeof level !== 'string') return null;
+    
+    const upperLevel = level.toUpperCase();
+    
+    // Verificar si el valor normalizado es válido
+    if (Object.values(PermissionLevel).includes(upperLevel as PermissionLevel)) {
+        return upperLevel as PermissionLevel;
+    }
+    
+    return null;
+}
+
 export class PermissionController {
     
     // Otorga permisos de un tablero
@@ -13,16 +27,21 @@ export class PermissionController {
         const currentUserId = Number((req as any).user?.id);
 
         // Aceptar tanto 'level' como 'permissionLevel' para compatibilidad
-        const permLevel = level || permissionLevel;
+        const rawPermLevel = level || permissionLevel;
+        const permLevel = normalizePermissionLevel(rawPermLevel);
+        
         console.log("ID TABLERO: ", boardId);
         console.log("ID USUARIO: ", userId);
+        console.log("NIVEL ORIGINAL: ", rawPermLevel);
+        console.log("NIVEL NORMALIZADO: ", permLevel);
+        
         if (isNaN(boardId) || !userId) {
             const error = new Error("ID de tablero o usuario inválido");
             (error as any).status = 400;
             throw error;
         }
-        if(!Object.values(PermissionLevel).includes(permLevel)){
-            const error = new Error("Nivel de permiso inválido");
+        if(!permLevel){
+            const error = new Error(`Nivel de permiso inválido. Valores válidos: ${Object.values(PermissionLevel).join(', ')}`);
             (error as any).status = 400;
             throw error;
         }
@@ -66,18 +85,21 @@ export class PermissionController {
         const {newLevel} = req.body;
         const currentUserId = Number((req as any).user?.id);
 
+        // Normalizar el nivel de permiso para aceptar mayúsculas y minúsculas
+        const normalizedLevel = normalizePermissionLevel(newLevel);
+
         if (isNaN(boardId) || isNaN(userId)) {
             const error = new Error("ID de tablero o usuario inválido");
             (error as any).status = 400;
             throw error;
         }
-        if(!Object.values(PermissionLevel).includes(newLevel)){
-            const error = new Error("Nivel de permiso inválido");
+        if(!normalizedLevel){
+            const error = new Error(`Nivel de permiso inválido. Valores válidos: ${Object.values(PermissionLevel).join(', ')}`);
             (error as any).status = 400;
             throw error;
         }
 
-        await permissionService.updatePermission(boardId, userId, newLevel, currentUserId);
+        await permissionService.updatePermission(boardId, userId, normalizedLevel, currentUserId);
         res.status(200).json({message: "Permiso actualizado correctamente"});
     }
 }

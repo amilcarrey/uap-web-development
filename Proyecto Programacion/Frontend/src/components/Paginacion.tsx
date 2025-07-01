@@ -1,50 +1,42 @@
-import { useState } from "react";
-
 type PaginacionProps = {
     page: number;        // Número de la página actual
     setPage: (page: number) => void; // Función para cambiar la página
     hasNext: boolean;   // Indica si hay una página siguiente
     hasPrev: boolean;   // Indica si hay una página anterior
-    limit: number; // Número de elementos por página
-    setLimit:(limit: number) => void; // Función para cambiar el límite de elementos por página
 }
 
-export function Paginacion({page, setPage, hasNext, hasPrev, limit, setLimit} : PaginacionProps) {
-    const [inputValue, setInputValue] = useState(limit);
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            if (inputValue > 0) setLimit(inputValue);
-        }
-    };
-
+export function Paginacion({page, setPage, hasNext, hasPrev} : PaginacionProps) {
     return(
-        <div className="flex justify-between my-2">
-            <div className="flex items-center gap-5">
-                <button onClick={() => setPage(page-1)} disabled={!hasPrev}>Anterior</button>
-                <span> Página {page}</span>
-                <button onClick={() => setPage(page+1)} disabled={!hasNext}>Siguiente</button>
+        <div className="flex justify-center my-4">
+            <div className="flex items-center gap-4 bg-gray-50 px-4 py-2 rounded-lg border">
+                <button 
+                    onClick={() => setPage(page-1)} 
+                    disabled={!hasPrev}
+                    className={`px-3 py-1 rounded transition-colors ${
+                        hasPrev 
+                            ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                >
+                    ← Anterior
+                </button>
+                
+                <span className="text-sm font-medium text-gray-700">
+                    Página {page}
+                </span>
+                
+                <button 
+                    onClick={() => setPage(page+1)} 
+                    disabled={!hasNext}
+                    className={`px-3 py-1 rounded transition-colors ${
+                        hasNext 
+                            ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                >
+                    Siguiente →
+                </button>
             </div>
-            <div>
-                <label>
-                    Tareas por página:&nbsp;
-                    <input
-                        className="px-3 py-1 text-base border border-gray-300 rounded placeholder:text-sm placeholder:italic"
-                        type="number"
-                        min={1}
-                        //value={inputValue}
-                        placeholder="Ingrese el número"
-                        onChange={e => setInputValue(Number(e.target.value))}
-                        onKeyDown={handleKeyDown}
-                        style={{ width: "150px" }}
-                    />
-                </label>
-            </div>
-        
-        
         </div>
-
-        
     );
 }

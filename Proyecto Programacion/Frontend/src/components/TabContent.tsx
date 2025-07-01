@@ -6,6 +6,7 @@ import { FilterControls } from './FilterControls';  // Componente para cambiar e
 import { TaskSearch } from './TaskSearch'; // Agregar import
 import { useTasks, useClearCompletedTasks } from '../hooks/task';
 import { useUIStore } from '../stores/uiStore';
+import { useUserSettings } from '../hooks/userSettings'; // Para obtener el límite de preferencias
 import { useMemo, useState } from 'react';          
 import { Paginacion } from './Paginacion';
 import React from 'react';
@@ -41,10 +42,13 @@ export function TabContent({
   onRenameTab,
 }: Props) {
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5); // Número de tareas a mostrar por página (En el backen el numero por defecto es 10, en el caso de que no se envíe el parámetro limit, se usa el valor por defecto del backend)
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
   const [showSearch, setShowSearch] = useState(false); // Nuevo estado para mostrar búsqueda
+
+  // Obtener el límite de las preferencias del usuario
+  const { data: userSettings } = useUserSettings();
+  const limit = userSettings?.itemsPerPage || 10;
 
   //Si cambia el titulo desde fuera, sincroniza el input con el nuevo título
   React.useEffect(() => {
@@ -61,6 +65,7 @@ export function TabContent({
 
   // Obtiene las tareas de la pestaña actual usando React Query.
   // Si no hay datos, se usa un array vacío por defecto.
+  // El límite se obtiene de las preferencias del usuario y se pasa explícitamente.
   const { data: tasks = [], isLoading, isError } = useTasks(tabId, page, limit);
   const { mutate: clearCompleted } = useClearCompletedTasks();
 
@@ -149,7 +154,12 @@ export function TabContent({
       ) : (
         <>
           <TaskList tasks={filteredTasks} tabId={tabId} />
-          <Paginacion page={page} setPage={setPage} hasNext={filteredTasks.length === limit} hasPrev={page > 1} limit={limit} setLimit={setLimit}/>
+          <Paginacion 
+            page={page} 
+            setPage={setPage} 
+            hasNext={tasks.length === limit} // Si el backend devolvió exactamente 'limit' tareas, probablemente hay más
+            hasPrev={page > 1} 
+          />
         </>
       )}
 

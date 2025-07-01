@@ -1,53 +1,85 @@
-# Backend
+# Task Manager - Frontend
 
-## Instalación de dependencias del Backend y el Frontend
+## 📋 Descripción
 
-Para instalar todas las dependencias necesarias para este proyecto, simplemente ejecuta el siguiente comando en la terminal:
+Aplicación web moderna de gestión de tareas construida con React, TypeScript y Vite. Permite crear, gestionar y compartir tableros de tareas con otros usuarios.
+
+## ✨ Características Principales
+
+- **🔐 Autenticación JWT** - Login y registro seguro
+- **📋 Gestión de Tableros** - Crear, editar y eliminar tableros
+- **✅ Gestión de Tareas** - CRUD completo de tareas
+- **👥 Compartir Tableros** - Sistema de permisos (Propietario, Editor, Solo lectura)
+- **🔍 Búsqueda y Filtros** - Buscar tareas y filtrar por estado
+- **📄 Paginación** - Paginación eficiente controlada por el backend
+- **⚙️ Configuraciones** - Panel unificado de configuraciones de usuario
+
+## 🚀 Instalación y Desarrollo
+
+### Instalar dependencias:
+```bash
+npm install
+```
+
+### Ejecutar en modo desarrollo:
+```bash
+npm run dev
+```
+
+### Compilar para producción:
+```bash
+npm run build
+```
+
+## 🔧 Tecnologías Utilizadas
+
+- **React 18** - Framework principal
+- **TypeScript** - Tipado estático
+- **Vite** - Build tool y dev server
+- **Tailwind CSS** - Estilos y diseño
+- **React Query** - Gestión de estado del servidor
+- **Zustand** - Gestión de estado local
+- **React Router** - Navegación
+- **React Hot Toast** - Notificaciones
+
+## 📁 Estructura del Proyecto
 
 ```
-npm run setup
+src/
+├── components/     # Componentes React
+├── hooks/         # Custom hooks
+├── stores/        # Stores de Zustand
+├── types/         # Tipos TypeScript
+├── utils/         # Utilidades
+└── main.tsx       # Punto de entrada
 ```
 
-Esto ejecuta internamente `npm install`, que lee el archivo `package.json` y descarga automáticamente todas las dependencias listadas en las secciones `dependencies` y `devDependencies`.
+## 🛡️ Autenticación
 
+Para usar la aplicación necesitas crear una cuenta o usar estas credenciales de prueba:
 
-## Información para pruebas
+```json
+{
+  "alias": "Daniel2102",
+  "password": "Daniel"
+}
+```
 
-- Para realizar pruebas, es necesario tener un usuario creado con las siguientes credenciales:
-  ```json
-  {
-    "alias": "Daniel2102",
-    "password": "Daniel"
-  }
-  ```
-- En la base de datos, este usuario solo tiene asignado un tablero y no contiene tareas.
-- Para crear un tablero, primero debes autenticarte usando el endpoint de login y luego usar el endpoint correspondiente para crear tableros.
-- Si necesitas probar otros endpoints, asegúrate de usar el token JWT que se obtiene al iniciar sesión.
+## 🎯 Uso de la Aplicación
 
-## Endpoints principales
+1. **Registrarse o iniciar sesión**
+2. **Crear un tablero** usando el botón "+"
+3. **Agregar tareas** al tablero  
+4. **Compartir el tablero** con otros usuarios (botón compartir)
+5. **Filtrar y buscar** tareas según sea necesario
+6. **Configurar preferencias** desde el dropdown del usuario
 
-### Autenticación
-- **POST** `/api/auth/login` - Iniciar sesión
-- **POST** `/api/auth/register` - Registrar nuevo usuario
+## 🤝 Contribuir
 
-### Tableros
-- **GET** `/api/boards` - Obtener tableros del usuario autenticado
-- **POST** `/api/boards` - Crear un nuevo tablero
-- **PUT** `/api/boards/:id` - Actualizar un tablero
-- **DELETE** `/api/boards/:id` - Eliminar un tablero
+Este es un proyecto educativo. Para sugerir mejoras:
 
-### Tareas
-- **GET** `/api/boards/:boardId/tasks` - Obtener tareas de un tablero
-- **POST** `/api/boards/:boardId/tasks` - Crear una nueva tarea
-- **PUT** `/api/boards/:boardId/tasks/:id` - Actualizar una tarea
-- **DELETE** `/api/boards/:boardId/tasks/:id` - Eliminar una tarea
-
-### Permisos
-- **GET** `/api/boards/:boardId/permissions` - Obtener permisos de un tablero
-- **POST** `/api/boards/:boardId/permissions` - Asignar permisos
-
-### Preferencias
-- **GET** `/api/preferences` - Obtener preferencias del usuario
-- **PUT** `/api/preferences` - Actualizar preferencias
-
-
+1. Fork el proyecto
+2. Crea una rama para tu feature
+3. Commit tus cambios
+4. Push a la rama
+5. Abre un Pull Request

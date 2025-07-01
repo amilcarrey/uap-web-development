@@ -9,6 +9,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Task } from '../components/TaskItem';
 import { useConfigStore } from '../stores/configStore';
+import { useUserSettings } from './userSettings';
 import type { TaskFilter } from '../types';
 
 // Función helper para obtener headers de autenticación
@@ -28,24 +29,31 @@ function getAuthHeaders() {
 
 /*
  Función que obtiene las tareas desde el backend según el ID de la pestaña actual (tabId).
- Se hace una petición GET al endpoint `/api/tasks?tabId=...`
- y se espera una respuesta JSON.
+ Se hace una petición GET al endpoint `/api/boards/${tabId}/tasks?page=...&limit=...`
+ y se espera una respuesta JSON con paginación.
 */
-const fetchTasks = async (tabId: string, _page: number, _limit: number) => {
+const fetchTasks = async (tabId: string, page: number, limit: number) => {
   //console.log(`[Refetch] Solicitando tareas para ${tabId} a las ${new Date().toLocaleTimeString()}`);
-  const res = await fetch(`/api/boards/${tabId}/tasks`, {
+  
+  // Construir URL con parámetros de paginación
+  const url = `/api/boards/${tabId}/tasks?page=${page}&limit=${limit}`;
+  console.log(`🔍 Petición de tareas: ${url}`);
+  
+  const res = await fetch(url, {
     method: 'GET',
     headers: getAuthHeaders(),
     credentials: 'include',
   });
+  
   if (!res.ok) {
     console.log('Error al obtener tareas:', res.status);
     throw new Error('Error al obtener tareas');
   }
-  const result = await res.json()
-  //console.log(result);
   
-  return result.items // devuelve el array de tareas
+  const result = await res.json();
+  console.log(`📥 Respuesta del backend para ${tabId}:`, result);
+  
+  return result.items || result; // devuelve el array de tareas (adaptable a diferentes formatos de respuesta)
 };
 
 /*
@@ -53,9 +61,18 @@ const fetchTasks = async (tabId: string, _page: number, _limit: number) => {
  - queryKey: sirve para identificar en caché esta consulta en particular.
    Se usa un array con 'tasks' y el tabId, para que cada pestaña tenga su propia caché.
  - queryFn: es la función que se ejecuta para hacer la petición real.
+ - Usa las preferencias del usuario para determinar el límite de tareas por página.
 */
-export function useTasks(tabId: string, page: number = 1, limit: number = 5) { //Agrego valores por defecto en el caso de que al Hook no se le pase el page y limit
+export function useTasks(tabId: string, page: number = 1, customLimit?: number) {
   const refetchInterval = useConfigStore(s => s.refetchInterval);
+  
+  // Obtener preferencias del usuario para el límite
+  const { data: userSettings } = useUserSettings();
+  
+  // Usar límite personalizado, o el de preferencias del usuario, o valor por defecto
+  const limit = customLimit || userSettings?.itemsPerPage || 10;
+  
+  console.log(`🎯 useTasks para tablero ${tabId}: página=${page}, límite=${limit}`);
 
   return useQuery<Task[]>({
     queryKey: ['tasks', tabId, page, limit], // clave única para esta consulta

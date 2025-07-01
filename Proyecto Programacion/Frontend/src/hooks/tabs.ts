@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUserFromToken, getUserFromJWTString } from '../utils/auth';
+import { useAuthStore } from '../stores/authStore';
 
 export interface Tab {
   id: string;
   title: string;
-  userRole?: 'owner' | 'editor' | 'reader'; // Agregar rol del usuario
+  userRole?: 'owner' | 'editor' | 'viewer'; // Agregar rol del usuario
 }
 
 // Función helper para obtener headers de autenticación
@@ -26,17 +27,18 @@ function getAuthHeaders() {
 
 // Obtener todos los tableros CON información de roles
 async function fetchTabs(): Promise<Tab[]> {
-  console.log('Ejecutando fetchTabs: consultando /api/boards');
+  //console.log('Ejecutando fetchTabs: consultando /api/boards');
   const res = await fetch('/api/boards', {
     credentials: 'include',
     headers: getAuthHeaders(),
   });
   if (!res.ok) {
-    console.log('Error al obtener tableros:', res.status);
-    throw new Error('Error al obtener tableros');
+    //console.log('Error al obtener tableros:', res.status);
+    const errorText = await res.text();
+    throw new Error(`Error ${res.status}: ${errorText || 'Error al obtener tableros'}`);
   }
   const data = await res.json();
-  console.log('Datos recibidos del backend:', data);
+  //console.log('Datos recibidos del backend:', data);
   
   // Obtener el usuario actual del JWT (cookies o localStorage)
   let currentUser = getUserFromToken();
@@ -47,7 +49,7 @@ async function fetchTabs(): Promise<Tab[]> {
     }
   }
   const currentUserId = currentUser?.id;
-  console.log('Usuario actual para tabs:', currentUser);
+  //console.log('Usuario actual para tabs:', currentUser);
   
   return data.map((board: any) => ({
     id: board.id.toString(), 
@@ -56,7 +58,7 @@ async function fetchTabs(): Promise<Tab[]> {
     userRole: board.ownerId === currentUserId ? 'owner' : 'editor'
   })).map((tab: Tab) => {
     // 🔥 LOG para verificar userRole
-    console.log(`🔄 Tab "${tab.title}" (id: ${tab.id}) tiene userRole: ${tab.userRole}`);
+    //console.log(`🔄 Tab "${tab.title}" (id: ${tab.id}) tiene userRole: ${tab.userRole}`);
     return tab;
   });
 }
@@ -80,32 +82,21 @@ async function createTabRequest(title: string): Promise<Tab> {
 
 // Eliminar tablero
 async function deleteTabRequest(boardId: string): Promise<any> {
-  console.log('=== INICIO deleteTabRequest ===');
-  console.log('boardId recibido:', boardId);
 
   const url = `/api/boards/${boardId}`;
-  console.log('URL de eliminación:', url);
 
   const res = await fetch(url, {
     method: 'DELETE',
     headers: getAuthHeaders(),
     credentials: 'include',
   });
-  
-  console.log('Respuesta del servidor:', {
-    status: res.status,
-    ok: res.ok,
-    statusText: res.statusText
-  });
 
   if (!res.ok) {
     const errorText = await res.text();
-    console.error('Error del servidor:', errorText);
     throw new Error(`Error al eliminar tablero: ${res.status} - ${errorText}`);
   }
   
   const result = await res.json();
-  console.log('Resultado de eliminación:', result);
   return result;
 }
 
@@ -129,6 +120,9 @@ async function renameTabRequest({ id, newTitle }: { id: string; newTitle: string
 // --- Hooks (sin cambios en la estructura) ---
 
 export function useTabs() {
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const isLoading = useAuthStore(state => state.isLoading);
+  
   return useQuery<Tab[]>({
     queryKey: ['tabs'],
     queryFn: fetchTabs,
@@ -136,6 +130,17 @@ export function useTabs() {
     gcTime: 1,
     staleTime: 1000,
     refetchInterval: 10000,
+    enabled: isAuthenticated && !isLoading, // Solo ejecutar cuando esté autenticado y no cargando
+    retry: (failureCount, error) => {
+      // Si es un 401, no reintentar (problema de autenticación)
+      if (error?.message?.includes('401') || error?.message?.includes('Unauthorized')) {
+        console.log('Error 401 detectado, no reintentando consulta de tableros');
+        return false;
+      }
+      // Para otros errores, reintentar hasta 2 veces
+      return failureCount < 2;
+    },
+    retryDelay: 1000, // Esperar 1 segundo antes de reintentar
   });
 }
 

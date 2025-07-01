@@ -23,7 +23,7 @@ export interface BoardPermission {
   grantedAt: string;
 }
 
-export type UserRole = 'owner' | 'editor' | 'reader' | 'viewer' | 'OWNER' | 'EDITOR' | 'VIEWER';
+export type UserRole = 'owner' | 'editor' | 'reader' | 'EDITOR' | 'VIEWER';
 
 // Tipo extendido que incluye los tipos que pueden venir del backend
 export type BackendPermissionLevel = 'OWNER' | 'EDITOR' | 'VIEWER' | 'READ' | 'WRITE' | 'READER' | 'owner' | 'editor' | 'viewer' | 'reader';
@@ -56,11 +56,6 @@ export function frontendToBackendPermission(frontendLevel: 'EDITOR' | 'VIEWER'):
 
 // Función para obtener el texto de display del permiso
 export function getPermissionDisplayText(level: string): string {
-  // Mostrar OWNER directamente sin normalizar
-  if (level && level.toUpperCase() === 'OWNER') {
-    return '👑 Propietario';
-  }
-  
   const normalized = normalizePermissionLevel(level);
   switch (normalized) {
     case 'EDITOR':

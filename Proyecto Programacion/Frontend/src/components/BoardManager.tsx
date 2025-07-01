@@ -1,11 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { TabsContainer } from "./TabsContainer";
 import { TabContent } from "./TabContent";
-import { ShareBoardModal } from "./ShareBoardModal"; // Importar el modal
-import { TestModal } from "./TestModal"; // Importar modal de prueba
-import { ShareBoardModalFixed } from "./ShareBoardModalFixed"; // Importar modal arreglado
 import { ShareBoardModalComplete } from "./ShareBoardModalComplete"; // Modal completo
+import { ShareModalErrorBoundary } from "./ShareModalErrorBoundary"; // Error boundary
 import { useTabs, useCreateTab, useDeleteTab, useRenameTab } from "../hooks/tabs";
 import { useUIStore } from "../stores/uiStore"; // Importar el store UI
 import toast from 'react-hot-toast';
@@ -21,11 +18,6 @@ export function BoardManager() {
   const shareModalBoardId = useUIStore(state => state.shareModalBoardId);
   const setShareModalOpen = useUIStore(state => state.setShareModalOpen);
   const setShareModalBoardId = useUIStore(state => state.setShareModalBoardId);
-
-  // 🔥 Log para monitorear cambios de estado del modal
-  useEffect(() => {
-    console.log('🔄 BoardManager: Estado del modal cambió - isShareModalOpen:', isShareModalOpen, 'shareModalBoardId:', shareModalBoardId);
-  }, [isShareModalOpen, shareModalBoardId]);
 
   const { boardId: boardTitleParam } = useParams<{ boardId: string }>();
   const navigate = useNavigate();
@@ -86,13 +78,8 @@ export function BoardManager() {
 
   // Compartir tablero
   const handleShareTab = (id: string) => {
-    console.log('🔄 BoardManager: handleShareTab llamado con id:', id);
-    console.log('🔄 BoardManager: Estado antes del cambio - isShareModalOpen:', isShareModalOpen, 'shareModalBoardId:', shareModalBoardId);
-    
     setShareModalBoardId(id);
     setShareModalOpen(true);
-    
-    console.log('🔄 BoardManager: handleShareTab ejecutado - debería abrir modal');
   };
 
   // Cerrar modal de compartir
@@ -105,33 +92,8 @@ export function BoardManager() {
 
   if (isLoading) return <div>Cargando tableros...</div>;
 
-  // Log para depurar renderizado del modal
-  console.log('🔄 BoardManager: Renderizando componente');
-  console.log('🔄 BoardManager: isShareModalOpen:', isShareModalOpen);
-  console.log('🔄 BoardManager: shareModalBoardId:', shareModalBoardId);
-  console.log('🔄 BoardManager: ¿Debería renderizar modal?', isShareModalOpen && shareModalBoardId);
-
   return (
     <>
-      {/* 🔥 BOTÓN DE PRUEBA TEMPORAL */}
-      <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 rounded">
-        <p className="text-sm mb-2">🔧 Panel de pruebas:</p>
-        <button
-          onClick={() => {
-            console.log('🔥 Botón de prueba clickeado');
-            setShareModalBoardId('test-board-123');
-            setShareModalOpen(true);
-          }}
-          className="px-4 py-2 bg-red-600 text-white rounded mr-2"
-        >
-          🔥 Abrir Modal (Prueba Directa)
-        </button>
-        <span className="text-xs">
-          Modal abierto: {isShareModalOpen ? 'SÍ' : 'NO'} | 
-          BoardId: {shareModalBoardId || 'ninguno'}
-        </span>
-      </div>
-
       <TabsContainer
         tabs={tabs}
         activeTab={activeTab?.id ?? ""}
@@ -158,11 +120,13 @@ export function BoardManager() {
 
       {/* Modal de compartir */}
       {isShareModalOpen && shareModalBoardId && (
-        <ShareBoardModalComplete
-          boardId={shareModalBoardId}
-          isOpen={isShareModalOpen}
-          onClose={handleCloseShareModal}
-        />
+        <ShareModalErrorBoundary>
+          <ShareBoardModalComplete
+            boardId={shareModalBoardId}
+            isOpen={isShareModalOpen}
+            onClose={handleCloseShareModal}
+          />
+        </ShareModalErrorBoundary>
       )}
     </>
   );

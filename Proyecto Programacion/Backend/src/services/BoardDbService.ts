@@ -101,7 +101,7 @@ export class BoardService implements IBoardService{
         // getBoardById ya lanza error 404 si no existe
 
         if(!board){
-            const error = new Error("Tablero no encontrado");
+            const error = new Error("Tablero no encontrado"); 
             (error as any).status = 404;
             throw error;
         }

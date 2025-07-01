@@ -74,9 +74,13 @@ export function UserProfile() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Mi Perfil</h2>
+    <div className="space-y-6">
+      <div className="border-b border-gray-200 pb-4">
+        <h2 className="text-xl font-semibold text-gray-900">Información Personal</h2>
+        <p className="mt-1 text-sm text-gray-600">
+          Actualiza tu información personal y datos de contacto
+        </p>
+      </div>
         
         {isEditing ? (
           <div className="space-y-4">
@@ -165,7 +169,6 @@ export function UserProfile() {
             </button>
           </div>
         )}
-      </div>
     </div>
   );
 }
