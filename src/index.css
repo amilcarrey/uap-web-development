@@ -1,4 +1,20 @@
 @import "tailwindcss";
 
 @tailwind base;
+@tailwind components;
 @tailwind utilities;
+
+:root {
+  --bg-main: #fffaf0; /* fondo crema */
+  --bg-panel: #f4f4f4; /* panel claro */
+  --accent: #facc15; /* amarillo pastel */
+  --text-main: #1f1f1f; /* gris muy oscuro */
+  --muted: #9ca3af; /* gris tenue */
+  --highlight: #fde68a; /* amarillo claro para hover */
+  --toast-success: #facc15; /* amarillo suave para success */
+  --toast-error: #ef4444;  /* rojo para errores (mantener esto) */
+}
+
+body {
+  @apply bg-[var(--bg-main)] text-[var(--text-main)] font-sans;
+}

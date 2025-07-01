@@ -7,7 +7,10 @@ export default defineConfig({
   plugins: [tailwindcss(),react()],
   server: {
     proxy: {
-      '/tasks': 'http://localhost:3001'
-    }
-  }
+      '/tasks': 'http://localhost:3001',
+    },
+    watch: {
+      ignored: ['**/db.json'], // 👈 esto es clave
+    },
+  },
 })

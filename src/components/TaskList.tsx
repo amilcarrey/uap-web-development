@@ -5,13 +5,20 @@ interface Props {
   tasks: Task[];
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
+  onEdit: (id: number, text: string) => void;
 }
 
-export default function TaskList({ tasks, onToggle, onDelete }: Props) {
+export default function TaskList({ tasks, onToggle, onDelete, onEdit }: Props) {
   return (
     <ul className="space-y-2">
       {tasks.map((task) => (
-        <TaskItem key={task.id} task={task} onToggle={onToggle} onDelete={onDelete} />
+        <TaskItem
+          key={task.id}
+          task={task}
+          onToggle={onToggle}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
       ))}
     </ul>
   );

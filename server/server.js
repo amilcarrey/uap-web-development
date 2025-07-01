@@ -1,64 +1,43 @@
-import express from 'express';
-import cors from 'cors';
-import fs from 'fs';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const jsonServer = require('json-server');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const server = jsonServer.create();
+const router = jsonServer.router("db.json");
+const middlewares = jsonServer.defaults();
 
-const app = express();
-const PORT = 3001;
+server.use(middlewares);
+server.use(jsonServer.bodyParser);
 
-const DATA_FILE = resolve(__dirname, "../../tareas.json");
+// PATCH para cambiar solo el estado completado
+server.patch("/tasks/:id", (req, res) => {
+  const db = router.db;
+  const id = Number(req.params.id);
+  const task = db.get("tasks").find({ id }).value();
+  if (!task) return res.status(404).send("Not found");
 
-app.use(cors());
-app.use(express.json());
-
-const loadTasks = () => {
-  if (!existsSync(DATA_FILE)) return [];
-  return JSON.parse(readFileSync(DATA_FILE, "utf8"));
-};
-
-const saveTasks = (tasks) => {
-  writeFileSync(DATA_FILE, JSON.stringify(tasks, null, 2));
-};
-
-app.get("/tasks", (req, res) => {
-  const tasks = loadTasks();
-  res.json(tasks);
+  const updated = { ...task, ...req.body };
+  db.get("tasks").find({ id }).assign(updated).write();
+  res.status(200).json(updated);
 });
 
-app.post("/tasks", (req, res) => {
-  const tasks = loadTasks();
-  const newTask = { id: Date.now(), text: req.body.text, completed: false };
-  const updated = [...tasks, newTask];
-  saveTasks(updated);
-  res.status(201).json(newTask);
+// DELETE todas las completadas de un board
+server.delete("/tasks", (req, res) => {
+  const { board } = req.query;
+  if (!board) return res.status(400).send("Falta parámetro board");
+
+  const db = router.db;
+  const tasks = db.get("tasks").filter({ board }).value();
+  const completed = tasks.filter((t) => t.completed);
+
+  completed.forEach((t) => {
+    db.get("tasks").remove({ id: t.id }).write();
+  });
+
+  res.status(200).send("Completadas eliminadas");
 });
 
-app.patch("/tasks/:id", (req, res) => {
-  let tasks = loadTasks();
-  const id = parseInt(req.params.id);
-  tasks = tasks.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t));
-  saveTasks(tasks);
-  res.json(tasks);
+server.use(router);
+server.listen(3001, () => {
+  console.log("📡 JSON Server running at http://localhost:3001");
 });
-
-app.delete("/tasks/:id", (req, res) => {
-  let tasks = loadTasks();
-  const id = parseInt(req.params.id);
-  tasks = tasks.filter((t) => t.id !== id);
-  saveTasks(tasks);
-  res.json(tasks);
-});
-
-app.delete("/tasks", (req, res) => {
-  let tasks = loadTasks();
-  tasks = tasks.filter((t) => !t.completed);
-  saveTasks(tasks);
-  res.json(tasks);
-});
-
-app.listen(PORT, () => console.log(`API listening on http://localhost:${PORT}`));

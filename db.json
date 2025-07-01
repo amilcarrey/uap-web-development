@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "text": "Tarea Trabajo",
+      "board": "trabajo",
+      "completed": false,
+      "id": 2
+    },
+    {
+      "text": "Que haces aqui sapo",
+      "board": "personal",
+      "completed": false,
+      "id": 3
+    },
+    {
+      "text": "Tarea general",
+      "board": "general",
+      "completed": true,
+      "id": 4
+    },
+    {
+      "text": "Barrer la casa y trapear",
+      "board": "general",
+      "completed": false,
+      "id": 5
+    }
+  ]
+}
