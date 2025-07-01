@@ -1,31 +1,36 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { MiddlewareFn } from '../types/middleware';
 
 const prisma = new PrismaClient();
 
-export const canEditBoard: MiddlewareFn = async (req, res, next) => {
-  const { id: userId } = req.user || {};
-  const { boardId } = req.params;
+export const canEditBoard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const userId = req.user?.id;
+  const boardId = req.params.boardId;
 
-  // Validación de autenticación
   if (!userId) {
     res.status(401).json({ error: 'No autenticado' });
     return;
   }
 
   try {
-    // Verificar permisos de edición
+    // ✅ Primero verificar si es la dueña del tablero
+    const board = await prisma.board.findUnique({
+      where: { id: boardId },
+      select: { ownerId: true }
+    });
+
+    if (board?.ownerId === userId) {
+      return next(); // Tiene acceso por ser la dueña
+    }
+
+    // 🔁 Si no es la dueña, verificar permisos compartidos
     const sharedBoard = await prisma.sharedBoard.findFirst({
       where: {
         userId,
         boardId,
         role: {
-          in: ['OWNER', 'EDITOR'] // Solo OWNER y EDITOR pueden editar
+          in: ['OWNER', 'EDITOR'] // Permisos que permiten edición
         }
-      },
-      select: {
-        role: true
       }
     });
 
@@ -34,7 +39,6 @@ export const canEditBoard: MiddlewareFn = async (req, res, next) => {
       return;
     }
 
-    // Si todo está bien, continuar
     next();
   } catch (error) {
     console.error('Error en canEditBoard:', error);

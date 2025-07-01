@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { MiddlewareFn } from '../types/middleware';
 
 const prisma = new PrismaClient();
 
-export const isOwner: MiddlewareFn = async (req, res, next) => {
+export const isOwner = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const userId = req.user?.id;
   const boardId = req.params.boardId?.trim();
 
@@ -19,9 +18,7 @@ export const isOwner: MiddlewareFn = async (req, res, next) => {
   }
 
   try {
-    const board = await prisma.board.findUnique({
-      where: { id: boardId }
-    });
+    const board = await prisma.board.findUnique({ where: { id: boardId } });
 
     if (board?.ownerId === userId) {
       next();

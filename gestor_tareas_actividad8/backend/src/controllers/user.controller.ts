@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-//const userId = req.user?.id;
 
+// Obtener información del usuario autenticado
 export async function me(req: Request, res: Response): Promise<void> {
   const userId = req.user?.id;
 
@@ -28,9 +28,9 @@ export async function me(req: Request, res: Response): Promise<void> {
   }
 
   res.json(user);
-  //return;
 }
 
+// Actualizar preferencias del usuario
 export async function updateSettings(req: Request, res: Response): Promise<void> {
   const userId = req.user?.id;
 
@@ -51,15 +51,20 @@ export async function updateSettings(req: Request, res: Response): Promise<void>
     return;
   }
 
-  const settings = await prisma.userSettings.upsert({
-    where: { userId },
-    update: { refetchInterval, uppercaseDescriptions },
-    create: {
-      userId,
-      refetchInterval: refetchInterval ?? 10,
-      uppercaseDescriptions: uppercaseDescriptions ?? false,
-    },
-  });
+  try {
+    const settings = await prisma.userSettings.upsert({
+      where: { userId },
+      update: { refetchInterval, uppercaseDescriptions },
+      create: {
+        userId,
+        refetchInterval: refetchInterval ?? 10,
+        uppercaseDescriptions: uppercaseDescriptions ?? false,
+      },
+    });
 
-  res.json(settings);
+    res.json(settings);
+  } catch (error) {
+    console.error('Error al actualizar configuración:', error);
+    res.status(500).json({ error: 'Error al actualizar configuración del usuario' });
+  }
 }

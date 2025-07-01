@@ -7,6 +7,8 @@ import userRoutes from './routes/user.routes';
 import boardRoutes from './routes/board.routes';
 //import '../types/express';
 import shareRoutes from './routes/share.routes';
+import taskRoutes from './routes/task.routes';
+
 
 dotenv.config();
 
@@ -26,6 +28,7 @@ app.use(cors({
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/boards', boardRoutes);
+app.use('/', taskRoutes);
 
 export default app;
 
