@@ -5,43 +5,42 @@ import { MiddlewareFn } from '../types/middleware';
 const prisma = new PrismaClient();
 
 export const isOwner: MiddlewareFn = async (req, res, next) => {
-  const { id: userId } = req.user || {};
-  const { boardId } = req.params;
+  const userId = req.user?.id;
+  const boardId = req.params.boardId?.trim();
 
-  // Validación de autenticación
   if (!userId) {
     res.status(401).json({ error: 'No autenticado' });
     return;
   }
 
+  if (!boardId) {
+    res.status(400).json({ error: 'ID del tablero no especificado' });
+    return;
+  }
+
   try {
-    // Verificar si es propietario
-    const isBoardOwner = await prisma.board.findFirst({
-      where: {
-        id: boardId,
-        ownerId: userId
-      },
-      select: {
-        id: true
-      }
+    const board = await prisma.board.findUnique({
+      where: { id: boardId }
     });
 
-    // Alternativa: Verificación a través de SharedBoard
-    const sharedAccess = await prisma.sharedBoard.findFirst({
+    if (board?.ownerId === userId) {
+      next();
+      return;
+    }
+
+    const shared = await prisma.sharedBoard.findFirst({
       where: {
-        userId,
         boardId,
+        userId,
         role: 'OWNER'
       }
     });
 
-    if (!isBoardOwner && !sharedAccess) {
+    if (shared) {
+      next();
+    } else {
       res.status(403).json({ error: 'Solo el propietario puede realizar esta acción' });
-      return;
     }
-
-    // Si todo está bien, continuar
-    next();
   } catch (error) {
     console.error('Error en isOwner:', error);
     res.status(500).json({ error: 'Error al verificar propiedad del tablero' });

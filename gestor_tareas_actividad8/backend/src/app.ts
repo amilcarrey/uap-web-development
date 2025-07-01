@@ -1,6 +1,6 @@
-import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import express from 'express';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
@@ -15,7 +15,6 @@ const app = express();
 //middlewares
 
 app.use('/share', shareRoutes);
-app.use(express.json());
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
