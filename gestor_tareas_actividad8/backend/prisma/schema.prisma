@@ -14,14 +14,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String?
-  boards    Board[]  @relation("UserBoards")
-  shared    SharedBoard[] @relation("SharedAccess")
-  settings  UserSettings?
+  id       String        @id @default(uuid())
+  email    String        @unique
+  name     String
+  password String
+  boards   Board[]       @relation("UserBoards")
   createdAt DateTime @default(now())
+  shared   SharedBoard[]
+  settings UserSettings?
 }
 
 model Board {
@@ -35,12 +35,15 @@ model Board {
 }
 
 model SharedBoard {
-  id        String   @id @default(uuid())
-  user      User     @relation("SharedAccess", fields: [userId], references: [id])
-  userId    String
-  board     Board    @relation(fields: [boardId], references: [id])
-  boardId   String
-  role      Role
+  id       String   @id @default(cuid())
+  userId   String
+  boardId  String
+  role     Role
+
+  user     User     @relation(fields: [userId], references: [id])
+  board    Board    @relation(fields: [boardId], references: [id])
+
+  @@unique([userId, boardId], name: "userId_boardId") 
 }
 
 model Task {
@@ -53,10 +56,10 @@ model Task {
 }
 
 model UserSettings {
-  id             String   @id @default(uuid())
-  user           User     @relation(fields: [userId], references: [id])
-  userId         String   @unique
-  refetchInterval Int     @default(10)
+  id                    String  @id @default(uuid())
+  user                  User    @relation(fields: [userId], references: [id])
+  userId                String  @unique
+  refetchInterval       Int     @default(10)
   uppercaseDescriptions Boolean @default(false)
 }
 
