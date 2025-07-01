@@ -1,9 +1,5 @@
 # Task Manager - Frontend
 
-## 📋 Descripción
-
-Aplicación web moderna de gestión de tareas construida con React, TypeScript y Vite. Permite crear, gestionar y compartir tableros de tareas con otros usuarios.
-
 ## ✨ Características Principales
 
 - **🔐 Autenticación JWT** - Login y registro seguro
@@ -26,10 +22,6 @@ npm install
 npm run dev
 ```
 
-### Compilar para producción:
-```bash
-npm run build
-```
 
 ## 🔧 Tecnologías Utilizadas
 
@@ -74,12 +66,3 @@ Para usar la aplicación necesitas crear una cuenta o usar estas credenciales de
 5. **Filtrar y buscar** tareas según sea necesario
 6. **Configurar preferencias** desde el dropdown del usuario
 
-## 🤝 Contribuir
-
-Este es un proyecto educativo. Para sugerir mejoras:
-
-1. Fork el proyecto
-2. Crea una rama para tu feature
-3. Commit tus cambios
-4. Push a la rama
-5. Abre un Pull Request
