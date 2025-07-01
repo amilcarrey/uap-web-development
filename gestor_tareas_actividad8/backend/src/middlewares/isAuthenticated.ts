@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { verificarToken } from '../utils/jwt';
 import { RequestHandler } from 'express';
 
-export const isAuthenticated: RequestHandler = (req, res, next) => {
+export function isAuthenticated(req: Request, res: Response, next: NextFunction): void {
   const token = req.cookies?.token;
 
   if (!token) {

@@ -1,8 +1,12 @@
-declare namespace Express {
-  export interface Request {
-    user?: {
-      id: string;
-      email: string;
-    };
+export {}; // Necesario para que TypeScript lo trate como un módulo
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+      };
+    }
   }
 }
