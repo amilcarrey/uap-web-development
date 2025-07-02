@@ -16,5 +16,10 @@
 }
 
 body {
-  @apply bg-[var(--bg-main)] text-[var(--text-main)] font-sans;
+  @apply bg-[#fffaf0] text-gray-800;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+input, button {
+  @apply focus:outline-none;
 }

@@ -1,69 +1,82 @@
 import type { Task } from "../types/Task";
 
-const BASE_URL = "http://localhost:3001/tasks";
+const BASE_URL = "/api/tasks";
 
-export const fetchTasks = async (board: string, page: number, limit = 5): Promise<Task[]> => {
-  const res = await fetch(`${BASE_URL}?board=${board}&_page=${page}&_limit=${limit}`);
-  if (!res.ok) throw new Error("Error al cargar tareas");
+export const fetchTasks = async (
+  boardId: number,
+  page = 1,
+  limit = 5,
+  filter: string = "all",
+  search: string = ""
+): Promise<Task[]> => {
+  const url = new URL(`${BASE_URL}/${boardId}`, window.location.origin);
+  url.searchParams.set("page", page.toString());
+  url.searchParams.set("limit", limit.toString());
+  if (filter) url.searchParams.set("filter", filter);
+  if (search) url.searchParams.set("search", search);
+
+  const res = await fetch(url.toString(), {
+    credentials: "include",
+  });
+
+  if (!res.ok) throw new Error("Error al obtener tareas");
   return res.json();
 };
 
-export const addTask = async ({ text, board }: { text: string; board: string }): Promise<Task> => {
-  const res = await fetch(BASE_URL, {
+export const addTask = async ({
+  boardId,
+  text,
+}: {
+  boardId: number;
+  text: string;
+}): Promise<Task> => {
+  const res = await fetch(`${BASE_URL}/${boardId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, board, completed: false }),
+    credentials: "include",
+    body: JSON.stringify({ text }),
   });
+
   if (!res.ok) throw new Error("Error al agregar tarea");
   return res.json();
 };
 
 export const toggleTask = async (id: number): Promise<void> => {
-  const res = await fetch(`${BASE_URL}/${id}`);
-  if (!res.ok) throw new Error("No se pudo obtener la tarea");
-  const task = await res.json();
+  const res = await fetch(`${BASE_URL}/${id}`, {
+    method: "PATCH",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Error al actualizar tarea");
+};
 
-  const updated = {
-    ...task,
-    completed: !task.completed,
-  };
-
-  const patch = await fetch(`${BASE_URL}/${id}`, {
+export const updateTaskText = async (
+  id: number,
+  text: string
+): Promise<void> => {
+  const res = await fetch(`${BASE_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updated),
+    credentials: "include",
+    body: JSON.stringify({ text }),
   });
 
-  if (!patch.ok) throw new Error("No se pudo actualizar la tarea");
+  if (!res.ok) throw new Error("Error al editar tarea");
 };
 
 export const deleteTask = async (id: number): Promise<void> => {
-  const res = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
+  const res = await fetch(`${BASE_URL}/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
   if (!res.ok) throw new Error("Error al eliminar tarea");
 };
 
-export const clearCompleted = async (board: string): Promise<void> => {
-  const list = await fetch(`${BASE_URL}?board=${board}`).then((res) => res.json());
-  for (const task of list.filter((t: Task) => t.completed)) {
-    await fetch(`${BASE_URL}/${task.id}`, { method: "DELETE" });
-  }
-};
-
-export const updateTaskText = async (id: number, newText: string): Promise<void> => {
-  const res = await fetch(`${BASE_URL}/${id}`);
-  if (!res.ok) throw new Error("No se pudo obtener la tarea");
-  const task = await res.json();
-
-  const updated = {
-    ...task,
-    text: newText,
-  };
-
-  const patch = await fetch(`${BASE_URL}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updated),
+export const clearCompleted = async (boardId: number): Promise<void> => {
+  const res = await fetch(`${BASE_URL}/clear/${boardId}`, {
+    method: "DELETE",
+    credentials: "include",
   });
 
-  if (!patch.ok) throw new Error("No se pudo editar la tarea");
+  if (!res.ok) throw new Error("Error al limpiar completadas");
 };
