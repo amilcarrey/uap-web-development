@@ -19,18 +19,7 @@ export class BoardService implements IBoardService{
             }
         });
 
-        return boards.map(board => ({
-            id: board.id,
-            name: board.name,
-            ownerId: board.ownerId,
-            tasks: board.tasks.map(task => ({
-                id: task.id,
-                content: task.content,
-                active: task.active,
-                boardId: task.boardId
-            })),
-            permissionsId: board.permissions.map((perm: any) => perm.id)
-        }));
+        return boards.map((board: any) => this.mapToBoardDTO(board));
     }
 
     //Busca los tableros del usuario
@@ -52,20 +41,18 @@ export class BoardService implements IBoardService{
         const allBoards = [...ownedBoards, ...permissionBoards]
             .filter((board, index, self) =>
                 index === self.findIndex(b => b.id === board.id)
-            );
+            )
+            // Filtrar solo tableros donde el usuario tiene permisos actuales o es el propietario
+            .filter((board: any) => {
+                // Si es propietario, siempre incluirlo
+                if (board.ownerId === userId) {
+                    return true;
+                }
+                // Si no es propietario, verificar que tenga permisos activos
+                return board.permissions.some((perm: any) => perm.userId === userId);
+            });
 
-        return allBoards.map(board => ({
-            id: board.id,
-            name: board.name,
-            ownerId: board.ownerId,
-            tasks: board.tasks.map(task => ({
-                id: task.id,
-                content: task.content,
-                active: task.active,
-                boardId: task.boardId
-            })),
-            permissionsId: board.permissions.map(perm => perm.id)
-        }));
+        return allBoards.map((board: any) => this.mapToBoardDTO(board, userId));
     }
 
     //Buscar un tablero por su ID
@@ -81,18 +68,7 @@ export class BoardService implements IBoardService{
             throw error;
         }
 
-        return {
-            id: board.id,
-            name: board.name,
-            ownerId: board.ownerId,
-            tasks: board.tasks.map(task => ({
-                id: task.id,
-                content: task.content,
-                active: task.active,
-                boardId: task.boardId
-            })),
-            permissionsId: board.permissions.map(p => p.id)
-        };
+        return this.mapToBoardDTO(board);
     }
     
     //Actualizar tablero
@@ -187,10 +163,23 @@ export class BoardService implements IBoardService{
             throw error;
         }
 
-        return this.mapToBoardDTO(boardWithRelations);
+        return this.mapToBoardDTO(boardWithRelations, userId);
     }
 
-    private mapToBoardDTO(board: any): BoardDTO {
+    private mapToBoardDTO(board: any, userId?: number): BoardDTO {
+        // Determinar el rol del usuario actual si se proporciona userId
+        let userRole: "OWNER" | "EDITOR" | "VIEWER" = "VIEWER";
+        
+        if (userId !== undefined) {
+            if (board.ownerId === userId) {
+                userRole = "OWNER";
+            } else {
+                // Buscar el permiso del usuario en este tablero
+                const userPermission = board.permissions ? board.permissions.find((perm: any) => perm.userId === userId) : null;
+                userRole = userPermission ? userPermission.level : "VIEWER";
+            }
+        }
+
         return{
             id: board.id,
             name: board.name,
@@ -202,6 +191,7 @@ export class BoardService implements IBoardService{
                 boardId: task.boardId
             })) : [],
             permissionsId: board.permissions ? board.permissions.map((perm: any) => perm.id) : [],
+            userRole: userRole
         };
     }
 }

@@ -1,9 +1,11 @@
 import { useConfigStore } from "../stores/configStore";
+import { useAuthStore } from "../stores/authStore";
 
 /* 
     Componente que muestra las configuraciones de la aplicación.
     Permite ajustar el intervalo de actualización y si la descripción debe mostrarse en mayúsculas.
     Utiliza Zustand para manejar el estado global de configuración.
+    ✅ CORREGIDO: Ahora las configuraciones son específicas POR USUARIO
     - refetchInterval: Intervalo de actualización en milisegundos.
     - setRefetchInterval: Función para actualizar el intervalo de actualización.
     - upperCaseDescription: Si la descripción debe mostrarse en mayúsculas.
@@ -12,14 +14,21 @@ import { useConfigStore } from "../stores/configStore";
 
 export function Configuracion() {
     const { refetchInterval, setRefetchInterval, upperCaseDescription, setUpperCaseDescription } = useConfigStore();
+    const user = useAuthStore(state => state.user);
 
     return(
         <div className="space-y-6">
             <div className="border-b border-gray-200 pb-4">
                 <h2 className="text-xl font-semibold text-gray-900">Configuraciones de Aplicación</h2>
                 <p className="mt-1 text-sm text-gray-600">
-                    Configuraciones que afectan el comportamiento global de la aplicación
+                    Configuraciones específicas de tu usuario que afectan el comportamiento de la aplicación
                 </p>
+                {user && (
+                    <div className="mt-2 inline-flex items-center space-x-2 text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                        <span>👤</span>
+                        <span>Usuario: <strong>{user.alias}</strong> (ID: {user.id})</span>
+                    </div>
+                )}
             </div>
             
             <div className="space-y-6">
@@ -69,11 +78,13 @@ export function Configuracion() {
                 {/* Información adicional */}
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     <div className="flex items-start space-x-3">
-                        <span className="text-green-500 text-lg">✅</span>
+    
                         <div>
-                            <h4 className="text-sm font-medium text-green-900">Configuraciones Activas</h4>
+                            <h4 className="text-sm font-medium text-green-900">Configuraciones Específicas por Usuario</h4>
                             <p className="text-xs text-green-700 mt-1">
-                                Estas configuraciones se aplican inmediatamente y afectan toda la aplicación. Las configuraciones específicas de usuario se encuentran en la pestaña "Preferencias".
+                                Estas configuraciones son específicas de tu usuario y se guardan por separado. 
+                                Cada usuario tiene sus propias configuraciones independientes. Las configuraciones personales (como elementos por página) 
+                                se encuentran en la pestaña "Preferencias".
                             </p>
                         </div>
                     </div>

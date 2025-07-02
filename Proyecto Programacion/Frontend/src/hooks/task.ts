@@ -7,7 +7,7 @@
  - useQueryClient: para interactuar con la "caché" de React Query.
 */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Task } from '../components/TaskItem';
+import type { Task } from '../types/task';
 import { useConfigStore } from '../stores/configStore';
 import { useUserSettings } from './userSettings';
 import type { TaskFilter } from '../types';
@@ -19,7 +19,7 @@ function getAuthHeaders() {
   };
   
   // Intentar obtener token de localStorage
-  const storedToken = localStorage.getItem('authToken');
+  const storedToken = localStorage.getItem('token');
   if (storedToken) {
     headers['Authorization'] = `Bearer ${storedToken}`;
   }
@@ -36,8 +36,20 @@ const fetchTasks = async (tabId: string, page: number, limit: number) => {
   //console.log(`[Refetch] Solicitando tareas para ${tabId} a las ${new Date().toLocaleTimeString()}`);
   
   // Construir URL con parámetros de paginación
-  const url = `/api/boards/${tabId}/tasks?page=${page}&limit=${limit}`;
+  const url = `http://localhost:3000/api/boards/${tabId}/tasks?page=${page}&limit=${limit}`;
   console.log(`🔍 Petición de tareas: ${url}`);
+  
+  // 🔧 DEBUG: Log del token para verificar autenticación
+  const token = localStorage.getItem('token');
+  console.log('🔑 Token presente:', !!token);
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log('👤 Usuario del token:', payload);
+    } catch (e) {
+      console.log('❌ Error decodificando token');
+    }
+  }
   
   const res = await fetch(url, {
     method: 'GET',
@@ -45,13 +57,31 @@ const fetchTasks = async (tabId: string, page: number, limit: number) => {
     credentials: 'include',
   });
   
+  console.log(`📡 Status de respuesta: ${res.status}`);
+  console.log(`📡 Headers de respuesta:`, Object.fromEntries(res.headers.entries()));
+  
   if (!res.ok) {
     console.log('Error al obtener tareas:', res.status);
     throw new Error('Error al obtener tareas');
   }
   
   const result = await res.json();
-  console.log(`📥 Respuesta del backend para ${tabId}:`, result);
+  console.log(`📥 Respuesta completa del backend para tablero ${tabId}:`, result);
+  console.log(`📊 Número de tareas recibidas: ${result.items?.length || 0}`);
+  
+  // 🔍 DEBUG: Detectar si es un usuario VIEWER con lista vacía
+  if ((result.items?.length === 0 || result.total === 0) && token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.boardPermissions || payload.invitations) {
+        console.log('⚠️ Usuario con permisos especiales recibió lista vacía');
+        console.log('🔐 Permisos del usuario:', payload.boardPermissions);
+        console.log('📧 Invitaciones del usuario:', payload.invitations);
+      }
+    } catch (e) {
+      console.log('❌ Error analizando permisos en token');
+    }
+  }
   
   return result.items || result; // devuelve el array de tareas (adaptable a diferentes formatos de respuesta)
 };
@@ -103,7 +133,7 @@ export function useAddTask() {
       };
       console.log('Body a enviar:', requestBody);
       
-      const res = await fetch(`/api/boards/${tabId}/tasks`, {
+      const res = await fetch(`http://localhost:3000/api/boards/${tabId}/tasks`, {
         method: 'POST',
         headers: getAuthHeaders(),
         credentials: 'include',
@@ -127,7 +157,9 @@ export function useAddTask() {
       return result;
     },
     onSuccess: () => {
+      // Invalidar tanto las queries de tasks como las de búsqueda
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
     },
   });
 }
@@ -137,7 +169,7 @@ export function useDeleteTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ taskId, tabId }: { taskId: string; tabId: string }) => {
-      const res = await fetch(`/api/boards/${tabId}/tasks/${taskId}`, {
+      const res = await fetch(`http://localhost:3000/api/boards/${tabId}/tasks/${taskId}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
         credentials: 'include',
@@ -147,7 +179,9 @@ export function useDeleteTask() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidar tanto las queries de tasks como las de búsqueda
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
     },
   });
 }
@@ -157,7 +191,7 @@ export function useToggleTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ taskId, tabId, completed }: { taskId: string; tabId: string; completed: boolean }) => {
-      const res = await fetch(`/api/boards/${tabId}/tasks/${taskId}`, {
+      const res = await fetch(`http://localhost:3000/api/boards/${tabId}/tasks/${taskId}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         credentials: 'include',
@@ -169,7 +203,9 @@ export function useToggleTask() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidar tanto las queries de tasks como las de búsqueda
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
     },
   });
 }
@@ -179,7 +215,7 @@ export function useEditTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ taskId, tabId, text }: { taskId: string; tabId: string; text: string }) => {
-      const res = await fetch(`/api/boards/${tabId}/tasks/${taskId}`, {
+      const res = await fetch(`http://localhost:3000/api/boards/${tabId}/tasks/${taskId}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         credentials: 'include',
@@ -191,7 +227,9 @@ export function useEditTask() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidar tanto las queries de tasks como las de búsqueda
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
     },
   });
 }
@@ -202,7 +240,7 @@ export function useClearCompletedTasks() {
   return useMutation({
     mutationFn: async (tabId: string) => {
       console.log('Enviando petición clear-completed para tabId:', tabId);
-      const res = await fetch(`/api/boards/${tabId}/tasks`, {
+      const res = await fetch(`http://localhost:3000/api/boards/${tabId}/tasks`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
         credentials: 'include',
@@ -211,7 +249,9 @@ export function useClearCompletedTasks() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidar tanto las queries de tasks como las de búsqueda
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
     },
   });
 }
@@ -230,7 +270,7 @@ export function useSearchTasks(tabId: string, searchTerm: string, filter: TaskFi
         limit: '20', // Limitar resultados para mejor rendimiento
       });
 
-      const res = await fetch(`/api/boards/${tabId}/tasks?${params}`, { // Usar el endpoint correcto
+      const res = await fetch(`http://localhost:3000/api/boards/${tabId}/tasks?${params}`, { // Usar el endpoint correcto
         headers: getAuthHeaders(),
         credentials: 'include',
       });

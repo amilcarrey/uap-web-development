@@ -20,7 +20,7 @@ export class TaskDbService implements ITaskService {
             throw error;
         }
         const isOwner = board.ownerId === userId;
-        const hasPermission = board.permissions.some(p => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
+        const hasPermission = board.permissions.some((p: any) => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
         if (!isOwner && !hasPermission) {
             const error = new Error("No tienes permiso para crear tareas en este tablero");
             (error as any).status = 403;
@@ -51,7 +51,7 @@ export class TaskDbService implements ITaskService {
 
         // 2. Verifica que el usuario tiene permiso
         const isOwner = board.ownerId === userId;
-        const hasPermission = board.permissions.some(p => p.userId === userId);
+        const hasPermission = board.permissions.some((p: any) => p.userId === userId);
         if (!isOwner && !hasPermission) {
             const error = new Error("No tienes permiso para ver las tareas de este tablero");
             (error as any).status = 403;
@@ -99,7 +99,7 @@ export class TaskDbService implements ITaskService {
             throw error;
         }
         const isOwner = board.ownerId === userId;
-        const hasPermission = board.permissions.some(p => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
+        const hasPermission = board.permissions.some((p: any) => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
         if (!isOwner && !hasPermission) {
             const error = new Error("No tienes permiso para actualizar tareas en este tablero");
             (error as any).status = 403;
@@ -131,7 +131,7 @@ export class TaskDbService implements ITaskService {
             throw error;
         }
         const isOwner = board.ownerId === userId;
-        const hasPermission = board.permissions.some(p => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
+        const hasPermission = board.permissions.some((p: any) => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
         if (!isOwner && !hasPermission) {
             const error = new Error("No tienes permiso para eliminar tareas en este tablero");
             (error as any).status = 403;
@@ -153,7 +153,7 @@ export class TaskDbService implements ITaskService {
             throw error;
         }
         const isOwner = board.ownerId === userId;
-        const hasPermission = board.permissions.some(p => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
+        const hasPermission = board.permissions.some((p: any) => p.userId === userId && (p.level === "EDITOR" || p.level === "OWNER"));
         if (!isOwner && !hasPermission) {
             const error = new Error("No tienes permiso para eliminar tareas en este tablero");
             (error as any).status = 403;

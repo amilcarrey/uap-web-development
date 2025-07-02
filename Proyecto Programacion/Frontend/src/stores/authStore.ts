@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { getUserFromToken, getUserFromJWTString } from "../utils/auth";
+import { useConfigStore } from "./configStore";
 
 interface AuthUser {
   id: number;
@@ -27,7 +28,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ isLoading: true }); // Marcar como cargando durante el login
       
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -53,7 +54,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           const userId = tokenData?.id || 5; // Usar ID 5 como fallback basado en los logs
           
           // Almacenar el token en localStorage como backup
-          localStorage.setItem('authToken', token);
+          localStorage.setItem('token', token);
           
           set({ 
             user: { 
@@ -66,7 +67,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             isLoading: false
           });
           
+          // ✅ NUEVO: Sincronizar configuraciones específicas del usuario
+          useConfigStore.getState().setUserId(userId.toString());
+          
           console.log("Estado actualizado - usuario autenticado:", userInfo.alias, "ID:", userId);
+          console.log("🔧 Configuraciones del usuario cargadas para ID:", userId);
           
           // Pequeña espera para asegurar que las cookies se establezcan completamente
           await new Promise(resolve => setTimeout(resolve, 100));
@@ -90,7 +95,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   register: async (firstName: string, lastName: string, alias: string, password: string) => {
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("http://localhost:3000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -110,7 +115,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     try {
-      await fetch("/api/auth/logout", {
+      await fetch("http://localhost:3000/api/auth/logout", {
         method: "POST",
         credentials: "include",
       });
@@ -118,8 +123,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.error("Error al hacer logout:", error);
     } finally {
       // Limpiar localStorage también
-      localStorage.removeItem('authToken');
+      localStorage.removeItem('token');
+      
+      // ✅ NUEVO: Limpiar configuraciones específicas del usuario
+      useConfigStore.getState().setUserId(null);
+      
       set({ user: null, isAuthenticated: false, isLoading: false });
+      console.log("🔧 Usuario deslogueado, configuraciones reseteadas");
     }
   },
 
@@ -130,7 +140,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     
     // Si no hay en cookies, intentar desde localStorage
     if (!userData) {
-      const storedToken = localStorage.getItem('authToken');
+      const storedToken = localStorage.getItem('token');
       if (storedToken) {
         userData = getUserFromJWTString(storedToken);
         console.log("Datos de usuario obtenidos desde localStorage:", userData);
@@ -148,9 +158,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isAuthenticated: true,
         isLoading: false
       });
+      
+      // ✅ NUEVO: Cargar configuraciones específicas del usuario en checkAuth
+      useConfigStore.getState().setUserId(userData.id.toString());
+      
       console.log("checkAuth: Usuario autenticado", userData.alias);
+      console.log("🔧 Configuraciones del usuario cargadas para ID:", userData.id);
     } else {
       set({ user: null, isAuthenticated: false, isLoading: false });
+      
+      // ✅ NUEVO: Limpiar configuraciones si no hay usuario
+      useConfigStore.getState().setUserId(null);
+      
       console.log("checkAuth: Usuario no autenticado");
     }
   },

@@ -23,7 +23,7 @@ export function useUserProfile() {
     queryKey: ['user-profile'],
     queryFn: async () => {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/users/profile', {
+      const res = await fetch('http://localhost:3000/api/users/profile', {
         credentials: 'include',
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
@@ -41,7 +41,7 @@ export function useUpdateUserProfile() {
   return useMutation({
     mutationFn: async (profileData: { firstName: string; lastName: string }) => {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/users/profile', {
+      const res = await fetch('http://localhost:3000/api/users/profile', {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ export function useUserSettings() {
     queryKey: ['user-preferences'],
     queryFn: async () => {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/preferences', {
+      const res = await fetch('http://localhost:3000/api/preferences', {
         credentials: 'include',
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
@@ -83,7 +83,7 @@ export function useUpdateUserSettings() {
   return useMutation({
     mutationFn: async (settings: Partial<UserPreferences>) => {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/preferences', {
+      const res = await fetch('http://localhost:3000/api/preferences', {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ export function useSearchUsers(searchTerm: string) {
     queryFn: async () => {
       if (!searchTerm.trim()) return [];
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/users/search?q=${encodeURIComponent(searchTerm)}`, {
+      const res = await fetch(`http://localhost:3000/api/users/search?q=${encodeURIComponent(searchTerm)}`, {
         credentials: 'include',
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
@@ -135,7 +135,7 @@ export function useAllUsers() {
       try {
         //console.log('🔍 Obteniendo lista completa de usuarios desde /api/users...');
         
-        const res = await fetch('/api/users?limit=50&offset=0', {
+        const res = await fetch('http://localhost:3000/api/users?limit=50&offset=0', {
           credentials: 'include',
           headers: {
             ...(token && { Authorization: `Bearer ${token}` }),
@@ -187,7 +187,7 @@ async function getFallbackUsers(token: string | null) {
 
   for (const term of commonTerms) {
     try {
-      const res = await fetch(`/api/users/search?q=${term}`, {
+      const res = await fetch(`http://localhost:3000/api/users/search?q=${term}`, {
         credentials: 'include',
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
@@ -217,13 +217,21 @@ export function useBoardSharedUsers(boardId: string) {
     queryFn: async () => {
       if (!boardId) return [];
       
+      console.log('🔄 [useBoardSharedUsers] Fetching users for boardId:', boardId);
+      
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/boards/${boardId}/permissions`, {
+      const timestamp = Date.now(); // Cache busting
+      const res = await fetch(`http://localhost:3000/api/boards/${boardId}/permissions?_t=${timestamp}`, {
         credentials: 'include',
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         },
       });
+      
+      console.log('📡 [useBoardSharedUsers] Response status:', res.status);
       
       if (!res.ok) {
         if (res.status === 404) {
@@ -236,7 +244,7 @@ export function useBoardSharedUsers(boardId: string) {
       
       const data = await res.json();
       
-      console.log('📥 Datos RAW recibidos del backend (usuarios compartidos):', data);
+      console.log('📥 [useBoardSharedUsers] Datos RAW recibidos del backend:', data);
       
       // Logging detallado de la estructura
       if (Array.isArray(data) && data.length > 0) {
@@ -286,7 +294,11 @@ export function useBoardSharedUsers(boardId: string) {
       return data.permissions || data.users || [];
     },
     enabled: !!boardId,
-    staleTime: 2 * 60 * 1000, // 2 minutos de cache
+    staleTime: 0, // Siempre considerar los datos como obsoletos
+    gcTime: 0, // No guardar en cache (antes era cacheTime)
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 }
 
@@ -304,7 +316,7 @@ export function useUpdateBoardPermission() {
       
       console.log('🔄 Actualizando permiso:', { boardId, userId, newLevel });
       
-      const response = await fetch(`/api/boards/${boardId}/permissions/${userId}`, {
+      const response = await fetch(`http://localhost:3000/api/boards/${boardId}/permissions/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

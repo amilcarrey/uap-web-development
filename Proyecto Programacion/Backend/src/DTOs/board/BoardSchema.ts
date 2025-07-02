@@ -7,6 +7,7 @@ export const BoardSchema = z.object({
   ownerId: z.number(),
   tasks: z.array(TaskSchema),
   permissionsId: z.array(z.number()),
+  userRole: z.enum(["OWNER", "EDITOR", "VIEWER"]),
 });
 
 export type BoardDTO = z.infer<typeof BoardSchema>;

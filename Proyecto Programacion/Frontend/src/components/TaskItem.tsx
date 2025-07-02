@@ -4,19 +4,12 @@
 import { useState } from "react";
 import { useToggleTask, useDeleteTask, useEditTask } from '../hooks/task';
 import { useUIStore } from '../stores/uiStore';
-import {useConfigStore} from '../stores/configStore';
+import { useConfigStore } from '../stores/configStore';
+import { useIsViewer } from '../hooks/useUserPermissions';
+import type { Task } from '../types/task';
 import toast from "react-hot-toast";
 
-// Interfaz que describe la estructura de una tarea:
-// - id: identificador único
-// - text: contenido de la tarea
-// - completed: si está completada o no
-export interface Task {
-  id: string;
-  content: string;
-  active: boolean;
-  boardId?: number;
-}
+// Props para el componente TaskItem
 
 // Props que recibe este componente:
 // - task: la tarea a mostrar
@@ -42,6 +35,11 @@ interface Props {
 export function TaskItem({ task, tabId }: Props) {
   const upperCase = useConfigStore(state => state.upperCaseDescription);
 
+  // Detectar si el usuario es VIEWER
+  const isViewer = useIsViewer(tabId);
+
+  console.log('📋 [TaskItem] TabId:', tabId, 'TaskId:', task.id, 'isViewer:', isViewer);
+
   // Hooks de React Query para mutaciones
   const { mutate: toggleTask, isPending: isToggling } = useToggleTask();
   const { mutate: deleteTask, isPending: isDeleting } = useDeleteTask();
@@ -64,6 +62,11 @@ export function TaskItem({ task, tabId }: Props) {
   const handleToggle = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isViewer) {
+      toast.error("No tienes permisos para modificar tareas en este tablero");
+      return;
+    }
+
     try {
       toggleTask({ taskId: task.id, tabId, completed: !task.active }); // Cambiado de task.completed a task.active
       toast.success("Estado de la tarea actualizado");
@@ -81,6 +84,12 @@ export function TaskItem({ task, tabId }: Props) {
    */
   const handleDelete = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isViewer) {
+      toast.error("No tienes permisos para eliminar tareas en este tablero");
+      return;
+    }
+    
     try {
       deleteTask({ taskId: task.id, tabId });
       toast.success("Tarea eliminada");
@@ -99,6 +108,13 @@ export function TaskItem({ task, tabId }: Props) {
    */
   const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isViewer) {
+      toast.error("No tienes permisos para editar tareas en este tablero");
+      setEditingTaskId(null);
+      return;
+    }
+    
     if (!editText.trim()) {
       toast.error("El texto de la tarea no puede estar vacio");
       return;
@@ -129,6 +145,18 @@ export function TaskItem({ task, tabId }: Props) {
     setEditText(task.content); // Cambiado de task.text a task.content
   };
 
+  /**
+   * handleStartEdit
+   * Inicia el modo de edición solo si el usuario no es VIEWER
+   */
+  const handleStartEdit = () => {
+    if (isViewer) {
+      toast.error("No tienes permisos para editar tareas en este tablero");
+      return;
+    }
+    setEditingTaskId(task.id);
+  };
+
   return (
     <li
       className={`task-item 
@@ -156,36 +184,46 @@ export function TaskItem({ task, tabId }: Props) {
             <label className="form-label">
               <button
                 type="submit"
-                className="form-button"
-                disabled={isToggling}
-                title="Completar tarea"
+                className={`form-button ${isViewer ? 'opacity-30 cursor-not-allowed bg-gray-200' : ''}`}
+                disabled={isToggling || isViewer}
+                title={isViewer ? "Solo lectura - No puedes modificar tareas" : "Completar tarea"}
               />
-              <span>
+              <span className={`${isViewer ? 'text-gray-500 italic' : ''}`}>
                 {upperCase ? task.content.toUpperCase() : task.content} {/* Cambiado de task.text a task.content */}
               </span>
             </label>
           </form>
 
           <div className="flex gap-2">
-            <button
-              type="button"
-              className="form-button"
-              onClick={() => setEditingTaskId(task.id)}
-              disabled={isEditing}
-              title="Editar tarea"
-            >
-              ✏️
-            </button>
-            <form onSubmit={handleDelete} className="delete-form">
-              <button
-                type="submit"
-                className="delete-button"
-                disabled={isDeleting}
-                title="Eliminar tarea"
-              >
-                🗑️
-              </button>
-            </form>
+            {!isViewer ? (
+              <>
+                <button
+                  type="button"
+                  className="form-button"
+                  onClick={handleStartEdit}
+                  disabled={isEditing}
+                  title="Editar tarea"
+                >
+                  ✏️
+                </button>
+                <form onSubmit={handleDelete} className="delete-form">
+                  <button
+                    type="submit"
+                    className="delete-button"
+                    disabled={isDeleting}
+                    title="Eliminar tarea"
+                  >
+                    🗑️
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div className="flex gap-2 opacity-30">
+                <span className="text-xs text-gray-400 px-2 py-1 bg-gray-100 rounded border cursor-not-allowed" title="Solo lectura">
+                  👁️ Solo lectura
+                </span>
+              </div>
+            )}
           </div>
         </>
       )}

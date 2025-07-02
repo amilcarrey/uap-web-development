@@ -2,6 +2,7 @@
 
 
 import { TaskItem } from "./TaskItem";
+import { EmptyTasksMessage } from "./EmptyTasksMessage";
 
 // Definición de la estructura básica de una tarea
 export interface Task {
@@ -14,6 +15,7 @@ export interface Task {
 export interface Props {
   tasks: Task[];   // Lista de tareas que se van a mostrar
   tabId: string;   // ID de la pestaña a la que pertenecen estas tareas
+  isLoading?: boolean; // Indicador de carga
 }
 
 /**
@@ -23,11 +25,17 @@ export interface Props {
  * Este componente es solo responsable de listar las tareas dentro de un contenedor <ul> con estilos.
  */
 //export function TaskList({ tasks, tabId, onToggle, onDelete }: Props) {
-export function TaskList({tasks, tabId}: Props){
+export function TaskList({tasks, tabId, isLoading = false}: Props){
+
+  // Si no hay tareas, mostrar el mensaje apropiado
+  if (tasks.length === 0) {
+    return <EmptyTasksMessage boardId={tabId} isLoading={isLoading} />;
+  }
+
 return (
     <ul className="task-list bg-[antiquewhite] p-5 rounded-lg mb-5 list-none">
       {/* Por cada tarea en el array, renderiza un TaskItem con sus props correspondientes */}
-      {tasks.length ? tasks.map((task) => (
+      {tasks.map((task) => (
         <TaskItem
           key={task.id}      // Key única para React
           task={task}        // La tarea en sí
@@ -35,7 +43,7 @@ return (
           //onToggle={onToggle} // Función para marcar completada o pendiente
           //onDelete={onDelete} // Función para eliminar la tarea
         />
-      )): null}
+      ))}
     </ul>
   );
 }

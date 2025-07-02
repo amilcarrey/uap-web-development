@@ -123,6 +123,7 @@ export function BoardManager() {
         <ShareModalErrorBoundary>
           <ShareBoardModalComplete
             boardId={shareModalBoardId}
+            boardTitle={tabs.find(tab => tab.id === shareModalBoardId)?.title}
             isOpen={isShareModalOpen}
             onClose={handleCloseShareModal}
           />

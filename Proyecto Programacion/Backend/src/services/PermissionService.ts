@@ -1,7 +1,6 @@
 import {prisma} from '../prisma';
-import {Permission} from '../models/Permission';
+import {Permission, PermissionLevel} from '../models/Permission';
 import { IPermissionService } from '../Interfaces/IPermissionService';
-import { PermissionLevel } from '@prisma/client';
 
 export class PermissionService implements IPermissionService {
 
@@ -53,6 +52,7 @@ export class PermissionService implements IPermissionService {
             (error as any).status = 400;
             throw error;
         }
+
         await prisma.permission.deleteMany({
             where: {boardId, userId},
         });
@@ -85,6 +85,49 @@ export class PermissionService implements IPermissionService {
         await prisma.permission.update({
             where: {userId_boardId: { userId, boardId }},
             data: { level: newLevel }
+        });
+    }
+
+    async revokePermissionById(boardId: number, permissionId: number, currentUserId?: number): Promise<void> {
+        const board = await prisma.board.findUnique({ where: { id: boardId } });
+        if (!board) {
+            const error = new Error('Tablero no encontrado');
+            (error as any).status = 404;
+            throw error;
+        }
+        if (currentUserId && board.ownerId !== currentUserId) {
+            const error = new Error('Solo el dueño puede revocar permisos');
+            (error as any).status = 403;
+            throw error;
+        }
+
+        // Buscar el permiso para obtener el userId
+        const permission = await prisma.permission.findUnique({
+            where: { id: permissionId }
+        });
+        
+        if (!permission) {
+            const error = new Error('Permiso no encontrado');
+            (error as any).status = 404;
+            throw error;
+        }
+
+        // Verificar que el permiso pertenece al tablero correcto
+        if (permission.boardId !== boardId) {
+            const error = new Error('El permiso no pertenece a este tablero');
+            (error as any).status = 400;
+            throw error;
+        }
+
+        // No permitir eliminar el permiso del dueño
+        if (permission.userId === board.ownerId) {
+            const error = new Error('No puedes revocar permisos al dueño del tablero');
+            (error as any).status = 400;
+            throw error;
+        }
+
+        await prisma.permission.delete({
+            where: { id: permissionId }
         });
     }
 }

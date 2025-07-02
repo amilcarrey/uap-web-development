@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { useAddTask } from "../hooks/task";
+import { useIsViewer } from "../hooks/useUserPermissions";
 import toast from 'react-hot-toast';
 
 // Props que recibe este componente:
@@ -32,6 +33,11 @@ export function TaskInput({ tabId, onTaskAdded }: Props) {
 
   // Estado local para saber si se está enviando el formulario
   const [loading, setLoading] = useState(false);
+
+  // Detectar si el usuario es VIEWER
+  const isViewer = useIsViewer(tabId);
+
+  console.log('📝 [TaskInput] TabId:', tabId, 'isViewer:', isViewer);
 
   // Hook de React Query para agregar una tarea
   const { mutateAsync } = useAddTask();
@@ -69,6 +75,11 @@ export function TaskInput({ tabId, onTaskAdded }: Props) {
       setLoading(false);
     }
   };
+
+  // No mostrar el input si el usuario es VIEWER
+  if (isViewer) {
+    return null;
+  }
 
   return (
     <form

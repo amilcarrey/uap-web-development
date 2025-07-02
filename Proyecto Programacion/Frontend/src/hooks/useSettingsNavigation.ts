@@ -1,26 +1,28 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
+import { useSettingsStore } from '../stores/settingsStore';
 
 // Hook para manejar la navegación de configuraciones
 export function useSettingsNavigation() {
-  const [activeTab, setActiveTab] = useState(() => {
-    // Recuperar tab activa del localStorage si existe
-    return localStorage.getItem('settings-active-tab') || 'profile';
-  });
-
-  // Guardar la tab activa en localStorage cuando cambie
-  useEffect(() => {
-    localStorage.setItem('settings-active-tab', activeTab);
-  }, [activeTab]);
+  // Usar el activeTab del store global en lugar de estado local
+  const globalActiveTab = useSettingsStore(state => state.activeTab);
+  
+  // Si no hay tab global, usar el del localStorage o 'profile' por defecto
+  const activeTab = globalActiveTab || localStorage.getItem('settings-active-tab') || 'profile';
 
   const navigateToTab = (tabId: string) => {
-    setActiveTab(tabId);
+    console.log('🔄 [useSettingsNavigation] Navegando a tab:', tabId);
+    
+    // Guardar en localStorage
+    localStorage.setItem('settings-active-tab', tabId);
+    
+    // Actualizar el store global también
+    useSettingsStore.getState().openSettings(tabId);
   };
 
   return {
     activeTab,
-    navigateToTab,
-    setActiveTab
+    navigateToTab
   };
 }
 

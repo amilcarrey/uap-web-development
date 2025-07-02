@@ -8,9 +8,10 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthPage } from './components/AuthPage';
 import { useEffect } from "react";
 import { useAuthStore } from "./stores/authStore";
-import { useTabs } from "./hooks/tabs";
+import { useTabs, useCreateTab } from "./hooks/tabs";
 import { useQueryClient } from '@tanstack/react-query';
 import { NotFound } from './components/ErrorBoundary';
+import toast from 'react-hot-toast';
 
 export default function App() {
   const checkAuth = useAuthStore((s) => s.checkAuth);
@@ -20,6 +21,7 @@ export default function App() {
   const location = useLocation();
   const { data: tabs = [] } = useTabs();
   const queryClient = useQueryClient();
+  const createTab = useCreateTab();
 
   useEffect(() => {
     checkAuth();
@@ -90,7 +92,7 @@ export default function App() {
     return <Navigate to={firstBoardPath} replace />;
   }
 
-  // Si el usuario está autenticado y no tiene tableros, muestra una pantalla de bienvenida o dashboard vacío
+  // Si el usuario está autenticado y no tiene tableros, muestra una pantalla de bienvenida con botón de crear tablero
   if (isAuthenticated && tabs.length === 0 && location.pathname === "/") {
     return (
       <>
@@ -106,6 +108,27 @@ export default function App() {
         }}>
           <div className="text-center text-gray-600 py-10">
             ¡Bienvenido! Aún no tienes tableros. Usa el botón para crear tu primer tablero.
+            <div className="mt-6">
+              <button
+                onClick={() => {
+                  const title = `Tablero 1`;
+                  createTab.mutate(title, {
+                    onSuccess: (newTab) => {
+                      toast.success("Tablero creado");
+                      // Navegar al nuevo tablero
+                      window.location.href = `/board/${encodeURIComponent(newTab.title)}`;
+                    },
+                    onError: () => {
+                      toast.error("Error al crear el tablero");
+                    }
+                  });
+                }}
+                disabled={createTab.isPending}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {createTab.isPending ? 'Creando...' : '+ Crear mi primer tablero'}
+              </button>
+            </div>
           </div>
         </main>
       </>

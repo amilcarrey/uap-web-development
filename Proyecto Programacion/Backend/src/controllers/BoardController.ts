@@ -61,7 +61,7 @@ export class BoardController {
     if (board.ownerId === currentUserId) {
         // Permitir
     } else {
-        const permission = board.permissions.find(p => p.userId === currentUserId && p.level === "EDITOR");
+        const permission = board.permissions.find((p: any) => p.userId === currentUserId && p.level === "EDITOR");
         if (!permission) {
           const error = new Error("No tienes permiso para modificar este tablero");
           (error as any).status = 403;
@@ -99,7 +99,7 @@ export class BoardController {
       // Permitir
     } else {
       const permission = board.permissions.find(
-        p => p.userId === currentUserId && p.level === "EDITOR"
+        (p: any) => p.userId === currentUserId && p.level === "EDITOR"
       );
       if (!permission) {
         const error = new Error("No tienes permiso para eliminar este tablero");

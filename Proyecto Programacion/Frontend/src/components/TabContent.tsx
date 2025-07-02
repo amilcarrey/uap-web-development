@@ -4,20 +4,16 @@ import { TaskInput } from './TaskInput';            // Componente para ingresar 
 import { TaskList } from './TaskList';              // Componente que muestra la lista de tareas
 import { FilterControls } from './FilterControls';  // Componente para cambiar el filtro (ver todas, completadas, etc.)
 import { TaskSearch } from './TaskSearch'; // Agregar import
+
+import { PermissionDebugger } from './PermissionDebugger'; // Debugger de permisos
 import { useTasks, useClearCompletedTasks } from '../hooks/task';
 import { useUIStore } from '../stores/uiStore';
 import { useUserSettings } from '../hooks/userSettings'; // Para obtener el límite de preferencias
-import { useMemo, useState } from 'react';          
+import { useMemo, useState, useEffect } from 'react';          
 import { Paginacion } from './Paginacion';
 import React from 'react';
 import toast from 'react-hot-toast';
-
-// Estructura base de una tarea: un identificador, un texto y si está completada o no
-export interface Task {
-  id: string;
-  content: string;
-  active: boolean;
-}
+import type { Task } from '../types/task';
 
 // Props que recibe el componente TabContent, una por cada pestaña de tareas
 export interface Props {
@@ -45,6 +41,7 @@ export function TabContent({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
   const [showSearch, setShowSearch] = useState(false); // Nuevo estado para mostrar búsqueda
+  const [hideMainList, setHideMainList] = useState(false); // Estado para ocultar la lista principal durante búsqueda
 
   // Obtener el límite de las preferencias del usuario
   const { data: userSettings } = useUserSettings();
@@ -141,41 +138,156 @@ export function TabContent({
       )}
   
       {/* Componente de búsqueda */}
-      {showSearch && <TaskSearch tabId={tabId} />}
+      {showSearch && (
+        <TaskSearch 
+          tabId={tabId} 
+          onHideMainList={setHideMainList}
+        />
+      )}
 
       {/* Input para agregar nuevas tareas */}
       <TaskInput tabId={tabId} onTaskAdded={() => {}} />
 
       {/* Muestra un mensaje de carga o error, o la lista de tareas filtradas */}
-      {isLoading ? (
-        <div>Cargando tareas...</div>
-      ) : isError ? (
-        <div>Error al cargar tareas</div>
-      ) : (
+      {!hideMainList && (
         <>
-          <TaskList tasks={filteredTasks} tabId={tabId} />
-          <Paginacion 
-            page={page} 
-            setPage={setPage} 
-            hasNext={tasks.length === limit} // Si el backend devolvió exactamente 'limit' tareas, probablemente hay más
-            hasPrev={page > 1} 
-          />
+          {isLoading ? (
+            <div>Cargando tareas...</div>
+          ) : isError ? (
+            <div>Error al cargar tareas</div>
+          ) : (
+            <>
+              <TaskList tasks={filteredTasks} tabId={tabId} isLoading={isLoading} />
+              <Paginacion 
+                page={page} 
+                setPage={setPage} 
+                hasNext={tasks.length === limit} // Si el backend devolvió exactamente 'limit' tareas, probablemente hay más
+                hasPrev={page > 1} 
+              />
+            </>
+          )}
         </>
       )}
 
-      {/* Controles para cambiar el filtro de tareas */}
-      <FilterControls
-        tabId={tabId}
-        currentFilter={taskFilter}
-        onFilterChange={setTaskFilter}
-        onClearCompleted={() => {
-          //console.log('Limpiar completadas', tabId);
-          clearCompleted(tabId, {
-            onSuccess: () => toast.success("Tareas completadas eliminadas"),
-            onError: () => toast.error("No se pudieron limpiar las tareas completadas"),
-          });
-        }}
+      {/* Controles para cambiar el filtro de tareas - Solo mostrar si no hay búsqueda activa */}
+      {!hideMainList && (
+        <FilterControls
+          tabId={tabId}
+          currentFilter={taskFilter}
+          onFilterChange={setTaskFilter}
+          onClearCompleted={() => {
+            //console.log('Limpiar completadas', tabId);
+            clearCompleted(tabId, {
+              onSuccess: () => toast.success("Tareas completadas eliminadas"),
+              onError: () => toast.error("No se pudieron limpiar las tareas completadas"),
+            });
+          }}
+        />
+      )}
+
+      {/* Componente para mostrar información de debugging */}
+      <DebugInfo 
+        tabId={tabId} 
+        tasksCount={filteredTasks.length} 
+        isLoading={isLoading} 
+        isError={isError} 
       />
+
+      {/* Debugger de permisos (solo en desarrollo) */}
+      <PermissionDebugger boardId={tabId} />
     </section>
+  );
+}
+
+/**
+ * Componente para mostrar información de debugging
+ * Este componente ayuda a diagnosticar problemas de permisos y carga de tareas.
+ */
+function DebugInfo({ tabId, tasksCount, isLoading, isError }: { 
+  tabId: string; 
+  tasksCount: number; 
+  isLoading: boolean; 
+  isError: boolean; 
+}) {
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const [showDebug, setShowDebug] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setUserInfo(payload);
+      } catch (e) {
+        console.log('Error decodificando token para debug');
+      }
+    }
+  }, []);
+
+  if (!showDebug) {
+    return (
+      <button
+        onClick={() => setShowDebug(true)}
+        className="text-xs text-gray-400 hover:text-gray-600 underline mb-2"
+      >
+        🔧 Mostrar información de debug
+      </button>
+    );
+  }
+
+  const boardPermission = userInfo?.boardPermissions?.find(
+    (perm: any) => perm.boardId === tabId
+  );
+
+  return (
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 text-xs">
+      <div className="flex justify-between items-center mb-2">
+        <h4 className="font-medium text-gray-700">🔧 Información de Debug</h4>
+        <button
+          onClick={() => setShowDebug(false)}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          ✕
+        </button>
+      </div>
+      
+      <div className="space-y-2 text-gray-600">
+        <div><strong>Estado de carga:</strong> {isLoading ? 'Cargando...' : 'Completado'}</div>
+        <div><strong>Error:</strong> {isError ? 'Sí' : 'No'}</div>
+        <div><strong>Tablero ID:</strong> {tabId}</div>
+        <div><strong>Tareas encontradas:</strong> {tasksCount}</div>
+        <div><strong>Usuario:</strong> {userInfo?.username || userInfo?.email || 'No identificado'}</div>
+        <div><strong>Token presente:</strong> {!!localStorage.getItem('token') ? 'Sí' : 'No'}</div>
+        
+        {boardPermission && (
+          <div>
+            <strong>Permisos en este tablero:</strong> {boardPermission.permission}
+            <div className="ml-2 text-gray-500">
+              ID del permiso: {boardPermission.id}
+            </div>
+          </div>
+        )}
+        
+        {userInfo?.invitations && userInfo.invitations.length > 0 && (
+          <div>
+            <strong>Invitaciones:</strong>
+            <div className="ml-2">
+              {userInfo.invitations.map((inv: any, i: number) => (
+                <div key={i} className="text-gray-500">
+                  Tablero {inv.boardId}: {inv.permission}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="pt-2 border-t border-gray-300">
+          <strong>URL de petición:</strong>
+          <div className="text-gray-500 break-all">
+            http://localhost:3000/api/boards/{tabId}/tasks
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

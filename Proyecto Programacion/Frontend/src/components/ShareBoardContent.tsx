@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSearchUsers, useAllUsers, useBoardSharedUsers, useUpdateBoardPermission } from '../hooks/userSettings';
 import { useAuthStore } from '../stores/authStore';
 import { getPermissionDisplayText, frontendToBackendPermission } from '../types/permissions';
@@ -22,6 +23,39 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
   const [sharedUsers, setSharedUsers] = useState<User[]>([]);
   const [selectedPermissionLevel, setSelectedPermissionLevel] = useState<'EDITOR' | 'VIEWER'>('EDITOR');
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
+
+  // Query client para invalidar cache
+  const queryClient = useQueryClient();
+
+  // Función para invalidar TODOS los caches relacionados con permisos
+  const invalidateAllPermissionCaches = async () => {
+    console.log(`🔥 [BoardId: ${boardId}] Invalidando caches específicos de permisos...`);
+    
+    // Invalidar users compartidos de este tablero específico
+    await queryClient.invalidateQueries({
+      queryKey: ['board-shared-users', boardId]
+    });
+    
+    // Invalidar lista de tableros (tabs) - esto es global y necesario
+    await queryClient.invalidateQueries({
+      queryKey: ['tabs']
+    });
+    
+    // Invalidar cualquier cache de usuarios (solo si es necesario)
+    await queryClient.invalidateQueries({
+      queryKey: ['users']
+    });
+    
+    console.log(`✅ [BoardId: ${boardId}] Invalidación específica de caches terminada`);
+  };
+
+  // Función de debugging para limpiar cache manualmente
+  const handleDebugClearCache = async () => {
+    console.log('🧹 [DEBUG] Limpiando todo el cache manualmente...');
+    await queryClient.clear();
+    await invalidateAllPermissionCaches();
+    toast.success('Cache limpiado completamente (DEBUG)');
+  };
 
   // Helper function para obtener inicial de usuario de forma segura
   const getUserInitial = (user: User): string => {
@@ -80,13 +114,24 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
   const updatePermissionMutation = useUpdateBoardPermission();
 
   // Combinar usuarios ya compartidos desde el backend con los locales
+  // Priorizar siempre los datos del backend sobre el estado local
   const combinedSharedUsers = useMemo(() => {
-    const localIds = sharedUsers.map(u => u.id);
-    const backendUsers = alreadySharedUsers
-      .filter(u => u && u.id)
-      .filter(u => !localIds.includes(u.id));
-    return [...sharedUsers, ...backendUsers];
-  }, [sharedUsers, alreadySharedUsers]);
+    console.log(`🔄 [ShareBoardContent] Combinando usuarios para boardId: ${boardId}`);
+    console.log(`📊 [BoardId: ${boardId}] Estado local (sharedUsers):`, sharedUsers);
+    console.log(`📊 [BoardId: ${boardId}] Datos del backend (alreadySharedUsers):`, alreadySharedUsers);
+    
+    // Usar principalmente los datos del backend, que son la fuente de verdad
+    const backendUserIds = alreadySharedUsers.map(u => u.id);
+    
+    // Solo agregar usuarios del estado local que NO estén en el backend
+    // (esto puede pasar cuando acabamos de agregar un usuario pero el refetch aún no se completó)
+    const localOnlyUsers = sharedUsers.filter(u => u && u.id && !backendUserIds.includes(u.id));
+    
+    const combined = [...alreadySharedUsers, ...localOnlyUsers];
+    
+    console.log(`✅ [BoardId: ${boardId}] Usuarios combinados final:`, combined);
+    return combined;
+  }, [sharedUsers, alreadySharedUsers, boardId]); // Agregar boardId como dependencia
 
   // Filtrar usuarios para excluir al usuario actual
   const availableUsers = useMemo(() => {
@@ -109,6 +154,20 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     }
   }, [boardId]);
 
+  // 🔄 AISLAMIENTO: Limpiar estado local cuando cambia el boardId
+  useEffect(() => {
+    console.log('🔄 [ShareBoardContent] BoardId cambió a:', boardId);
+    console.log('🧹 [ShareBoardContent] Limpiando estado local para aislar modal...');
+    
+    // Resetear todos los estados locales cuando cambia el tablero
+    setSharedUsers([]);
+    setSearchTerm('');
+    setSelectedPermissionLevel('EDITOR');
+    setEditingUserId(null);
+    
+    console.log('✅ [ShareBoardContent] Estado local limpiado para boardId:', boardId);
+  }, [boardId]);
+
   const handleShare = async (user: User) => {
     try {
       const token = localStorage.getItem('token');
@@ -127,7 +186,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
         level: frontendToBackendPermission(selectedPermissionLevel)
       };
 
-      const response = await fetch(`/api/boards/${boardId}/permissions`, {
+      const response = await fetch(`http://localhost:3000/api/boards/${boardId}/permissions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -144,8 +203,16 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
 
       await response.json();
       
+      console.log('✅ Usuario compartido exitosamente');
+      
+      // Agregar al estado local temporalmente
       setSharedUsers(prev => [...prev, user]);
-      refetchSharedUsers();
+      
+      // Invalidar todos los caches relacionados
+      await invalidateAllPermissionCaches();
+      
+      // También refetch manual
+      await refetchSharedUsers();
       
       const permissionText = selectedPermissionLevel === 'EDITOR' ? 'Editor' : 'Solo lectura';
       toast.success(`¡Tablero compartido con ${getUserDisplayName(user)} como ${permissionText}!`);
@@ -163,9 +230,11 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     try {
       const token = localStorage.getItem('token');
       
-      const endpoint = user.permissionId 
-        ? `/api/boards/${boardId}/permissions/${user.permissionId}`
-        : `/api/boards/${boardId}/permissions/${user.id}`;
+      // El backend espera userId, no permissionId
+      const endpoint = `http://localhost:3000/api/boards/${boardId}/permissions/${user.id}`;
+
+      console.log('🗑️ Eliminando usuario:', user, 'Endpoint:', endpoint);
+      console.log('🔍 Usando userId:', user.id, 'en lugar de permissionId:', user.permissionId);
 
       const response = await fetch(endpoint, {
         method: 'DELETE',
@@ -180,8 +249,25 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
         throw new Error(errorData.message || `Error ${response.status}`);
       }
 
-      setSharedUsers(prev => prev.filter(u => u.id !== user.id));
-      refetchSharedUsers();
+      console.log('✅ Usuario eliminado exitosamente del backend');
+
+      // Primero eliminar del estado local
+      setSharedUsers(prev => {
+        const newUsers = prev.filter(u => u.id !== user.id);
+        console.log('🗑️ Estado local actualizado:', newUsers);
+        return newUsers;
+      });
+      
+      // Invalidar TODOS los caches relacionados
+      await invalidateAllPermissionCaches();
+      
+      // Forzar refetch con delay para asegurar sincronización
+      console.log('🔄 Forzando refetch...');
+      setTimeout(async () => {
+        await refetchSharedUsers();
+        console.log('✅ Refetch completado');
+      }, 100);
+      
       toast.success(`Se removió el acceso de ${getUserDisplayName(user)}`);
       
     } catch (error) {
@@ -206,11 +292,16 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
         newLevel: backendLevel
       });
 
+      console.log('✅ Permiso actualizado exitosamente');
+      
       const permissionText = newLevel === 'EDITOR' ? 'Editor' : 'Solo lectura';
       toast.success(`¡Permiso de ${getUserDisplayName(user)} cambiado a ${permissionText}!`);
       
       setEditingUserId(null);
-      refetchSharedUsers();
+      
+      // Invalidar todos los caches relacionados
+      await invalidateAllPermissionCaches();
+      await refetchSharedUsers();
       
     } catch (error) {
       console.error('❌ Error cambiando permiso:', error);
@@ -459,6 +550,37 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
             })}
           </div>
         )}
+      </div>
+
+      {/* 🧹 Botón de debug para limpiar cache (temporal) */}
+      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+        <h4 className="text-sm font-medium text-yellow-800 mb-2">🔧 Herramientas de Debug</h4>
+        <div className="flex space-x-2 mb-2">
+          <button
+            onClick={handleDebugClearCache}
+            className="px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700 transition-colors"
+          >
+            🧹 Limpiar Cache Completo
+          </button>
+          <button
+            onClick={() => {
+              console.log(`🔍 [BoardId: ${boardId}] Estado actual del modal:`);
+              console.log('- sharedUsers:', sharedUsers);
+              console.log('- alreadySharedUsers:', alreadySharedUsers);
+              console.log('- combinedSharedUsers:', combinedSharedUsers);
+              console.log('- searchTerm:', searchTerm);
+              console.log('- selectedPermissionLevel:', selectedPermissionLevel);
+              console.log('- editingUserId:', editingUserId);
+              toast.success(`Estado del modal loggeado para tablero ${boardId}`);
+            }}
+            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+          >
+            📊 Debug Estado
+          </button>
+        </div>
+        <p className="text-xs text-yellow-700">
+          Si el usuario sigue apareciendo, usa "Limpiar Cache". Si hay mezcla de datos, usa "Debug Estado".
+        </p>
       </div>
     </div>
   );

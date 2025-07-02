@@ -109,6 +109,20 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     }
   }, [boardId]);
 
+  // 🔄 AISLAMIENTO: Limpiar estado local cuando cambia el boardId
+  useEffect(() => {
+    console.log('🔄 [ShareBoardContentClean] BoardId cambió a:', boardId);
+    console.log('🧹 [ShareBoardContentClean] Limpiando estado local para aislar modal...');
+    
+    // Resetear todos los estados locales cuando cambia el tablero
+    setSharedUsers([]);
+    setSearchTerm('');
+    setSelectedPermissionLevel('EDITOR');
+    setEditingUserId(null);
+    
+    console.log('✅ [ShareBoardContentClean] Estado local limpiado para boardId:', boardId);
+  }, [boardId]);
+
   const handleShare = async (user: User) => {
     try {
       const token = localStorage.getItem('token');
@@ -127,7 +141,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
         level: frontendToBackendPermission(selectedPermissionLevel)
       };
 
-      const response = await fetch(`/api/boards/${boardId}/permissions`, {
+      const response = await fetch(`http://localhost:3000/api/boards/${boardId}/permissions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,7 +156,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
         throw new Error(errorData.message || `Error ${response.status}`);
       }
 
-      const result = await response.json();
+      await response.json(); // Consumir la respuesta pero no usarla
       
       setSharedUsers(prev => [...prev, user]);
       refetchSharedUsers();
@@ -163,9 +177,11 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     try {
       const token = localStorage.getItem('token');
       
-      const endpoint = user.permissionId 
-        ? `/api/boards/${boardId}/permissions/${user.permissionId}`
-        : `/api/boards/${boardId}/permissions/${user.id}`;
+      // El backend espera userId, no permissionId
+      const endpoint = `http://localhost:3000/api/boards/${boardId}/permissions/${user.id}`;
+
+      console.log('🗑️ [ShareBoardContentClean] Eliminando usuario:', user, 'Endpoint:', endpoint);
+      console.log('🔍 [ShareBoardContentClean] Usando userId:', user.id, 'en lugar de permissionId:', user.permissionId);
 
       const response = await fetch(endpoint, {
         method: 'DELETE',

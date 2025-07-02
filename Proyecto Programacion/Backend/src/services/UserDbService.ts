@@ -82,7 +82,7 @@ export class UserDbService implements IUserService {
     async getAllUsers(): Promise<UserDTO[]> {
         const users = await prisma.user.findMany();
 
-        const userDTOs: UserDTO[] = users.map(u => ({
+        const userDTOs: UserDTO[] = users.map((u: any) => ({
             firstName: u.firstName,
             lastName: u.lastName,
             alias: u.username,
@@ -123,17 +123,18 @@ export class UserDbService implements IUserService {
         }
 
         // Mapear boards a BoardDTO
-        const boards: BoardDTO[] = user.boards.map(board => ({
+        const boards: BoardDTO[] = user.boards.map((board: any) => ({
             id: board.id,
             name: board.name,
             ownerId: board.ownerId,
-            tasks: board.tasks.map(task => ({
+            tasks: board.tasks.map((task: any) => ({
                 id: task.id,
                 content: task.content,
                 active: task.active,
                 boardId: task.boardId,
             })),
             permissionsId: board.permissions ? board.permissions.map((perm: any) => perm.id) : [],
+            userRole: "OWNER" as const // Usuario es owner de sus propios tableros
         }));
  
         // Mapear settings a UserSettingsDTO
@@ -179,7 +180,7 @@ export class UserDbService implements IUserService {
         }
     });
 
-    return users.map(user => ({
+    return users.map((user: any) => ({
         firstName: user.firstName,
         lastName: user.lastName,
         alias: user.username,
@@ -249,7 +250,7 @@ export class UserDbService implements IUserService {
             }
         });
 
-        return users.map(user => ({
+        return users.map((user: any) => ({
             firstName: user.firstName,
             lastName: user.lastName,
             alias: user.username,
@@ -297,7 +298,7 @@ export class UserDbService implements IUserService {
             skip: offset
         });
 
-        const userDTOs = users.map(user => ({
+        const userDTOs = users.map((user: any) => ({
             firstName: user.firstName,
             lastName: user.lastName,
             alias: user.username,

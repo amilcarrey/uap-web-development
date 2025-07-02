@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import {PermissionService} from '../services/PermissionService';
-import {PermissionLevel} from '@prisma/client';
+import {PermissionLevel} from '../models/Permission';
 
 const permissionService = new PermissionService();
 
@@ -50,7 +50,7 @@ export class PermissionController {
         res.status(200).json({message: "Permiso otorgado correctamente"});
     };
 
-    // Revoca permisos de un tablero
+    // Revoca permisos de un tablero por userId
     static async revokePermission(req: Request, res: Response){
         const boardId = Number(req.params.boardId);
         const userId = Number(req.params.userId);
@@ -63,6 +63,22 @@ export class PermissionController {
         }
 
         await permissionService.revokePermission(boardId, userId, currentUserId);
+        res.status(200).json({message: "Permiso revocado correctamente"});
+    }
+
+    // Revoca permisos de un tablero por permissionId
+    static async revokePermissionById(req: Request, res: Response){
+        const boardId = Number(req.params.boardId);
+        const permissionId = Number(req.params.permissionId);
+        const currentUserId = Number((req as any).user?.id);
+
+        if (isNaN(boardId) || isNaN(permissionId)) {
+            const error = new Error("ID de tablero o permiso inválido");
+            (error as any).status = 400;
+            throw error;
+        }
+
+        await permissionService.revokePermissionById(boardId, permissionId, currentUserId);
         res.status(200).json({message: "Permiso revocado correctamente"});
     }
 

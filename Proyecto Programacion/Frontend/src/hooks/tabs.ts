@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUserFromToken, getUserFromJWTString } from '../utils/auth';
 import { useAuthStore } from '../stores/authStore';
 
 export interface Tab {
@@ -15,7 +14,7 @@ function getAuthHeaders() {
   };
   
   // Intentar obtener token de localStorage
-  const storedToken = localStorage.getItem('authToken');
+  const storedToken = localStorage.getItem('token');
   if (storedToken) {
     headers['Authorization'] = `Bearer ${storedToken}`;
   }
@@ -27,45 +26,40 @@ function getAuthHeaders() {
 
 // Obtener todos los tableros CON información de roles
 async function fetchTabs(): Promise<Tab[]> {
-  //console.log('Ejecutando fetchTabs: consultando /api/boards');
-  const res = await fetch('/api/boards', {
+  console.log('🔄 [fetchTabs] Consultando /api/boards...');
+  const timestamp = Date.now(); // Cache busting
+  const res = await fetch(`http://localhost:3000/api/boards?_t=${timestamp}`, {
     credentials: 'include',
-    headers: getAuthHeaders(),
+    headers: {
+      ...getAuthHeaders(),
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    },
   });
   if (!res.ok) {
-    //console.log('Error al obtener tableros:', res.status);
+    console.log('❌ [fetchTabs] Error al obtener tableros:', res.status);
     const errorText = await res.text();
     throw new Error(`Error ${res.status}: ${errorText || 'Error al obtener tableros'}`);
   }
   const data = await res.json();
-  //console.log('Datos recibidos del backend:', data);
-  
-  // Obtener el usuario actual del JWT (cookies o localStorage)
-  let currentUser = getUserFromToken();
-  if (!currentUser) {
-    const storedToken = localStorage.getItem('authToken');
-    if (storedToken) {
-      currentUser = getUserFromJWTString(storedToken);
-    }
-  }
-  const currentUserId = currentUser?.id;
-  //console.log('Usuario actual para tabs:', currentUser);
+  console.log('📥 [fetchTabs] Datos recibidos del backend:', data);
   
   return data.map((board: any) => ({
     id: board.id.toString(), 
     title: board.name,
-    // Calcular rol: si ownerId === currentUserId entonces es owner, sino colaborador
-    userRole: board.ownerId === currentUserId ? 'owner' : 'editor'
+    // Usar userRole del backend directamente
+    userRole: board.userRole?.toLowerCase() as 'owner' | 'editor' | 'viewer' || 'viewer'
   })).map((tab: Tab) => {
     // 🔥 LOG para verificar userRole
-    //console.log(`🔄 Tab "${tab.title}" (id: ${tab.id}) tiene userRole: ${tab.userRole}`);
+    console.log(`🔄 Tab "${tab.title}" (id: ${tab.id}) tiene userRole: ${tab.userRole} (del backend)`);
     return tab;
   });
 }
 
 // Crear tablero
 async function createTabRequest(title: string): Promise<Tab> {
-  const res = await fetch('/api/boards', {
+  const res = await fetch('http://localhost:3000/api/boards', {
     method: 'POST',
     headers: getAuthHeaders(),
     credentials: 'include',
@@ -83,7 +77,7 @@ async function createTabRequest(title: string): Promise<Tab> {
 // Eliminar tablero
 async function deleteTabRequest(boardId: string): Promise<any> {
 
-  const url = `/api/boards/${boardId}`;
+  const url = `http://localhost:3000/api/boards/${boardId}`;
 
   const res = await fetch(url, {
     method: 'DELETE',
@@ -102,7 +96,7 @@ async function deleteTabRequest(boardId: string): Promise<any> {
 
 // Renombrar tablero
 async function renameTabRequest({ id, newTitle }: { id: string; newTitle: string }): Promise<Tab> {
-  const res = await fetch(`/api/boards/${id}`, {
+  const res = await fetch(`http://localhost:3000/api/boards/${id}`, {
     method: 'PUT',
     headers: getAuthHeaders(),
     credentials: 'include',
@@ -127,9 +121,12 @@ export function useTabs() {
     queryKey: ['tabs'],
     queryFn: fetchTabs,
     initialData: [],
-    gcTime: 1,
-    staleTime: 1000,
-    refetchInterval: 10000,
+    gcTime: 0, // No guardar en cache
+    staleTime: 0, // Siempre considerar obsoleto
+    refetchInterval: 5000, // Refetch cada 5 segundos
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
     enabled: isAuthenticated && !isLoading, // Solo ejecutar cuando esté autenticado y no cargando
     retry: (failureCount, error) => {
       // Si es un 401, no reintentar (problema de autenticación)
