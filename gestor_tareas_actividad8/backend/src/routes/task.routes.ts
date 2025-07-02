@@ -3,12 +3,14 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { isAuthenticated } from '../middlewares/isAuthenticated';
 import { canViewBoard } from '../middlewares/canViewBoard';
 import { canEditBoard } from '../middlewares/canEditBoard';
+import { validate } from '../middlewares/validate';
+import { createTaskSchema, updateTaskSchema, taskIdParamSchema,boardIdParamSchema } from '../schemas/task.schema';
 
 const prisma = new PrismaClient();
 const router = Router();
 
 // Obtener tareas con paginación y búsqueda
-router.get('/boards/:boardId/tasks', isAuthenticated, canViewBoard, async (req: Request, res: Response): Promise<void> => {
+router.get('/boards/:boardId/tasks', isAuthenticated,  validate(boardIdParamSchema, 'params'), canViewBoard, async (req: Request, res: Response): Promise<void> => {
   const { boardId } = req.params;
   const { search, page = 1 } = req.query;
 
@@ -44,36 +46,56 @@ router.get('/boards/:boardId/tasks', isAuthenticated, canViewBoard, async (req: 
   }
 });
 
-// Crear nueva tarea
-router.post('/boards/:boardId/tasks', isAuthenticated, canEditBoard, async (req: Request, res: Response): Promise<void> => {
-  const { boardId } = req.params;
-  const { text } = req.body;
+// Crear nueva tarea (con validación)
+router.post(
+  '/boards/:boardId/tasks',
+  isAuthenticated,
+  validate(boardIdParamSchema, 'params'),
+  canEditBoard,
+  validate(createTaskSchema),
+  async (req: Request, res: Response): Promise<void> => {
+    const { boardId } = req.params;
+    const { text } = req.body;
 
-  try {
-    const nueva = await prisma.task.create({ data: { text, boardId } });
-    res.status(201).json(nueva);
-  } catch (error) {
-    console.error('Error al crear tarea:', error);
-    res.status(500).json({ error: 'Error al crear la tarea' });
+    try {
+      const nueva = await prisma.task.create({ data: { text, boardId } });
+      res.status(201).json(nueva);
+    } catch (error) {
+      console.error('Error al crear tarea:', error);
+      res.status(500).json({ error: 'Error al crear la tarea' });
+    }
   }
-});
+);
 
-// Editar tarea existente
-router.patch('/tasks/:taskId', isAuthenticated, async (req: Request, res: Response): Promise<void> => {
-  const { taskId } = req.params;
-  const { text, completed } = req.body;
+// Editar tarea existente (con validación)
+router.patch(
+  '/tasks/:taskId',
+  isAuthenticated,
+  validate(updateTaskSchema),
+  async (req: Request, res: Response): Promise<void> => {
+    const { taskId } = req.params;
+    const { text, completed } = req.body;
 
-  try {
-    const actualizada = await prisma.task.update({ where: { id: taskId }, data: { text, completed } });
-    res.json(actualizada);
-  } catch (error) {
-    console.error('Error al editar tarea:', error);
-    res.status(500).json({ error: 'Error al editar la tarea' });
+    try {
+      const actualizada = await prisma.task.update({
+        where: { id: taskId },
+        data: { text, completed },
+      });
+
+      res.json(actualizada);
+    } catch (error) {
+      console.error('Error al editar tarea:', error);
+      res.status(500).json({ error: 'Error al editar la tarea' });
+    }
   }
-});
+);
 
 // Eliminar tarea individual
-router.delete('/tasks/:taskId', isAuthenticated, async (req: Request, res: Response): Promise<void> => {
+router.delete
+('/tasks/:taskId',
+  isAuthenticated,
+  validate(taskIdParamSchema, 'params'),
+  async (req: Request, res: Response): Promise<void> => {
   const { taskId } = req.params;
 
   try {
@@ -86,7 +108,11 @@ router.delete('/tasks/:taskId', isAuthenticated, async (req: Request, res: Respo
 });
 
 // Toggle de completado
-router.patch('/tasks/:taskId/toggle', isAuthenticated, async (req: Request, res: Response): Promise<void> => {
+router.patch
+('/tasks/:taskId/toggle',
+  isAuthenticated,
+  validate(taskIdParamSchema, 'params'),
+  async (req: Request, res: Response): Promise<void> => {
   const { taskId } = req.params;
 
   try {
@@ -110,7 +136,12 @@ router.patch('/tasks/:taskId/toggle', isAuthenticated, async (req: Request, res:
 });
 
 // Eliminar todas las tareas completadas de un tablero
-router.delete('/boards/:boardId/tasks/completed', isAuthenticated, canEditBoard, async (req: Request, res: Response): Promise<void> => {
+router.delete
+('/boards/:boardId/tasks/completed',
+  isAuthenticated,
+  validate(boardIdParamSchema, 'params'),
+  canEditBoard,
+  async (req: Request, res: Response): Promise<void> => {
   const { boardId } = req.params;
 
   try {
