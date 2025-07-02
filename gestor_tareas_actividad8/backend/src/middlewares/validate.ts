@@ -1,23 +1,22 @@
-import { ZodSchema } from 'zod';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { ZodSchema } from 'zod';
 
-export function validate(
-  schema: ZodSchema,
-  source: 'body' | 'params' | 'query' = 'body'
-): RequestHandler {
-  return (req: Request, res: Response, next: NextFunction): void => {
+export function validate(schema: ZodSchema, source: 'body' | 'params' | 'query' = 'body'): RequestHandler {
+  return ((req: Request, res: Response, next: NextFunction): void => {
     const dataToValidate = req[source];
     const result = schema.safeParse(dataToValidate);
 
     if (!result.success) {
       res.status(400).json({
         error: 'Validación fallida',
-        issues: result.error.format(),
+        details: result.error.errors.map(err => ({
+          path: err.path.join('.'),
+          message: err.message
+        }))
       });
-      return; // corta la ejecución, pero no devuelve un valor → cumple con tipo `void`
+      return;
     }
 
-    req[source] = result.data;
     next();
-  };
+  }) as RequestHandler;
 }

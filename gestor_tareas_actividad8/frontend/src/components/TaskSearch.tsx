@@ -1,19 +1,20 @@
 import { useState } from 'react';
 
 interface TaskSearchProps {
+  value: string;
   onSearch: (query: string) => void;
 }
 
-const TaskSearch: React.FC<TaskSearchProps> = ({ onSearch }) => {
-  const [input, setInput] = useState('');
+const TaskSearch: React.FC<TaskSearchProps> = ({ value, onSearch }) => {
+  const [input, setInput] = useState(value);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(input);
+    onSearch(input.trim());
   };
 
   return (
-    <form onSubmit={handleSearch} className="flex gap-2">
+    <form onSubmit={handleSubmit} className="flex gap-2">
       <input
         type="text"
         value={input}

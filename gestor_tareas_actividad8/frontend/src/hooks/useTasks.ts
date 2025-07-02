@@ -13,7 +13,8 @@ export function useTasks(boardId: string, page: number = 1, search: string = '')
       });
       return data as { tasks: Task[]; total: number };
     },
-    enabled: !!boardId
+    enabled: !!boardId,
+    retry: false // Evita reintentos automáticos en errores de búsqueda
   });
 
   return {
@@ -21,6 +22,7 @@ export function useTasks(boardId: string, page: number = 1, search: string = '')
     total: query.data?.total || 0,
     isLoading: query.isLoading,
     isError: query.isError,
+    error: query.error,
     refetch: query.refetch
   };
 }

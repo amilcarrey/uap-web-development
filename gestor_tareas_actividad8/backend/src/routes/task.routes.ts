@@ -4,7 +4,7 @@ import { isAuthenticated } from '../middlewares/isAuthenticated';
 import { canViewBoard } from '../middlewares/canViewBoard';
 import { canEditBoard } from '../middlewares/canEditBoard';
 import { validate } from '../middlewares/validate';
-import { createTaskSchema, updateTaskSchema, taskIdParamSchema,boardIdParamSchema } from '../schemas/task.schema';
+import { createTaskBodySchema, updateTaskSchema, taskIdParamSchema,boardIdParamSchema } from '../schemas/task.schema';
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -52,18 +52,16 @@ router.post(
   isAuthenticated,
   validate(boardIdParamSchema, 'params'),
   canEditBoard,
-  validate(createTaskSchema),
+  validate(createTaskBodySchema, 'body'),
   async (req: Request, res: Response): Promise<void> => {
     const { boardId } = req.params;
     const { text } = req.body;
 
-    try {
-      const nueva = await prisma.task.create({ data: { text, boardId } });
-      res.status(201).json(nueva);
-    } catch (error) {
-      console.error('Error al crear tarea:', error);
-      res.status(500).json({ error: 'Error al crear la tarea' });
-    }
+    const nueva = await prisma.task.create({
+      data: { text, boardId },
+    });
+
+    res.status(201).json(nueva);
   }
 );
 

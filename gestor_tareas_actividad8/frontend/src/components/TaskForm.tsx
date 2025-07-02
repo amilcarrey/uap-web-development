@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAddTask } from '../hooks/useAddTask';
 import { useUpdateTask } from '../hooks/useUpdateTask';
 import { useUIStore } from '../store/uiStore';
+import axios from 'axios';
 
 interface TaskFormProps {
   boardId: string;
@@ -10,6 +11,7 @@ interface TaskFormProps {
 
 const TaskForm = ({ boardId, page }: TaskFormProps) => {
   const [text, setText] = useState('');
+  const [error, setError] = useState('');
   const { mutate: addTask } = useAddTask(boardId, page);
   const { mutate: updateTask } = useUpdateTask(boardId, page);
 
@@ -22,18 +24,46 @@ const TaskForm = ({ boardId, page }: TaskFormProps) => {
     }
   }, [editingTask]);
 
-  const handleAddOrEdit = () => {
+  const handleAddOrEdit = async () => {
     const trimmed = text.trim();
-    if (!trimmed) return;
-
-    if (editingTask) {
-      updateTask({ id: editingTask.id, text: trimmed });
-      setEditingTask(null);
-    } else {
-      addTask(trimmed);
+    if (!trimmed) {
+      setError('El texto es obligatorio');
+      return;
     }
 
-    setText('');
+    try {
+      if (editingTask) {
+        await updateTask(
+          { id: editingTask.id, text: trimmed },
+          {
+            onError: (err: any) => {
+              const res = err?.response?.data;
+              const detail = res?.details?.find((d: any) => d.path === 'text');
+              setError(detail?.message || res?.error || 'Error al editar');
+            },
+            onSuccess: () => {
+              setText('');
+              setEditingTask(null);
+              setError('');
+            }
+          }
+        );
+      } else {
+        await addTask(trimmed, {
+          onError: (err: any) => {
+            const res = err?.response?.data;
+            const detail = res?.details?.find((d: any) => d.path === 'text');
+            setError(detail?.message || res?.error || 'Error al agregar');
+          },
+          onSuccess: () => {
+            setText('');
+            setError('');
+          }
+        });
+      }
+    } catch (err) {
+      setError('Error inesperado');
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -43,32 +73,36 @@ const TaskForm = ({ boardId, page }: TaskFormProps) => {
   const handleCancel = () => {
     setEditingTask(null);
     setText('');
+    setError('');
   };
 
   return (
-    <div className="flex gap-2">
-      <input
-        className="border p-2 flex-1"
-        type="text"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={editingTask ? 'Editar tarea...' : 'Agregar tarea...'}
-      />
-      <button
-        className="bg-blue-500 text-white px-4"
-        onClick={handleAddOrEdit}
-      >
-        {editingTask ? 'Guardar' : 'Agregar'}
-      </button>
-      {editingTask && (
+    <div className="flex flex-col gap-1">
+      <div className="flex gap-2">
+        <input
+          className="border p-2 flex-1"
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={editingTask ? 'Editar tarea...' : 'Agregar tarea...'}
+        />
         <button
-          className="bg-gray-400 text-white px-4"
-          onClick={handleCancel}
+          className="bg-blue-500 text-white px-4"
+          onClick={handleAddOrEdit}
         >
-          Cancelar
+          {editingTask ? 'Guardar' : 'Agregar'}
         </button>
-      )}
+        {editingTask && (
+          <button
+            className="bg-gray-400 text-white px-4"
+            onClick={handleCancel}
+          >
+            Cancelar
+          </button>
+        )}
+      </div>
+      {error && <p className="text-red-500 text-sm pl-1">{error}</p>}
     </div>
   );
 };

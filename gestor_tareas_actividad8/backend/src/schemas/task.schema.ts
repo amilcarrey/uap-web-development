@@ -1,12 +1,7 @@
 import { z } from 'zod';
 
-export const createTaskSchema = z.object({
-  body: z.object({
-    text: z.string().min(1, 'El texto es obligatorio'),
-  }),
-  params: z.object({
-    boardId: z.string().uuid(),
-  }),
+export const createTaskBodySchema = z.object({
+  text: z.string().min(1, 'El texto es obligatorio'),
 });
 
 export const updateTaskSchema = z.object({
