@@ -4,12 +4,10 @@ import { isAuthenticated } from '../middlewares/isAuthenticated';
 import { canViewBoard } from '../middlewares/canViewBoard';
 import { canEditBoard } from '../middlewares/canEditBoard';
 
-
 const prisma = new PrismaClient();
 const router = Router();
 
-// 📋 Ver tareas de un tablero
-router.get('/boards/:boardId/tasks', isAuthenticated, canViewBoard, async (req: Request, res: Response) => {
+router.get('/boards/:boardId/tasks', isAuthenticated, canViewBoard, async (req: Request, res: Response): Promise<void> => {
   const { boardId } = req.params;
   const { search, page = 1 } = req.query;
 
@@ -22,13 +20,7 @@ router.get('/boards/:boardId/tasks', isAuthenticated, canViewBoard, async (req: 
   };
 
   try {
-    const tasks = await prisma.task.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take
-    });
-
+    const tasks = await prisma.task.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take });
     res.json(tasks);
   } catch (error) {
     console.error('Error al obtener tareas:', error);
@@ -36,19 +28,12 @@ router.get('/boards/:boardId/tasks', isAuthenticated, canViewBoard, async (req: 
   }
 });
 
-// ➕ Agregar tarea a un tablero
-router.post('/boards/:boardId/tasks', isAuthenticated, canEditBoard, async (req: Request, res: Response) => {
+router.post('/boards/:boardId/tasks', isAuthenticated, canEditBoard, async (req: Request, res: Response): Promise<void> => {
   const { boardId } = req.params;
   const { text } = req.body;
 
   try {
-    const nueva = await prisma.task.create({
-      data: {
-        text,
-        boardId
-      }
-    });
-
+    const nueva = await prisma.task.create({ data: { text, boardId } });
     res.status(201).json(nueva);
   } catch (error) {
     console.error('Error al crear tarea:', error);
@@ -56,17 +41,12 @@ router.post('/boards/:boardId/tasks', isAuthenticated, canEditBoard, async (req:
   }
 });
 
-// ✏️ Editar tarea
-router.patch('/tasks/:taskId', isAuthenticated, async (req: Request, res: Response) => {
+router.patch('/tasks/:taskId', isAuthenticated, async (req: Request, res: Response): Promise<void> => {
   const { taskId } = req.params;
   const { text, completed } = req.body;
 
   try {
-    const actualizada = await prisma.task.update({
-      where: { id: taskId },
-      data: { text, completed }
-    });
-
+    const actualizada = await prisma.task.update({ where: { id: taskId }, data: { text, completed } });
     res.json(actualizada);
   } catch (error) {
     console.error('Error al editar tarea:', error);
@@ -74,8 +54,7 @@ router.patch('/tasks/:taskId', isAuthenticated, async (req: Request, res: Respon
   }
 });
 
-// 🗑️ Eliminar tarea
-router.delete('/tasks/:taskId', isAuthenticated, async (req: Request, res: Response) => {
+router.delete('/tasks/:taskId', isAuthenticated, async (req: Request, res: Response): Promise<void> => {
   const { taskId } = req.params;
 
   try {
@@ -87,18 +66,11 @@ router.delete('/tasks/:taskId', isAuthenticated, async (req: Request, res: Respo
   }
 });
 
-// 🗑️ Eliminar todas las completadas de un board
-router.delete('/boards/:boardId/tasks/completed', isAuthenticated, canEditBoard, async (req: Request, res: Response) => {
+router.delete('/boards/:boardId/tasks/completed', isAuthenticated, canEditBoard, async (req: Request, res: Response): Promise<void> => {
   const { boardId } = req.params;
 
   try {
-    const result = await prisma.task.deleteMany({
-      where: {
-        boardId,
-        completed: true
-      }
-    });
-
+    const result = await prisma.task.deleteMany({ where: { boardId, completed: true } });
     res.json({ message: `Se eliminaron ${result.count} tareas completadas` });
   } catch (error) {
     console.error('Error al eliminar tareas completadas:', error);

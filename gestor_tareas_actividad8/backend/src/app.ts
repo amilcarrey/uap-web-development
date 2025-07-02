@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import boardRoutes from './routes/board.routes';
-//import '../types/express';
+//import './types/express';
 import shareRoutes from './routes/share.routes';
 import taskRoutes from './routes/task.routes';
 

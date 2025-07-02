@@ -1,57 +1,47 @@
 import { Router, Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { isAuthenticated } from '../middlewares/isAuthenticated';
+import { isOwner } from '../middlewares/isOwner';
 import { canViewBoard } from '../middlewares/canViewBoard';
 import { canEditBoard } from '../middlewares/canEditBoard';
-import { isOwner } from '../middlewares/isOwner';
-import { isAuthenticated } from '../middlewares/isAuthenticated';
-import { PrismaClient } from '@prisma/client';
-import { RequestHandler } from 'express';
 
 const router = Router();
 const prisma = new PrismaClient();
 
 // 🔐 Crear un tablero y asignar OWNER
-router.post('/', isAuthenticated, <RequestHandler>(async (req, res) => {
+router.post('/', isAuthenticated, async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.id;
-
   if (!userId) {
-    return res.status(401).json({ error: 'No autenticado' });
+    res.status(401).json({ error: 'No autenticado' });
+    return;
   }
 
   const { name } = req.body;
 
   try {
     const nuevo = await prisma.board.create({
-      data: {
-        name,
-        ownerId: userId
-      }
+      data: { name, ownerId: userId }
     });
-
     res.status(201).json(nuevo);
   } catch (error) {
     console.error('Error al crear tablero:', error);
     res.status(500).json({ error: 'Error al crear el tablero' });
   }
-}));
+});
 
-// 📋 Listar tableros accesibles (propios + compartidos)
-router.get('/', isAuthenticated, async (req: Request, res: Response) => {
+// 📋 Listar tableros accesibles
+router.get('/', isAuthenticated, async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.id;
 
   try {
-    const propios = await prisma.board.findMany({
-      where: { ownerId: userId }
-    });
+    const propios = await prisma.board.findMany({ where: { ownerId: userId } });
 
     const compartidos = await prisma.sharedBoard.findMany({
       where: { userId },
       include: { board: true }
     });
 
-    const todos = [
-      ...propios,
-      ...compartidos.map(entry => entry.board)
-    ];
+    const todos = [...propios, ...compartidos.map(entry => entry.board)];
 
     res.json(todos);
   } catch (error) {
@@ -60,14 +50,12 @@ router.get('/', isAuthenticated, async (req: Request, res: Response) => {
   }
 });
 
-router.delete('/:boardId', isAuthenticated, isOwner, async (req: Request, res: Response) => {
+// 🗑️ Eliminar un tablero (solo si sos OWNER)
+router.delete('/:boardId', isAuthenticated, isOwner, async (req: Request, res: Response): Promise<void> => {
   const { boardId } = req.params;
 
   try {
-    await prisma.board.delete({
-      where: { id: boardId }
-    });
-
+    await prisma.board.delete({ where: { id: boardId } });
     res.json({ message: 'Tablero eliminado correctamente' });
   } catch (error) {
     console.error('Error al eliminar tablero:', error);
@@ -75,24 +63,18 @@ router.delete('/:boardId', isAuthenticated, isOwner, async (req: Request, res: R
   }
 });
 
-
-// 👀 Ver un tablero
-router.get('/:boardId', canViewBoard, (req: Request, res: Response) => {
+// 👀 Ver un tablero (solo si tenés permiso)
+router.get('/:boardId', canViewBoard, (req: Request, res: Response): void => {
   res.json({ message: 'Accediste al tablero' });
 });
 
-// ✏️ Editar un tablero
-router.put('/:boardId', canEditBoard, (req: Request, res: Response) => {
+// ✏️ Editar un tablero (solo si sos editor o owner)
+router.put('/:boardId', canEditBoard, (req: Request, res: Response): void => {
   res.json({ message: 'Tablero editado' });
 });
 
-// 🗑️ Eliminar un tablero
-router.delete('/:boardId', isOwner, (req: Request, res: Response) => {
-  res.json({ message: 'Tablero eliminado' });
-});
-
 // 🤝 Compartir un tablero
-router.post('/:boardId/share', isOwner, async (req: Request, res: Response) => {
+router.post('/:boardId/share', isOwner, async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, role } = req.body;
     const { boardId } = req.params;
@@ -110,10 +92,7 @@ router.post('/:boardId/share', isOwner, async (req: Request, res: Response) => {
     }
 
     const existingShare = await prisma.sharedBoard.findFirst({
-      where: {
-        userId: user.id,
-        boardId: boardId
-      }
+      where: { userId: user.id, boardId }
     });
 
     const shared = existingShare
@@ -121,17 +100,13 @@ router.post('/:boardId/share', isOwner, async (req: Request, res: Response) => {
           where: {
             userId_boardId: {
               userId: user.id,
-              boardId: boardId
+              boardId
             }
           },
           data: { role }
         })
       : await prisma.sharedBoard.create({
-          data: {
-            userId: user.id,
-            boardId: boardId,
-            role
-          }
+          data: { userId: user.id, boardId, role }
         });
 
     res.json({

@@ -1,4 +1,4 @@
-export {}; // Necesario para que TypeScript lo trate como un módulo
+import { Request } from 'express';
 
 declare global {
   namespace Express {
@@ -10,3 +10,5 @@ declare global {
     }
   }
 }
+
+export {}; // Necesario para que sea tratado como módulo
