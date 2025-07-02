@@ -11,4 +11,4 @@ declare global {
   }
 }
 
-export {}; // Necesario para que sea tratado como módulo
+export {}; // Esto lo convierte en un módulo y evita conflictos

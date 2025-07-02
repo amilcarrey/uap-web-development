@@ -29,7 +29,7 @@ model Board {
   name      String
   owner     User          @relation("UserBoards", fields: [ownerId], references: [id])
   ownerId   String
-  tasks     Task[]
+  tasks  Task[]
   shared    SharedBoard[]
   createdAt DateTime      @default(now())
 }
@@ -50,18 +50,22 @@ model Task {
   id        String   @id @default(uuid())
   text      String
   completed Boolean  @default(false)
-  board     Board    @relation(fields: [boardId], references: [id])
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId   String
   createdAt DateTime @default(now())
 }
 
 model UserSettings {
-  id                    String  @id @default(uuid())
-  user                  User    @relation(fields: [userId], references: [id])
-  userId                String  @unique
-  refetchInterval       Int     @default(10)
-  uppercaseDescriptions Boolean @default(false)
+  id                      String   @id @default(uuid())
+  userId                  String   @unique
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refetchInterval         Int      @default(10000) // milisegundos
+  uppercaseDescriptions   Boolean  @default(false)
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }
+
 
 enum Role {
   OWNER

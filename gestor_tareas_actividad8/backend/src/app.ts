@@ -8,7 +8,7 @@ import boardRoutes from './routes/board.routes';
 //import './types/express';
 import shareRoutes from './routes/share.routes';
 import taskRoutes from './routes/task.routes';
-
+import settingsRoutes from './routes/settings.routes';
 
 dotenv.config();
 
@@ -29,6 +29,7 @@ app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/boards', boardRoutes);
 app.use('/', taskRoutes);
+app.use('/settings', settingsRoutes);
 
 export default app;
 

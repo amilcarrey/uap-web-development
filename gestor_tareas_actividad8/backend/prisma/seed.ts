@@ -18,6 +18,15 @@ async function main() {
     },
   });
 
+  // Crear configuración del usuario
+  await prisma.userSettings.create({
+    data: {
+      userId: user.id,
+      refetchInterval: 10000,           // 10 segundos
+      uppercaseDescriptions: false,
+    },
+  });
+
   const boardsWithTasks = [
     {
       name: 'trabajo',
@@ -47,7 +56,6 @@ async function main() {
     console.log(`Tablero creado: ${board.name}`);
   }
 }
-
 
 main()
   .then(() => {

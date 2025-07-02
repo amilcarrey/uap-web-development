@@ -1,9 +1,10 @@
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
 import FilterButtons from '../components/FilterButtons';
 import ClearCompleted from '../components/ClearCompleted';
+import TaskSearch from '../components/TaskSearch';
 import { useTasks } from '../hooks/useTasks';
 import { useUIStore } from '../store/uiStore';
 import Loader from '../components/Loader';
@@ -14,6 +15,7 @@ import { toast } from 'react-hot-toast';
 const Home = () => {
   const { boardId } = useParams();
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
 
   const {
     tasks,
@@ -21,7 +23,7 @@ const Home = () => {
     isLoading,
     isError,
     refetch
-  } = useTasks(boardId || '', page);
+  } = useTasks(boardId || '', page, search);
 
   const filter = useUIStore((state) => state.filter);
   const setFilter = useUIStore((state) => state.setFilter);
@@ -32,7 +34,7 @@ const Home = () => {
     return true;
   });
 
-  const totalPages = Math.max(1, Math.ceil(total / 5));
+  const totalPages = Math.max(1, Math.ceil(total / 10));
 
   const toggleTask = async (id: string) => {
     try {
@@ -40,6 +42,15 @@ const Home = () => {
       refetch();
     } catch {
       toast.error('Error al cambiar estado');
+    }
+  };
+
+  const deleteTask = async (id: string) => {
+    try {
+      await api.delete(`/tasks/${id}`);
+      refetch();
+    } catch {
+      toast.error('Error al eliminar tarea');
     }
   };
 
@@ -52,13 +63,19 @@ const Home = () => {
     }
   };
 
+  // Reiniciar a página 1 si cambia la búsqueda
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
   if (isLoading) return <Loader />;
   if (isError) return <ErrorMessage message="Error al cargar las tareas" />;
 
   return (
     <div className="max-w-xl mx-auto p-4 space-y-4">
       <TaskForm boardId={boardId || ''} page={page} />
-      <TaskList tasks={filtered} onToggle={toggleTask} />
+      <TaskSearch onSearch={setSearch} />
+      <TaskList tasks={filtered} onToggle={toggleTask} onDelete={deleteTask} />
       <FilterButtons currentFilter={filter} onChange={setFilter} />
       <ClearCompleted onClear={clearCompleted} />
 
