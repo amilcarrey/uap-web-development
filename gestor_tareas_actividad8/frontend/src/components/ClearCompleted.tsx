@@ -8,9 +8,9 @@ const ClearCompleted: React.FC<ClearCompletedProps> = ({ onClear }) => {
   return (
     <button
       onClick={onClear}
-      className="mt-4 text-sm text-red-500 hover:text-red-700 underline"
+      className="text-sm text-red-500 hover:text-red-700 underline"
     >
-      Clear Completed
+      Borrar completadas
     </button>
   );
 };

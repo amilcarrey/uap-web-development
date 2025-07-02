@@ -21,7 +21,10 @@ router.get('/boards/:boardId/tasks', isAuthenticated, canViewBoard, async (req: 
 
   try {
     const tasks = await prisma.task.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take });
-    res.json(tasks);
+    res.json({
+      tasks,
+      total: await prisma.task.count({ where })
+    });
   } catch (error) {
     console.error('Error al obtener tareas:', error);
     res.status(500).json({ error: 'Error al obtener tareas' });
@@ -65,6 +68,30 @@ router.delete('/tasks/:taskId', isAuthenticated, async (req: Request, res: Respo
     res.status(500).json({ error: 'Error al eliminar la tarea' });
   }
 });
+
+router.patch('/tasks/:taskId/toggle', isAuthenticated, async (req: Request, res: Response): Promise<void> => {
+  const { taskId } = req.params;
+
+  try {
+    const tarea = await prisma.task.findUnique({ where: { id: taskId } });
+
+    if (!tarea) {
+      res.status(404).json({ error: 'Tarea no encontrada' });
+      return;
+    }
+
+    const actualizada = await prisma.task.update({
+      where: { id: taskId },
+      data: { completed: !tarea.completed }
+    });
+
+    res.json(actualizada);
+  } catch (error) {
+    console.error('Error al cambiar estado:', error);
+    res.status(500).json({ error: 'Error al cambiar estado' });
+  }
+});
+
 
 router.delete('/boards/:boardId/tasks/completed', isAuthenticated, canEditBoard, async (req: Request, res: Response): Promise<void> => {
   const { boardId } = req.params;

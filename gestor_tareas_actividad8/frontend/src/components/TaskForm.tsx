@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useAddTask } from '../hooks/useAddTask';
-import { useTasks } from '../hooks/useTasks';
+import { useUpdateTask } from '../hooks/useUpdateTask';
 import { useUIStore } from '../store/uiStore';
 
 interface TaskFormProps {
   boardId: string;
+  page: number;
 }
 
-const TaskForm = ({ boardId }: TaskFormProps) => {
+const TaskForm = ({ boardId, page }: TaskFormProps) => {
   const [text, setText] = useState('');
-  const addTask = useAddTask();
-  const { updateTask } = useTasks(boardId);
+  const { mutate: addTask } = useAddTask(boardId, page);
+  const { mutate: updateTask } = useUpdateTask(boardId, page);
+
   const editingTask = useUIStore((s) => s.editingTask);
   const setEditingTask = useUIStore((s) => s.setEditingTask);
 
@@ -21,13 +23,14 @@ const TaskForm = ({ boardId }: TaskFormProps) => {
   }, [editingTask]);
 
   const handleAddOrEdit = () => {
-    if (!text.trim()) return;
+    const trimmed = text.trim();
+    if (!trimmed) return;
 
     if (editingTask) {
-      updateTask(editingTask.id, text.trim());
+      updateTask({ id: editingTask.id, text: trimmed });
       setEditingTask(null);
     } else {
-      addTask.mutate(text.trim());
+      addTask(trimmed);
     }
 
     setText('');
@@ -50,13 +53,19 @@ const TaskForm = ({ boardId }: TaskFormProps) => {
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder={editingTask ? "Editar tarea..." : "Agregar tarea..."}
+        placeholder={editingTask ? 'Editar tarea...' : 'Agregar tarea...'}
       />
-      <button className="bg-blue-500 text-white px-4" onClick={handleAddOrEdit}>
+      <button
+        className="bg-blue-500 text-white px-4"
+        onClick={handleAddOrEdit}
+      >
         {editingTask ? 'Guardar' : 'Agregar'}
       </button>
       {editingTask && (
-        <button className="bg-gray-400 text-white px-4" onClick={handleCancel}>
+        <button
+          className="bg-gray-400 text-white px-4"
+          onClick={handleCancel}
+        >
           Cancelar
         </button>
       )}

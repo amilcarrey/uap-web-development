@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
 
-export function useAddTask(boardId: string, page: number = 1) {
+export function useUpdateTask(boardId: string, page: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (text: string) =>
-      api.post(`/boards/${boardId}/tasks`, { text }),
+    mutationFn: ({ id, text }: { id: string; text: string }) =>
+      api.patch(`/tasks/${id}`, { text }),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
