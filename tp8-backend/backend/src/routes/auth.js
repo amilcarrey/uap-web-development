@@ -24,11 +24,21 @@ router.post('/registro', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const usuario = await prisma.usuario.findUnique({ where: { email } });
+
   if (!usuario || !(await bcrypt.compare(password, usuario.password))) {
     return res.status(401).json({ error: 'Credenciales inválidas' });
   }
+
   const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET);
-  res.cookie('token', token, { httpOnly: true }).json({ message: 'Login exitoso' });
+
+  // Enviar cookie + objeto usuario (sin contraseña)
+  res.cookie('token', token, { httpOnly: true }).json({
+    usuario: {
+      id: usuario.id,
+      email: usuario.email,
+      nombre: usuario.nombre,
+    },
+  });
 });
 
 router.get('/logout', (req, res) => {
@@ -37,6 +47,10 @@ router.get('/logout', (req, res) => {
 
 router.get('/perfil', requireAuth, async (req, res) => {
   res.json(req.usuario);
+});
+
+router.get('/yo', requireAuth, (req, res) => {
+  res.json(req.usuario); // Esto devuelve el usuario autenticado
 });
 
 export default router;
