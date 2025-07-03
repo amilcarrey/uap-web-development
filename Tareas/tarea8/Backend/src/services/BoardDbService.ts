@@ -1,16 +1,12 @@
 import { prisma } from '../prisma';
 import { CreateBoardDTO } from '../DTOs/board/CreateBoardSchema';
-import { Board } from '../models/Board';
 import { Permission, PermissionLevel } from '../models/Permission';
 import { IBoardService } from '../Interfaces/IBoardService';
 import { BoardDTO } from '../DTOs/board/BoardSchema';
 import { UpdateBoardDTO } from '../DTOs/board/UpdateBoardSchema';
-import { UserPermissionDTO } from '../DTOs/permission/UserPermissionSchema';
-import { Task } from '../models/Task';
-import { permission } from 'process';
 
 export class BoardService implements IBoardService{
-    //Buscar todos los tableros
+    
     async getBoards(): Promise<BoardDTO[]> {
         const boards = await prisma.board.findMany({
             include: {
@@ -22,7 +18,7 @@ export class BoardService implements IBoardService{
         return boards.map((board: any) => this.mapToBoardDTO(board));
     }
 
-    //Busca los tableros del usuario
+    
     async getBoardsForUser(userId: number): Promise<BoardDTO[]> {
         const ownedBoards = await prisma.board.findMany({
             where: {ownerId: userId},
@@ -42,20 +38,20 @@ export class BoardService implements IBoardService{
             .filter((board, index, self) =>
                 index === self.findIndex(b => b.id === board.id)
             )
-            // Filtrar solo tableros donde el usuario tiene permisos actuales o es el propietario
+            
             .filter((board: any) => {
-                // Si es propietario, siempre incluirlo
+                
                 if (board.ownerId === userId) {
                     return true;
                 }
-                // Si no es propietario, verificar que tenga permisos activos
+                
                 return board.permissions.some((perm: any) => perm.userId === userId);
             });
 
         return allBoards.map((board: any) => this.mapToBoardDTO(board, userId));
     }
 
-    //Buscar un tablero por su ID
+    
     async getBoardById(boardId: number): Promise<BoardDTO | null> {
         const board = await prisma.board.findUnique({
             where: { id: boardId },
@@ -71,10 +67,10 @@ export class BoardService implements IBoardService{
         return this.mapToBoardDTO(board);
     }
     
-    //Actualizar tablero
+    
     async updateBoard(boardId: number, data: UpdateBoardDTO): Promise<BoardDTO> {
         const board = await this.getBoardById(boardId);
-        // getBoardById ya lanza error 404 si no existe
+        
 
         if(!board){
             const error = new Error("Tablero no encontrado"); 
@@ -100,7 +96,7 @@ export class BoardService implements IBoardService{
         return updatedBoard;
     }
     
-    //Eliminar tablero
+    
     async deleteBoard(userId: number, boardId: number): Promise<void> {
         const board = await prisma.board.findUnique({
             where: {id: boardId}
@@ -132,7 +128,7 @@ export class BoardService implements IBoardService{
     }
     
 
-    //Crear tablero
+    
     async createBoard(userId: number, data: CreateBoardDTO): Promise<BoardDTO> {
         const board = await prisma.board.create({
             data: {
@@ -167,14 +163,14 @@ export class BoardService implements IBoardService{
     }
 
     private mapToBoardDTO(board: any, userId?: number): BoardDTO {
-        // Determinar el rol del usuario actual si se proporciona userId
+        
         let userRole: "OWNER" | "EDITOR" | "VIEWER" = "VIEWER";
         
         if (userId !== undefined) {
             if (board.ownerId === userId) {
                 userRole = "OWNER";
             } else {
-                // Buscar el permiso del usuario en este tablero
+                
                 const userPermission = board.permissions ? board.permissions.find((perm: any) => perm.userId === userId) : null;
                 userRole = userPermission ? userPermission.level : "VIEWER";
             }

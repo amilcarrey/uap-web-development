@@ -9,7 +9,7 @@ const taskService = new TaskDbService();
 
 export class TaskController {
 
-    //Crear Tarea
+    
     static async createTask(req: Request, res: Response) {
         const parseResult = CreateTaskSchema.safeParse(req.body);
         if (!parseResult.success) {
@@ -21,7 +21,7 @@ export class TaskController {
 
         const data: CreateTaskDTO = parseResult.data;
         const currentUserId = (req as any).user?.id;
-        const boardId = Number(req.params.boardId); // Extraer boardId de la URL
+        const boardId = Number(req.params.boardId); 
 
         console.log(`currentUserId: ${currentUserId}, boardId: ${boardId}`);
         console.log(`req.params: ${JSON.stringify(req.params)}`);
@@ -38,9 +38,9 @@ export class TaskController {
         res.status(201).json(task);
         }
 
-    //Obtener tareas de un tablero (paginadas)
+    
     static async getTaks(req: Request, res: Response){
-        // Transforma los parámetros de query a los tipos correctos
+        
         const query = {
             ...req.query,
             page: req.query.page ? Number(req.query.page) : undefined,
@@ -48,7 +48,7 @@ export class TaskController {
             active: req.query.active !== undefined ? req.query.active === "true" : undefined,
         };
 
-        //console.log(req.params)
+        
         const boardId = Number(req.params.boardId);
 
         const parseResult = TaskQuerySchema.safeParse(query);
@@ -63,7 +63,7 @@ export class TaskController {
         const currentUserId = (req as any).user?.id;
 
         if (!currentUserId || isNaN(boardId)) {
-            //console.log(`currentUserId: ${currentUserId}, boardId: ${boardId}`);
+            
             const error = new Error("ID de usuario o tablero inválido");
             (error as any).status = 400;
             throw error;
@@ -73,7 +73,7 @@ export class TaskController {
         res.json(tasks);
     }
 
-    //Actualizar una tarea
+    
     static async updateTask(req: Request, res: Response){
         const parseResult = UpdateTaskSchema.safeParse(req.body);
         if(!parseResult.success){
@@ -96,7 +96,7 @@ export class TaskController {
         res.json(update);
     }
 
-    //Eliminar una tarea
+    
     static async deleteTask(req: Request, res: Response){
         const taskId = Number(req.params.taskId);
         const currentUserId = (req as any).user?.id;
@@ -110,7 +110,7 @@ export class TaskController {
         res.status(204).send();
     }
 
-    //Eliminar tareas completadas de un tablero
+    
     static async deleteCompletedTasks(req: Request, res: Response) {
         const currentUserId = (req as any).user?.id;
         const boardId = Number(req.params.boardId);
@@ -127,17 +127,5 @@ export class TaskController {
 
 
     
-    /*
-    //Obtener una tarea por su ID (Solamente para realizar pruebas)
-    static async getTaskById(req: Request, res: Response){
-        const taskId = Number(req.params.taskId);
-        if (isNaN(taskId)) {
-            const error = new Error("ID de tarea inválido");
-            (error as any).status = 400;
-            throw error;
-        }
-        const task = await taskService.getTaskById(taskId);
-        res.json(task);
-    }
-    */
+    
 }

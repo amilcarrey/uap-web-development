@@ -3,7 +3,7 @@ import { UserSettings } from './UserSettings';
 import { Configuracion } from './Configuracion';
 import { useSettingsNavigation, useSettingsKeyboardShortcuts } from '../hooks/useSettingsNavigation';
 
-// Tipos para las tabs de configuración
+// 📌 Tipo para cada pestaña de configuración
 interface ConfigTab {
   id: string;
   label: string;
@@ -14,10 +14,10 @@ interface ConfigTab {
 }
 
 export function UnifiedSettingsPage() {
-  // Usar el hook personalizado para navegación
+  // 🧭 Hook de navegación entre pestañas
   const { activeTab, navigateToTab } = useSettingsNavigation();
 
-  // Definir las tabs de configuración disponibles
+  // 🗂️ Definición de pestañas disponibles
   const configTabs: ConfigTab[] = [
     {
       id: 'profile',
@@ -36,7 +36,7 @@ export function UnifiedSettingsPage() {
     {
       id: 'application',
       label: 'Aplicación',
-      icon: '🔧',
+      icon: '🧩',
       description: 'Configuraciones globales (intervalos, comportamiento)',
       component: Configuracion
     }
@@ -45,39 +45,36 @@ export function UnifiedSettingsPage() {
   const activeTabData = configTabs.find(tab => tab.id === activeTab);
   const ActiveComponent = activeTabData?.component;
 
-  // Configurar atajos de teclado
+  // ⌨️ Atajos de teclado para cambiar pestañas
   useSettingsKeyboardShortcuts(configTabs, navigateToTab);
 
   const handleTabChange = (tabId: string) => {
     navigateToTab(tabId);
-    // Opcional: mostrar un toast suave para confirmar el cambio
-    // const tabName = configTabs.find(tab => tab.id === tabId)?.label;
     // toast.success(`Navegando a ${tabName}`, { duration: 1000 });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-indigo-50 py-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <span className="text-2xl">⚙️</span>
+        {/* 🧱 Encabezado */}
+        <div className="mb-10">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-indigo-100 rounded-xl shadow-sm">
+              <span className="text-3xl">⚙️</span>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Configuraciones</h1>
-              <p className="mt-1 text-gray-600">
+              <h1 className="text-4xl font-extrabold text-indigo-900">Configuraciones</h1>
+              <p className="mt-1 text-indigo-600 text-sm">
                 Gestiona tu perfil, preferencias y configuraciones de la aplicación
               </p>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-          {/* Tab Navigation */}
-          <div className="border-b border-gray-200 bg-gray-50">
-            <nav className="flex space-x-8 px-6" aria-label="Tabs">
+        {/* 🧭 Navegación de pestañas */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden border border-indigo-200">
+          <div className="border-b border-indigo-200 bg-indigo-50">
+            <nav className="flex space-x-6 px-6" aria-label="Tabs">
               {configTabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -86,8 +83,8 @@ export function UnifiedSettingsPage() {
                     group relative flex items-center space-x-3 py-4 px-2 border-b-2 font-medium text-sm
                     transition-all duration-200 ease-in-out
                     ${activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600 bg-white rounded-t-lg -mb-px'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-indigo-500 text-indigo-700 bg-white rounded-t-lg -mb-px'
+                      : 'border-transparent text-indigo-500 hover:text-indigo-700 hover:border-indigo-300'
                     }
                   `}
                 >
@@ -98,12 +95,12 @@ export function UnifiedSettingsPage() {
                     <div className="flex items-center space-x-2">
                       <span>{tab.label}</span>
                       {tab.badge && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                           {tab.badge}
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-gray-500 font-normal mt-0.5 hidden sm:block">
+                    <div className="text-xs text-indigo-500 font-normal mt-0.5 hidden sm:block">
                       {tab.description}
                     </div>
                   </div>
@@ -112,7 +109,7 @@ export function UnifiedSettingsPage() {
             </nav>
           </div>
 
-          {/* Tab Content */}
+          {/* 🧩 Contenido de la pestaña activa */}
           <div className="p-8">
             <div className="max-w-4xl mx-auto">
               {ActiveComponent && <ActiveComponent />}
@@ -120,9 +117,9 @@ export function UnifiedSettingsPage() {
           </div>
         </div>
 
-        {/* Footer Info */}
-        <div className="mt-8 text-center">
-          <div className="inline-flex items-center space-x-2 text-sm text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border">
+        {/* 💡 Pie de página */}
+        <div className="mt-10 text-center">
+          <div className="inline-flex items-center space-x-2 text-sm text-indigo-600 bg-white px-4 py-2 rounded-full shadow-sm border border-indigo-200">
             <span>💡</span>
             <span><strong>Tip:</strong> Los cambios se guardan automáticamente</span>
           </div>

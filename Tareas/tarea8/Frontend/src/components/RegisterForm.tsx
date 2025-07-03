@@ -8,29 +8,34 @@ export function RegisterForm() {
     alias: "",
     password: "",
   });
+
   const { register, loading, error: apiError, setError: setApiError } = useRegister();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setApiError(null);
+
+    // Validate all fields are filled
     if (!fields.firstName || !fields.lastName || !fields.alias || !fields.password) {
       setError("Completa todos los campos");
       return;
     }
+
+    // Attempt registration
     const ok = await register(fields.firstName, fields.lastName, fields.alias, fields.password);
     if (!ok) {
-      // El error ya lo maneja el hook
+      // Error is handled by the hook
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5 p-4 bg-white rounded-lg shadow-md">
       <input
         name="firstName"
         type="text"
         placeholder="Nombre"
-        className="w-full px-3 py-2 border rounded"
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
         value={fields.firstName}
         onChange={handleChange}
       />
@@ -38,7 +43,7 @@ export function RegisterForm() {
         name="lastName"
         type="text"
         placeholder="Apellido"
-        className="w-full px-3 py-2 border rounded"
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
         value={fields.lastName}
         onChange={handleChange}
       />
@@ -46,7 +51,7 @@ export function RegisterForm() {
         name="alias"
         type="text"
         placeholder="Alias"
-        className="w-full px-3 py-2 border rounded"
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
         value={fields.alias}
         onChange={handleChange}
       />
@@ -54,13 +59,21 @@ export function RegisterForm() {
         name="password"
         type="password"
         placeholder="Contraseña"
-        className="w-full px-3 py-2 border rounded"
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
         value={fields.password}
         onChange={handleChange}
       />
-      {(error || apiError) && <div className="text-red-500 text-sm">{error || apiError}</div>}
-      <button type="submit" disabled={loading} className="w-full py-2 bg-[#a57a5a] text-white rounded hover:bg-[#8a6247]">
-        {loading ? "Cargando..." : "Registrarse"}
+
+      {(error || apiError) && (
+        <div className="text-red-600 text-sm font-medium">{error || apiError}</div>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
+      >
+        {loading ? "Loading..." : "Sign Up"}
       </button>
     </form>
   );

@@ -1,6 +1,7 @@
 import { useAuthForm } from "../hooks/useAuthForm";
 import { useLogin } from "../hooks/useLogin";
 
+// Formulario de ingreso de usuario
 export function LoginForm() {
   const { fields, handleChange, error, setError } = useAuthForm({ alias: "", password: "" });
   const { login, loading, error: apiError, setError: setApiError } = useLogin();
@@ -10,12 +11,12 @@ export function LoginForm() {
     setError("");
     setApiError(null);
     if (!fields.alias || !fields.password) {
-      setError("Completa todos los campos");
+      setError("Faltan datos");
       return;
     }
     const ok = await login(fields.alias, fields.password);
     if (!ok) {
-      // El error ya lo maneja el hook
+      // Error manejado desde el hook
     }
   };
 
@@ -39,7 +40,7 @@ export function LoginForm() {
       />
       {(error || apiError) && <div className="text-red-500 text-sm">{error || apiError}</div>}
       <button type="submit" disabled={loading} className="w-full py-2 bg-[#a57a5a] text-white rounded hover:bg-[#8a6247]">
-        {loading ? "Cargando..." : "Iniciar sesión"}
+        {loading ? "Entrando..." : "Iniciar sesión"}
       </button>
     </form>
   );

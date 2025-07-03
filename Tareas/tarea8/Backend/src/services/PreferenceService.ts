@@ -12,7 +12,7 @@ export class PreferenceService implements IPreferenceService {
         }
         const pref = await prisma.preference.findUnique({ where: { userId } });
         if (!pref) {
-            // Devuelve valores por defecto si no existen preferencias
+            
             return {
                 userId,
                 itemsPerPage: 10,

@@ -8,6 +8,11 @@ interface Props {
   onClose: () => void;
 }
 
+/**
+ * ShareBoardModalComplete
+ * Modal que permite compartir un tablero con otros usuarios.
+ * Muestra el título del tablero y su ID, y renderiza el contenido de compartir.
+ */
 export function ShareBoardModalComplete({ boardId, boardTitle, isOpen, onClose }: Props) {
   return (
     <BaseModal 
@@ -18,7 +23,7 @@ export function ShareBoardModalComplete({ boardId, boardTitle, isOpen, onClose }
       closeOnBackdropClick={true}
     >
       <div className="p-6">
-        {/* Header */}
+        {/* Encabezado del modal */}
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-800">
             Compartir Tablero
@@ -26,13 +31,9 @@ export function ShareBoardModalComplete({ boardId, boardTitle, isOpen, onClose }
               <span className="text-blue-600 ml-2">"{boardTitle}"</span>
             )}
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Comparte este tablero con otros usuarios y gestiona sus permisos
-            <span className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded">{boardId}</span>
-          </p>
         </div>
-        
-        {/* Content - Key específica por tablero para forzar re-mount y aislamiento */}
+
+        {/* Contenido del modal */}
         <ShareBoardContent key={boardId} boardId={boardId} />
       </div>
     </BaseModal>

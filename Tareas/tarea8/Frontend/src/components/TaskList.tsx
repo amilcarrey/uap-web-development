@@ -1,47 +1,41 @@
-//src\components\TaskList.tsx
-
-
 import { TaskItem } from "./TaskItem";
 import { EmptyTasksMessage } from "./EmptyTasksMessage";
 
-// Definición de la estructura básica de una tarea
+// 📌 Estructura de una tarea
 export interface Task {
-  id: string;          // Identificador único de la tarea
-  content: string;        // Texto descriptivo de la tarea
-  active: boolean;  // Estado de la tarea: completada o no
+  id: string;          // ID único
+  content: string;     // Descripción
+  active: boolean;     // Estado: activa o completada
+  boardId: string;     // ID del tablero
+  createdAt: string;   // Fecha de creación
+  updatedAt: string;   // Fecha de actualización
 }
 
-// Props que recibe el componente TaskList
+// 📦 Props del componente TaskList
 export interface Props {
-  tasks: Task[];   // Lista de tareas que se van a mostrar
-  tabId: string;   // ID de la pestaña a la que pertenecen estas tareas
-  isLoading?: boolean; // Indicador de carga
+  tasks: Task[];         // Lista de tareas
+  tabId: string;         // ID del tablero
+  isLoading?: boolean;   // Indicador de carga
 }
 
 /**
- * Componente TaskList
- * Se encarga de mostrar una lista de tareas.
- * Para cada tarea recibe un TaskItem, al que pasa las funciones para cambiar estado y eliminar.
- * Este componente es solo responsable de listar las tareas dentro de un contenedor <ul> con estilos.
+ * 📋 TaskList
+ * Muestra una lista de tareas o un mensaje si no hay ninguna.
  */
-//export function TaskList({ tasks, tabId, onToggle, onDelete }: Props) {
-export function TaskList({tasks, tabId, isLoading = false}: Props){
-
-  // Si no hay tareas, mostrar el mensaje apropiado
+export function TaskList({ tasks, tabId, isLoading = false }: Props) {
+  // 🕳️ Si no hay tareas, mostrar mensaje vacío
   if (tasks.length === 0) {
     return <EmptyTasksMessage boardId={tabId} isLoading={isLoading} />;
   }
 
-return (
-    <ul className="task-list bg-[antiquewhite] p-5 rounded-lg mb-5 list-none">
-      {/* Por cada tarea en el array, renderiza un TaskItem con sus props correspondientes */}
+  return (
+    <ul className="task-list bg-indigo-50 p-6 rounded-xl mb-6 list-none shadow-sm border border-indigo-100">
+      {/* 🧱 Renderizar cada tarea */}
       {tasks.map((task) => (
         <TaskItem
-          key={task.id}      // Key única para React
-          task={task}        // La tarea en sí
-          tabId={tabId}      // La pestaña a la que pertenece
-          //onToggle={onToggle} // Función para marcar completada o pendiente
-          //onDelete={onDelete} // Función para eliminar la tarea
+          key={task.id}
+          task={task}
+          tabId={tabId}
         />
       ))}
     </ul>

@@ -6,7 +6,7 @@ const userService = new UserDbService();
 
 export class UserController {
   
-  // GET /api/users/profile - Obtener perfil del usuario
+  
   static async getProfile(req: Request, res: Response) {
     const currentUser = (req as any).user;
     
@@ -33,7 +33,7 @@ export class UserController {
     });
   }
 
-  // PUT /api/users/profile - Actualizar perfil del usuario
+  
   static async updateProfile(req: Request, res: Response) {
     const currentUser = (req as any).user;
     
@@ -70,7 +70,7 @@ export class UserController {
     }
   }
 
-  // GET /api/users/search?q=... - Buscar usuarios por alias
+  
   static async searchUsers(req: Request, res: Response) {
     const currentUser = (req as any).user;
     
@@ -91,11 +91,11 @@ export class UserController {
     try {
       const users = await userService.searchUsersByAlias(query);
       
-      // Filtrar el usuario actual de los resultados
+      
       const filteredUsers = users.filter(user => user.alias !== currentUser.alias);
       
       res.json(filteredUsers.map((user: any) => ({
-        id: user.id,              // ← ✅ Agregar ID faltante
+        id: user.id,              
         alias: user.alias,
         firstName: user.firstName,
         lastName: user.lastName
@@ -107,13 +107,9 @@ export class UserController {
     }
   }
 
-  /*
-  ------------------------------------------------------------
-  Métodos de prueba (no se utilizan en producción)
-  ------------------------------------------------------------
-  */
+  
   static async register(req: Request, res: Response) {
-    // Validar con Zod
+    
     const parseResult = RegistrerUserSchema.safeParse(req.body);
     
     if (!parseResult.success) {
@@ -144,7 +140,7 @@ export class UserController {
     res.json(users);
   }
 
-  // GET /api/users - Obtener todos los usuarios disponibles para compartir tableros
+  
   static async getAllUsers(req: Request, res: Response) {
     const currentUser = (req as any).user;
     
@@ -156,8 +152,8 @@ export class UserController {
     }
 
     try {
-      // Obtener parámetros de paginación
-      const limit = Math.min(parseInt(req.query.limit as string) || 50, 100); // Máximo 100
+      
+      const limit = Math.min(parseInt(req.query.limit as string) || 50, 100); 
       const offset = parseInt(req.query.offset as string) || 0;
 
       const allUsers = await userService.getAllUsersExcludingCurrent(
@@ -166,15 +162,10 @@ export class UserController {
         offset
       );
 
-      // Log para debugging
-      /*
-      console.log(`📋 Lista de usuarios solicitada por ${currentUser.alias}:`);
-      console.log(`   - Usuario actual ID: ${currentUser.id}`);
-      console.log(`   - Usuarios encontrados: ${allUsers.users.length}`);
-      console.log(`   - Límite: ${limit}, Offset: ${offset}`);
-      */
+      
+      
 
-      // Respuesta con metadatos
+      
       res.json({
         users: allUsers.users.map((user: any) => ({
           id: user.id,
@@ -204,5 +195,3 @@ export class UserController {
     }
   }
 }
-
-

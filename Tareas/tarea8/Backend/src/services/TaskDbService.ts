@@ -7,9 +7,9 @@ import { Paginated } from "../Interfaces/Paginated";
 import { prisma } from "../prisma";
 
 export class TaskDbService implements ITaskService {
-    // Crea una tarea en un tablero específico
+    
     async createTask(userId: number, boardId: number, data: CreateTaskDTO): Promise<TaskDTO> {
-        // Verifica que el usuario tenga acceso al board
+        
         const board = await prisma.board.findUnique({
             where: { id: boardId },
             include: { permissions: true }
@@ -36,9 +36,9 @@ export class TaskDbService implements ITaskService {
         return this.mapToTaskDTO(task);
     }
 
-    // Obtiene tareas paginadas de un tablero
+    
     async getTask(userId: number, boardId: number, query: TaskQueryDTO): Promise<Paginated<TaskDTO>> {
-        // 1. Verifica que el tablero existe
+        
         const board = await prisma.board.findUnique({
             where: { id: boardId },
             include: { permissions: true }
@@ -49,7 +49,7 @@ export class TaskDbService implements ITaskService {
             throw error;
         }
 
-        // 2. Verifica que el usuario tiene permiso
+        
         const isOwner = board.ownerId === userId;
         const hasPermission = board.permissions.some((p: any) => p.userId === userId);
         if (!isOwner && !hasPermission) {
@@ -58,7 +58,7 @@ export class TaskDbService implements ITaskService {
             throw error;
         }
 
-        // 3. Lógica de paginación y filtrado
+        
         const page = query.page || 1;
         const pageSize = query.limit || 10;
         const where: any = { boardId };
@@ -80,7 +80,7 @@ export class TaskDbService implements ITaskService {
         };
     }
 
-    // Actualiza una tarea
+    
     async updateTask(taskId: number, data: UpdateTaskDTO, userId: number): Promise<TaskDTO> {
         const task = await prisma.task.findUnique({ where: { id: taskId } });
         if (!task) {
@@ -88,7 +88,7 @@ export class TaskDbService implements ITaskService {
             (error as any).status = 404;
             throw error;
         }
-        // Verifica que el usuario tenga permiso sobre el board de la tarea
+        
         const board = await prisma.board.findUnique({
             where: { id: task.boardId },
             include: { permissions: true }
@@ -112,7 +112,7 @@ export class TaskDbService implements ITaskService {
         return this.mapToTaskDTO(updated);
     }
 
-    // Elimina una tarea
+    
     async deleteTask(taskId: number, userId: number): Promise<void> {
         const task = await prisma.task.findUnique({ where: { id: taskId } });
         if (!task) {
@@ -120,7 +120,7 @@ export class TaskDbService implements ITaskService {
             (error as any).status = 404;
             throw error;
         }
-        // Verifica que el usuario tenga permiso sobre el board de la tarea
+        
         const board = await prisma.board.findUnique({
             where: { id: task.boardId },
             include: { permissions: true }
@@ -140,9 +140,9 @@ export class TaskDbService implements ITaskService {
         await prisma.task.delete({ where: { id: taskId } });
     }
 
-    // Elimina todas las tareas completadas de un tablero
+    
     async deleteCompletedTasks(userId: number, boardId: number): Promise<number> {
-        // 1. Verifica que el tablero existe y permisos
+        
         const board = await prisma.board.findUnique({
             where: { id: boardId },
             include: { permissions: true }
@@ -160,17 +160,17 @@ export class TaskDbService implements ITaskService {
             throw error;
         }
 
-        // 2. Elimina todas las tareas completadas (active: true)
+        
         const result = await prisma.task.deleteMany({
             where: {
                 boardId,
                 active: true
             }
         });
-        return result.count; // Devuelve cuántas tareas fueron eliminadas
+        return result.count; 
     }
 
-    // Función privada para mapear a DTO
+    
     private mapToTaskDTO(task: any): TaskDTO {
         return {
             id: task.id,

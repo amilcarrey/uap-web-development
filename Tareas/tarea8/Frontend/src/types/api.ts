@@ -1,4 +1,3 @@
-// Respuestas genéricas de la API
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -33,7 +32,6 @@ export interface PaginatedResponse<T> {
   hasPrev: boolean;
 }
 
-// Para validaciones
 export interface ValidationError {
   field: string;
   message: string;

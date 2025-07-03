@@ -23,7 +23,6 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
   const [selectedPermissionLevel, setSelectedPermissionLevel] = useState<'EDITOR' | 'VIEWER'>('EDITOR');
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
 
-  // Helper function para obtener inicial de usuario de forma segura
   const getUserInitial = (user: User): string => {
     if (!user) return '?';
     
@@ -41,7 +40,6 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     return name.charAt(0).toUpperCase();
   };
 
-  // Helper function para obtener el nombre completo del usuario
   const getUserDisplayName = (user: User): string => {
     if (!user) return 'Usuario desconocido';
     
@@ -57,10 +55,8 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     return 'Sin nombre';
   };
 
-  // Obtener usuario actual para excluirlo de la lista
   const currentUser = useAuthStore((state) => state.user);
 
-  // Hooks para obtener datos
   const { 
     data: allUsers = [], 
     isLoading: allUsersLoading
@@ -76,10 +72,8 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     refetch: refetchSharedUsers 
   } = useBoardSharedUsers(boardId);
 
-  // Hook para actualizar permisos
   const updatePermissionMutation = useUpdateBoardPermission();
 
-  // Combinar usuarios ya compartidos desde el backend con los locales
   const combinedSharedUsers = useMemo(() => {
     const localIds = sharedUsers.map(u => u.id);
     const backendUsers = alreadySharedUsers
@@ -88,7 +82,6 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     return [...sharedUsers, ...backendUsers];
   }, [sharedUsers, alreadySharedUsers]);
 
-  // Filtrar usuarios para excluir al usuario actual
   const availableUsers = useMemo(() => {
     const users = searchTerm.length >= 2 ? searchResults : allUsers;
     const filtered = users
@@ -99,28 +92,20 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     return filtered;
   }, [searchResults, allUsers, searchTerm, currentUser]);
 
-  // Determinar si está cargando
   const isLoading = searchTerm.length >= 2 ? searchLoading : allUsersLoading;
 
-  // Limpiar búsqueda cuando se cierra el modal
   useEffect(() => {
     if (!boardId) {
       setSearchTerm('');
     }
   }, [boardId]);
 
-  // 🔄 AISLAMIENTO: Limpiar estado local cuando cambia el boardId
   useEffect(() => {
-    console.log('🔄 [ShareBoardContentClean] BoardId cambió a:', boardId);
-    console.log('🧹 [ShareBoardContentClean] Limpiando estado local para aislar modal...');
-    
-    // Resetear todos los estados locales cuando cambia el tablero
+
     setSharedUsers([]);
     setSearchTerm('');
     setSelectedPermissionLevel('EDITOR');
     setEditingUserId(null);
-    
-    console.log('✅ [ShareBoardContentClean] Estado local limpiado para boardId:', boardId);
   }, [boardId]);
 
   const handleShare = async (user: User) => {
@@ -162,12 +147,12 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
       refetchSharedUsers();
       
       const permissionText = selectedPermissionLevel === 'EDITOR' ? 'Editor' : 'Solo lectura';
-      toast.success(`¡Tablero compartido con ${getUserDisplayName(user)} como ${permissionText}!`);
+      toast.success(`Tablero compartido con ${getUserDisplayName(user)} como ${permissionText}`);
       
       setSearchTerm('');
       
     } catch (error) {
-      console.error('❌ Error compartiendo tablero:', error);
+      console.error('Error compartiendo tablero:', error);
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       toast.error(`Error al compartir tablero: ${errorMessage}`);
     }
@@ -179,9 +164,6 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
       
       // El backend espera userId, no permissionId
       const endpoint = `http://localhost:3000/api/boards/${boardId}/permissions/${user.id}`;
-
-      console.log('🗑️ [ShareBoardContentClean] Eliminando usuario:', user, 'Endpoint:', endpoint);
-      console.log('🔍 [ShareBoardContentClean] Usando userId:', user.id, 'en lugar de permissionId:', user.permissionId);
 
       const response = await fetch(endpoint, {
         method: 'DELETE',
@@ -201,7 +183,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
       toast.success(`Se removió el acceso de ${getUserDisplayName(user)}`);
       
     } catch (error) {
-      console.error('❌ Error removiendo acceso:', error);
+      console.error('Error removiendo acceso:', error);
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       toast.error(`Error al remover acceso: ${errorMessage}`);
     }
@@ -223,13 +205,13 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
       });
 
       const permissionText = newLevel === 'EDITOR' ? 'Editor' : 'Solo lectura';
-      toast.success(`¡Permiso de ${getUserDisplayName(user)} cambiado a ${permissionText}!`);
+      toast.success(`Permiso de ${getUserDisplayName(user)} cambiado a ${permissionText}`);
       
       setEditingUserId(null);
       refetchSharedUsers();
       
     } catch (error) {
-      console.error('❌ Error cambiando permiso:', error);
+      console.error('Error cambiando permiso:', error);
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       toast.error(`Error al cambiar permiso: ${errorMessage}`);
     }
@@ -276,7 +258,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
                     <div>
                       <p className="font-medium text-gray-800">
                         {getUserDisplayName(user)}
-                        {userIsOwner && <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">👑 Dueño</span>}
+                        {userIsOwner && <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Dueño</span>}
                       </p>
                       {(user.firstName || user.lastName) && user.alias && (
                         <p className="text-sm text-gray-500">
@@ -312,7 +294,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
                           }`}
                           disabled={updatePermissionMutation.isPending}
                         >
-                          ✏️ Editor
+                          Editor
                         </button>
                         <button
                           onClick={() => handleChangePermission(user, 'VIEWER')}
@@ -323,7 +305,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
                           }`}
                           disabled={updatePermissionMutation.isPending}
                         >
-                          👁️ Solo lectura
+                          Solo lectura
                         </button>
                         <button
                           onClick={() => setEditingUserId(null)}
@@ -357,7 +339,6 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
         </div>
       )}
 
-      {/* Búsqueda de usuarios */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Buscar usuario:
@@ -371,7 +352,6 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
         />
       </div>
 
-      {/* Selector de nivel de permisos */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Nivel de permisos para nuevos usuarios:
@@ -386,10 +366,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
             }`}
           >
             <div className="font-medium flex items-center">
-              <span className="mr-2">✏️</span> Editor
-            </div>
-            <div className="text-xs text-gray-500 mt-1">
-              Puede ver, crear, editar y eliminar tareas
+              <span className="mr-2">EDIT</span> Editor
             </div>
           </button>
           <button
@@ -401,15 +378,10 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
             }`}
           >
             <div className="font-medium flex items-center">
-              <span className="mr-2">👁️</span> Solo lectura
+              <span className="mr-2"></span> Solo lectura
             </div>
-            <div className="text-xs text-gray-500 mt-1">
-              Solo puede ver el tablero y las tareas
-            </div>
+
           </button>
-        </div>
-        <div className="mt-2 p-2 bg-gray-50 rounded text-xs text-gray-600">
-          💡 Puedes cambiar los permisos de usuarios ya compartidos usando el botón "Cambiar" junto a su nombre.
         </div>
       </div>
 
@@ -460,7 +432,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
                   </div>
                   {isAlreadyShared ? (
                     <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded">
-                      ✓ Compartido
+                      Compartido
                     </span>
                   ) : (
                     <button

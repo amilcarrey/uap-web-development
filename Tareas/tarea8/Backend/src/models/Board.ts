@@ -1,11 +1,10 @@
-import { User } from './User';
 import { Permission } from './Permission';
 import { Task } from './Task';
 
 export class Board {
   #id: number;
   #name: string;
-  #active: boolean; //El estado cambia cuando el usuaio lo selecciona
+  #active: boolean; 
   #ownerId: number;
   #tasks: Task[];
   #permissions: Permission[];

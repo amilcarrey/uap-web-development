@@ -4,13 +4,11 @@ import {PermissionLevel} from '../models/Permission';
 
 const permissionService = new PermissionService();
 
-// Helper function para normalizar niveles de permisos (acepta mayúsculas y minúsculas)
 function normalizePermissionLevel(level: string): PermissionLevel | null {
     if (!level || typeof level !== 'string') return null;
     
     const upperLevel = level.toUpperCase();
     
-    // Verificar si el valor normalizado es válido
     if (Object.values(PermissionLevel).includes(upperLevel as PermissionLevel)) {
         return upperLevel as PermissionLevel;
     }
@@ -20,13 +18,11 @@ function normalizePermissionLevel(level: string): PermissionLevel | null {
 
 export class PermissionController {
     
-    // Otorga permisos de un tablero
     static async grantPermission(req:Request, res: Response){
         const boardId = Number(req.params.boardId);
         const {userId, level, permissionLevel} = req.body;
         const currentUserId = Number((req as any).user?.id);
 
-        // Aceptar tanto 'level' como 'permissionLevel' para compatibilidad
         const rawPermLevel = level || permissionLevel;
         const permLevel = normalizePermissionLevel(rawPermLevel);
         
@@ -50,7 +46,7 @@ export class PermissionController {
         res.status(200).json({message: "Permiso otorgado correctamente"});
     };
 
-    // Revoca permisos de un tablero por userId
+    
     static async revokePermission(req: Request, res: Response){
         const boardId = Number(req.params.boardId);
         const userId = Number(req.params.userId);
@@ -66,7 +62,7 @@ export class PermissionController {
         res.status(200).json({message: "Permiso revocado correctamente"});
     }
 
-    // Revoca permisos de un tablero por permissionId
+    
     static async revokePermissionById(req: Request, res: Response){
         const boardId = Number(req.params.boardId);
         const permissionId = Number(req.params.permissionId);
@@ -82,7 +78,7 @@ export class PermissionController {
         res.status(200).json({message: "Permiso revocado correctamente"});
     }
 
-    // Obtiene permisos de un tablero
+    
     static async getBoardPermissions(req: Request, res: Response){
         const boardId = Number(req.params.boardId);
         if (isNaN(boardId)) {
@@ -94,14 +90,14 @@ export class PermissionController {
         res.status(200).json(permissions);
     }
 
-    // Actualiza permisos de un tablero
+    
     static async updatePermission(req: Request, res: Response){
         const boardId = Number(req.params.boardId);
         const userId = Number(req.params.userId);
         const {newLevel} = req.body;
         const currentUserId = Number((req as any).user?.id);
 
-        // Normalizar el nivel de permiso para aceptar mayúsculas y minúsculas
+        
         const normalizedLevel = normalizePermissionLevel(newLevel);
 
         if (isNaN(boardId) || isNaN(userId)) {

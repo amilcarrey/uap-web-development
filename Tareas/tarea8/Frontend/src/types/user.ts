@@ -8,10 +8,10 @@ export interface UserProfile {
 }
 
 export interface UserSettings {
-  refetchInterval: number; // Intervalo de actualización en milisegundos
-  upperCaseDescription: boolean; // Mostrar descripciones en mayúsculas
-  theme: 'light' | 'dark'; // Tema de la aplicación
-  taskPageSize: number; // Tamaños de página para tareas
+  refetchInterval: number;
+  upperCaseDescription: boolean;
+  theme: 'light' | 'dark';
+  taskPageSize: number;
 }
 
 export interface UpdateUserSettingsRequest {

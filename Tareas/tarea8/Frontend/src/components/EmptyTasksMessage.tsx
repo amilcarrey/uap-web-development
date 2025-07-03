@@ -9,35 +9,27 @@ interface UserInfo {
   id: string;
   username: string;
   email: string;
-  boardPermissions?: Array<{
-    boardId: string;
-    permission: string;
-  }>;
+  boardPermissions?: Array<{ boardId: string; permission: string }>;
   invitations?: Array<any>;
 }
 
+// Muestra mensaje si no hay tareas o si el usuario solo tiene permisos de lectura
 export function EmptyTasksMessage({ boardId, isLoading }: EmptyTasksMessageProps) {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [isViewer, setIsViewer] = useState(false);
 
   useEffect(() => {
-    // Analizar token para obtener información del usuario
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         setUserInfo(payload);
-        
-        // Verificar si es un usuario VIEWER para este tablero
-        const boardPermission = payload.boardPermissions?.find(
-          (perm: any) => perm.boardId === boardId
-        );
-        
+        const boardPermission = payload.boardPermissions?.find((perm: any) => perm.boardId === boardId);
         if (boardPermission?.permission === 'VIEWER') {
           setIsViewer(true);
         }
       } catch (e) {
-        console.log('Error analizando token para EmptyTasksMessage');
+        console.log('Error al leer token para mostrar permisos');
       }
     }
   }, [boardId]);
@@ -61,25 +53,24 @@ export function EmptyTasksMessage({ boardId, isLoading }: EmptyTasksMessageProps
           </div>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-yellow-800">
-              No se encontraron tareas
+              Sin tareas disponibles
             </h3>
             <div className="mt-2 text-sm text-yellow-700">
               <p>
-                Tienes permisos de <strong>visualización</strong> en este tablero, pero no se encontraron tareas.
+                Tenés acceso de solo lectura en este tablero.
               </p>
               <div className="mt-3 space-y-1">
-                <p><strong>Posibles causas:</strong></p>
+                <p><strong>Esto puede deberse a:</strong></p>
                 <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>El tablero aún no tiene tareas creadas</li>
-                  <li>Hay un problema de permisos en el backend</li>
-                  <li>El propietario del tablero necesita verificar la configuración</li>
+                  <li>No se crearon tareas todavía</li>
+                  <li>Faltan permisos desde el servidor</li>
+                  <li>El dueño del tablero debe revisar los accesos</li>
                 </ul>
               </div>
               <div className="mt-3 text-xs bg-yellow-100 p-2 rounded">
-                <p><strong>Información de debugging:</strong></p>
                 <p>Usuario: {userInfo?.username || userInfo?.email}</p>
                 <p>ID del tablero: {boardId}</p>
-                <p>Tipo de acceso: VIEWER</p>
+                <p>Permiso: VIEWER</p>
               </div>
             </div>
           </div>
@@ -88,14 +79,9 @@ export function EmptyTasksMessage({ boardId, isLoading }: EmptyTasksMessageProps
     );
   }
 
-  // Mensaje genérico para otros usuarios
   return (
     <div className="flex flex-col items-center justify-center py-12">
-      <div className="text-gray-400 text-6xl mb-4">📝</div>
-      <div className="text-gray-500 text-lg font-medium mb-2">No hay tareas aún</div>
-      <div className="text-gray-400 text-sm">
-        Agrega tu primera tarea para comenzar
-      </div>
+      <div className="text-gray-500 text-lg font-medium mb-2">Empty</div>
     </div>
   );
 }

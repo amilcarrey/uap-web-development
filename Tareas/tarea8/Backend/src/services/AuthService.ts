@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 const userService = new UserDbService();
 
 export class AuthService {
-    // Crea un usuario, hashea la contraseña y genera un token JWT
+    
     async registerUser(data: RegistrerUserDTO): Promise<AuthResponseDTO> {
         const user = await prisma.user.findUnique({
             where: { username: data.alias }
@@ -23,7 +23,7 @@ export class AuthService {
         }
 
         const hashedPassword = await argon2.hash(data.password);
-        // Verifica si el usuario ya existe
+        
 
         const newUser = await userService.createUser({ ...data, password: hashedPassword });
 
@@ -43,7 +43,7 @@ export class AuthService {
         };
     }
 
-    // Verifica usuario y contraseña, y genera un JWT
+    
     async loginUser(data: LoginDTO): Promise<AuthResponseDTO> {
         const user = await userService.findUserWithPasswordByAlias(data.alias);
         if (!user) {

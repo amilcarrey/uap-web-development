@@ -6,16 +6,14 @@ const boardService = new BoardService();
 
 export class BoardController {
 
-
   static async getBoards(req: Request, res: Response){
-    const currentUserId = (req as any).user.id; // Removido el ?. porque siempre existe
+    const currentUserId = (req as any).user.id;
     const bords = await boardService.getBoardsForUser(currentUserId);
     res.json(bords);
   }
 
-
   static async createBoard(req: Request, res: Response) {
-    const currentUserId = (req as any).user.id; 
+    const currentUserId = (req as any).user.id;
     const { name } = req.body;
 
     if (!name) {
@@ -25,14 +23,12 @@ export class BoardController {
     }
 
     const board = await boardService.createBoard(currentUserId, { name });
-    
     res.status(201).json(board);
   }
 
-
   static async updateBoard(req: Request, res: Response){
     const boardId = Number(req.params.boardId);
-    const currentUserId = (req as any).user.id; 
+    const currentUserId = (req as any).user.id;
 
     if (isNaN(boardId)) {
       const error = new Error("ID de tablero inválido");
@@ -59,7 +55,6 @@ export class BoardController {
     }
 
     if (board.ownerId === currentUserId) {
-        // Permitir
     } else {
         const permission = board.permissions.find((p: any) => p.userId === currentUserId && p.level === "EDITOR");
         if (!permission) {
@@ -74,7 +69,7 @@ export class BoardController {
   }
 
   static async deleteBoard(req: Request, res: Response) {
-    const currentUserId = (req as any).user.id; 
+    const currentUserId = (req as any).user.id;
     const boardId = Number(req.params.boardId);
 
     if (isNaN(boardId)) {
@@ -83,7 +78,6 @@ export class BoardController {
       throw error;
     }
 
-    // Busca el tablero y sus permisos
     const board = await prisma.board.findUnique({
       where: { id: boardId },
       include: { permissions: true }
@@ -94,9 +88,7 @@ export class BoardController {
       throw error;
     }
 
-    // Validar si es dueño o tiene permiso EDITOR
     if (board.ownerId === currentUserId) {
-      // Permitir
     } else {
       const permission = board.permissions.find(
         (p: any) => p.userId === currentUserId && p.level === "EDITOR"
@@ -111,56 +103,5 @@ export class BoardController {
     await boardService.deleteBoard(currentUserId, boardId);
     res.status(204).send();
   }
-
-
-  /* 
-  -------------------------------------------------------
-  Metodos no utilizados (comentados), solo servian para las pruebas  
-  -------------------------------------------------------
-  */
-
-  /* // Esta funcion no se usa, solo es para pruebas
-  static async getBoards(req: Request, res: Response) {
-    const boards = await boardService.getBoards();
-    res.json(boards);
-  }
-  */
-
-
-  /** // Esta funcion no se usa, solo es para pruebas
-   
-  static async getBoardsByuser(req: Request, res: Response){
-    const userId = Number(req.params.userId);
-    if (isNaN(userId)) {
-      const error = new Error("ID de usuario inválido");
-      (error as any).status = 400;
-      throw error;
-    }
-    const board = await boardService.getBoardsForUser(userId);
-    res.json(board);
-  }
-  */
-
-  /** // Esta funcion no se usa, solo es para pruebas
-  static async getBoardById(req: Request, res: Response){
-    const boardId = Number(req.params.boardId);
-    if (isNaN(boardId)) {
-      const error = new Error("ID de tablero inválido");
-      (error as any).status = 400;
-      throw error;
-    }
-    const board = await boardService.getBoardById(boardId);
-    if(!board){
-      const error = new Error('No se encontro el tablero');
-      (error as any).status = 404;
-      throw error;
-    }
-    res.json(board);
-  }
-  */
-
-
-
-
 
 }

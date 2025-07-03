@@ -1,6 +1,3 @@
-import { User } from './User';
-import { Board } from './Board';
-
 export enum PermissionLevel {
   OWNER = 'OWNER',
   EDITOR = 'EDITOR',

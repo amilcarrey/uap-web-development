@@ -4,54 +4,44 @@ import { useAuthStore } from '../stores/authStore';
 export interface Tab {
   id: string;
   title: string;
-  userRole?: 'owner' | 'editor' | 'viewer'; // Agregar rol del usuario
+  userRole?: 'owner' | 'editor' | 'viewer';
 }
 
-// Función helper para obtener headers de autenticación
+// Generate headers, include token if available
 function getAuthHeaders() {
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  };
-  
-  // Intentar obtener token de localStorage
-  const storedToken = localStorage.getItem('token');
-  if (storedToken) {
-    headers['Authorization'] = `Bearer ${storedToken}`;
-  }
-  
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  const token = localStorage.getItem('token');
+  if (token) headers['Authorization'] = `Bearer ${token}`;
   return headers;
 }
 
-// --- Funciones de fetch ---
-
-// Obtener todos los tableros CON información de roles
+// Get all tabs
 async function fetchTabs(): Promise<Tab[]> {
-  const timestamp = Date.now(); // Cache busting
-  const res = await fetch(`http://localhost:3000/api/boards?_t=${timestamp}`, {
+  const res = await fetch(`http://localhost:3000/api/boards?_t=${Date.now()}`, {
     credentials: 'include',
     headers: {
       ...getAuthHeaders(),
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Cache-Control': 'no-cache',
       'Pragma': 'no-cache',
-      'Expires': '0'
+      'Expires': '0',
     },
   });
+
   if (!res.ok) {
-    const errorText = await res.text();
-    console.error('❌ Error al obtener tableros:', res.status, errorText);
-    throw new Error(`Error ${res.status}: ${errorText || 'Error al obtener tableros'}`);
+    const text = await res.text();
+    console.error('Failed to fetch boards:', res.status, text);
+    throw new Error(`Error ${res.status}: ${text}`);
   }
+
   const data = await res.json();
-  
   return data.map((board: any) => ({
-    id: board.id.toString(), 
+    id: board.id.toString(),
     title: board.name,
-    // Usar userRole del backend directamente
-    userRole: board.userRole?.toLowerCase() as 'owner' | 'editor' | 'viewer' || 'viewer'
+    userRole: (board.userRole?.toLowerCase() as 'owner' | 'editor' | 'viewer') || 'viewer',
   }));
 }
 
-// Crear tablero
+// Create tab
 async function createTabRequest(title: string): Promise<Tab> {
   const res = await fetch('http://localhost:3000/api/boards', {
     method: 'POST',
@@ -59,93 +49,51 @@ async function createTabRequest(title: string): Promise<Tab> {
     credentials: 'include',
     body: JSON.stringify({ action: 'create', name: title }),
   });
-  
+
   if (!res.ok) {
-    const errorText = await res.text();
-    console.error('❌ Error al crear tablero:', res.status, errorText);
-    throw new Error(`Error al crear tablero: ${res.status} - ${errorText}`);
+    const err = await res.text();
+    console.error('Create tab failed:', err);
+    throw new Error(`Error creating tab: ${err}`);
   }
-  
+
   const data = await res.json();
-  
-  // Verificar estructura de respuesta y manejar diferentes formatos
-  let result;
-  
-  if (data.tab && data.tab.id && data.tab.name) {
-    // Formato esperado: { tab: { id, name } }
-    result = {
-      id: data.tab.id.toString(),
-      title: data.tab.name,
-      userRole: 'owner' as const
-    };
-  } else if (data.id && data.name) {
-    // Formato alternativo: { id, name }
-    result = {
-      id: data.id.toString(),
-      title: data.name,
-      userRole: 'owner' as const
-    };
-  } else if (data.board && data.board.id && data.board.name) {
-    // Formato alternativo: { board: { id, name } }
-    result = {
-      id: data.board.id.toString(),
-      title: data.board.name,
-      userRole: 'owner' as const
-    };
-  } else {
-    console.error('❌ Estructura de respuesta no reconocida al crear tablero:', data);
-    // Intentar usar el primer objeto con id y name que encontremos
-    const foundObj = Object.values(data).find((obj: any) => obj && obj.id && obj.name);
-    if (foundObj) {
-      result = {
-        id: (foundObj as any).id.toString(),
-        title: (foundObj as any).name,
-        userRole: 'owner' as const
-      };
-    } else {
-      throw new Error('Estructura de respuesta del backend no válida: no se encontró id y name');
-    }
-  }
-  
-  return result;
+  const obj = data.tab || data.board || data;
+  const found = obj.id && obj.name ? obj : Object.values(data).find((v: any) => v?.id && v?.name);
+
+  if (!found) throw new Error('Response missing id or name');
+
+  return {
+    id: found.id.toString(),
+    title: found.name,
+    userRole: 'owner',
+  };
 }
 
-// Eliminar tablero
-async function deleteTabRequest(boardId: string): Promise<any> {
-  const url = `http://localhost:3000/api/boards/${boardId}`;
-
-  const res = await fetch(url, {
+// Delete tab
+async function deleteTabRequest(boardId: string) {
+  const res = await fetch(`http://localhost:3000/api/boards/${boardId}`, {
     method: 'DELETE',
     headers: getAuthHeaders(),
     credentials: 'include',
   });
 
   if (!res.ok) {
-    const errorText = await res.text();
-    console.error('❌ Error al eliminar tablero:', res.status, errorText);
-    throw new Error(`Error al eliminar tablero: ${res.status} - ${errorText}`);
+    const msg = await res.text();
+    throw new Error(`Delete failed: ${msg}`);
   }
-  
-  // Manejar respuestas vacías o diferentes formatos
-  let result;
-  const contentType = res.headers.get('content-type');
-  
-  if (contentType && contentType.includes('application/json')) {
+
+  if (res.headers.get('content-type')?.includes('application/json')) {
     try {
-      result = await res.json();
-    } catch (e) {
-      // Si no se puede parsear JSON pero la respuesta fue exitosa, está bien
-      result = { success: true };
+      return await res.json();
+    } catch {
+      return { success: true };
     }
-  } else {
-    // Respuesta no JSON pero exitosa
-    result = { success: true };
   }
-  
-  return result;
+
+  return { success: true };
 }
 
-// Renombrar tablero
+// Rename tab
 async function renameTabRequest({ id, newTitle }: { id: string; newTitle: string }): Promise<Tab> {
   const res = await fetch(`http://localhost:3000/api/boards/${id}`, {
     method: 'PUT',
@@ -153,75 +101,61 @@ async function renameTabRequest({ id, newTitle }: { id: string; newTitle: string
     credentials: 'include',
     body: JSON.stringify({ action: 'rename', name: newTitle }),
   });
-  if (!res.ok) throw new Error('Error al renombrar tablero');
+
+  if (!res.ok) throw new Error('Rename failed');
+
   const data = await res.json();
   return {
     id: data.id.toString(),
     title: data.name,
-    userRole: data.userRole || 'owner'
+    userRole: data.userRole || 'owner',
   };
 }
 
-// --- Hooks (sin cambios en la estructura) ---
-
+// Hooks
 export function useTabs() {
-  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-  const isLoading = useAuthStore(state => state.isLoading);
-  
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useAuthStore((s) => s.isLoading);
+
   return useQuery<Tab[]>({
     queryKey: ['tabs'],
     queryFn: fetchTabs,
     initialData: [],
-    gcTime: 0, // No guardar en cache
-    staleTime: 0, // Siempre considerar obsoleto
-    refetchInterval: 5000, // Refetch cada 5 segundos
+    gcTime: 0,
+    staleTime: 0,
+    refetchInterval: 5000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    enabled: isAuthenticated && !isLoading, // Solo ejecutar cuando esté autenticado y no cargando
-    retry: (failureCount, error) => {
-      // Si es un 401, no reintentar (problema de autenticación)
-      if (error?.message?.includes('401') || error?.message?.includes('Unauthorized')) {
-        console.log('Error 401 detectado, no reintentando consulta de tableros');
-        return false;
-      }
-      // Para otros errores, reintentar hasta 2 veces
-      return failureCount < 2;
+    enabled: isAuthenticated && !isLoading,
+    retry: (count, error) => {
+      if (error?.message?.includes('401')) return false;
+      return count < 2;
     },
-    retryDelay: 1000, // Esperar 1 segundo antes de reintentar
+    retryDelay: 1000,
   });
 }
 
 export function useCreateTab() {
-  const queryClient = useQueryClient();
-
+  const client = useQueryClient();
   return useMutation({
     mutationFn: createTabRequest,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tabs'] });
-    },
+    onSuccess: () => client.invalidateQueries({ queryKey: ['tabs'] }),
   });
 }
 
 export function useDeleteTab() {
-  const queryClient = useQueryClient();
-
+  const client = useQueryClient();
   return useMutation({
     mutationFn: deleteTabRequest,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tabs'] });
-    },
+    onSuccess: () => client.invalidateQueries({ queryKey: ['tabs'] }),
   });
 }
 
 export function useRenameTab() {
-  const queryClient = useQueryClient();
-
+  const client = useQueryClient();
   return useMutation({
     mutationFn: renameTabRequest,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tabs'] });
-    },
+    onSuccess: () => client.invalidateQueries({ queryKey: ['tabs'] }),
   });
 }
-

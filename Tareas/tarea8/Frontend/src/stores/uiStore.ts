@@ -1,4 +1,3 @@
-// src/stores/uiStore.ts
 import { create } from 'zustand';
 
 type UIState = {
@@ -6,7 +5,6 @@ type UIState = {
   setEditingTaskId: (id: string | null) => void;
   taskFilter: string;
   setTaskFilter: (filter: string) => void;
-  // Nuevos estados para permisos
   isShareModalOpen: boolean;
   setShareModalOpen: (open: boolean) => void;
   shareModalBoardId: string | null;
@@ -18,7 +16,6 @@ export const useUIStore = create<UIState>((set) => ({
   setEditingTaskId: (id) => set({ editingTaskId: id }),
   taskFilter: 'all',
   setTaskFilter: (filter) => set({ taskFilter: filter }),
-  // Estados para el modal de compartir
   isShareModalOpen: false,
   setShareModalOpen: (open) => set({ isShareModalOpen: open }),
   shareModalBoardId: null,

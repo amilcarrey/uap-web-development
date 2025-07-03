@@ -101,7 +101,6 @@ export class PermissionService implements IPermissionService {
             throw error;
         }
 
-        // Buscar el permiso para obtener el userId
         const permission = await prisma.permission.findUnique({
             where: { id: permissionId }
         });
@@ -112,14 +111,12 @@ export class PermissionService implements IPermissionService {
             throw error;
         }
 
-        // Verificar que el permiso pertenece al tablero correcto
         if (permission.boardId !== boardId) {
             const error = new Error('El permiso no pertenece a este tablero');
             (error as any).status = 400;
             throw error;
         }
 
-        // No permitir eliminar el permiso del dueño
         if (permission.userId === board.ownerId) {
             const error = new Error('No puedes revocar permisos al dueño del tablero');
             (error as any).status = 400;
