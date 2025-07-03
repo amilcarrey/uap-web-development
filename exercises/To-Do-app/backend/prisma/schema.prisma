@@ -1,74 +1,48 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
 model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique
+  name      String
   password  String
-  name      String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-
-  // Relaciones
-  boards    Board[]   // Tableros creados por este usuario
-  permissions Permission[] // Permisos de este usuario en tableros
-  settings  UserSettings? // Configuración del usuario
+  boards    BoardUser[]
 }
 
 model Board {
   id          Int       @id @default(autoincrement())
   title       String
   description String?
-  ownerId     Int
-  owner       User      @relation(fields: [ownerId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-
-  // Relaciones
-  tasks       Task[]    // Tareas dentro de este tablero
-  permissions Permission[] // Permisos asociados a este tablero
+  users       BoardUser[]
+  tasks       Task[]
 }
 
 model Task {
   id          Int       @id @default(autoincrement())
   title       String
   description String?
-  status      String    @default("pending") // Ejemplo: pending, in_progress, completed
+  status      String    @default("pending")
   boardId     Int
-  board       Board     @relation(fields: [boardId], references: [id])
+  board       Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
 
-model Permission {
-  id        Int       @id @default(autoincrement())
+model BoardUser {
   userId    Int
-  user      User      @relation(fields: [userId], references: [id])
   boardId   Int
-  board     Board     @relation(fields: [boardId], references: [id])
-  role      String    // Ejemplo: owner, editor, reader
-  createdAt DateTime  @default(now())
-
-  @@unique([userId, boardId]) // Evita permisos duplicados para el mismo usuario y tablero
-}
-
-model UserSettings {
-  id              Int       @id @default(autoincrement())
-  userId          Int       @unique
-  user            User      @relation(fields: [userId], references: [id])
-  refreshInterval Int       @default(60000) // Intervalo en milisegundos (ej. 60 segundos)
-  taskViewMode    String    @default("list") // Ejemplo: list, grid
-  updatedAt       DateTime  @updatedAt
+  role      String    @default("owner")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board     Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  @@id([userId, boardId])
 }

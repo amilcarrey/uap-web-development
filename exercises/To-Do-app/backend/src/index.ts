@@ -1,35 +1,39 @@
-import express from 'express';
+import express, { Express, Request, Response } from 'express';
+import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
-import authRoutes from './routes/authRoutes';
-import boardRoutes from './routes/boardRoutes';
-import taskRoutes from './routes/taskRoutes';
-import permissionRoutes from './routes/permissionRoutes';
+import authRoutes from './routes/auth.routes';
+import boardRoutes from './routes/board.routes';
+import { errorHandler } from './utils/errorHandler';
 
+// Cargar variables de entorno desde .env
 dotenv.config();
 
-const app = express();
+// Crear la aplicación Express
+const app: Express = express();
 
-// Configurar CORS
+// Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Origen del frontend
-  credentials: true, // Permitir cookies (JWT)
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // Métodos permitidos
-  allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
+  origin: 'http://localhost:5173',
+  credentials: true
 }));
-
-// Middlewares
 app.use(express.json());
 app.use(cookieParser());
 
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/boards', boardRoutes);
-app.use('/api/tasks', taskRoutes);
-app.use('/api', permissionRoutes);
 
-const PORT = process.env.PORT || 5000;
+// Ruta de prueba
+app.get('/', (req: Request, res: Response) => {
+  res.send('¡Servidor backend funcionando!');
+});
+
+// Manejador de errores
+app.use(errorHandler);
+
+// Iniciar el servidor
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
