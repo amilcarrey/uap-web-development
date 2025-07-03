@@ -1,19 +1,16 @@
-import "./App.css";
-import { FilterForm } from "./components/FilterForm";
-import { NuevoMensajeForm } from "./components/NuevoMensajeForm";
-import { MensajeList } from "./components/MensajeList";
 import { useState } from "react";
-import { useDebounce } from "./utils/useDebounce";
-import { Stats } from "./components/Stats";
-import { LoginForm } from "./components/LoginForm";
+import { FilterForm } from "../components/FilterForm";
 
-function App() {
+import { MensajeList } from "../components/MensajeList";
+import { NuevoMensajeForm } from "../components/NuevoMensajeForm";
+import { Stats } from "../components/Stats";
+import { useDebounce } from "../utils/useDebounce";
+
+export function Index() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
-
   return (
     <>
-      <LoginForm />
       <Stats search={debouncedSearch} />
       <section className="min-w-[50vw] flex flex-col gap-4 border border-gray-300 rounded-md p-8 m-8">
         <FilterForm search={search ?? ""} setSearch={setSearch} />
@@ -24,5 +21,3 @@ function App() {
     </>
   );
 }
-
-export default App;
