@@ -1,6 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+
+/**
+ *Componente NotFound que muestra un mensaje de error 404 cuando la página solicitada no se encuentra.
+  Para verificar que funcioan correctamente, puedes navegar a una ruta inexistente en tu aplicación.
+*/
 export function NotFound() {
   return (
     <div className="max-w-2xl mx-auto p-6 text-center">
@@ -24,6 +29,47 @@ export function NotFound() {
   );
 }
 
+/**
+  Componente ErrorBoundary que captura errores en sus componentes hijos
+  y muestra un mensaje de error amigable al usuario.
+  
+  Eevita que errores de JavaScript rompan toda la aplicación.
+  
+  ¿CUÁNDO SE ACTIVA?
+  - Cuando un componente hijo tiene un error de renderizado
+  - Errores como: user.name cuando user es null/undefined
+  - Fallos en hooks (useState, useEffect) de componentes hijos
+  - NO captura errores en onClick, fetch, setTimeout
+  
+  EJEMPLOS DE USO:
+  
+  // 1. Proteger una lista de tareas que puede fallar:
+  <ErrorBoundary>
+    <TaskList tasks={tasks} />
+  </ErrorBoundary>
+  
+  // 2. Proteger un tablero completo:
+  <ErrorBoundary>
+    <BoardManager boardId={selectedBoard} />
+  </ErrorBoundary>
+  
+  // 3. Proteger toda una pestaña:
+  <ErrorBoundary>
+    <TabContent tabId={activeTab} />
+  </ErrorBoundary>
+ 
+  CUÁNDO USARLO:
+  - Envuelve componentes que manejan datos del servidor
+  - Protege listas que pueden estar vacías o malformadas
+  - Usa en rutas principales para evitar pantallas blancas
+  
+  Uso:
+  <ErrorBoundary>
+    <ComponenteQuePuedeFallar />
+  </ErrorBoundary>
+  
+  La idea es envolver componentes que puedan lanzar errores 
+ */
 export class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean; error?: Error }

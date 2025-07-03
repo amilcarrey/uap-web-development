@@ -18,11 +18,22 @@ Esto ejecuta internamente `npm install`, que lee el archivo `package.json` y des
   {
     "alias": "Daniel2102",
     "password": "Daniel"
+  },
+  {
+    "alias": "Agustin2102",
+    "password": "Agustin"
+  },
+  {
+    "alias": "Flavia2102",
+    "password": "Flavia"
   }
   ```
-- En la base de datos, este usuario solo tiene asignado un tablero y no contiene tareas.
+- En la base de datos, cada usuario tiene asignado varios tableros con sus tareas asociadas --Ovio, solo si los datos de la BD quedan guardados despues de hacer el pull... Sino ni idea, crea usuarios nuevos. O verificar que existen haciendo **npx prisma studio**, te muestra el estado de la BD--.
+
+### En el caso de usar Postman:
 - Para crear un tablero, primero debes autenticarte usando el endpoint de login y luego usar el endpoint correspondiente para crear tableros.
 - Si necesitas probar otros endpoints, asegúrate de usar el token JWT que se obtiene al iniciar sesión.
+- Esos serian lo más basico que se puede hacer, los demas endpoints funcionan parecidos
 
 ## Endpoints principales
 

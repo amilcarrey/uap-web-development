@@ -1,5 +1,12 @@
 import { useState } from "react";
 
+
+/**
+ * Hook personalizado para manejar formularios de autenticación
+ * Permite manejar los campos del formulario, cambios, errores y resetear el estado
+ * @param initial - Objeto con los campos iniciales del formulario
+ * @returns Objeto con los campos, manejador de cambios, error y funciones para reset
+ */
 export function useAuthForm<T extends Record<string, string>>(initial: T) {
   const [fields, setFields] = useState(initial);
   const [error, setError] = useState("");

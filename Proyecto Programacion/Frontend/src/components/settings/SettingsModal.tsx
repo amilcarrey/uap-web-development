@@ -2,6 +2,7 @@ import { BaseModal } from '../ui/BaseModal';
 import { UnifiedSettingsPage } from './UnifiedSettingsPage';
 
 // Componente Modal específico para configuraciones
+// Este modal contiene la página de configuraciones unificadas, osea las configuraciones de usuario, preferencias y demás ajustes de la aplicación.
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -19,6 +20,5 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   );
 }
 
-// Re-export para mantener compatibilidad
 export { useSettingsModal } from '../../hooks/useSettingsModal';
 export { SettingsButton } from '../ui/SettingsButton';

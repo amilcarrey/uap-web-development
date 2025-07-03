@@ -7,6 +7,7 @@
  - useQueryClient: para interactuar con la "caché" de React Query.
 */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import type { Task } from '../types/task';
 import { useConfigStore } from '../stores/configStore';
 import { useUserSettings } from './userSettings';
@@ -109,6 +110,10 @@ export function useTasks(tabId: string, page: number = 1, customLimit?: number) 
     queryFn: () => fetchTasks(tabId, page, limit), // función que obtiene las tareas
     initialData: [], // valor inicial si no hay datos aún
     refetchInterval, // intervalo para volver a hacer fetch automáticamente
+    staleTime: 0, // Los datos se consideran obsoletos inmediatamente para actualizaciones rápidas
+    gcTime: 60000, // Mantener en cache por 1 minuto solamente
+    refetchOnWindowFocus: true, // Refetch cuando la ventana recupera el foco
+    refetchOnMount: true, // Siempre refetch al montar el componente
   });
 }
 
@@ -157,7 +162,11 @@ export function useAddTask() {
       return result;
     },
     onSuccess: () => {
+      // Invalidar queries de manera agresiva para updates inmediatos
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['tasks'], exact: false, type: 'active' });
     },
   });
 }
@@ -177,7 +186,16 @@ export function useDeleteTask() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidar queries de manera agresiva para updates inmediatos
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['tasks'], exact: false, type: 'active' });
+      toast.success('Tarea eliminada correctamente');
+    },
+    onError: (error) => {
+      toast.error('Error al eliminar la tarea');
+      console.error('Error eliminando tarea:', error);
     },
   });
 }
@@ -199,7 +217,11 @@ export function useToggleTask() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidar queries de manera agresiva para updates inmediatos
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['tasks'], exact: false, type: 'active' });
     },
   });
 }
@@ -221,7 +243,11 @@ export function useEditTask() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidar queries de manera agresiva para updates inmediatos
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['tasks'], exact: false, type: 'active' });
     },
   });
 }
@@ -241,7 +267,11 @@ export function useClearCompletedTasks() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidar queries de manera agresiva para updates inmediatos
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
+      // Forzar refetch inmediato
+      queryClient.refetchQueries({ queryKey: ['tasks'], exact: false, type: 'active' });
     },
   });
 }
@@ -271,5 +301,7 @@ export function useSearchTasks(tabId: string, searchTerm: string, filter: TaskFi
       return result.items || result; // Adaptar según estructura del backend
     },
     enabled: searchTerm.length >= 2, // Solo buscar si hay al menos 2 caracteres
+    staleTime: 0, // Los datos se consideran obsoletos inmediatamente para mantener sincronización
+    gcTime: 0, // Limpiar cache rápidamente para evitar datos obsoletos
   });
 }

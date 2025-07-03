@@ -99,11 +99,6 @@ src/components/
 2. **Fase 2**: Actualización quirúrgica + manejo avanzado de errores  
 3. **Fase 3**: Animations + indicadores de loading + polish
 
-**Resultado esperado:**
-- ⚡ Respuesta instantánea (0ms percibidos vs actuales ~2-5s)
-- 📉 90% menos requests al servidor
-- 🛡️ Robustez mantenida con recuperación graceful
-- 🎯 UX fluida sin interrupciones
 
 ## 🔍 Búsqueda de Tareas
 

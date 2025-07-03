@@ -51,6 +51,7 @@ export function TabContent({
     setNewTitle(title);
   }, [title]);
 
+  // Maneja el renombrado de la pestaña cuando el usuario presiona Enter o hace blur
   const handleRename = () => {
     if(newTitle.trim() && newTitle !== title && onRenameTab) {
       onRenameTab(tabId, newTitle.trim()); // Llama al callback para renombrar la pestaña
@@ -99,15 +100,15 @@ export function TabContent({
       className={`tab-content ${isActive ? 'active block' : 'hidden'}`}
     >
       {/* Título de la pestaña editable*/}
-      {isEditingTitle ? (
+      {isEditingTitle ? ( // Modo edición del título
         <input
           className="text-xl font-bold mb-2 px-2 py-1 rounded"
           value={newTitle}
           autoFocus
           onChange={(e) => setNewTitle(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') handleRename();
-            if (e.key === 'Escape') setIsEditingTitle(false);
+            if (e.key === 'Enter') handleRename(); // Renombra al presionar Enter
+            if (e.key === 'Escape') setIsEditingTitle(false);// Sale del modo edición al presionar Escape
           }}
           onBlur={handleRename}
         /> 

@@ -27,37 +27,60 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
   // Query client para invalidar cache
   const queryClient = useQueryClient();
 
-  // Función para invalidar TODOS los caches relacionados con permisos
+  /**
+   * INVALIDACIÓN DE CACHE
+   * 
+   * Cada vez que la aplicación hace peticiones al servidor (como obtener usuarios compartidos),
+   * React Query guarda esas respuestas en cache para evitar hacer la misma petición repetidamente.
+   * 
+   * El problema aparece cuando se quiere cambiar algo en el servidor (compartir tablero, cambiar permisos, etc.),
+   * el cache sigue teniendo los datos antiguos, entonces la interfaz no se actualiza a pesar de que los cambios se
+   * realizon de forma correcta. --El problema era que no se reflejaban esos cambios--.
+   * 
+   * Para soluciónar ese problema se uso la invalidación de caache 
+   * ---"Invalidar" el cache = decirle a React Query: "estos datos ya no son válidos, la próxima vez que los necesites, ve al servidor a buscar datos frescos".---
+   * 
+   * Lo que ocurria cuando no tenia invalidación:
+   * 1. Sin invalidación:
+   *    - El usuaio Daniel2102 compartia un tablero con Agustin2102 ✅
+   *    - Pero Agustin2102 NO aparecia en la lista ❌ (Eso era porque se utilizaban para renderizar el componente datos viejos que estaban en la cache)
+   *    - Por lo que se necesitaba recargar el componente para que apareciera Agustin2102 
+   *      (Esto ocuarria tanto cuando se compartia un tablero como cuando se cambiaba el nivel de permiso de un usuario)
+
+   * 2. Con invalidación:
+   *    - El usuario Daniel2102 comparte un tablero con Agustin2102 ✅
+   *    - Cache se invalida automáticamente y React Query va al servidor por datos frescos
+   *    - Agustin2102 aparece inmediatamente entre los usuarios con quienes se compartio el tablero ✅
+   *      (Lo mismo pasa con los niveles de permisos)
+   */
   const invalidateAllPermissionCaches = async () => {
-    console.log(`🔥 [BoardId: ${boardId}] Invalidando caches específicos de permisos...`);
     
-    // Invalidar users compartidos de este tablero específico
+    // 1️⃣ CACHE ESPECÍFICO DEL TABLERO ACTUAL
+    // Invalida la lista de usuarios compartidos SOLO de este tablero
+    // Esto actualiza la sección "Usuarios con acceso" del modal
     await queryClient.invalidateQueries({
-      queryKey: ['board-shared-users', boardId]
+      queryKey: ['board-shared-users', boardId] // boardId asegura que solo afecte este tablero
     });
     
-    // Invalidar lista de tableros (tabs) - esto es global y necesario
+    // 2️⃣ CACHE GLOBAL DE TABLEROS
+    // Invalida la lista completa de tableros del usuario
+    // Esto es necesario porque cuando compartimos un tablero, puede cambiar
+    // información en la lista principal de tableros (ej: indicadores de "compartido")
     await queryClient.invalidateQueries({
-      queryKey: ['tabs']
+      queryKey: ['tabs'] // Afecta todos los tableros del usuario
     });
     
-    // Invalidar cualquier cache de usuarios (solo si es necesario)
+    // 3️⃣ CACHE GENERAL DE USUARIOS
+    // Invalida la lista de todos los usuarios disponibles
+    // Útil para asegurar que los datos de usuarios estén frescos
+    // (nombres, alias, etc. podrían haber cambiado)
     await queryClient.invalidateQueries({
-      queryKey: ['users']
+      queryKey: ['users'] // Lista completa de usuarios del sistema
     });
     
-    console.log(`✅ [BoardId: ${boardId}] Invalidación específica de caches terminada`);
   };
 
-  // Función de debugging para limpiar cache manualmente
-  const handleDebugClearCache = async () => {
-    console.log('🧹 [DEBUG] Limpiando todo el cache manualmente...');
-    await queryClient.clear();
-    await invalidateAllPermissionCaches();
-    toast.success('Cache limpiado completamente (DEBUG)');
-  };
-
-  // Helper function para obtener inicial de usuario de forma segura
+  //function para obtener inicial de usuario (Se utiliza para el buscador de usuarios)
   const getUserInitial = (user: User): string => {
     if (!user) return '?';
     
@@ -75,7 +98,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     return name.charAt(0).toUpperCase();
   };
 
-  // Helper function para obtener el nombre completo del usuario
+  //function para obtener el nombre completo del usuario
   const getUserDisplayName = (user: User): string => {
     if (!user) return 'Usuario desconocido';
     
@@ -92,20 +115,21 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
   };
 
   // Obtener usuario actual para excluirlo de la lista
+  //Es para evitar que el propio dueño pueda compartir el tablero con sigo mismo
   const currentUser = useAuthStore((state) => state.user);
 
   // Hooks para obtener datos
-  const { 
+  const { // Hook para obtener todos los usuarios del sistema
     data: allUsers = [], 
     isLoading: allUsersLoading
   } = useAllUsers();
   
-  const { 
+  const {   // Hook para buscar usuarios por término
     data: searchResults = [], 
     isLoading: searchLoading
   } = useSearchUsers(searchTerm);
   
-  const { 
+  const {  // Hook para obtener usuarios compartidos del backend
     data: alreadySharedUsers = [], 
     refetch: refetchSharedUsers 
   } = useBoardSharedUsers(boardId);
@@ -116,10 +140,6 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
   // Combinar usuarios ya compartidos desde el backend con los locales
   // Priorizar siempre los datos del backend sobre el estado local
   const combinedSharedUsers = useMemo(() => {
-    console.log(`🔄 [ShareBoardContent] Combinando usuarios para boardId: ${boardId}`);
-    console.log(`📊 [BoardId: ${boardId}] Estado local (sharedUsers):`, sharedUsers);
-    console.log(`📊 [BoardId: ${boardId}] Datos del backend (alreadySharedUsers):`, alreadySharedUsers);
-    
     // Usar principalmente los datos del backend, que son la fuente de verdad
     const backendUserIds = alreadySharedUsers.map(u => u.id);
     
@@ -128,9 +148,8 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     const localOnlyUsers = sharedUsers.filter(u => u && u.id && !backendUserIds.includes(u.id));
     
     const combined = [...alreadySharedUsers, ...localOnlyUsers];
-    
-    console.log(`✅ [BoardId: ${boardId}] Usuarios combinados final:`, combined);
-    return combined;
+
+    return combined; // Retornar la lista combinada de usuarios compartidos
   }, [sharedUsers, alreadySharedUsers, boardId]); // Agregar boardId como dependencia
 
   // Filtrar usuarios para excluir al usuario actual
@@ -154,19 +173,48 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     }
   }, [boardId]);
 
-  // 🔄 AISLAMIENTO: Limpiar estado local cuando cambia el boardId
+
+
+
+  /**
+   * 🔄 AISLAMIENTO DE DATOS POR TABLERO
+   * 
+   * ¿POR QUÉ el useEffect?
+   * Este componente se reutiliza para diferentes tableros. Sin este reset,
+   * cuando cambias de tablero, los datos del tablero anterior quedan "pegados"
+   * en la interfaz, causando confusión y datos incorrectos.
+   * (Osea cada tablero puede ser compartido con diferentes usuarios y cuando se hacia un cambio entre los tableros
+   * la informacion que le pertenecia a un tablero tambiene staba en el otro)
+   * 
+   * PROBLEMA SIN ESTE useEffect:
+   * 1. Abres modal para compartir "Tablero A"
+   * 2. Buscas "Agustin2102" y seleccionas "Solo lectura"
+   * 3. Cierras el modal
+   * 4. Abres modal para compartir "Tablero B" 
+   * 5. ❌ PROBLEMA: Sigue mostrando "Agustin2102" en la búsqueda y "Solo lectura" seleccionado
+   * 6. ❌ MÁS GRAVE: Los usuarios compartidos del "Tablero A" aparecen en "Tablero B"
+   * 
+   * SOLUCIÓN CON ESTE useEffect:
+   * Cada vez que cambia boardId (cuando abres el modal para otro tablero),
+   * se resetean TODOS los estados locales del componente para empezar limpio.
+   */
   useEffect(() => {
-    console.log('🔄 [ShareBoardContent] BoardId cambió a:', boardId);
-    console.log('🧹 [ShareBoardContent] Limpiando estado local para aislar modal...');
-    
-    // Resetear todos los estados locales cuando cambia el tablero
+    // Limpiar usuarios compartidos del estado local
+    // Evita que aparezcan usuarios del tablero anterior
     setSharedUsers([]);
-    setSearchTerm('');
-    setSelectedPermissionLevel('EDITOR');
-    setEditingUserId(null);
     
-    console.log('✅ [ShareBoardContent] Estado local limpiado para boardId:', boardId);
-  }, [boardId]);
+    // Limpiar término de búsqueda
+    // Evita que aparezca el texto de búsqueda del tablero anterior
+    setSearchTerm('');
+    
+    // Resetear nivel de permisos a valor por defecto
+    // Evita que quede seleccionado el nivel del tablero anterior
+    setSelectedPermissionLevel('EDITOR');
+    
+    // Cancelar cualquier edición en progreso
+    // Evita que quede abierto el modo de edición de permisos
+    setEditingUserId(null);
+  }, [boardId]); // Se ejecuta cada vez que cambia el ID del tablero
 
   const handleShare = async (user: User) => {
     try {
@@ -203,15 +251,22 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
 
       await response.json();
       
-      console.log('✅ Usuario compartido exitosamente');
+
+      /*
+        Lo siguiente es hizo para que los cambios que se realizan en el modal se reflejen automaticamaente en la interfaz
+      */
       
-      // Agregar al estado local temporalmente
+      // ACTUALIZACIÓN OPTIMISTA: Agregar al estado local temporalmente
+      // Esto hace que el usuario aparezca inmediatamente en la interfaz
+      // mientras esperamos que el servidor confirme y el cache se actualice
       setSharedUsers(prev => [...prev, user]);
       
-      // Invalidar todos los caches relacionados
+      // SINCRONIZACIÓN: Invalidar caches para obtener datos frescos del servidor
+      // Esto asegura que la interfaz muestre los datos más recientes después del cambio
       await invalidateAllPermissionCaches();
       
-      // También refetch manual
+      // REFETCH MANUAL: Forzar actualización adicional por seguridad
+      // En caso de que la invalidación no sea suficiente, forzamos una recarga
       await refetchSharedUsers();
       
       const permissionText = selectedPermissionLevel === 'EDITOR' ? 'Editor' : 'Solo lectura';
@@ -233,9 +288,6 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
       // El backend espera userId, no permissionId
       const endpoint = `http://localhost:3000/api/boards/${boardId}/permissions/${user.id}`;
 
-      console.log('🗑️ Eliminando usuario:', user, 'Endpoint:', endpoint);
-      console.log('🔍 Usando userId:', user.id, 'en lugar de permissionId:', user.permissionId);
-
       const response = await fetch(endpoint, {
         method: 'DELETE',
         headers: {
@@ -249,23 +301,22 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
         throw new Error(errorData.message || `Error ${response.status}`);
       }
 
-      console.log('✅ Usuario eliminado exitosamente del backend');
-
-      // Primero eliminar del estado local
+      // ACTUALIZACIÓN OPTIMISTA: Eliminar del estado local primero
+      // Esto hace que el usuario desaparezca inmediatamente de la interfaz
       setSharedUsers(prev => {
         const newUsers = prev.filter(u => u.id !== user.id);
         console.log('🗑️ Estado local actualizado:', newUsers);
         return newUsers;
       });
       
-      // Invalidar TODOS los caches relacionados
+      // SINCRONIZACIÓN: Invalidar TODOS los caches relacionados con permisos
+      // Esto asegura que el cambio se refleje en toda la aplicación
       await invalidateAllPermissionCaches();
       
-      // Forzar refetch con delay para asegurar sincronización
-      console.log('🔄 Forzando refetch...');
+      // REFETCH CON DELAY: Forzar actualización adicional
+      // El delay asegura que el servidor haya procesado completamente la eliminación
       setTimeout(async () => {
         await refetchSharedUsers();
-        console.log('✅ Refetch completado');
       }, 100);
       
       toast.success(`Se removió el acceso de ${getUserDisplayName(user)}`);
@@ -291,16 +342,17 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
         userId: user.id,
         newLevel: backendLevel
       });
-
-      console.log('✅ Permiso actualizado exitosamente');
       
       const permissionText = newLevel === 'EDITOR' ? 'Editor' : 'Solo lectura';
       toast.success(`¡Permiso de ${getUserDisplayName(user)} cambiado a ${permissionText}!`);
       
       setEditingUserId(null);
       
-      // Invalidar todos los caches relacionados
+      // SINCRONIZACIÓN: Invalidar caches después de cambiar permisos
+      // Los permisos cambiados pueden afectar múltiples partes de la app
       await invalidateAllPermissionCaches();
+      
+      // REFETCH: Asegurar que los datos estén completamente actualizados
       await refetchSharedUsers();
       
     } catch (error) {
@@ -314,7 +366,7 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
     setEditingUserId(editingUserId === userId ? null : userId);
   };
 
-  // Helper function para determinar si un usuario es el dueño del tablero
+  //function para determinar si un usuario es el dueño del tablero
   const isOwner = (user: User): boolean => {
     if (user.level && user.level.toUpperCase() === 'OWNER') {
       return true;
@@ -551,37 +603,34 @@ export function ShareBoardContent({ boardId }: ShareBoardContentProps) {
           </div>
         )}
       </div>
-
-      {/* 🧹 Botón de debug para limpiar cache (temporal) */}
-      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-        <h4 className="text-sm font-medium text-yellow-800 mb-2">🔧 Herramientas de Debug</h4>
-        <div className="flex space-x-2 mb-2">
-          <button
-            onClick={handleDebugClearCache}
-            className="px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700 transition-colors"
-          >
-            🧹 Limpiar Cache Completo
-          </button>
-          <button
-            onClick={() => {
-              console.log(`🔍 [BoardId: ${boardId}] Estado actual del modal:`);
-              console.log('- sharedUsers:', sharedUsers);
-              console.log('- alreadySharedUsers:', alreadySharedUsers);
-              console.log('- combinedSharedUsers:', combinedSharedUsers);
-              console.log('- searchTerm:', searchTerm);
-              console.log('- selectedPermissionLevel:', selectedPermissionLevel);
-              console.log('- editingUserId:', editingUserId);
-              toast.success(`Estado del modal loggeado para tablero ${boardId}`);
-            }}
-            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-          >
-            📊 Debug Estado
-          </button>
-        </div>
-        <p className="text-xs text-yellow-700">
-          Si el usuario sigue apareciendo, usa "Limpiar Cache". Si hay mezcla de datos, usa "Debug Estado".
-        </p>
-      </div>
     </div>
   );
 }
+
+/**
+ * 📚 PATRÓN DE SINCRONIZACIÓN DE DATOS
+ * 
+ * Este componente implementa un patrón común en aplicaciones React con servidor:
+ * 
+ * 1️⃣ OPTIMISTIC UPDATES (Actualizaciones Optimistas):
+ *    - Actualizar la interfaz inmediatamente (antes de confirmar con el servidor)
+ *    - Mejora la experiencia del usuario (no hay esperas)
+ *    - Ejemplo: setSharedUsers(prev => [...prev, user])
+ * 
+ * 2️⃣ SERVER SYNCHRONIZATION (Sincronización con Servidor):
+ *    - Enviar la petición al servidor
+ *    - Manejar errores y revertir cambios si es necesario
+ * 
+ * 3️⃣ CACHE INVALIDATION (Invalidación de Cache):
+ *    - Invalidar caches relacionados para forzar datos frescos
+ *    - Asegurar que toda la app tenga datos consistentes
+ *    - Ejemplo: invalidateAllPermissionCaches()
+ * 
+ * 4️⃣ BACKUP REFETCH (Refetch de Respaldo):
+ *    - Refetch manual adicional por seguridad
+ *    - Útil en casos donde la invalidación podría fallar
+ *    - Ejemplo: await refetchSharedUsers()
+ * 
+ * Este patrón asegura que la interfaz sea rápida y responsive, pero también
+ * que los datos sean precisos y estén sincronizados con el servidor.
+ */

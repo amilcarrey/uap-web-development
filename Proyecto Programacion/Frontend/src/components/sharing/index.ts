@@ -1,5 +1,3 @@
 // src/components/sharing/index.ts
-export { ShareBoardContent as ShareBoardContentOriginal } from './ShareBoardContent';
-export { ShareBoardContent as ShareBoardContentClean } from './ShareBoardContentClean';
-export { ShareBoardModalComplete } from './ShareBoardModalComplete';
+export { ShareBoardContent } from './ShareBoardContent';
 export { ShareModalErrorBoundary } from './ShareModalErrorBoundary';

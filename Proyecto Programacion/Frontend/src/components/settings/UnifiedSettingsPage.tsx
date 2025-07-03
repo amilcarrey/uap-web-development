@@ -1,16 +1,16 @@
 import { UserProfile } from '../user/UserProfile';
 import { UserSettings } from '../user/UserSettings';
 import { Configuracion } from './Configuracion';
-import { useSettingsNavigation, useSettingsKeyboardShortcuts } from '../../hooks/useSettingsNavigation';
+import { useSettingsNavigation } from '../../hooks/useSettingsNavigation';
 
 // Tipos para las tabs de configuración
 interface ConfigTab {
   id: string;
   label: string;
   icon: string;
-  description: string;
-  component: React.ComponentType;
-  badge?: string;
+  description: string; 
+  component: React.ComponentType; // Componente que se renderiza al seleccionar la tab
+  badge?: string; //Sirve para mostrar notificaciones o estados especiales
 }
 
 export function UnifiedSettingsPage() {
@@ -24,7 +24,7 @@ export function UnifiedSettingsPage() {
       label: 'Mi Perfil',
       icon: '👤',
       description: 'Información personal y datos de contacto',
-      component: UserProfile
+      component: UserProfile // Componente para mostrar y editar el perfil del usuario <--Se abre una ventana modal
     },
     {
       id: 'preferences',
@@ -45,12 +45,10 @@ export function UnifiedSettingsPage() {
   const activeTabData = configTabs.find(tab => tab.id === activeTab);
   const ActiveComponent = activeTabData?.component;
 
-  // Configurar atajos de teclado
-  useSettingsKeyboardShortcuts(configTabs, navigateToTab);
 
   const handleTabChange = (tabId: string) => {
     navigateToTab(tabId);
-    // Opcional: mostrar un toast suave para confirmar el cambio
+    // Para mostrar un toast, para confirmar el cambio
     // const tabName = configTabs.find(tab => tab.id === tabId)?.label;
     // toast.success(`Navegando a ${tabName}`, { duration: 1000 });
   };
