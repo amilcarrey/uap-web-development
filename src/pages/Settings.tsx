@@ -7,17 +7,7 @@ export default function Settings() {
   const uppercaseDescriptions = useConfigStore((s) => s.uppercaseDescriptions);
   const setRefetchInterval = useConfigStore((s) => s.setRefetchInterval);
   const setUppercaseDescriptions = useConfigStore((s) => s.setUppercaseDescriptions);
-  const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-    logout();
-    navigate("/login");
-  };
 
   return (
     <div className="min-h-screen bg-[#fffaf0] flex items-center justify-center p-4">
@@ -54,11 +44,16 @@ export default function Settings() {
         </button>
 
         <button
-          className="mt-4 w-full bg-red-500 text-white py-2 px-4 rounded-md font-medium hover:bg-red-600 transition"
-          onClick={handleLogout}
+          className="mt-6 w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition"
+          onClick={async () => {
+            await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+            useAuthStore.getState().setAuthenticated(false);
+            window.location.href = "/login";
+          }}
         >
           Cerrar sesión
         </button>
+
       </div>
     </div>
   );

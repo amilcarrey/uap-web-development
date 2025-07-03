@@ -99,12 +99,12 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#fffaf0]">
+    <div className="min-h-screen bg-[#fffaf0] flex items-center justify-center p-4">
       <div className="bg-white rounded shadow w-full max-w-md p-6">
         <h1 className="text-2xl font-bold mb-4">Tablero: {selectedBoard}</h1>
         <TaskForm onAdd={handleAdd} />
         {loading ? (
-          <p>Cargando tareas...</p>
+          <p className="text-gray-500">Cargando tareas...</p>
         ) : (
           <>
             <TaskList

@@ -1,36 +1,53 @@
-// src/components/LoginForm.tsx
 import { useState } from "react";
-import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "react-toastify";
+import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
-  const login = useAuthStore((s) => s.login);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const setAuth = useAuthStore((s) => s.setAuthenticated);
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     const res = await fetch("/api/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       credentials: "include",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
 
-    if (!res.ok) {
-      toast.error("Login fallido");
+    if (res.ok) {
+      setAuth(true);
+      toast.success("Login exitoso");
+      navigate("/");
     } else {
-      login(username);
-      toast.success("Bienvenido");
+      toast.error("Login fallido");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded shadow w-full max-w-md">
-      <h2 className="text-xl font-semibold text-center">Iniciar sesión</h2>
-      <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Usuario" className="w-full border px-3 py-2 rounded" />
-      <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Contraseña" className="w-full border px-3 py-2 rounded" />
-      <button type="submit" className="w-full bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600 transition">Ingresar</button>
-    </form>
+    <div className="bg-white shadow rounded-lg p-6 w-full max-w-sm">
+      <h2 className="text-lg font-semibold mb-4">Iniciar sesión</h2>
+      <input
+        className="w-full mb-3 px-3 py-2 border rounded"
+        placeholder="Usuario"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <input
+        className="w-full mb-3 px-3 py-2 border rounded"
+        type="password"
+        placeholder="Contraseña"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button
+        onClick={handleLogin}
+        className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
+      >
+        Ingresar
+      </button>
+    </div>
   );
 }
