@@ -1,47 +1,109 @@
-import { boards } from "../data.js";
-import crypto from "crypto";
+import {
+  crearTableroService,
+  obtenerTablerosService,
+  obtenerTableroPorIdService,
+  eliminarTableroService,
+} from "../servieces/tableroServieces.js";
 
-const crearTablero = async (req, res) => {
-  const { nombre } = req.body;
+import { compartirTableroService } from "../servieces/compartirTableroServiece.js";
+import { obtenerTablerosCompartidosServieces } from "../servieces/compartirTableroServiece.js";
 
-  if (!nombre) {
+export async function crearTablero(req, res) {
+  const { name, nombre } = req.body;
+  const tableroName = name || nombre; // Acepta ambos
+  const userId = req.user.id;
+
+  console.log(" Creando tablero:", { tableroName, userId });
+
+  if (!tableroName) {
     return res.status(400).json({ message: "El nombre es obligatorio" });
   }
 
-  const nuevoTablero = {
-    id: crypto.randomUUID(),
-    nombre,
-  };
+  try {
+    const tablero = await crearTableroService({ name: tableroName, userId });
+    console.log(" Tablero creado:", tablero);
+    res.status(201).json({ message: "Tablero creado con éxito", tablero });
+  } catch (error) {
+    console.error("Error en crearTablero:", error);
+    res
+      .status(500)
+      .json({ message: "Error al crear el tablero", error: error.message });
+  }
+}
 
-  boards.push(nuevoTablero);
+export async function obtenerTableros(req, res) {
+  try {
+    const userId = req.user.id;
+    const tableros = await obtenerTablerosService(userId);
+    res.status(200).json({ tableros });
+  } catch (error) {
+    console.error("Error en obtenerTableros:", error);
+    res
+      .status(500)
+      .json({ message: "Error al obtener los tableros", error: error.message });
+  }
+}
 
-  res.json({
-    message: "Tablero creado con éxito",
-    tablero: nuevoTablero,
-  });
-};
-
-const obtenerTableros = async (req, res) => {
-  res.json({
-    message: "Tableros obtenidos con éxito",
-    tableros: boards,
-  });
-};
-
-const eliminarTablero = async (req, res) => {
+export async function obtenerTableroPorId(req, res) {
   const { id } = req.params;
 
-  const index = boards.findIndex((board) => board.id === id);
+  obtenerTableroPorIdService(id)
+    .then((tablero) => {
+      if (!tablero) {
+        return res.status(404).json({ message: "Tablero no encontrado" });
+      }
+      res.status(200).json({ tablero });
+    })
+    .catch((error) => {
+      res.status(500).json({ message: "Error al obtener el tablero", error });
+    });
+}
 
-  if (index === -1) {
-    return res.status(404).json({ message: "Tablero no encontrado" });
+export function eliminarTablero(req, res) {
+  const { id } = req.params;
+
+  eliminarTableroService(id)
+    .then((result) => {
+      if (!result) {
+        return res.status(404).json({ message: "Tablero no encontrado" });
+      }
+      res.status(200).json({ message: "Tablero eliminado con éxito" });
+    })
+    .catch((error) => {
+      res.status(500).json({ message: "Error al eliminar el tablero", error });
+    });
+}
+
+export async function compartirTablero(req, res) {
+  const { tableroId, usuarioEmail, rol } = req.body;
+  const propietarioId = req.user.id;
+
+  if (!tableroId || !usuarioEmail || !rol) {
+    return res.status(400).json({ message: "Datos incompletos" });
   }
 
-  boards.splice(index, 1);
+  try {
+    await compartirTableroService(tableroId, propietarioId, usuarioEmail, rol);
+    res.status(200).json({ message: "Tablero compartido con éxito" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al compartir el tablero",
+      error: error.message,
+    });
+  }
+}
 
-  res.json({
-    message: "Tablero eliminado con éxito",
-  });
-};
+export async function obtenerTablerosCompartidos(req, res) {
+  const usuarioId = req.user.id;
 
-export { crearTablero, obtenerTableros, eliminarTablero };
+  try {
+    const tablerosCompartidos = await obtenerTablerosCompartidosServieces(
+      usuarioId
+    );
+    res.status(200).json({ tablerosCompartidos });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al obtener los tableros compartidos", error });
+  }
+}

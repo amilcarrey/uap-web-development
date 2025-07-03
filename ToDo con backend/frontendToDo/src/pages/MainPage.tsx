@@ -1,6 +1,7 @@
 import { Header } from "../components/Header";
 import { Hero } from "../components/Hero";
 import { FormTarea } from "../components/formTarea";
+import { DebugPanel } from "../components/DebugPanel";
 import { useState } from "react";
 import { TableroTareas } from "../components/TableroTareas";
 import { ListarTareas } from "../components/Tareas";
@@ -27,6 +28,9 @@ const MainPage = () => {
           </>
         )}
       </div>
+
+      {/* Debug panel temporal */}
+      <DebugPanel tableroId={tableroId} />
     </div>
   );
 };

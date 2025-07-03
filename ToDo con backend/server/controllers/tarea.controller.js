@@ -1,111 +1,136 @@
-import { tasks } from "../data.js";
+import {
+  crearTareaService,
+  obtenerTareasService,
+  eliminarTareaService,
+  toggleTareaService,
+  actualizarTareaService,
+} from "../servieces/tareaServieces.js";
 
-const crearTarea = async (req, res) => {
-  const nuevaTarea = {
-    nombre: req.body.nombre,
-    tableroId: req.body.tableroId,
-    completada: false,
-  };
+import { obtenerTareasFiltradas } from "../servieces/tareaServieces.js";
+
+export async function crearTareaController(req, res) {
   try {
-    if (nuevaTarea.nombre && nuevaTarea.tableroId) {
-      tasks.push(nuevaTarea);
-      res.json({
-        message: "Tarea creada con éxito",
-        tarea: nuevaTarea,
-      });
-    } else {
-      res.status(400).json({ message: "Faltan campos requeridos" });
+    const { nombre, tableroId } = req.body;
+    if (!nombre || !tableroId) {
+      return res
+        .status(400)
+        .json({ error: "Nombre y tableroId son requeridos" });
     }
+    const nuevaTarea = await crearTareaService({ nombre, tableroId });
+    res.status(201).json(nuevaTarea);
   } catch (error) {
-    res.status(500).json({
-      message: "Error al crear la tarea",
-      error: error.message,
-    });
+    console.error("Error al crear tarea:", error);
+    res.status(500).json({ error: "Error al crear tarea" });
   }
-};
+}
 
-const obtenerTareas = async (req, res) => {
+export async function obtenerTareasController(req, res) {
   try {
+    const tableroId = req.params.tableroId;
     const filtro = req.query.filtro || "todos";
-    const tableroId = req.query.tableroId;
+
+    console.log(
+      `📋 Obteniendo tareas para tablero ${tableroId} con filtro ${filtro}`
+    );
 
     if (!tableroId) {
-      return res.status(400).json({ message: "Falta el tableroId" });
+      return res.status(400).json({ error: "TableroId es requerido" });
     }
 
-    let tareasFiltered = tasks.filter((t) => t.tableroId === tableroId);
+    const tareas = await obtenerTareasService({ tableroId, filtro });
+    console.log(`✅ Encontradas ${tareas.length} tareas`);
 
-    if (filtro === "pendientes") {
-      tareasFiltered = tareasFiltered.filter((t) => !t.completada);
-    } else if (filtro === "completadas") {
-      tareasFiltered = tareasFiltered.filter((t) => t.completada);
-    }
-
-    res.json({ message: "Tareas obtenidas con éxito", tareas: tareasFiltered });
+    res.status(200).json({ tareas }); // Cambio: envolver en objeto
   } catch (error) {
-    res.status(500).json({
-      message: "Error al obtener las tareas",
-      error: error.message,
+    console.error("Error al obtener tareas:", error);
+    res.status(500).json({ error: "Error al obtener tareas" });
+  }
+}
+
+export async function eliminarTareaController(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "ID de tarea es requerido" });
+    }
+
+    const eliminado = await eliminarTareaService(id);
+    if (eliminado) {
+      res.status(204).send();
+    } else {
+      res.status(404).json({ error: "Tarea no encontrada" });
+    }
+  } catch (error) {
+    console.error("Error al eliminar tarea:", error);
+    res.status(500).json({ error: "Error al eliminar tarea" });
+  }
+}
+
+export async function toggleTareaController(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "ID de tarea es requerido" });
+    }
+
+    const tareaActualizada = await toggleTareaService(id);
+    if (tareaActualizada) {
+      res.status(200).json(tareaActualizada);
+    } else {
+      res.status(404).json({ error: "Tarea no encontrada" });
+    }
+  } catch (error) {
+    console.error("Error al cambiar estado de tarea:", error);
+    res.status(500).json({ error: "Error al cambiar estado de tarea" });
+  }
+}
+
+export async function actualizarTareaController(req, res) {
+  try {
+    const { id } = req.params;
+    const { nombre, completada } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: "ID de tarea es requerido" });
+    }
+
+    const tareaActualizada = await actualizarTareaService(id, {
+      nombre,
+      completada,
     });
-  }
-};
 
-const eliminarTarea = async (req, res) => {
-  const index = parseInt(req.params.index);
-  try {
-    if (!isNaN(index) && tasks[index]) {
-      tasks.splice(index, 1);
-      res.json({ message: "Tarea eliminada con éxito" });
+    if (tareaActualizada) {
+      res.status(200).json(tareaActualizada);
     } else {
-      res.status(400).json({ message: "Índice inválido" });
+      res.status(404).json({ error: "Tarea no encontrada" });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al eliminar la tarea", error: error.message });
+    console.error("Error al actualizar tarea:", error);
+    res.status(500).json({ error: "Error al actualizar tarea" });
   }
-};
+}
 
-const toggleTarea = async (req, res) => {
-  const index = parseInt(req.params.index);
+export async function obtenerTareasFiltradasController(req, res) {
   try {
-    if (!isNaN(index) && tasks[index]) {
-      tasks[index].completada = !tasks[index].completada;
-      res.json({ message: "Tarea actualizada con éxito", tarea: tasks[index] });
-    } else {
-      res.status(400).json({ message: "Índice inválido" });
+    const { tableroId } = req.params;
+    const { pagina, limite, filtro } = req.query;
+
+    if (!tableroId) {
+      return res.status(400).json({ error: "TableroId es requerido" });
     }
+
+    const tareas = await obtenerTareasFiltradas({
+      tableroId,
+      pagina: parseInt(pagina, 10) || 1,
+      limite: parseInt(limite, 10) || 10,
+      filtro,
+    });
+
+    res.status(200).json(tareas);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al actualizar la tarea", error: error.message });
+    console.error("Error al obtener tareas filtradas:", error);
+    res.status(500).json({ error: "Error al obtener tareas filtradas" });
   }
-};
-
-const actualizarTarea = async (req, res) => {
-  const index = parseInt(req.params.index);
-  const { nombre, completada } = req.body;
-
-  try {
-    if (!isNaN(index) && tasks[index]) {
-      if (nombre !== undefined) tasks[index].nombre = nombre;
-      if (completada !== undefined) tasks[index].completada = completada;
-      res.json({ message: "Tarea actualizada con éxito", tarea: tasks[index] });
-    } else {
-      res.status(400).json({ message: "Índice inválido" });
-    }
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al actualizar la tarea", error: error.message });
-  }
-};
-
-export {
-  crearTarea,
-  obtenerTareas,
-  eliminarTarea,
-  toggleTarea,
-  eliminarCompletadas,
-  actualizarTarea,
-};
+}
