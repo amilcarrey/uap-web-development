@@ -1,4 +1,4 @@
-import { connectDB } from "../db.js";
+import { connectDB } from "../db.mjs";
 
 export async function getTasks(boardId) {
   const db = await connectDB();

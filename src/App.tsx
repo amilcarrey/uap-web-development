@@ -1,13 +1,9 @@
-import { useAuthStore } from "./store/useAuthStore";
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import Settings from "./pages/Settings";
-import LoginPage from "./pages/LoginPage";
 import BoardSelector from "./components/BoardSelector";
 
 export default function App() {
-  const isAuth = useAuthStore((s) => s.isAuthenticated);
-
   return (
     <Router>
       <div className="min-h-screen bg-[#fffaf0] text-gray-800 font-sans">
@@ -17,21 +13,10 @@ export default function App() {
         </nav>
 
         <main className="p-4 max-w-4xl mx-auto">
+          <BoardSelector />
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            {isAuth ? (
-              <>
-                <Route path="/" element={
-                  <>
-                    <BoardSelector />
-                    <Home />
-                  </>
-                } />
-                <Route path="/configuracion" element={<Settings />} />
-              </>
-            ) : (
-              <Route path="*" element={<Navigate to="/login" />} />
-            )}
+            <Route path="/" element={<Home />} />
+            <Route path="/configuracion" element={<Settings />} />
           </Routes>
         </main>
       </div>

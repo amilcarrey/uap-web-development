@@ -1,3 +1,4 @@
+// src/pages/Home.tsx
 import { useEffect, useState } from "react";
 import TaskForm from "../components/TaskForm";
 import TaskList from "../components/TaskList";
@@ -5,19 +6,27 @@ import TaskFilter from "../components/TaskFilter";
 import { useAppStore } from "../store/useAppStore";
 import { useConfigStore } from "../store/useConfigStore";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const { filter, selectedBoard } = useAppStore();
   const refetchInterval = useConfigStore((s) => s.refetchInterval);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchTasks = async () => {
+    if (!selectedBoard || selectedBoard === "") return;
     setLoading(true);
     try {
       const res = await fetch(`/api/tasks/${selectedBoard}`, {
         credentials: "include",
       });
+      if (res.status === 401) {
+        toast.error("Sesión expirada");
+        navigate("/login");
+        return;
+      }
       const data = await res.json();
       setTasks(data);
     } catch {

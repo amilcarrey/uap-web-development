@@ -1,4 +1,3 @@
-// src/components/ShareBoard.tsx
 import { useState } from "react";
 import { useAppStore } from "../store/useAppStore";
 import { toast } from "react-toastify";

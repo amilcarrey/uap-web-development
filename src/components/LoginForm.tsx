@@ -3,7 +3,11 @@ import { toast } from "react-toastify";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 
-export default function LoginForm() {
+interface Props {
+  onSwitch: () => void;
+}
+
+export default function LoginForm({ onSwitch }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const setAuth = useAuthStore((s) => s.setAuthenticated);
@@ -47,6 +51,12 @@ export default function LoginForm() {
         className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
       >
         Ingresar
+      </button>
+      <button
+        onClick={onSwitch}
+        className="w-full mt-3 text-sm text-yellow-600 underline"
+      >
+        ¿No tienes cuenta? Crear una
       </button>
     </div>
   );

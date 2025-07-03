@@ -1,0 +1,95 @@
+### 🔐 Registro de nuevo usuario
+POST http://localhost:3001/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "benjamon",
+  "password": "Benja2410"
+}
+
+###
+
+### 🔐 Login del usuario (guarda cookie de sesión)
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "benjamon",
+  "password": "Benja2410"
+}
+
+###
+
+### 🔐 Obtener usuario actual (si estás logeado)
+GET http://localhost:3001/api/auth/me
+
+###
+
+### 🔐 Logout del usuario
+POST http://localhost:3001/api/auth/logout
+
+###
+
+### 📁 Obtener todos los tableros del usuario actual
+GET http://localhost:3001/api/boards
+
+###
+
+### 📁 Crear un nuevo tablero
+POST http://localhost:3001/api/boards
+Content-Type: application/json
+
+{
+  "name": "proyecto"
+}
+
+###
+
+### 📁 Compartir un tablero con otro usuario
+POST http://localhost:3001/api/boards/1/share
+Content-Type: application/json
+
+{
+  "username": "harrySonSon",
+  "level": "editor"  // opciones: owner, editor, viewer
+}
+
+###
+
+### 📁 Eliminar un tablero (solo dueño)
+DELETE http://localhost:3001/api/boards/1
+
+###
+
+### ✅ Obtener tareas de un tablero (id 1 por ejemplo)
+GET http://localhost:3001/api/tasks/1
+
+###
+
+### ✅ Crear nueva tarea en un tablero
+POST http://localhost:3001/api/tasks/1
+Content-Type: application/json
+
+{
+  "text": "Arreglar errores del backend"
+}
+
+###
+
+### ✅ Marcar tarea como completada / toggle
+PATCH http://localhost:3001/api/tasks/2
+
+###
+
+### ✅ Editar el texto de una tarea
+PUT http://localhost:3001/api/tasks/2
+Content-Type: application/json
+
+{
+  "text": "Tarea corregida"
+}
+
+###
+
+### ✅ Eliminar una tarea
+DELETE http://localhost:3001/api/tasks/2

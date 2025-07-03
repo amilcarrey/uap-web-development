@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-export default function RegisterForm() {
+interface Props {
+  onSwitch: () => void;
+}
+
+export default function RegisterForm({ onSwitch }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -15,6 +19,7 @@ export default function RegisterForm() {
 
     if (res.ok) {
       toast.success("Registro exitoso");
+      onSwitch(); // volver al login
     } else {
       toast.error("Error al registrarse");
     }
@@ -22,7 +27,7 @@ export default function RegisterForm() {
 
   return (
     <div className="bg-white shadow rounded-lg p-6 w-full max-w-sm">
-      <h2 className="text-lg font-semibold mb-4">Registrarse</h2>
+      <h2 className="text-lg font-semibold mb-4">Crear cuenta</h2>
       <input
         className="w-full mb-3 px-3 py-2 border rounded"
         placeholder="Usuario"
@@ -41,6 +46,12 @@ export default function RegisterForm() {
         className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
       >
         Crear cuenta
+      </button>
+      <button
+        onClick={onSwitch}
+        className="w-full mt-3 text-sm text-yellow-600 underline"
+      >
+        ¿Ya tienes cuenta? Iniciar sesión
       </button>
     </div>
   );
