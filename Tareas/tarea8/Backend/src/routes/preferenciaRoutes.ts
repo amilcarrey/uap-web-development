@@ -1,0 +1,10 @@
+import { Router } from "express";
+import { PreferenceController } from "../controllers/PreferenceController";
+const router = Router();
+
+// Rutas anidadas bajo: /api/preferences
+
+router.get("/", PreferenceController.getPreferences);
+router.put("/", PreferenceController.updatePreferences);
+
+export default router;
