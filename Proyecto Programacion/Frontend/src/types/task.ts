@@ -2,9 +2,9 @@ export interface Task {
   id: string;
   content: string; // Contenido de la tarea (compatible con el backend)
   active: boolean; // true = completada, false = pendiente (compatible con el backend)
-  boardId: string;
-  createdAt: string;
-  updatedAt: string;
+  boardId?: string;  // Opcional por compatibilidad con API
+  createdAt?: string; // Opcional por compatibilidad con API
+  updatedAt?: string; // Opcional por compatibilidad con API
   assignedTo?: string; // Para futuras funcionalidades
 }
 

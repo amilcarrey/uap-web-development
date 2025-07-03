@@ -1,5 +1,48 @@
-
 # TODO - Lista de Tareas Pendientes
+
+#### App.tsx ✅ COMPLETADO
+- ✅ Creado `useBoardCreation.ts` para lógica de creación de tableros
+- ✅ Creado `AppScreens.tsx` con layout y pantallas reutilizables
+- ✅ Creado `WelcomeScreen.tsx` para pantalla de bienvenida
+- ✅ App.tsx ahora solo orquesta rutas y pantallas sin lógica de negocio
+
+#### BoardManager.tsx ✅ COMPLETADO  
+- ✅ Creado `useBoardOperations.ts` para CRUD de tableros + navegación
+- ✅ Creado `useShareModal.ts` para gestión del modal de compartir
+- ✅ BoardManager ahora solo usa hooks y delega toda la lógica de negocio
+
+#### TaskInput.tsx ✅ COMPLETADO
+- ✅ Creado `useTaskInput.ts` para lógica de formulario de tareas  
+- ✅ Creado `taskValidation.ts` utils para validaciones
+- ✅ TaskInput ahora separado entre lógica (hook) y presentación (componente)
+
+#### TaskItem.tsx ✅ COMPLETADO
+- ✅ Creado `useTaskOperations.ts` para operaciones CRUD de tareas
+- ✅ Creado `TaskItemEditForm.tsx`, `TaskItemActions.tsx`, `TaskItemDisplay.tsx` subcomponentes
+- ✅ TaskItem ahora orquesta subcomponentes sin lógica de negocio
+
+### Reorganización de estructura de componentes ✅ COMPLETADO
+**Problema:** 33 componentes en una sola carpeta `/components/` dificultaban la navegación, mantenimiento y escalabilidad del proyecto.
+
+**Solución implementada:**
+- ✅ **Estructura por funcionalidad**: Organización lógica en 9 categorías
+- ✅ **Carpetas especializadas**: Cada tipo de componente en su lugar apropiado
+- ✅ **Archivos index.ts**: Exports limpios para imports simplificados
+- ✅ **Paths actualizados**: Imports corregidos para nuevas ubicaciones
+
+**Nueva estructura:**
+```
+src/components/
+├── 📁 layout/           # Header, AppScreens, WelcomeScreen
+├── 📁 auth/             # AuthPage, LoginForm, RegisterForm  
+├── 📁 boards/           # BoardManager, TabsContainer, TabButton, TabContent
+├── 📁 tasks/            # TaskInput, TaskItem, TaskList, FilterControls, etc.
+├── 📁 sharing/          # ShareBoardModal*, ShareBoard*
+├── 📁 user/             # UserProfile, UserProfileDropdown, UserSettings
+├── 📁 settings/         # SettingsModal, UnifiedSettingsPage, Configuracion
+├── 📁 ui/               # BaseModal, SettingsButton (componentes reutilizables)
+└── 📁 common/           # ErrorBoundary, NotFound (utilidades)
+```
 
 ## 🔒 Permisos y Viewers
 
