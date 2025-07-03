@@ -1,27 +1,24 @@
-import { Link } from 'react-router-dom';
-import { useAuthStore } from './store/auth';
+import { Routes, Route } from 'react-router-dom';
+import { NavBar } from './components/NavBar';
+import { Home } from './pages/Home';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
+import { Boards } from './pages/Boards';
+import { Board } from './pages/Board';
 
-function App() {
-  const { user } = useAuthStore();
-
+export default function App() {
   return (
-    <div className="container">
-      <h1>Bienvenido a la App de Tableros</h1>
-      {user ? (
-        <div>
-          <p>Hola, {user.name}!</p>
-          <Link to="/boards">Ver mis tableros</Link><br />
-          <Link to="/settings">Configuraciones</Link>
-        </div>
-      ) : (
-        <div>
-          <p>Por favor, inicia sesión o regístrate para comenzar.</p>
-          <Link to="/login">Iniciar Sesión</Link><br />
-          <Link to="/register">Registrarse</Link>
-        </div>
-      )}
+    <div>
+      <NavBar />
+      <div className="container">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/boards" element={<Boards />} />
+          <Route path="/boards/:id" element={<Board />} />
+        </Routes>
+      </div>
     </div>
   );
 }
-
-export default App;

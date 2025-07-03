@@ -1,66 +1,57 @@
 import { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import api from '../lib/api';
-import { useAuthStore } from '../store/auth';
 
-const Register = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [error, setError] = useState('');
-  const { setUser } = useAuthStore();
+export const Register = () => {
+  const { register, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: '', password: '', name: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api.post('/auth/register', { email, password, name });
-      setUser(response.data);
+      await register(formData);
       navigate('/boards');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Error al registrarse');
+    } catch (error) {
+      console.error('Error al registrarse:', error);
     }
   };
 
   return (
-    <div className="container">
-      <h1>Registrarse</h1>
-      {error && <p className="error">{error}</p>}
+    <div className="form-container">
+      <h2>Registrarse</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Nombre</label>
+        <div className="form-group">
+          <label>Nombre</label>
           <input
-            id="name"
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
           />
         </div>
-        <div>
-          <label htmlFor="email">Email</label>
+        <div className="form-group">
+          <label>Email</label>
           <input
-            id="email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
           />
         </div>
-        <div>
-          <label htmlFor="password">Contraseña</label>
+        <div className="form-group">
+          <label>Contraseña</label>
           <input
-            id="password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             required
           />
         </div>
-        <button type="submit">Registrarse</button>
+        <button type="submit" disabled={isLoading} className="btn">
+          {isLoading ? 'Cargando...' : 'Registrarse'}
+        </button>
       </form>
     </div>
   );
-};
-
-export default Register;
+}
