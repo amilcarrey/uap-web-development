@@ -13,12 +13,6 @@ export async function crearTableroService({ name, userId }) {
 
     const tableroId = tableroResult.rows[0].id;
 
-    // Asignar al usuario como propietario en la tabla de permisos
-    await client.query(
-      "INSERT INTO tablero_usuarios (tablero_id, usuario_id, rol) VALUES ($1, $2, 'propietario')",
-      [tableroId, userId]
-    );
-
     await client.query("COMMIT");
 
     return { id: tableroId, name, userId };
