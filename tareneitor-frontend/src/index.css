@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+
+/* Fondo animado */
+body {
+  @apply m-0 min-h-screen flex items-center justify-center font-sans;
+
+  background: linear-gradient(
+    180deg,
+    #3d1857,
+    #2b1857,
+    #191857,
+    #183e57,
+    #191857,
+    #2b1857,
+    #3d1857
+  );
+  background-size: 5000% 500%;
+  animation: fanimado 10s infinite alternate ease-in-out;
+  color: white;
+}
+
+/* Animación de fondo */
+@keyframes fanimado {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
+/* Enlaces */
+a {
+  @apply font-medium text-indigo-400 no-underline;
+}
+a:hover {
+  @apply text-indigo-300;
+}
+
+/* Botones base */
+button {
+  @apply rounded-lg border border-transparent px-4 py-2 text-base font-medium cursor-pointer transition-colors;
+  background-color: #1a1a1a;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Títulos grandes */
+h1 {
+  @apply text-4xl leading-tight text-center drop-shadow-lg;
+}
+
+@media (prefers-color-scheme: light) {
+  body {
+    @apply text-gray-800;
+    background-color: #ffffff;
+  }
+  a:hover {
+    @apply text-indigo-600;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
