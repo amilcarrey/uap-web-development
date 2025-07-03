@@ -157,9 +157,7 @@ export function useAddTask() {
       return result;
     },
     onSuccess: () => {
-      // Invalidar tanto las queries de tasks como las de búsqueda
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
-      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
     },
   });
 }
@@ -179,9 +177,7 @@ export function useDeleteTask() {
       return res.json();
     },
     onSuccess: () => {
-      // Invalidar tanto las queries de tasks como las de búsqueda
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
-      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
     },
   });
 }
@@ -203,9 +199,7 @@ export function useToggleTask() {
       return res.json();
     },
     onSuccess: () => {
-      // Invalidar tanto las queries de tasks como las de búsqueda
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
-      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
     },
   });
 }
@@ -227,9 +221,7 @@ export function useEditTask() {
       return res.json();
     },
     onSuccess: () => {
-      // Invalidar tanto las queries de tasks como las de búsqueda
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
-      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
     },
   });
 }
@@ -249,9 +241,7 @@ export function useClearCompletedTasks() {
       return res.json();
     },
     onSuccess: () => {
-      // Invalidar tanto las queries de tasks como las de búsqueda
       queryClient.invalidateQueries({ queryKey: ['tasks'], exact: false });
-      queryClient.invalidateQueries({ queryKey: ['search-tasks'], exact: false });
     },
   });
 }

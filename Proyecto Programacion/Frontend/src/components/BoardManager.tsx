@@ -25,14 +25,21 @@ export function BoardManager() {
   // Crear tablero
   const handleAddTab = () => {
     const title = `Tablero ${tabs.length + 1}`;
+    
     if (createTab) {
       createTab.mutate(title, {
         onSuccess: (newTab) => {
-          toast.success("Tablero creado");
-          navigate(`/board/${encodeURIComponent(newTab.title)}`);
+          try {
+            toast.success("Tablero creado");
+            navigate(`/board/${encodeURIComponent(newTab.title)}`);
+          } catch (error) {
+            console.error('❌ Error en navegación después de crear tablero:', error);
+            toast.error("Tablero creado pero hubo un error de navegación");
+          }
         },
-        onError: () => {
-          toast.error("Error al crear el tablero");
+        onError: (error) => {
+          console.error('❌ Error al crear tablero:', error);
+          toast.error(`Error al crear el tablero: ${error.message}`);
         }
       });
     }
@@ -40,23 +47,25 @@ export function BoardManager() {
 
   // Eliminar tablero
   const handleRemoveTab = (id: string) => {
-    console.log('handleRemoveTab llamado con id:', id);
-    console.log('deleteTab objeto:', deleteTab);
-
     deleteTab.mutate(id, {
       onSuccess: () => {
-        const removedTab = tabs.find(tab => tab.id === id);
-        toast.success(`Tablero "${removedTab ? removedTab.title : id}" eliminado`);
-        const remaining = tabs.filter(tab => tab.id !== id);
-        if (removedTab && boardTitleParam === removedTab.title && remaining.length > 0) {
-          navigate(`/board/${encodeURIComponent(remaining[0].title)}`);
-        } else if (remaining.length === 0) {
-          navigate('/');
+        try {
+          const removedTab = tabs.find(tab => tab.id === id);
+          toast.success(`Tablero "${removedTab ? removedTab.title : id}" eliminado`);
+          const remaining = tabs.filter(tab => tab.id !== id);
+          if (removedTab && boardTitleParam === removedTab.title && remaining.length > 0) {
+            navigate(`/board/${encodeURIComponent(remaining[0].title)}`);
+          } else if (remaining.length === 0) {
+            navigate('/');
+          }
+        } catch (error) {
+          console.error('❌ Error en navegación después de eliminar tablero:', error);
+          toast.error("Tablero eliminado pero hubo un error de navegación");
         }
       },
       onError: (error) => {
-        console.error('Error en eliminación:', error);
-        toast.error("Error al eliminar el tablero");
+        console.error('❌ Error al eliminar tablero:', error);
+        toast.error(`Error al eliminar el tablero: ${error.message}`);
       }
     });
   };

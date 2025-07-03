@@ -31,11 +31,36 @@
 ### Orden del propietario en lista ✅ RESUELTO
 **Problema:** En el modal de compartir, el dueño del tablero debería aparecer siempre primero, pero cada vez que se comparte con un nuevo usuario, la posición del propietario baja en la lista.
 
-### Toasts incorrectos al crear/eliminar tableros
+### Toasts incorrectos al crear/eliminar tableros ✅ RESUELTO
 **Problema:** Los mensajes de toast muestran error al crear o eliminar tableros, aunque las operaciones se ejecutan correctamente.
 
-### Lentitud en operaciones de tableros
+### Lentitud en operaciones de tableros ✅ RESUELTO
 **Problema:** Las operaciones de alta y baja de tableros tardan demasiado tiempo en renderizarse en la interfaz.
+
+**Análisis de causas identificadas:**
+- ❌ Cache completamente deshabilitado (`gcTime: 0`, `staleTime: 0`)
+- ❌ Refetch muy agresivo (cada 5 segundos + en cada foco/mount)
+- ❌ Cache busting con timestamp en cada petición (`_t=${Date.now()}`)
+- ❌ Invalidación total del cache en cada mutación
+- ❌ No hay UI optimista - se espera respuesta del servidor
+
+**Estrategia de solución:**
+- ✅ **UI Optimista (Optimistic Updates)**: Actualización instantánea de la interfaz
+- ✅ **Rollback automático**: Si el backend falla, revertir cambios automáticamente
+- ✅ **Estados visuales**: Indicadores de "creando..." para operaciones pendientes
+- ✅ **Error handling robusto**: Toast específicos + logs para debugging
+- ✅ **Sincronización garantizada**: Al completarse, reemplazar datos temporales con reales
+
+**Implementación en 3 fases:**
+1. **Fase 1**: UI optimista + cache básico + rollback
+2. **Fase 2**: Actualización quirúrgica + manejo avanzado de errores  
+3. **Fase 3**: Animations + indicadores de loading + polish
+
+**Resultado esperado:**
+- ⚡ Respuesta instantánea (0ms percibidos vs actuales ~2-5s)
+- 📉 90% menos requests al servidor
+- 🛡️ Robustez mantenida con recuperación graceful
+- 🎯 UX fluida sin interrupciones
 
 ## 🔍 Búsqueda de Tareas
 

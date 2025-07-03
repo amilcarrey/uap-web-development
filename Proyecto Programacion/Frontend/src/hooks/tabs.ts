@@ -26,7 +26,6 @@ function getAuthHeaders() {
 
 // Obtener todos los tableros CON información de roles
 async function fetchTabs(): Promise<Tab[]> {
-  console.log('🔄 [fetchTabs] Consultando /api/boards...');
   const timestamp = Date.now(); // Cache busting
   const res = await fetch(`http://localhost:3000/api/boards?_t=${timestamp}`, {
     credentials: 'include',
@@ -38,23 +37,18 @@ async function fetchTabs(): Promise<Tab[]> {
     },
   });
   if (!res.ok) {
-    console.log('❌ [fetchTabs] Error al obtener tableros:', res.status);
     const errorText = await res.text();
+    console.error('❌ Error al obtener tableros:', res.status, errorText);
     throw new Error(`Error ${res.status}: ${errorText || 'Error al obtener tableros'}`);
   }
   const data = await res.json();
-  console.log('📥 [fetchTabs] Datos recibidos del backend:', data);
   
   return data.map((board: any) => ({
     id: board.id.toString(), 
     title: board.name,
     // Usar userRole del backend directamente
     userRole: board.userRole?.toLowerCase() as 'owner' | 'editor' | 'viewer' || 'viewer'
-  })).map((tab: Tab) => {
-    // 🔥 LOG para verificar userRole
-    console.log(`🔄 Tab "${tab.title}" (id: ${tab.id}) tiene userRole: ${tab.userRole} (del backend)`);
-    return tab;
-  });
+  }));
 }
 
 // Crear tablero
@@ -65,18 +59,59 @@ async function createTabRequest(title: string): Promise<Tab> {
     credentials: 'include',
     body: JSON.stringify({ action: 'create', name: title }),
   });
-  if (!res.ok) throw new Error('Error al crear tablero');
+  
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('❌ Error al crear tablero:', res.status, errorText);
+    throw new Error(`Error al crear tablero: ${res.status} - ${errorText}`);
+  }
+  
   const data = await res.json();
-  return {
-    id: data.tab.id.toString(),
-    title: data.tab.name,
-    userRole: 'owner' // El creador siempre es owner
-  };
+  
+  // Verificar estructura de respuesta y manejar diferentes formatos
+  let result;
+  
+  if (data.tab && data.tab.id && data.tab.name) {
+    // Formato esperado: { tab: { id, name } }
+    result = {
+      id: data.tab.id.toString(),
+      title: data.tab.name,
+      userRole: 'owner' as const
+    };
+  } else if (data.id && data.name) {
+    // Formato alternativo: { id, name }
+    result = {
+      id: data.id.toString(),
+      title: data.name,
+      userRole: 'owner' as const
+    };
+  } else if (data.board && data.board.id && data.board.name) {
+    // Formato alternativo: { board: { id, name } }
+    result = {
+      id: data.board.id.toString(),
+      title: data.board.name,
+      userRole: 'owner' as const
+    };
+  } else {
+    console.error('❌ Estructura de respuesta no reconocida al crear tablero:', data);
+    // Intentar usar el primer objeto con id y name que encontremos
+    const foundObj = Object.values(data).find((obj: any) => obj && obj.id && obj.name);
+    if (foundObj) {
+      result = {
+        id: (foundObj as any).id.toString(),
+        title: (foundObj as any).name,
+        userRole: 'owner' as const
+      };
+    } else {
+      throw new Error('Estructura de respuesta del backend no válida: no se encontró id y name');
+    }
+  }
+  
+  return result;
 }
 
 // Eliminar tablero
 async function deleteTabRequest(boardId: string): Promise<any> {
-
   const url = `http://localhost:3000/api/boards/${boardId}`;
 
   const res = await fetch(url, {
@@ -87,10 +122,26 @@ async function deleteTabRequest(boardId: string): Promise<any> {
 
   if (!res.ok) {
     const errorText = await res.text();
+    console.error('❌ Error al eliminar tablero:', res.status, errorText);
     throw new Error(`Error al eliminar tablero: ${res.status} - ${errorText}`);
   }
   
-  const result = await res.json();
+  // Manejar respuestas vacías o diferentes formatos
+  let result;
+  const contentType = res.headers.get('content-type');
+  
+  if (contentType && contentType.includes('application/json')) {
+    try {
+      result = await res.json();
+    } catch (e) {
+      // Si no se puede parsear JSON pero la respuesta fue exitosa, está bien
+      result = { success: true };
+    }
+  } else {
+    // Respuesta no JSON pero exitosa
+    result = { success: true };
+  }
+  
   return result;
 }
 

@@ -114,12 +114,18 @@ export default function App() {
                   const title = `Tablero 1`;
                   createTab.mutate(title, {
                     onSuccess: (newTab) => {
-                      toast.success("Tablero creado");
-                      // Navegar al nuevo tablero
-                      window.location.href = `/board/${encodeURIComponent(newTab.title)}`;
+                      try {
+                        toast.success("Tablero creado");
+                        // Navegar al nuevo tablero
+                        window.location.href = `/board/${encodeURIComponent(newTab.title)}`;
+                      } catch (error) {
+                        console.error('❌ Error en navegación después de crear primer tablero:', error);
+                        toast.error("Tablero creado pero hubo un error de navegación");
+                      }
                     },
-                    onError: () => {
-                      toast.error("Error al crear el tablero");
+                    onError: (error) => {
+                      console.error('❌ Error al crear primer tablero:', error);
+                      toast.error(`Error al crear el tablero: ${error.message}`);
                     }
                   });
                 }}
