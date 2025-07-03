@@ -21,9 +21,10 @@ export const registrarse = async (req, res) => {
     const nuevoUsuario = await crearUsuarioService({ nombre, email, password });
 
     // Generar token
+    const JWT_SECRET = process.env.JWT_SECRET || "1234567890123456789012345678901234567890123456789012345678901234567890";
     const token = jwt.sign(
       { id: nuevoUsuario.id, email: nuevoUsuario.email },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '2h' }
     );
 
@@ -49,9 +50,10 @@ export const logearse = async (req, res) => {
     if (!passwordValido)
       return res.status(401).json({ message: 'Contraseña incorrecta' });
 
+    const JWT_SECRET = process.env.JWT_SECRET || "1234567890123456789012345678901234567890123456789012345678901234567890";
     const token = jwt.sign(
       { id: usuario.id, email: usuario.email },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '2h' }
     );
 

@@ -7,11 +7,14 @@ const autenticarJWT = (req, res, next) => {
   if (!token) return res.status(401).json({ message: 'Token requerido' });
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Usar una clave temporal hardcodeada mientras arreglo el problema del .env
+    const JWT_SECRET = process.env.JWT_SECRET || "1234567890123456789012345678901234567890123456789012345678901234567890";
+    const decoded = jwt.verify(token, JWT_SECRET);
+    // Almaceno la información del usuario decodificada del JWT
     req.usuario = decoded;
     next();
   } catch (error) {
-    console.error("ERROR JWT:", error);  // <-- AGREGALO ACÁ
+    console.error("Error al verificar JWT:", error);
     res.status(403).json({ message: 'Token inválido' });
   }
 };

@@ -1,7 +1,7 @@
 // server/servieces/tareaServieces.js
 import pool from "../db/db.js";
 
-// 1. Listar todas las tareas de un tablero (con paginación, filtro y búsqueda opcional)
+// 1. Listo todas las tareas de un tablero (con paginación, filtro y búsqueda opcional)
 export const obtenerTareasService = async ({ tablero_id, page, limit, completada, search }) => {
   const offset = (page - 1) * limit;
   const conditions = ["tablero_id = $1"];
@@ -22,7 +22,7 @@ export const obtenerTareasService = async ({ tablero_id, page, limit, completada
     : "";
 
   const result = await pool.query(
-    `SELECT *
+    `SELECT *, nombre as titulo
      FROM tareas
      ${whereClause}
      ORDER BY creado_en ASC
@@ -34,10 +34,10 @@ export const obtenerTareasService = async ({ tablero_id, page, limit, completada
   return result.rows;
 };
 
-// 2. Obtener una tarea por su ID dentro de un tablero
+// 2. Obtengo una tarea por su ID dentro de un tablero
 export const obtenerTareaPorIdService = async (tablero_id, id) => {
   const result = await pool.query(
-    `SELECT * 
+    `SELECT *, nombre as titulo
      FROM tareas 
      WHERE tablero_id = $1 AND id = $2`,
     [tablero_id, id]
@@ -45,36 +45,59 @@ export const obtenerTareaPorIdService = async (tablero_id, id) => {
   return result.rows[0] || null;
 };
 
-// 3. Crear una nueva tarea
-export const crearTareaService = async ({ nombre, tablero_id }) => {
-  if (!nombre || tablero_id == null) {
+// 3. Creo una nueva tarea
+export const crearTareaService = async ({ titulo, tablero_id, creado_por }) => {
+  // Valido que los datos requeridos estén presentes
+  if (!titulo || tablero_id == null) {
     throw new Error("Faltan datos requeridos");
   }
+  
+  // En la base de datos uso 'nombre' en lugar de 'titulo'
+  // La tabla no tiene columna creado_por, así que no la incluyo
   const result = await pool.query(
     `INSERT INTO tareas (nombre, tablero_id)
      VALUES ($1, $2)
-     RETURNING *`,
-    [nombre, tablero_id]
+     RETURNING *, nombre as titulo`,
+    [titulo, tablero_id]
   );
   return result.rows[0];
 };
 
-// 4. Actualizar una tarea existente
+// 4. Actualizo una tarea existente
 export const actualizarTareaService = async (tablero_id, id, { nombre, completada }) => {
-  if (nombre == null || completada == null) {
-    throw new Error("Faltan datos requeridos");
+  // Construyo la consulta dinámicamente según los campos que se quieren actualizar
+  const updates = [];
+  const params = [];
+  let paramIndex = 1;
+  
+  if (nombre !== undefined) {
+    updates.push(`nombre = $${paramIndex++}`);
+    params.push(nombre);
   }
+  
+  if (completada !== undefined) {
+    updates.push(`completada = $${paramIndex++}`);
+    params.push(completada);
+  }
+  
+  if (updates.length === 0) {
+    throw new Error("No hay campos para actualizar");
+  }
+  
+  // Añado los parámetros para WHERE
+  params.push(tablero_id, id);
+  
   const result = await pool.query(
     `UPDATE tareas
-     SET nombre = $1, completada = $2
-     WHERE tablero_id = $3 AND id = $4
-     RETURNING *`,
-    [nombre, completada, tablero_id, id]
+     SET ${updates.join(', ')}
+     WHERE tablero_id = $${paramIndex++} AND id = $${paramIndex}
+     RETURNING *, nombre as titulo`,
+    params
   );
   return result.rowCount > 0 ? result.rows[0] : null;
 };
 
-// 5. Borrar todas las tareas completadas de un tablero
+// 5. Borro todas las tareas completadas de un tablero
 export const eliminarTareasCompletasService = async (tablero_id) => {
   const result = await pool.query(
     `DELETE FROM tareas
@@ -84,7 +107,7 @@ export const eliminarTareasCompletasService = async (tablero_id) => {
   return result.rowCount;
 };
 
-// 6. Eliminar una sola tarea
+// 6. Elimino una sola tarea
 export const eliminarTareaService = async (tablero_id, id) => {
   const result = await pool.query(
     `DELETE FROM tareas 

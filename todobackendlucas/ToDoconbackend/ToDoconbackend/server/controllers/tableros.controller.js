@@ -15,7 +15,8 @@ import {
 // Obtener todos los tableros
 export const obtenerTableros = async (req, res) => {
   try {
-    const tableros = await obtenerTablerosService();
+    // Obtengo todos los tableros donde este usuario tiene permisos
+    const tableros = await obtenerTablerosService(req.usuario.id);
     res.status(200).json(tableros);
   } catch (error) {
     console.error("Error al obtener los tableros:", error);
@@ -44,13 +45,20 @@ export const crearTablero = async (req, res) => {
     const propietario_id = req.usuario.id;
     const { nombre, descripcion } = req.body;
 
-    // 1) Creo el tablero
+    // Validaciones básicas antes de intentar crear
+    if (!nombre) {
+      return res.status(400).json({ message: "El nombre del tablero es requerido" });
+    }
+
+    if (!propietario_id) {
+      return res.status(400).json({ message: "Usuario no autenticado correctamente" });
+    }
+
+    // 1) Creo el tablero en la base de datos
     const tablero = await crearTableroService({ nombre, descripcion, propietario_id });
-    console.log("✅ Tablero creado:", tablero);
 
     // 2) Creo el permiso de propietario explícitamente
     const permiso = await compartirTableroService(tablero.id, propietario_id, 'propietario');
-    console.log("🔑 Permiso creado:", permiso);
 
     return res.status(201).json({
       message: "Tablero y permiso creados exitosamente",

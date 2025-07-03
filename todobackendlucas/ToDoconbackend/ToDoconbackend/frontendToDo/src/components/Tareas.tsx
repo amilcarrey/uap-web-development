@@ -1,30 +1,11 @@
 // Tareas.tsx
-import api from "../api";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import { tareasAPI } from "../services/tareasService";
+import type { Tarea } from "../services/tareasService";
+import { useTareas } from "../hooks/useTableros";
 import { useConfiguracion } from "./Configuraciones";
 import toast from "react-hot-toast";
-
-export interface Tarea {
-  index: number;
-  nombre: string;
-  tableroId: string;
-  completada: boolean;
-}
-
-export const useTareas = (tableroId: string, filtro: string = "todos") => {
-  const { refetchInterval } = useConfiguracion();
-  return useQuery({
-    queryKey: ["tareas", tableroId, filtro],
-    queryFn: async () => {
-      const response = await api.get("/api/tareas", {
-        params: { filtro, tableroId },
-      });
-      return response.data.tareas;
-    },
-    refetchInterval,
-  });
-};
 
 interface ListarTareasProps {
   tableroId: string;
@@ -75,13 +56,11 @@ export const ListarTareas = ({ tableroId }: ListarTareasProps) => {
         </select>
       </div>
       <ul className="font-sans max-w-lg mx-auto p-5">
-        {tareas.map((tarea: Tarea, index: number) => (
+        {tareas.map((tarea: Tarea) => (
           <TareaItem
-            key={index}
-            {...tarea}
-            index={index}
-            nombre={tarea.nombre}
-            completada={tarea.completada}
+            key={tarea.id}
+            tarea={tarea}
+            tableroId={tableroId}
             descripcionMayusculas={descripcionMayusculas}
           />
         ))}
@@ -90,28 +69,31 @@ export const ListarTareas = ({ tableroId }: ListarTareasProps) => {
   );
 };
 
-interface TareaItemProps extends Tarea {
+interface TareaItemProps {
+  tarea: Tarea;
+  tableroId: string;
   descripcionMayusculas: boolean;
 }
 
 export const TareaItem = ({
-  nombre,
-  completada,
-  index,
+  tarea,
+  tableroId,
   descripcionMayusculas,
 }: TareaItemProps) => {
   const queryClient = useQueryClient();
   const [editando, setEditando] = useState(false);
-  const [nuevoNombre, setNuevoNombre] = useState(nombre);
+  const [nuevoTitulo, setNuevoTitulo] = useState(tarea.titulo);
 
   const toggleMutation = useMutation({
     mutationFn: async () => {
-      await api.patch(`/api/tareas/${index}/toggle`);
+      await tareasAPI.updateTarea(parseInt(tableroId), tarea.id, {
+        completada: !tarea.completada
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tareas"] });
       toast.success(
-        `Tarea ${completada ? "desmarcada" : "marcada"} como completada`,
+        `Tarea ${tarea.completada ? "desmarcada" : "marcada"} como completada`,
         { duration: 2000 }
       );
     },
@@ -119,7 +101,7 @@ export const TareaItem = ({
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      await api.delete(`/api/tareas/${index}`);
+      await tareasAPI.deleteTarea(parseInt(tableroId), tarea.id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tareas"] });
@@ -129,49 +111,71 @@ export const TareaItem = ({
 
   const editMutation = useMutation({
     mutationFn: async () => {
-      await api.put(`/api/tareas/${index}`, { nombre: nuevoNombre });
+      await tareasAPI.updateTarea(parseInt(tableroId), tarea.id, {
+        titulo: nuevoTitulo
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tareas"] });
       setEditando(false);
-      toast.success(`Tarea actualizada correctamente a: ${nuevoNombre}`, {
+      toast.success(`Tarea actualizada correctamente a: ${nuevoTitulo}`, {
         duration: 2000,
       });
     },
   });
 
+  const handleEdit = () => {
+    if (nuevoTitulo.trim() === "") {
+      toast.error("El título no puede estar vacío");
+      return;
+    }
+    editMutation.mutate();
+  };
+
   return (
     <li className="flex items-center justify-between p-2 border-b border-gray-200">
       {editando ? (
         <input
-          value={nuevoNombre}
-          onChange={(e) => setNuevoNombre(e.target.value)}
+          value={nuevoTitulo}
+          onChange={(e) => setNuevoTitulo(e.target.value)}
           className="text-lg border rounded px-2 py-1 w-full mr-2"
+          onKeyPress={(e) => e.key === 'Enter' && handleEdit()}
         />
       ) : (
         <span
           className={`text-lg flex-1 ${
-            completada ? "line-through text-gray-500" : ""
+            tarea.completada ? "line-through text-gray-500" : ""
           }`}
         >
-          {descripcionMayusculas ? nombre.toUpperCase() : nombre}
+          {descripcionMayusculas ? tarea.titulo.toUpperCase() : tarea.titulo}
         </span>
       )}
 
       <input
         type="checkbox"
-        checked={completada}
+        checked={tarea.completada}
         onChange={() => toggleMutation.mutate()}
         className="form-checkbox h-5 w-5 text-blue-600 ml-2"
       />
 
       {editando ? (
-        <button
-          onClick={() => editMutation.mutate()}
-          className="ml-2 text-sm text-green-600 hover:underline"
-        >
-          Guardar
-        </button>
+        <>
+          <button
+            onClick={handleEdit}
+            className="ml-2 text-sm text-green-600 hover:underline"
+          >
+            Guardar
+          </button>
+          <button
+            onClick={() => {
+              setEditando(false);
+              setNuevoTitulo(tarea.titulo);
+            }}
+            className="ml-2 text-sm text-gray-600 hover:underline"
+          >
+            Cancelar
+          </button>
+        </>
       ) : (
         <button
           onClick={() => setEditando(true)}

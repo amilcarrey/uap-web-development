@@ -1,6 +1,6 @@
-import api from "../api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { tareasAPI } from "../services/tareasService";
 import toast from "react-hot-toast";
 import { FiPlusCircle } from "react-icons/fi";
 
@@ -8,20 +8,25 @@ const useCreateTarea = (tableroId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (nombre: string) => {
+    mutationFn: async (titulo: string) => {
       if (!tableroId) throw new Error("Falta el ID del tablero");
-      const response = await api.post("/api/tareas", { nombre, tableroId });
-      return response.data;
+      return await tareasAPI.createTarea(parseInt(tableroId), { 
+        titulo, 
+        prioridad: 'media' 
+      });
     },
     onSuccess: () => {
+      // Actualizo la lista de tareas y muestro mensaje de éxito
       queryClient.invalidateQueries({ queryKey: ["tareas", tableroId] });
       toast.success("Tarea creada exitosamente");
     },
     onError: (error) => {
       console.error("Error al crear la tarea:", error);
-      toast.error("Error al crear la tarea");
+      // Solo muestro un mensaje de error, no dos
       if (error instanceof Error) {
         toast.error(`Error: ${error.message}`);
+      } else {
+        toast.error("Error al crear la tarea");
       }
     },
   });
@@ -32,25 +37,25 @@ interface Props {
 }
 
 export const FormTarea = ({ tableroId }: Props) => {
-  const [nombre, setNombre] = useState("");
+  const [titulo, setTitulo] = useState("");
   const { mutate: crearTarea, isPending } = useCreateTarea(tableroId);
   const [tocado, setTocado] = useState(false);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!nombre.trim()) {
+    if (!titulo.trim()) {
       setTocado(true);
       return;
     }
-    crearTarea(nombre, {
+    crearTarea(titulo, {
       onSuccess: () => {
-        setNombre("");
+        setTitulo("");
         setTocado(false);
       },
     });
   };
 
-  const error = tocado && !nombre.trim();
+  const error = tocado && !titulo.trim();
 
   return (
     <form
@@ -60,10 +65,10 @@ export const FormTarea = ({ tableroId }: Props) => {
       autoComplete="off"
     >
       <input
-        name="nombre"
+        name="titulo"
         type="text"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
+        value={titulo}
+        onChange={(e) => setTitulo(e.target.value)}
         onBlur={() => setTocado(true)}
         className={`flex-1 px-4 py-3 rounded-xl bg-white/80 text-gray-800 placeholder-gray-400 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 border
           ${error ? "border-red-500 ring-red-300" : "border-gray-300"}
@@ -77,7 +82,7 @@ export const FormTarea = ({ tableroId }: Props) => {
       <button
         type="submit"
         className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-3 rounded-xl shadow transition-all text-base disabled:opacity-60"
-        disabled={isPending || !nombre.trim()}
+        disabled={isPending || !titulo.trim()}
         aria-label="Agregar tarea"
       >
         <FiPlusCircle className="w-5 h-5" />

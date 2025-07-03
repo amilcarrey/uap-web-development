@@ -1,8 +1,14 @@
 import pool from "../db/db.js";
 
-// Obtener todos los tableros
-export const obtenerTablerosService = async () => {
-  const result = await pool.query("SELECT * FROM tableros");
+// Obtener todos los tableros del usuario (donde tiene permisos)
+export const obtenerTablerosService = async (usuario_id) => {
+  const result = await pool.query(`
+    SELECT DISTINCT t.* 
+    FROM tableros t
+    INNER JOIN permisos p ON t.id = p.tablero_id
+    WHERE p.usuario_id = $1
+    ORDER BY t.creado_en DESC
+  `, [usuario_id]);
   return result.rows;
 };
 
@@ -13,7 +19,7 @@ export const obtenerTableroPorIdService = async (id) => {
 };
 
 export const crearTableroService = async ({ nombre, descripcion, propietario_id }) => {
-  if (!nombre || !descripcion || !propietario_id) {
+  if (!nombre || !propietario_id) {
     throw new Error("Faltan datos requeridos");
   }
 
@@ -25,7 +31,7 @@ export const crearTableroService = async ({ nombre, descripcion, propietario_id 
       `INSERT INTO tableros (nombre, descripcion, propietario_id)
        VALUES ($1, $2, $3)
        RETURNING *`,
-      [nombre, descripcion, propietario_id]
+      [nombre, descripcion || null, propietario_id]
     );
     const tablero = rows[0];
 

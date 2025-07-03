@@ -1,11 +1,20 @@
 import { Header } from "../components/Header";
 import { FormTarea } from "../components/formTarea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { TableroTareas } from "../components/TableroTareas";
 import { ListarTareas } from "../components/Tareas";
 
 const MainPage = () => {
+  const { id } = useParams();
   const [tableroId, setTableroId] = useState("");
+
+  // Actualizar tableroId cuando cambie el parámetro de la URL
+  useEffect(() => {
+    if (id && id !== tableroId) {
+      setTableroId(id);
+    }
+  }, [id, tableroId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-[#252850] via-[#333] to-[#fa991b] font-sans">

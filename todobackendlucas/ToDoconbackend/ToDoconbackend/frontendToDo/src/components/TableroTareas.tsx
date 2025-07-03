@@ -1,30 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../api";
+import { useNavigate } from "react-router-dom";
+import { tablerosAPI } from "../services/tablerosService";
+import type { Tablero } from "../services/tablerosService";
+import { useDeleteTablero } from "../hooks/useTableros";
 import toast from "react-hot-toast";
 import { FiTrash, FiPlus } from "react-icons/fi";
-
-interface Tablero {
-  id: string;
-  nombre: string;
-}
-
-export const useDeleteTablero = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      await api.delete(`/api/tableros/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tableros"] });
-      toast.success("Tablero eliminado");
-    },
-    onError: () => {
-      toast.error("Error al eliminar el tablero");
-    },
-  });
-};
 
 export const TableroTareas = ({
   tableroIdActual,
@@ -34,36 +15,46 @@ export const TableroTareas = ({
   setTableroIdActual: (id: string) => void;
 }) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [nuevoNombre, setNuevoNombre] = useState("");
   const deleteTablero = useDeleteTablero();
 
-  const handleEliminar = (id: string) => {
+  const handleEliminar = (id: number) => {
     if (confirm("¿Seguro que querés eliminar este tablero?")) {
       deleteTablero.mutate(id, {
         onSuccess: () => {
-          if (tableroIdActual === id) setTableroIdActual("");
+          if (tableroIdActual === id.toString()) {
+            setTableroIdActual("");
+            navigate("/");
+          }
         },
       });
     }
   };
 
+  const handleSeleccionarTablero = (id: number) => {
+    const idString = id.toString();
+    setTableroIdActual(idString);
+    navigate(`/${idString}`);
+  };
+
   const { data: tableros = [] } = useQuery<Tablero[]>({
     queryKey: ["tableros"],
     queryFn: async () => {
-      const res = await api.get("/api/tableros");
-      return res.data.tableros;
+      return await tablerosAPI.getTableros();
     },
   });
 
   const crearTablero = useMutation({
     mutationFn: async () => {
-      const res = await api.post("/api/tableros", { nombre: nuevoNombre });
-      return res.data;
+      return await tablerosAPI.createTablero({ nombre: nuevoNombre });
     },
-    onSuccess: () => {
+    onSuccess: (nuevoTablero) => {
       queryClient.invalidateQueries({ queryKey: ["tableros"] });
       toast.success("Tablero creado");
       setNuevoNombre("");
+      // Seleccionar automáticamente el nuevo tablero
+      handleSeleccionarTablero(nuevoTablero.id);
     },
     onError: () => toast.error("Error al crear tablero"),
   });
@@ -101,13 +92,13 @@ export const TableroTareas = ({
             <div
               className={`relative group flex items-center px-4 py-2 rounded-2xl shadow cursor-pointer transition-all
                 ${
-                  tablero.id === tableroIdActual
+                  tablero.id.toString() === tableroIdActual
                     ? "bg-orange-500 text-white font-bold scale-105"
                     : "bg-white text-gray-800 hover:bg-orange-100"
                 }`}
               tabIndex={0}
-              onClick={() => setTableroIdActual(tablero.id)}
-              onKeyDown={(e) => e.key === "Enter" && setTableroIdActual(tablero.id)}
+              onClick={() => handleSeleccionarTablero(tablero.id)}
+              onKeyDown={(e) => e.key === "Enter" && handleSeleccionarTablero(tablero.id)}
               aria-label={`Seleccionar tablero: ${tablero.nombre}`}
             >
               <span className="truncate max-w-[110px]">{tablero.nombre}</span>
