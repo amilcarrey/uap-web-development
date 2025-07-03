@@ -1,110 +1,117 @@
-import { tasks } from "../data.js";
+// server/controllers/tarea.controller.js
+import {
+  obtenerTareasService,
+  obtenerTareaPorIdService,
+  crearTareaService,
+  actualizarTareaService,
+  eliminarTareaService,
+  eliminarTareasCompletasService
+} from "../servieces/tareaServieces.js";
+import { obtenerRolService } from "../servieces/permisoServieces.js";
 
-const crearTarea = async (req, res) => {
-  const nuevaTarea = {
-    nombre: req.body.nombre,
-    tableroId: req.body.tableroId,
-    completada: false,
-  };
+// 1) GET /api/tableros/:tablero_id/tareas
+export const obtenerTareas = async (req, res) => {
   try {
-    if (nuevaTarea.nombre && nuevaTarea.tableroId) {
-      tasks.push(nuevaTarea);
-      res.json({
-        message: "Tarea creada con éxito",
-        tarea: nuevaTarea,
-      });
-    } else {
-      res.status(400).json({ message: "Faltan campos requeridos" });
-    }
-  } catch (error) {
-    res.status(500).json({
-      message: "Error al crear la tarea",
-      error: error.message,
+    const tablero_id = Number(req.params.tablero_id);
+    const { page, limit, completada, search } = req.query;
+    const tareas = await obtenerTareasService({
+      tablero_id,
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+      completada,
+      search
     });
+    res.status(200).json(tareas);
+  } catch (err) {
+    console.error("Error al listar tareas:", err);
+    res.status(500).json({ message: "Error interno" });
   }
 };
 
-const obtenerTareas = async (req, res) => {
+// 2) GET /api/tableros/:tablero_id/tareas/:id
+export const obtenerTareaPorId = async (req, res) => {
   try {
-    const filtro = req.query.filtro || "todos";
-    const tableroId = req.query.tableroId;
-
-    if (!tableroId) {
-      return res.status(400).json({ message: "Falta el tableroId" });
-    }
-
-    let tareasFiltered = tasks.filter((t) => t.tableroId === tableroId);
-
-    if (filtro === "pendientes") {
-      tareasFiltered = tareasFiltered.filter((t) => !t.completada);
-    } else if (filtro === "completadas") {
-      tareasFiltered = tareasFiltered.filter((t) => t.completada);
-    }
-
-    res.json({ message: "Tareas obtenidas con éxito", tareas: tareasFiltered });
-  } catch (error) {
-    res.status(500).json({
-      message: "Error al obtener las tareas",
-      error: error.message,
-    });
+    const tablero_id = Number(req.params.tablero_id);
+    const id = Number(req.params.id);
+    const tarea = await obtenerTareaPorIdService(tablero_id, id);
+    if (!tarea) return res.status(404).json({ message: "Tarea no encontrada" });
+    res.status(200).json(tarea);
+  } catch (err) {
+    console.error("Error al obtener tarea:", err);
+    res.status(500).json({ message: "Error interno" });
   }
 };
 
-const eliminarTarea = async (req, res) => {
-  const index = parseInt(req.params.index);
+// 3) POST /api/tableros/:tablero_id/tareas
+export const crearTarea = async (req, res) => {
   try {
-    if (!isNaN(index) && tasks[index]) {
-      tasks.splice(index, 1);
-      res.json({ message: "Tarea eliminada con éxito" });
-    } else {
-      res.status(400).json({ message: "Índice inválido" });
+    const tablero_id = Number(req.params.tablero_id);
+    const usuario_id = req.usuario.id;
+    const rol = await obtenerRolService(tablero_id, usuario_id);
+    if (!["propietario","editor"].includes(rol)) {
+      return res.status(403).json({ message: "Sin permisos para crear tareas" });
     }
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al eliminar la tarea", error: error.message });
+    const { nombre } = req.body;
+    const tarea = await crearTareaService({ nombre, tablero_id });
+    res.status(201).json({ message: "Tarea creada", tarea });
+  } catch (err) {
+    console.error("Error al crear tarea:", err);
+    res.status(500).json({ message: "Error interno" });
   }
 };
 
-const toggleTarea = async (req, res) => {
-  const index = parseInt(req.params.index);
+// 4) PUT /api/tableros/:tablero_id/tareas/:id
+export const actualizarTarea = async (req, res) => {
   try {
-    if (!isNaN(index) && tasks[index]) {
-      tasks[index].completada = !tasks[index].completada;
-      res.json({ message: "Tarea actualizada con éxito", tarea: tasks[index] });
-    } else {
-      res.status(400).json({ message: "Índice inválido" });
+    const tablero_id = Number(req.params.tablero_id);
+    const id = Number(req.params.id);
+    const usuario_id = req.usuario.id;
+    const rol = await obtenerRolService(tablero_id, usuario_id);
+    if (!["propietario","editor"].includes(rol)) {
+      return res.status(403).json({ message: "Sin permisos para modificar tareas" });
     }
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al actualizar la tarea", error: error.message });
+    const { nombre, completada } = req.body;
+    const tarea = await actualizarTareaService(tablero_id, id, { nombre, completada });
+    if (!tarea) return res.status(404).json({ message: "Tarea no encontrada" });
+    res.status(200).json({ message: "Tarea actualizada", tarea });
+  } catch (err) {
+    console.error("Error al actualizar tarea:", err);
+    res.status(500).json({ message: "Error interno" });
   }
 };
 
-const actualizarTarea = async (req, res) => {
-  const index = parseInt(req.params.index);
-  const { nombre, completada } = req.body;
-
+// 5) DELETE /api/tableros/:tablero_id/tareas/completadas
+export const eliminarTareasCompletas = async (req, res) => {
   try {
-    if (!isNaN(index) && tasks[index]) {
-      if (nombre !== undefined) tasks[index].nombre = nombre;
-      if (completada !== undefined) tasks[index].completada = completada;
-      res.json({ message: "Tarea actualizada con éxito", tarea: tasks[index] });
-    } else {
-      res.status(400).json({ message: "Índice inválido" });
+    const tablero_id = Number(req.params.tablero_id);
+    const usuario_id = req.usuario.id;
+    const rol = await obtenerRolService(tablero_id, usuario_id);
+    if (!["propietario","editor"].includes(rol)) {
+      return res.status(403).json({ message: "Sin permisos para eliminar tareas completadas" });
     }
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al actualizar la tarea", error: error.message });
+    const count = await eliminarTareasCompletasService(tablero_id);
+    res.status(200).json({ message: `${count} tareas completadas eliminadas` });
+  } catch (err) {
+    console.error("Error al eliminar tareas completadas:", err);
+    res.status(500).json({ message: "Error interno" });
   }
 };
 
-export {
-  crearTarea,
-  obtenerTareas,
-  eliminarTarea,
-  toggleTarea,
-  actualizarTarea,
+// 6) DELETE /api/tableros/:tablero_id/tareas/:id
+export const eliminarTarea = async (req, res) => {
+  try {
+    const tablero_id = Number(req.params.tablero_id);
+    const id = Number(req.params.id);
+    const usuario_id = req.usuario.id;
+    const rol = await obtenerRolService(tablero_id, usuario_id);
+    if (!["propietario","editor"].includes(rol)) {
+      return res.status(403).json({ message: "Sin permisos para eliminar tareas" });
+    }
+    const ok = await eliminarTareaService(tablero_id, id);
+    if (!ok) return res.status(404).json({ message: "Tarea no encontrada" });
+    res.status(200).json({ message: "Tarea eliminada" });
+  } catch (err) {
+    console.error("Error al eliminar tarea:", err);
+    res.status(500).json({ message: "Error interno" });
+  }
 };
