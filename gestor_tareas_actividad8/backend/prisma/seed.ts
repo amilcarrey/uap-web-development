@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -9,59 +11,115 @@ async function main() {
   await prisma.userSettings.deleteMany();
   await prisma.user.deleteMany();
 
-  // Crear un usuario de prueba
-  const user = await prisma.user.create({
+  // Crear usuarios con contraseñas hasheadas
+  const alicia = await prisma.user.create({
     data: {
-      email: 'demo@ejemplo.com',
-      password: '1234segura',
-      name: 'Usuario de prueba',
-    },
+      name: 'Alicia',
+      email: 'alicia@example.com',
+      password: await bcrypt.hash('claveAlicia123', 10)
+    }
   });
 
-  // Crear configuración del usuario
-  await prisma.userSettings.create({
+  const brenda = await prisma.user.create({
     data: {
-      userId: user.id,
-      refetchInterval: 10000,           // 10 segundos
-      uppercaseDescriptions: false,
-    },
+      name: 'Brenda',
+      email: 'brenda@example.com',
+      password: await bcrypt.hash('claveBrenda123', 10)
+    }
   });
 
-  const boardsWithTasks = [
-    {
-      name: 'trabajo',
-      tasks: ['responder mails', 'completar formularios', 'llamar a cliente'],
-    },
-    {
-      name: 'estudio',
-      tasks: ['crear base de datos', 'integrar datos', 'testear'],
-    },
-    {
-      name: 'mascota',
-      tasks: ['servir agua', 'limpiar arenero', 'jugar'],
-    },
-  ];
+  const carlos = await prisma.user.create({
+    data: {
+      name: 'Carlos',
+      email: 'carlos@example.com',
+      password: await bcrypt.hash('claveCarlos123', 10)
+    }
+  });
 
-  for (const boardData of boardsWithTasks) {
-    const board = await prisma.board.create({
+  // Configuración de usuarios
+  for (const user of [alicia, brenda, carlos]) {
+    await prisma.userSettings.create({
       data: {
-        name: boardData.name,
-        ownerId: user.id,
-        tasks: {
-          create: boardData.tasks.map((text) => ({ text })),
-        },
-      },
+        userId: user.id,
+        refetchInterval: 10000,
+        uppercaseDescriptions: false
+      }
     });
-
-    console.log(`Tablero creado: ${board.name}`);
   }
+
+  // Crear tableros con tareas
+  const limpieza = await prisma.board.create({
+    data: {
+      name: 'Limpieza',
+      ownerId: alicia.id,
+      tasks: {
+        create: [
+          { text: 'Barrer' },
+          { text: 'Fregar' },
+          { text: 'Sacar la basura' },
+          { text: 'Organizar estantes' }
+        ]
+      }
+    }
+  });
+
+  const trabajo = await prisma.board.create({
+    data: {
+      name: 'Trabajo',
+      ownerId: alicia.id,
+      tasks: {
+        create: [
+          { text: 'Responder mail' },
+          { text: 'Entrevista presencial con cliente' },
+          { text: 'Enviar mail' },
+          { text: 'Reunión de equipo' },
+          { text: 'Llamar a posible cliente' },
+          { text: 'Ordenar notas' },
+          { text: 'Entregar informe' },
+          { text: 'Actualizar planillas' },
+          { text: 'Revisar propuestas' },
+          { text: 'Enviar presupuesto' },
+          { text: 'Programar cita' }
+        ]
+      }
+    }
+  });
+
+  const estudio = await prisma.board.create({
+    data: {
+      name: 'Estudio',
+      ownerId: brenda.id,
+      tasks: {
+        create: [
+          { text: 'Leer capítulo 3' },
+          { text: 'Preparar presentación' },
+          { text: 'Revisar apuntes' }
+        ]
+      }
+    }
+  });
+
+  // Compartir tableros
+  await prisma.sharedBoard.createMany({
+    data: [
+      {
+        userId: brenda.id,
+        boardId: trabajo.id,
+        role: 'EDITOR'
+      },
+      {
+        userId: carlos.id,
+        boardId: limpieza.id,
+        role: 'VIEWER'
+      }
+    ]
+  });
+
+  console.log('Usuarios, tableros y tareas creados exitosamente.');
 }
 
 main()
-  .then(() => {
-    console.log('Datos de prueba cargados exitosamente.');
-    return prisma.$disconnect();
-  })
+  .then(() => prisma.$disconnect())
   .catch((e) => {
     console.error(e);
     return prisma.$disconnect().finally(() => process.exit(1));

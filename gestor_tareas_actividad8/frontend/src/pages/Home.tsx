@@ -74,7 +74,7 @@ const Home = () => {
   return (
     <div className="max-w-xl mx-auto p-4 space-y-4">
       <TaskForm boardId={boardId || ''} page={page} />
-      <TaskSearch onSearch={setSearch} />
+      <TaskSearch value={search} onSearch={setSearch} />
       <TaskList tasks={filtered} onToggle={toggleTask} onDelete={deleteTask} />
       <FilterButtons currentFilter={filter} onChange={setFilter} />
       <ClearCompleted onClear={clearCompleted} />

@@ -3,33 +3,52 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const canEditBoard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const canEditBoard = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const userId = req.user?.id;
-  const boardId = req.params.boardId;
+  let boardId = req.params.boardId;
 
   if (!userId) {
     res.status(401).json({ error: 'No autenticado' });
     return;
   }
 
+  // Si no viene boardId por params, intentar inferirlo desde una tarea
+  if (!boardId && req.params.taskId) {
+    const task = await prisma.task.findUnique({
+      where: { id: req.params.taskId },
+      select: { boardId: true }
+    });
+
+    if (!task?.boardId) {
+      res.status(400).json({ error: 'No se pudo determinar el tablero desde la tarea' });
+      return;
+    }
+
+    boardId = task.boardId;
+  }
+
   try {
-    // ✅ Primero verificar si es la dueña del tablero
+    // Verificar si es la dueña del tablero
     const board = await prisma.board.findUnique({
       where: { id: boardId },
       select: { ownerId: true }
     });
 
     if (board?.ownerId === userId) {
-      return next(); // Tiene acceso por ser la dueña
+      return next();
     }
 
-    // 🔁 Si no es la dueña, verificar permisos compartidos
+    // Verificar si tiene permisos compartidos con rol adecuado
     const sharedBoard = await prisma.sharedBoard.findFirst({
       where: {
         userId,
         boardId,
         role: {
-          in: ['OWNER', 'EDITOR'] // Permisos que permiten edición
+          in: ['OWNER', 'EDITOR']
         }
       }
     });
