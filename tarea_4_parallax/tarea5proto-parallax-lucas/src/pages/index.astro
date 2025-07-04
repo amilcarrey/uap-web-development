@@ -1,0 +1,113 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { state } from '../state';
+import "../styles/global.css";
+
+const formData = Astro.request.method === "POST" ? await Astro.request.formData() : null;
+const filtroActual = Astro.url.searchParams.get("filtro") || "Todos";
+
+if (formData) {
+  const agregarTarea = formData.get("agregarTarea");
+  const completarTarea = formData.get("completarTarea");
+  const eliminarTarea = formData.get("eliminarTarea");
+  const limpiarCompletado = formData.get("limpiarCompletado");
+
+  if (agregarTarea) {
+    const textoDeTarea = formData.get("inputTarea");
+    if (typeof textoDeTarea === 'string' && textoDeTarea.trim()) {
+      state.tareas.push({ id: Date.now(), testo: textoDeTarea.trim(), completada: false });
+    }
+  } else if (completarTarea) {
+    const taskId = Number(completarTarea);
+    const tarea = state.tareas.find(t => t.id === taskId);
+    if (tarea) tarea.completada = !tarea.completada;
+  } else if (eliminarTarea) {
+    const taskId = Number(eliminarTarea);
+    state.tareas = state.tareas.filter(t => t.id !== taskId);
+  } else if (limpiarCompletado) {
+    state.tareas = state.tareas.filter(t => !t.completada);
+  }
+}
+
+// Filtrar tareas según el filtro actual
+let tareasFiltradas = state.tareas;
+if (filtroActual === "Hechos") {
+  tareasFiltradas = state.tareas.filter(t => t.completada);
+} else if (filtroActual === "NoHechos") {
+  tareasFiltradas = state.tareas.filter(t => !t.completada);
+}
+---
+
+<Layout>
+  <header class="bg-[#d2c3af] text-white text-center py-2">
+    <h1 class="text-2xl font-bold">
+      <span class="text-[#ffffff]">To</span><span class="text-[#ffc400]">Do</span>
+    </h1>
+    <nav>
+      <ul class="flex justify-center space-x-4 text-xl font-bold mt-2">
+        <li>
+          <a href="/?filtro=Hechos" class="hover:text-[#ffc400] active:text-[#d2c3af]">Hechos</a>
+        </li>
+        <li>
+          <a href="/?filtro=NoHechos" class="hover:text-[#ffc400] active:text-[#d2c3af]">No Hechos</a>
+        </li>
+        <li>
+          <a href="/?filtro=Todos" class="hover:text-[#ffc400] active:text-[#d2c3af]">Todos</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <form method="POST" class="flex justify-center my-5" id="formAgregar">
+    <div class="flex space-x-2">
+      <input class="w-[500px] h-[55px] text-lg px-4 shadow" id="taskInput" name="inputTarea" type="text" placeholder="¿Qué querés hacer?">
+      <button type="submit" name="agregarTarea" value="1" class="bg-white text-[#d2c3af] px-4 shadow hover:bg-[#d2c3af] hover:text-white active:bg-[#ffc400]">+</button>
+    </div>
+  </form>
+
+  <form method="POST" class="flex flex-col items-center space-y-4" id="tareas">
+    {
+      tareasFiltradas.map((tarea) => (
+        <div class="bg-white flex items-center justify-between w-[60vw] p-4 rounded shadow" id={String(tarea.id)}>
+          <button type="submit" name="completarTarea" value={tarea.id} class={`px-4 py-2 rounded shadow ${tarea.completada ? 'bg-[#22ff00]' : 'bg-white'} hover:shadow-lg active:scale-90`}></button>
+          <p class={`ml-4 text-lg ${tarea.completada ? 'line-through text-gray-500' : 'text-black'}`}>{tarea.testo}</p>
+          <button type="submit" name="eliminarTarea" value={tarea.id} class="bg-red-600 text-white px-4 py-2 rounded shadow hover:bg-red-800 active:scale-90">X</button>
+        </div>
+      ))
+      
+    }
+  </form>
+
+  <form method="POST" class="text-center my-6">
+    <button name="limpiarCompletado" value="1" class="bg-[#ff5a35] text-white px-6 py-2 rounded shadow hover:bg-[#c70039] active:scale-95">
+      Limpia Completadas
+    </button>
+  </form>
+
+  <script>
+    // Mejora progresiva: solo mejora UX si JS está habilitado
+    document.getElementById('formAgregar')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form as HTMLFormElement);
+      data.append('agregarTarea', '1');
+      const res = await fetch((form as HTMLFormElement)?.action || window.location.href, {
+        method: 'POST',
+        body: data,
+      });
+      if (res.ok) location.reload();
+    });
+
+    document.querySelectorAll('#tareas form').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = new FormData(form as HTMLFormElement);
+        const res = await fetch((form as HTMLFormElement).action || window.location.href, {
+          method: 'POST',
+          body: data,
+        });
+        if (res.ok) location.reload();
+      });
+    });
+  </script>
+</Layout>
