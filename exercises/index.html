@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestor de tareas</title>
     <link rel="stylesheet" href="style.css" />
+    <script type="text/javascript" src="script.js"></script>
   </head>
   <body>
 
@@ -21,34 +22,42 @@
 
     </nav>
 
-    <div class="inicio">
-      <h2>Gestor de tareas</h2>
+    <div class="bienvenida">
+      <h2>Bienvenido a tu gestor de tareas</h2>
+      <p>
+        Aquí podrás organizar tus tareas pendientes y llevar un control de las
+        tareas que ya has completado.
+      </p>
     </div>
 
-    <div class="agregartareas">
-      <h2>Agregar tareas</h2>
+    <div class="agrega-tareas">
+      <h2>Agrega una tarea</h2>
         <input class="escribir-tarea" type="text" name="tarea" placeholder="Escribe una tarea" />
-        <button type="submit" class="agregar">Agregar</button>
+        <button type="submit" class="agregar" onclick=" agregarTarea()">Agregar tarea</button>
       </form>
     </div>
 
     <div class="tareas-pendientes">
       <h2>Tareas pendientes</h2>
       <ul class="lista-tareas">
-        <li>
-          <input type="checkbox" />
-          <span class="tarea">Personal work No.1</span>
+        <li class="tarea">
+          <input type="checkbox" class="checkbox" " />
+          <span  >Personal work No.1</span>
+          <button class="eliminar">Eliminar</button>
         </li>
-        <li>
-          <input type="checkbox" />
-          <span class="tarea">Personal work No.2</span>
+        <li class="tarea">
+          <input type="checkbox" class="checkbox" />
+          <span >Personal work No.2</span>
+          <button class="eliminar">Eliminar</button>
         </li>
-        <li>
-            <input type="checkbox" />
-            <span class="tarea">Personal work No.3</span>
-          </li>
       </ul>
+      <button  id="eliminarCompletas" onclick="borrarCompletas()">Borrar completas</button>
     </div>
 
+    <div class="filtro">
+      <h2>Filtrar tareas</h2>
+      <button id="verIncompletas" onclick="mostrarIncompletas()"> Ver incompletas</button>
+      <button id="verCompletas" onclick="mostrarCompletas()"> Ver completas</button>
+      <button id="verTodas" onclick="mostrarTodas()"> Ver todas</button>
   </body>
 </html>
