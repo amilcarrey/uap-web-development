@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Old Stand TO DO</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>The Old Stand</h1>
+        <h2>
+          <i
+            >Wanna check which tasks you have to do in the pub? Welcome mate,
+            cause this is the place. Cheers! 🍻</i
+          >
+        </h2>
+        <div class="pub-image">
+          <img src="img/the-old-stand.jpg" alt="Irish Pub" />
+        </div>
+      </header>
+
+      <main>
+        <form id="task-form">
+          <div class="form-group">
+            <label for="task-input">New Task:</label>
+            <input
+              type="text"
+              id="task-input"
+              placeholder="Type to enter a new task..."
+              required
+            />
+          </div>
+          <button type="submit" class="btn-add">Add Task</button>
+        </form>
+
+        <div class="tabs">
+          <button class="tab-button active" data-tab="today">Today's</button>
+          <button class="tab-button" data-tab="kitchen">Kitchen</button>
+          <button class="tab-button" data-tab="office">Office</button>
+          <button class="btn-add-tab">+</button>
+        </div>
+
+        <div id="today" class="tab-content active">
+          <h3>Today's Tasks</h3>
+          <ul id="task-list-today">
+            <li class="task-item">
+              <span class="task-text">Clean the bar counter</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍺</button>
+              </div>
+            </li>
+            <li class="task-item">
+              <span class="task-text">Restock the fridge</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍺</button>
+              </div>
+            </li>
+            <li class="task-item">
+              <span class="task-text">Sweep the floor</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍺</button>
+              </div>
+            </li>
+          </ul>
+          <div class="task-controls">
+            <button class="btn-clear-completed">Clear Completed</button>
+            <div class="filter-buttons">
+              <button class="btn-filter active" data-filter="all">All</button>
+              <button class="btn-filter" data-filter="incomplete">Incomplete</button>
+              <button class="btn-filter" data-filter="complete">Complete</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="kitchen" class="tab-content">
+          <h3>Kitchen Tasks</h3>
+          <ul id="task-list-kitchen">
+            <li class="task-item">
+              <span class="task-text">Wash the dishes</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍺</button>
+              </div>
+            </li>
+            <li class="task-item">
+              <span class="task-text">Clean the stove</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍺</button>
+              </div>
+            </li>
+            <li class="task-item">
+              <span class="task-text">Organize the pantry</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍺</button>
+              </div>
+            </li>
+          </ul>
+          <div class="task-controls">
+            <button class="btn-clear-completed">Clear Completed</button>
+            <div class="filter-buttons">
+              <button class="btn-filter active" data-filter="all">All</button>
+              <button class="btn-filter" data-filter="incomplete">Incomplete</button>
+              <button class="btn-filter" data-filter="complete">Complete</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="office" class="tab-content">
+          <h3>Office Tasks</h3>
+          <ul id="task-list-office">
+            <li class="task-item">
+              <span class="task-text">Check inventory</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍺</button>
+              </div>
+            </li>
+            <li class="task-item">
+              <span class="task-text">Prepare weekly report</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍺</button>
+              </div>
+            </li>
+            <li class="task-item">
+              <span class="task-text">Schedule team meeting</span>
+              <div class="task-buttons">
+                <button class="btn-cancel">🛢️</button>
+                <button class="btn-complete">🍺</button>
+              </div>
+            </li>
+          </ul>
+          <div class="task-controls">
+            <div class="filter-buttons">
+              <button class="btn-clear-completed">Clear Completed</button>
+              <button class="btn-filter active" data-filter="all">All</button>
+              <button class="btn-filter" data-filter="incomplete">Incomplete</button>
+              <button class="btn-filter" data-filter="complete">Complete</button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <p>2025 Awrthdrew | Programacion III</p>
+      </footer>
+    </div>
+  </body>
+</html>
