@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { z } from 'zod';
-// import { createReview } from '../lib/review.locals';
+import { createReview } from '../lib/review.locals';
 
 const FormSchema = z.object({
   rating: z.coerce.number().min(1).max(5),
@@ -28,16 +28,11 @@ export default function ReviewForm({ volumeId }: { volumeId: string }) {
           setError('Completá rating (1–5) y una reseña de al menos 5 caracteres.');
           return;
         }
-        fetch('/api/reviews', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ volumeId, ...parsed.data })
-        });
-        (e.currentTarget as HTMLFormElement).reset();
-        setError(undefined);
-        setOk(true);
-        // avisar a la lista que hay cambios
-        window.dispatchEvent(new CustomEvent('reviews-changed', { detail: { volumeId } }));
+  createReview(volumeId, parsed.data);
+  (e.currentTarget as HTMLFormElement).reset();
+  setError(undefined);
+  setOk(true);
+  window.dispatchEvent(new CustomEvent('reviews-changed', { detail: { volumeId } }));
       }}
       className="rounded-2xl border p-4 shadow-sm bg-white space-y-3"
     >

@@ -28,7 +28,7 @@ function BookResults() {
   return (
     <ul className="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
       {books.map((b: any) => (
-  <li key={b.id} className="pastel-card p-4">
+        <li key={b.id} className="pastel-card p-4">
           <div className="flex gap-4">
             {b.volumeInfo.imageLinks?.thumbnail && (
               <img src={b.volumeInfo.imageLinks.thumbnail} alt={b.volumeInfo.title} className="w-20 h-28 object-cover rounded-xl border-2 border-blue-100 shadow-sm" />
@@ -38,6 +38,7 @@ function BookResults() {
               <p className="pastel-author text-sm mb-1">{b.volumeInfo.authors?.join(', ')}</p>
               <p className="pastel-date text-xs mb-2">{b.volumeInfo.publishedDate}</p>
               <p className="pastel-desc mt-2 text-sm">{b.volumeInfo.description?.slice(0, 120)}...</p>
+              <a href={`/book/${b.id}`} className="mt-4 inline-block rounded-xl border px-4 py-2 pastel-title hover:bg-[#ede6ff]">Ver reseñas</a>
             </div>
           </div>
         </li>
@@ -48,11 +49,11 @@ function BookResults() {
 export default function SearchPage() {
   return (
     <section className="max-w-4xl mx-auto py-10 px-4 bg-gradient-to-br from-pink-50 via-blue-50 to-yellow-50 rounded-3xl shadow-xl border-2 border-blue-100">
-      <h1 className="text-5xl font-extrabold tracking-tight mb-6 text-pink-500 drop-shadow-lg">
-        Descubrí, calificá y compartí <span className="text-blue-500">libros</span>
+      <h1 className="text-5xl font-extrabold tracking-tight mb-6" style={{ color: '#6c2bd7' }}>
+        Descubrí, calificá y compartí libros
       </h1>
       <SearchBar />
-      <p className="text-xs text-blue-400 mb-6">Ejemplos: <em>harry potter</em> · <em>inauthor:rowling</em> · <em>isbn:9780439708180</em></p>
+  <p className="text-xs" style={{ color: '#6c2bd7' }}>Ejemplos: <em>harry potter</em> · <em>inauthor:rowling</em> · <em>isbn:9780439708180</em></p>
       <Suspense>
         <BookResults />
       </Suspense>

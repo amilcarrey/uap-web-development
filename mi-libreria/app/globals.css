@@ -14,39 +14,41 @@ a {
 }
 
 
+
 body {
-  background: linear-gradient(120deg, #f7f3ee 0%, #ede6dd 100%);
-  color: #7c6a58;
+  background: linear-gradient(120deg, #f7f3ff 0%, #ede6ff 100%);
+  color: #6c2bd7;
   font-family: 'Nunito', 'Arial', Helvetica, sans-serif;
   min-height: 100vh;
 }
 
 
+
 .pastel-card {
-  background: linear-gradient(120deg, #f7f3ee 0%, #ede6dd 100%);
-  border: 2px solid #d6cfc3;
-  box-shadow: 0 4px 24px 0 #ede6dd44;
+  background: linear-gradient(120deg, #f7f3ff 0%, #ede6ff 100%);
+  border: 2px solid #c7b6fa;
+  box-shadow: 0 4px 24px 0 #ede6ff44;
   border-radius: 1.5rem;
   transition: transform 0.2s;
 }
 .pastel-card:hover {
   transform: scale(1.03);
-  box-shadow: 0 8px 32px 0 #ede6dd66;
+  box-shadow: 0 8px 32px 0 #ede6ff66;
 }
 
 .pastel-title {
-  color: #7c6a58;
+  color: #6c2bd7;
   font-weight: 800;
   letter-spacing: -1px;
 }
 .pastel-author {
-  color: #a89c8a;
+  color: #a084e8;
 }
 .pastel-date {
-  color: #b8a48a;
+  color: #b8a4fa;
 }
 .pastel-desc {
-  color: #7c6a58;
+  color: #6c2bd7;
   font-style: italic;
 }
 a { @apply hover:opacity-80 transition-opacity; }

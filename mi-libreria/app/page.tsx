@@ -14,7 +14,7 @@ export default function HomePage() {
       <div className="grid items-center gap-10 rounded-3xl border border-violet-200/50 bg-white/70 p-8 shadow-xl backdrop-blur-xl md:grid-cols-2 md:p-12">
         {/* texto + buscador */}
         <div className="space-y-6">
-          <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-violet-700 md:text-6xl">
+          <h1 className="text-4xl font-extrabold leading-tight tracking-tight md:text-6xl" style={{ color: '#6c2bd7' }}>
             Descubrí, calificá y compartí libros
           </h1>
 

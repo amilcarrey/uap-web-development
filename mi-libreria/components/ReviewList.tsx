@@ -2,18 +2,19 @@
 // components/ReviewList.tsx
 'use client';
 
-import { useMemo, useState, useSyncExternalStore, useEffect } from 'react';
-// import { getReviews, voteReview } from '../lib/review.locals';
+import { useMemo, useState, useEffect } from 'react';
+import { voteReview, getReviews } from '../lib/review.locals';
 
 function useReviews(volumeId: string) {
-  const [reviews, setReviews] = useState<any[]>([]);
-  async function fetchReviews() {
-    const res = await fetch(`/api/reviews?volumeId=${volumeId}`);
-    if (res.ok) setReviews(await res.json());
-  }
-  useEffect(() => { fetchReviews(); }, [volumeId]);
+  const [reviews, setReviews] = useState<any[]>(() => getReviews(volumeId));
   useEffect(() => {
-    const handler = (e: any) => { if (e.detail?.volumeId === volumeId) fetchReviews(); };
+    function refresh() {
+      setReviews(getReviews(volumeId));
+    }
+    refresh();
+    const handler = (e: any) => {
+      if (!e.detail || e.detail.volumeId === volumeId) refresh();
+    };
     window.addEventListener('reviews-changed', handler);
     return () => window.removeEventListener('reviews-changed', handler);
   }, [volumeId]);
@@ -66,26 +67,18 @@ export default function ReviewList({ volumeId }: { volumeId: string }) {
               <p className="mt-1 pastel-title">{r.content}</p>
               <div className="mt-2 flex items-center gap-3 text-sm">
                 <button
-                  className="rounded-lg border px-2 py-1 pastel-author hover:bg-[#ede6dd]"
-                  onClick={async () => {
-                    await fetch('/api/reviews/vote', {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ volumeId, reviewId: r.id, delta: 1 })
-                    });
+                  className="rounded-lg border px-2 py-1 pastel-author hover:bg-[#ede6ff]"
+                  onClick={() => {
+                    voteReview(volumeId, r.id, 1);
                     window.dispatchEvent(new CustomEvent('reviews-changed', { detail: { volumeId } }));
                   }}
                 >
                   👍 {r.up}
                 </button>
                 <button
-                  className="rounded-lg border px-2 py-1 pastel-author hover:bg-[#ede6dd]"
-                  onClick={async () => {
-                    await fetch('/api/reviews/vote', {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ volumeId, reviewId: r.id, delta: -1 })
-                    });
+                  className="rounded-lg border px-2 py-1 pastel-author hover:bg-[#ede6ff]"
+                  onClick={() => {
+                    voteReview(volumeId, r.id, -1);
                     window.dispatchEvent(new CustomEvent('reviews-changed', { detail: { volumeId } }));
                   }}
                 >

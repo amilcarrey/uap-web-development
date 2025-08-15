@@ -23,13 +23,13 @@ export default function SearchBar({ placeholder = 'Título, autor o ISBN' }: { p
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-xl border px-4 py-2.5 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-xl border px-4 py-2.5 pr-10 shadow-sm focus:outline-none pastel-title bg-[#f7f3ff]"
         />
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">⌘K</span>
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 pastel-author">⌘K</span>
       </div>
       <button
         type="submit"
-        className="rounded-xl bg-blue-600 px-4 py-2.5 text-white shadow-sm hover:bg-blue-700"
+        className="rounded-xl border px-4 py-2.5 pastel-title hover:bg-[#ede6ff] shadow-sm"
       >
         Buscar
       </button>
