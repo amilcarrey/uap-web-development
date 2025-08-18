@@ -22,13 +22,20 @@ export default function BookPage({ params }: BookPageProps) {
       .catch(() => setLoading(false));
   }, [params.id]);
 
-  const [resenas, formAction] = useActionState(
-    async (state: { review: string; rating: string }[], formData: FormData) => {
-      const nuevaResena = await guardarResena(formData);
-      return [...state, nuevaResena];
-    },
-    []
-  );
+  type Resena = { review: string; rating: string; votes: number };
+  const [resenas, setResenas] = useState<Resena[]>([]);
+  const formAction = async (formData: FormData) => {
+    const nuevaResena = await guardarResena(formData);
+    setResenas([...resenas, { ...nuevaResena, votes: 0 }]);
+  };
+
+  const votar = (index: number, delta: number) => {
+    setResenas(resenas =>
+      resenas.map((r, i) =>
+        i === index ? { ...r, votes: r.votes + delta } : r
+      )
+    );
+  };
 
   if (loading) return <div>Cargando...</div>;
   if (!book) return notFound();
@@ -49,7 +56,7 @@ export default function BookPage({ params }: BookPageProps) {
         Publicado: {book.volumeInfo.publishedDate} | Páginas:{" "}
         {book.volumeInfo.pageCount}
       </p>
-      <form action={formAction}>
+  <form action={async (formData) => { await formAction(formData); }}>
         <label>
           Calificación:
           <select name="rating" required>
@@ -68,7 +75,17 @@ export default function BookPage({ params }: BookPageProps) {
         <br />
         <button type="submit">Enviar</button>
       </form>
-      {/* Las reseñas no se mostrarán automáticamente sin persistencia */}
+      <h4>Reseñas:</h4>
+      <ul>
+        {resenas.map((r, i) => (
+          <li key={i}>
+            {r.rating} ⭐ - {r.review}
+            <button type="button" onClick={() => votar(i, 1)} style={{ marginLeft: 8 }}>👍</button>
+            <button type="button" onClick={() => votar(i, -1)} style={{ marginLeft: 4 }}>👎</button>
+            <span style={{ marginLeft: 8 }}>Votos: {r.votes}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
