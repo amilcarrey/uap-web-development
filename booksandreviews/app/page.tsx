@@ -10,11 +10,12 @@ async function getData(q: string | undefined) {
   return await searchBooks(query);
 }
 
-export default async function Home({ searchParams }: { searchParams: { q?: string; view?: string } }) {
-  const results = await getData(searchParams?.q);
-  const hasResults = searchParams?.q && results.length > 0;
+export default async function Home({ searchParams }: { searchParams: Promise<{ q?: string; view?: string }> }) {
+  const params = await searchParams;
+  const results = await getData(params?.q);
+  const hasResults = params?.q && results.length > 0;
   // Si hay una búsqueda activa, mantener la vista en 'search'
-  const currentView = searchParams?.q ? 'search' : (searchParams?.view || 'menu');
+  const currentView = params?.q ? 'search' : (params?.view || 'menu');
 
   return (
     <div className="min-h-screen bg-amber-50">
@@ -51,7 +52,7 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
               <input
                 type="text"
                 name="q"
-                defaultValue={searchParams?.q || ''}
+                defaultValue={params?.q || ''}
                 placeholder="Busca por título, autor o ISBN..."
                 className="w-full px-6 py-4 rounded-lg text-white text-lg bg-amber-800/30 border-2 border-amber-200 placeholder-amber-200/70 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-200"
               />
@@ -66,13 +67,13 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
         
         {currentView === 'search' && (
           <>
-            {!searchParams?.q ? (
+            {!params?.q ? (
               <div className="text-center text-amber-800">
                 <p className="text-xl">Ingresa un término de búsqueda para comenzar</p>
               </div>
             ) : results.length === 0 ? (
               <div className="text-center text-amber-800">
-                <p className="text-xl">No se encontraron resultados</p>
+                <p className="text-xl">No se encontraron resultados :(</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -91,5 +92,3 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
     </div>
   );
 }
-
-
