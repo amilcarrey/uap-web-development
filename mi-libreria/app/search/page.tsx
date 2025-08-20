@@ -28,8 +28,8 @@ function BookResults() {
   return (
     <ul className="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
       {books.map((b: any) => (
-        <li key={b.id} className="pastel-card p-4">
-          <div className="flex gap-4">
+        <li key={b.id}>
+          <a href={`/book/${b.id}`} className="pastel-card p-4 flex gap-4 hover:scale-[1.03] transition-transform block">
             {b.volumeInfo.imageLinks?.thumbnail && (
               <img src={b.volumeInfo.imageLinks.thumbnail} alt={b.volumeInfo.title} className="w-20 h-28 object-cover rounded-xl border-2 border-blue-100 shadow-sm" />
             )}
@@ -38,9 +38,8 @@ function BookResults() {
               <p className="pastel-author text-sm mb-1">{b.volumeInfo.authors?.join(', ')}</p>
               <p className="pastel-date text-xs mb-2">{b.volumeInfo.publishedDate}</p>
               <p className="pastel-desc mt-2 text-sm">{b.volumeInfo.description?.slice(0, 120)}...</p>
-              <a href={`/book/${b.id}`} className="mt-4 inline-block rounded-xl border px-4 py-2 pastel-title hover:bg-[#ede6ff]">Ver reseñas</a>
             </div>
-          </div>
+          </a>
         </li>
       ))}
     </ul>

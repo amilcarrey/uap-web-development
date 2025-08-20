@@ -12,17 +12,17 @@ export default function HomePage() {
 
       {/* tarjeta principal centrada */}
       <div className="flex flex-col items-center justify-center gap-6 rounded-3xl border border-violet-200/50 bg-white/70 p-8 shadow-xl backdrop-blur-xl">
-        <h1 className="text-4xl font-extrabold leading-tight tracking-tight md:text-6xl text-center" style={{ color: '#6c2bd7' }}>
+        <h1 className="text-2xl md:text-3xl font-bold pastel-title text-center">
           Descubrí, calificá y compartí libros
         </h1>
-        <p className="text-base text-violet-600 md:text-lg text-center">
-          Buscá por título, autor o ISBN. Datos en tiempo real desde Google Books, con una interfaz limpia y rápida.
+        <p className="text-sm pastel-title text-center">
+          Buscá por título, autor o ISBN.
         </p>
         <div className="w-full flex flex-col items-center">
-          <div className="max-w-lg w-full">
+          <div className="max-w-lg w-full pastel-title">
             <SearchBar placeholder="Ej: harry potter, inauthor:rowling, isbn:9780439708180" />
           </div>
-          <div className="mt-2 text-violet-400 text-lg font-semibold">⌘K Buscar</div>
+          <div className="mt-2 pastel-title text-lg font-semibold">⌘K Buscar</div>
         </div>
         <p className="text-xs text-violet-500 text-center">
           Tip: probá <em>harry potter</em>, <em>inauthor:rowling</em> o <em>isbn:9780439708180</em>.
