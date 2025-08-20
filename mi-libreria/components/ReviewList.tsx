@@ -1,5 +1,3 @@
-// Client Component con reseñas
-// components/ReviewList.tsx
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -33,19 +31,19 @@ export default function ReviewList({ volumeId }: { volumeId: string }) {
   }, [reviews, order]);
 
   return (
-  <section className="space-y-3">
+    <section className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold pastel-title">Reseñas de la comunidad</h3>
-        <div className="text-sm pastel-author">
+        <h3 className="text-lg font-semibold text-gray-900">Reseñas de la comunidad</h3>
+        <div className="text-sm text-gray-600">
           Ordenar:
           <button
-            className={`ml-2 underline ${order === 'top' ? 'font-bold' : ''}`}
+            className={`ml-2 underline underline-offset-4 ${order === 'top' ? 'font-semibold text-violet-700' : ''}`}
             onClick={() => setOrder('top')}
           >
             Más útiles
           </button>
           <button
-            className={`ml-2 underline ${order === 'new' ? 'font-bold' : ''}`}
+            className={`ml-2 underline underline-offset-4 ${order === 'new' ? 'font-semibold text-violet-700' : ''}`}
             onClick={() => setOrder('new')}
           >
             Recientes
@@ -54,20 +52,20 @@ export default function ReviewList({ volumeId }: { volumeId: string }) {
       </div>
 
       {!sorted.length ? (
-  <p className="rounded-xl border pastel-card p-4 pastel-author">
+        <p className="rounded-xl border border-violet-100 bg-white/70 p-4 text-gray-600">
           No hay reseñas todavía en este dispositivo.
         </p>
       ) : (
-  <ul className="space-y-3">
+        <ul className="space-y-3">
           {sorted.map((r) => (
-            <li key={r.id} className="pastel-card p-4">
-              <div className="text-sm pastel-date">
+            <li key={r.id} className="rounded-2xl border border-violet-100 bg-white/80 p-4 shadow-sm">
+              <div className="text-xs text-gray-500">
                 {r.rating}★ · {new Date(r.createdAt).toLocaleString()}
               </div>
-              <p className="mt-1 pastel-title">{r.content}</p>
+              <p className="mt-1 text-gray-900">{r.content}</p>
               <div className="mt-2 flex items-center gap-3 text-sm">
                 <button
-                  className="rounded-lg border px-2 py-1 pastel-author hover:bg-[#ede6ff]"
+                  className="rounded-lg border border-violet-200 px-2 py-1 text-gray-700 hover:bg-[#ede6ff] transition"
                   onClick={() => {
                     voteReview(volumeId, r.id, 1);
                     window.dispatchEvent(new CustomEvent('reviews-changed', { detail: { volumeId } }));
@@ -76,7 +74,7 @@ export default function ReviewList({ volumeId }: { volumeId: string }) {
                   👍 {r.up}
                 </button>
                 <button
-                  className="rounded-lg border px-2 py-1 pastel-author hover:bg-[#ede6ff]"
+                  className="rounded-lg border border-violet-200 px-2 py-1 text-gray-700 hover:bg-[#ede6ff] transition"
                   onClick={() => {
                     voteReview(volumeId, r.id, -1);
                     window.dispatchEvent(new CustomEvent('reviews-changed', { detail: { volumeId } }));
@@ -84,7 +82,7 @@ export default function ReviewList({ volumeId }: { volumeId: string }) {
                 >
                   👎 {r.down}
                 </button>
-                <span className="pastel-date">Score: {r.up - r.down}</span>
+                <span className="text-gray-500">Score: {r.up - r.down}</span>
               </div>
             </li>
           ))}
