@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Link from "next/link";
 
 export default function Home() {
   const [query, setQuery] = useState('');
@@ -38,24 +39,27 @@ export default function Home() {
           <p className="text-gray-500">Cargando...</p>
         )}
 
+
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {books.map((book: any) => {
             const info = book.volumeInfo;
             return (
-              <div key={book.id} className="bg-white rounded-lg shadow hover:shadow-lg overflow-hidden transition">
-                <img
-                  src={info.imageLinks?.thumbnail || '/no-cover.png'}
-                  alt={info.title}
-                  className="w-full h-48 object-contain bg-gray-100"
-                />
-                <div className="p-3">
-                  <h3 className="font-semibold text-sm mb-1">{info.title}</h3>
-                  <p className="text-xs text-gray-600">{info.authors?.join(', ')}</p>
+              <Link href={`/books/${book.id}`} key={book.id}>
+                <div className="bg-white rounded-lg shadow hover:shadow-lg overflow-hidden transition cursor-pointer">
+                  <img
+                    src={info.imageLinks?.thumbnail || '/no-cover.png'}
+                    alt={info.title}
+                    className="w-full h-48 object-contain bg-gray-100"
+                  />
+                  <div className="p-3">
+                    <h3 className="font-semibold text-sm mb-1">{info.title}</h3>
+                    <p className="text-xs text-gray-600">{info.authors?.join(', ')}</p>
+                  </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
-        </div>
+        </div>  
       </main>
 
       <Footer />
