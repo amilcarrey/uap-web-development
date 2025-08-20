@@ -25,4 +25,4 @@ Principal: **Google Books API**
 **Características:**
 
 - Datos completos: Portadas, descripciones, cantidad de páginas, categorías, info de publicación
-- Imágenes de alta calidad: Múltiples tamaños de portada disponibles
+
