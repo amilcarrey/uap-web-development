@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1755557130195,
+    "bookId": "4jCvDAAAQBAJ",
+    "userName": "Paola",
+    "rating": 4,
+    "content": "Muy bueno ",
+    "createdAt": "2025-08-18T22:45:30.195Z",
+    "votes": [
+      {
+        "id": 1755557141373,
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": 1755557167509,
+    "bookId": "Gx6sEAAAQBAJ",
+    "userName": "Sara",
+    "rating": 5,
+    "content": "Amazing",
+    "createdAt": "2025-08-18T22:46:07.509Z",
+    "votes": []
+  },
+  {
+    "id": "1755619591304",
+    "bookId": "dXceEAAAQBAJ",
+    "userName": "j",
+    "rating": 5,
+    "content": "j",
+    "createdAt": "2025-08-19T16:06:31.304Z",
+    "votes": []
+  }
+]
