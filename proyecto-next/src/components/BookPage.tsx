@@ -1,0 +1,210 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import { getBookById } from "@/lib/googleBooks";
+import Image from "next/image";
+import { Book } from "@/types/book";
+import { Review, Vote } from "@/types";
+
+interface BookPageProps {
+  id: string;
+}
+
+export default function BookPage({ id }: BookPageProps) {
+  const [book, setBook] = useState<Book | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [name, setName] = useState("");
+  const [content, setContent] = useState("");
+  const [rating, setRating] = useState(5);
+
+  const fetchBook = useCallback(async () => {
+    const data = await getBookById(id);
+    setBook(data);
+  }, [id]);
+
+  const fetchReviews = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/reviews?bookId=${id}`);
+      if (!res.ok) throw new Error("Error al obtener reseñas");
+      const data: Review[] = await res.json();
+      setReviews(data);
+    } catch (error) {
+      console.error(error);
+      setReviews([]);
+    }
+  }, [id]);
+
+  const addReview = useCallback(async () => {
+    if (!name || !content) return alert("Debes ingresar tu nombre y la reseña.");
+
+    const newReview: Omit<Review, "votes"> = {
+      bookId: id,
+      userName: name,
+      rating,
+      content,
+      createdAt: new Date().toISOString(),
+      id: Date.now().toString(),
+    };
+
+    try {
+      const res = await fetch(`/api/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newReview),
+      });
+
+      if (!res.ok) throw new Error("No se pudo enviar la reseña");
+
+      setName("");
+      setContent("");
+      setRating(5);
+      await fetchReviews();
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo enviar la reseña");
+    }
+  }, [name, content, rating, id, fetchReviews]);
+
+  const voteReview = useCallback(
+    async (reviewId: string, value: 1 | -1) => {
+      const vote: Vote = {
+        userId: name || "Anónimo",
+        value,
+      };
+
+      try {
+        const res = await fetch(`/api/reviews/${reviewId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(vote),
+        });
+
+        if (!res.ok) throw new Error("No se pudo votar la reseña");
+
+        await fetchReviews();
+      } catch (error) {
+        console.error(error);
+        alert("No se pudo votar la reseña");
+      }
+    },
+    [name, fetchReviews]
+  );
+
+  useEffect(() => {
+    fetchBook();
+    fetchReviews();
+  }, [fetchBook, fetchReviews]);
+
+  if (!book) return <p>Cargando libro...</p>;
+
+  return (
+    <main className="p-6">
+      <h1 className="text-2xl font-bold mb-4">{book.volumeInfo.title}</h1>
+
+      {book.volumeInfo.imageLinks?.thumbnail && (
+        <Image
+          src={book.volumeInfo.imageLinks.thumbnail}
+          alt={book.volumeInfo.title}
+          width={200}
+          height={300}
+          className="mb-4"
+        />
+      )}
+
+      {/* --- Descripción con HTML renderizado --- */}
+      <div
+        className="mb-2"
+        dangerouslySetInnerHTML={{
+          __html: book.volumeInfo.description || "<p>Sin descripción disponible</p>",
+        }}
+      />
+
+      <p className="mt-2 font-semibold">
+        Autor: {book.volumeInfo.authors?.join(", ")}
+      </p>
+
+      {/* --- Formulario de reseña --- */}
+      <div className="mt-6 border-t pt-4">
+        <h2 className="text-xl font-semibold mb-2">Agregar reseña</h2>
+        <input
+          type="text"
+          placeholder="Tu nombre"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="border p-2 mb-2 w-full"
+        />
+        <textarea
+          placeholder="Escribe tu reseña..."
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="border p-2 mb-2 w-full"
+        />
+        <div className="flex items-center mb-2">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span
+              key={star}
+              className={`cursor-pointer text-2xl ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
+              onClick={() => setRating(star)}
+            >
+              ★
+            </span>
+          ))}
+          <span className="ml-2">{rating} de 5</span>
+        </div>
+        <button
+          onClick={addReview}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Enviar
+        </button>
+      </div>
+
+      {/* --- Lista de reseñas --- */}
+      <div className="mt-6 border-t pt-4">
+        <h2 className="text-xl font-semibold mb-2">Reseñas</h2>
+        {reviews.length === 0 ? (
+          <p>No hay reseñas todavía.</p>
+        ) : (
+          reviews.map((r) => {
+            const upVotes = r.votes.filter((v) => v.value === 1).length;
+            const downVotes = r.votes.filter((v) => v.value === -1).length;
+
+            return (
+              <div key={r.id} className="border p-2 mb-2 rounded">
+                <p className="font-semibold">{r.userName}</p>
+                <p>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      className={star <= r.rating ? "text-yellow-500" : "text-gray-300"}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </p>
+                <p>{r.content}</p>
+                <p className="text-xs text-gray-400">
+                  {new Date(r.createdAt).toLocaleString()}
+                </p>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => voteReview(r.id, 1)}
+                    className="text-sm px-2 py-1 bg-green-200 rounded hover:bg-green-300"
+                  >
+                    👍 {upVotes}
+                  </button>
+                  <button
+                    onClick={() => voteReview(r.id, -1)}
+                    className="text-sm px-2 py-1 bg-red-200 rounded hover:bg-red-300"
+                  >
+                    👎 {downVotes}
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </main>
+  );
+}
