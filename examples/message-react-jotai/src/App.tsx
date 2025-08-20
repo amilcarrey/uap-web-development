@@ -1,4 +1,4 @@
-import "./App.css";
+// import "./App.css";
 import { FilterForm } from "./components/FilterForm";
 import { NuevoMensajeForm } from "./components/NuevoMensajeForm";
 import { MensajeList } from "./components/MensajeList";
