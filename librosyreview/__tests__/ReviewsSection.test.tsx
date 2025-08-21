@@ -1,0 +1,152 @@
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import ReviewsSection from '../app/components/ReviewsSection'
+
+// Mock localStorage
+const mockLocalStorage = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+}
+
+Object.defineProperty(window, 'localStorage', {
+  value: mockLocalStorage
+})
+
+describe('ReviewsSection', () => {
+  const mockReviews = [
+    {
+      id: 'review1',
+      bookId: 'book1',
+      bookTitle: 'Test Book 1',
+      bookThumbnail: 'http://example.com/thumb1.jpg',
+      rating: 5,
+      content: 'Great book!',
+      createdAt: '2023-01-01T00:00:00.000Z',
+      likes: 2,
+      dislikes: 0
+    },
+    {
+      id: 'review2',
+      bookId: 'book2',
+      bookTitle: 'Test Book 2',
+      rating: 3,
+      content: 'Average book.',
+      createdAt: '2023-01-02T00:00:00.000Z',
+      likes: 1,
+      dislikes: 1
+    }
+  ]
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('should show empty state when no reviews exist', async () => {
+    mockLocalStorage.getItem.mockReturnValue(null)
+    
+    await act(async () => {
+      render(<ReviewsSection />)
+    })
+    
+    await waitFor(() => {
+      expect(screen.getByText('Aún no has escrito reseñas')).toBeInTheDocument()
+      expect(screen.getByText('Buscar libros para reseñar')).toBeInTheDocument()
+    })
+  })
+
+  it('should load and display reviews from localStorage', async () => {
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockReviews))
+    
+    await act(async () => {
+      render(<ReviewsSection />)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Mis Reseñas')).toBeInTheDocument()
+      expect(screen.getByText('Test Book 1')).toBeInTheDocument()
+      expect(screen.getByText('Test Book 2')).toBeInTheDocument()
+      expect(screen.getByText('Great book!')).toBeInTheDocument()
+      expect(screen.getByText('Average book.')).toBeInTheDocument()
+    })
+  })
+
+  it('should display ratings correctly', async () => {
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockReviews))
+    
+    await act(async () => {
+      render(<ReviewsSection />)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('5★')).toBeInTheDocument()
+      expect(screen.getByText('3★')).toBeInTheDocument()
+    })
+  })
+
+  it('should handle like button click', async () => {
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockReviews))
+    
+    await act(async () => {
+      render(<ReviewsSection />)
+    })
+
+    await waitFor(() => {
+      const likeButtons = screen.getAllByText('2')
+      fireEvent.click(likeButtons[0].closest('button')!)
+    })
+
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+      'book_reviews_v1',
+      expect.stringContaining('"likes":3')
+    )
+  })
+
+  it('should handle dislike button click', async () => {
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockReviews))
+    
+    await act(async () => {
+      render(<ReviewsSection />)
+    })
+
+    await waitFor(() => {
+      const dislikeButtons = screen.getAllByText('0')
+      fireEvent.click(dislikeButtons[0].closest('button')!)
+    })
+
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+      'book_reviews_v1',
+      expect.stringContaining('"dislikes":1')
+    )
+  })
+
+  it('should handle localStorage parsing errors gracefully', async () => {
+    mockLocalStorage.getItem.mockReturnValue('invalid json')
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    
+    await act(async () => {
+      render(<ReviewsSection />)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Aún no has escrito reseñas')).toBeInTheDocument()
+    })
+
+    expect(consoleSpy).toHaveBeenCalledWith('Error loading reviews:', expect.any(Error))
+    consoleSpy.mockRestore()
+  })
+
+  it('should display book thumbnails when available', async () => {
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockReviews))
+    
+    await act(async () => {
+      render(<ReviewsSection />)
+    })
+
+    await waitFor(() => {
+      const thumbnail = screen.getByAltText('Test Book 1')
+      expect(thumbnail).toBeInTheDocument()
+      expect(thumbnail).toHaveAttribute('src', 'http://example.com/thumb1.jpg')
+    })
+  })
+})
