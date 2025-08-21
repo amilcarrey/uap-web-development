@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Book Reviews</title>
+</head>
+<body>
+  <h1>Book Reviews</h1>
+  <input id="searchInput" placeholder="Buscar por título, autor o ISBN">
+  <button id="searchBtn">Buscar</button>
+  <ul id="results"></ul>
+  <script>
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+      const q = document.getElementById('searchInput').value;
+      const res = await fetch('/search?q=' + encodeURIComponent(q));
+      const data = await res.json();
+      const list = document.getElementById('results');
+      list.innerHTML = '';
+      (data.items || []).forEach(item => {
+        const li = document.createElement('li');
+        const title = item.volumeInfo.title;
+        li.textContent = title;
+        list.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
