@@ -16,7 +16,8 @@ export interface DetailedBook extends SimpleBook {
   language?: string;
 }
 
-function mapVolumeToSimple(volume: any): SimpleBook {
+// Exportar estas funciones para testing
+export function mapVolumeToSimple(volume: any): SimpleBook {
   const info = volume.volumeInfo || {};
   const imageLinks = info.imageLinks || {};
   return {
@@ -27,7 +28,7 @@ function mapVolumeToSimple(volume: any): SimpleBook {
   };
 }
 
-function mapVolumeToDetailed(volume: any): DetailedBook {
+export function mapVolumeToDetailed(volume: any): DetailedBook {
   const simple = mapVolumeToSimple(volume);
   const info = volume.volumeInfo || {};
   return {
@@ -43,12 +44,19 @@ function mapVolumeToDetailed(volume: any): DetailedBook {
 
 export async function searchBooks(query: string): Promise<SimpleBook[]> {
   if (!query || query.trim().length === 0) return [];
-  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20`;
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) return [];
-  const data = await res.json();
-  const items = Array.isArray(data.items) ? data.items : [];
-  return items.map(mapVolumeToSimple);
+  
+  try {
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const items = Array.isArray(data.items) ? data.items : [];
+    return items.map(mapVolumeToSimple);
+  } catch (error) {
+    // Manejar errores de red u otros errores
+    console.error('Error fetching books:', error);
+    return [];
+  }
 }
 
 export async function getBookById(id: string): Promise<DetailedBook | null> {

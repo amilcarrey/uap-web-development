@@ -1,8 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import BookCard from '../app/components/BookCard'
 
 // Mock window.dispatchEvent at module level
-const mockDispatchEvent = jest.fn()
+const mockDispatchEvent = vi.fn()
 Object.defineProperty(window, 'dispatchEvent', {
   value: mockDispatchEvent,
   writable: true
@@ -24,7 +25,7 @@ describe('BookCard', () => {
 
   beforeEach(() => {
     // Clear all mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render book information correctly', () => {

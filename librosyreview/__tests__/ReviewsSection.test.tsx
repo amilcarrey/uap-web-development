@@ -1,12 +1,13 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import ReviewsSection from '../app/components/ReviewsSection'
 
 // Mock localStorage
 const mockLocalStorage = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 }
 
 Object.defineProperty(window, 'localStorage', {
@@ -39,7 +40,7 @@ describe('ReviewsSection', () => {
   ]
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should show empty state when no reviews exist', async () => {
@@ -122,7 +123,7 @@ describe('ReviewsSection', () => {
 
   it('should handle localStorage parsing errors gracefully', async () => {
     mockLocalStorage.getItem.mockReturnValue('invalid json')
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     
     await act(async () => {
       render(<ReviewsSection />)

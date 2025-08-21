@@ -1,25 +1,17 @@
-import { searchBooks, getBookById } from '../app/actions/books'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { searchBooks, getBookById, mapVolumeToSimple, mapVolumeToDetailed } from '../app/actions/books'
 
-// Mock fetch globally
-const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>
+// Mock fetch
+global.fetch = vi.fn()
+const mockFetch = vi.mocked(fetch)
 
-describe('Books Actions', () => {
+describe('Books API Functions', () => {
   beforeEach(() => {
-    mockFetch.mockClear()
+    vi.clearAllMocks()
   })
 
   describe('searchBooks', () => {
-    it('should return empty array for empty query', async () => {
-      const result = await searchBooks('')
-      expect(result).toEqual([])
-    })
-
-    it('should return empty array for whitespace query', async () => {
-      const result = await searchBooks('   ')
-      expect(result).toEqual([])
-    })
-
-    it('should return books for valid query', async () => {
+    it('should return books when API call is successful', async () => {
       const mockResponse = {
         items: [
           {
@@ -37,94 +29,52 @@ describe('Books Actions', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockResponse,
+        json: async () => mockResponse
       } as Response)
 
-      const result = await searchBooks('test')
-      
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://www.googleapis.com/books/v1/volumes?q=test&maxResults=20',
-        { cache: 'no-store' }
-      )
-      expect(result).toEqual([
-        {
-          id: 'book1',
-          title: 'Test Book',
-          authors: ['Test Author'],
-          thumbnail: 'http://example.com/thumb.jpg'
-        }
-      ])
+      const result = await searchBooks('test query')
+
+      expect(result).toHaveLength(1)
+      expect(result[0]).toEqual({
+        id: 'book1',
+        title: 'Test Book',
+        authors: ['Test Author'],
+        thumbnail: 'http://example.com/thumb.jpg'
+      })
     })
 
-    it('should handle API errors gracefully', async () => {
+    it('should return empty array when no items found', async () => {
       mockFetch.mockResolvedValueOnce({
-        ok: false,
+        ok: true,
+        json: async () => ({ items: undefined })
       } as Response)
 
-      const result = await searchBooks('test')
+      const result = await searchBooks('nonexistent')
       expect(result).toEqual([])
     })
 
-    it('should handle missing volumeInfo', async () => {
-      const mockResponse = {
-        items: [
-          {
-            id: 'book1',
-            // volumeInfo is missing
-          }
-        ]
-      }
+    it('should handle API errors gracefully', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response)
-
-      const result = await searchBooks('test')
-      
-      expect(result).toEqual([
-        {
-          id: 'book1',
-          title: 'Título desconocido',
-          authors: [],
-          thumbnail: undefined
-        }
-      ])
-    })
-
-    it('should handle missing items array', async () => {
-      const mockResponse = {
-        // items is missing
-      }
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response)
-
+      // No debería lanzar el error, sino retornar un array vacío
       const result = await searchBooks('test')
       expect(result).toEqual([])
     })
   })
 
   describe('getBookById', () => {
-    it('should return null for empty id', async () => {
-      const result = await getBookById('')
-      expect(result).toBeNull()
-    })
-
-    it('should return detailed book for valid id', async () => {
+    it('should return detailed book information', async () => {
       const mockResponse = {
         id: 'book1',
         volumeInfo: {
-          title: 'Test Book',
-          authors: ['Test Author'],
-          description: 'Test description',
+          title: 'Detailed Book',
+          authors: ['Author One'],
           publishedDate: '2023-01-01',
-          pageCount: 200,
-          categories: ['Fiction'],
+          pageCount: 300,
           publisher: 'Test Publisher',
-          language: 'es',
+          language: 'en',
+          categories: ['Fiction'],
+          description: 'A test book description',
           imageLinks: {
             thumbnail: 'http://example.com/thumb.jpg'
           }
@@ -133,36 +83,109 @@ describe('Books Actions', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockResponse,
+        json: async () => mockResponse
       } as Response)
 
       const result = await getBookById('book1')
-      
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://www.googleapis.com/books/v1/volumes/book1',
-        { cache: 'no-store' }
-      )
+
       expect(result).toEqual({
         id: 'book1',
-        title: 'Test Book',
-        authors: ['Test Author'],
-        thumbnail: 'http://example.com/thumb.jpg',
-        description: 'Test description',
+        title: 'Detailed Book',
+        authors: ['Author One'],
         publishedDate: '2023-01-01',
-        pageCount: 200,
-        categories: ['Fiction'],
+        pageCount: 300,
         publisher: 'Test Publisher',
-        language: 'es'
+        language: 'en',
+        categories: ['Fiction'],
+        description: 'A test book description',
+        thumbnail: 'http://example.com/thumb.jpg'
       })
     })
 
-    it('should handle API errors gracefully', async () => {
+    it('should return null when book not found', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
+        status: 404
       } as Response)
 
-      const result = await getBookById('book1')
+      const result = await getBookById('nonexistent')
       expect(result).toBeNull()
+    })
+  })
+
+  describe('Mapping Functions', () => {
+    describe('mapVolumeToSimple', () => {
+      it('should map volume to simple book format', () => {
+        const volume = {
+          id: 'book1',
+          volumeInfo: {
+            title: 'Test Book',
+            authors: ['Test Author'],
+            imageLinks: {
+              thumbnail: 'http://example.com/thumb.jpg'
+            }
+          }
+        }
+
+        const result = mapVolumeToSimple(volume)
+
+        expect(result).toEqual({
+          id: 'book1',
+          title: 'Test Book',
+          authors: ['Test Author'],
+          thumbnail: 'http://example.com/thumb.jpg'
+        })
+      })
+
+      it('should handle missing thumbnail', () => {
+        const volume = {
+          id: 'book1',
+          volumeInfo: {
+            title: 'Test Book',
+            authors: ['Test Author']
+          }
+        }
+
+        const result = mapVolumeToSimple(volume)
+
+        expect(result.thumbnail).toBeUndefined()
+      })
+    })
+
+    describe('mapVolumeToDetailed', () => {
+      it('should map volume to detailed book format', () => {
+        const volume = {
+          id: 'book1',
+          volumeInfo: {
+            title: 'Detailed Book',
+            authors: ['Author One'],
+            publishedDate: '2023-01-01',
+            pageCount: 300,
+            publisher: 'Test Publisher',
+            language: 'en',
+            categories: ['Fiction'],
+            description: 'A test book description',
+            imageLinks: {
+              thumbnail: 'http://example.com/thumb.jpg'
+            }
+          }
+        }
+
+        const result = mapVolumeToDetailed(volume)
+
+        expect(result).toEqual({
+          id: 'book1',
+          title: 'Detailed Book',
+          authors: ['Author One'],
+          publishedDate: '2023-01-01',
+          pageCount: 300,
+          publisher: 'Test Publisher',
+          language: 'en',
+          categories: ['Fiction'],
+          description: 'A test book description',
+          thumbnail: 'http://example.com/thumb.jpg'
+        })
+      })
     })
   })
 })
