@@ -1,0 +1,18 @@
+{
+  "name": "book-review-app",
+  "version": "1.0.0",
+  "description": "Simple book discovery and review app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["books","reviews"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "express": "^4.18.2"
+  }
+}
