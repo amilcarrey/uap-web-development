@@ -1,38 +1,54 @@
-import { getBookById } from "../../lib/googleBooks";
-import ReviewForm from "../../components/ReviewForm";
-import ReviewList from "../../components/ReviewList";
+import { headers } from 'next/headers'
+import BookReviews from '@/components/BookReviews'
+
+function getBaseUrl() {
+  const h = headers()
+  const host = h.get('host') || 'localhost:3000'
+  const proto = h.get('x-forwarded-proto') || 'http'
+  return `${proto}://${host}`
+}
+
+async function getBook(id: string) {
+  const base = getBaseUrl()
+  const res = await fetch(`${base}/api/books/${id}`, { cache: 'no-store' })
+  if (!res.ok) return null
+  return res.json()
+}
 
 export default async function BookPage({ params }: { params: { id: string } }) {
-  const book = await getBookById(params.id);
+  const book = await getBook(params.id)
+  if (!book) return <div className="p-6">No encontrado</div>
 
-  if (!book) return <p>No se encontró el libro.</p>;
-
-  const info = book.volumeInfo;
+  const meta: Array<[string, string | number | undefined]> = [
+    ['Autor(es)', book.authors?.join(', ')],
+    ['Editorial', book.publisher],
+    ['Publicado', book.publishedDate],
+    ['Páginas', book.pageCount],
+    ['Categorías', (book.categories ?? []).join(' • ')],
+    ['Idioma', book.language?.toUpperCase()],
+  ]
 
   return (
-    <div className="container mx-auto px-6 py-10">
-      <div className="flex gap-6">
-        <img
-          src={info.imageLinks?.thumbnail || "/no-cover.png"}
-          alt={info.title}
-          className="w-48 h-auto"
-        />
-        <div>
-          <h1 className="text-3xl font-bold">{info.title}</h1>
-          <p className="text-gray-600">{info.authors?.join(", ")}</p>
-          <p>{info.description}</p>
-          <p className="text-sm mt-2 text-gray-500">
-            {info.publishedDate} • {info.pageCount} páginas
-          </p>
-        </div>
-      </div>
+    <main className="mx-auto max-w-3xl p-6 space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-2xl font-bold">{book.title}</h1>
+        <ul className="text-sm text-gray-700 space-y-1">
+          {meta.filter(([, v]) => v).map(([k, v]) => (
+            <li key={k}><span className="font-medium">{k}:</span> {v as any}</li>
+          ))}
+        </ul>
+      </header>
 
-      {/* Reseñas */}
-      <section className="mt-10">
-        <h2 className="text-2xl font-bold mb-4">Reseñas</h2>
-        <ReviewForm bookId={book.id} />
-        <ReviewList bookId={book.id} />
-      </section>
-    </div>
-  );
+      {book.description && (
+        <article className="prose max-w-none">
+          <h2>Descripción</h2>
+          <div dangerouslySetInnerHTML={{ __html: book.description }} />
+        </article>
+      )}
+
+      {/* wrapper cliente que orquesta formulario + lista */}
+      {/* @ts-expect-error Server rendering Client */}
+      <BookReviews bookId={book.id} />
+    </main>
+  )
 }

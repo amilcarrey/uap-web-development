@@ -1,31 +1,55 @@
-"use client";
+'use client'
+import { useState } from 'react'
+import Link from 'next/link'
 
-import { useState } from "react";
-import { searchBooks, GoogleBook } from "./lib/googleBooks";
-import BookCard from "./components/BookCard";
-import SearchBar from "./components/SearchBar";
+type Item = {
+  id: string
+  title: string
+  authors: string[]
+  thumbnail?: string
+}
 
-export default function HomePage() {
-  const [books, setBooks] = useState<GoogleBook[]>([]);
-  const [loading, setLoading] = useState(false);
+export default function Home() {
+  const [q, setQ] = useState('')
+  const [items, setItems] = useState<Item[]>([])
+  const [loading, setLoading] = useState(false)
 
-  async function handleSearch(query: string) {
-    setLoading(true);
-    const results = await searchBooks(query);
-    setBooks(results);
-    setLoading(false);
+  async function search(e?: React.FormEvent) {
+    e?.preventDefault()
+    setLoading(true)
+    const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
+    const data = await res.json()
+    setItems(data.items ?? [])
+    setLoading(false)
   }
 
   return (
-    <main className="container mx-auto px-6 py-10">
-      <h1 className="text-4xl font-bold mb-6">Book Review App</h1>
-      <SearchBar onSearch={handleSearch} />
-      {loading && <p>Cargando...</p>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        {books.map((book) => (
-          <BookCard key={book.id} book={book} />
+    <main className="mx-auto max-w-3xl p-6 space-y-6">
+      <h1 className="text-3xl font-bold">📚 Descubrí libros</h1>
+      <form onSubmit={search} className="flex gap-2">
+        <input
+          value={q}
+          onChange={e=>setQ(e.target.value)}
+          placeholder="Título, autor o ISBN (p.ej. inauthor:rowling)"
+          className="flex-1 border rounded px-3 py-2"
+        />
+        <button className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50" disabled={!q}>Buscar</button>
+      </form>
+
+      {loading && <div>Buscando…</div>}
+
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {items.map(b => (
+          <li key={b.id} className="border rounded-xl p-3 flex gap-3">
+            {b.thumbnail && <img src={b.thumbnail} alt="cover" className="w-16 h-24 object-cover rounded" />}
+            <div>
+              <div className="font-semibold">{b.title}</div>
+              <div className="text-sm text-gray-600">{b.authors?.join(', ')}</div>
+              <Link href={`/book/${b.id}`} className="text-blue-600 text-sm">Ver detalles →</Link>
+            </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </main>
-  );
+  )
 }
