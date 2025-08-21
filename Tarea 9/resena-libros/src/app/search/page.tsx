@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { searchBooks } from "@/lib/googleBooks";
 
 export default async function SearchPage({

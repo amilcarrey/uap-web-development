@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { v4 as uuid } from "uuid";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { StarRating } from "./StarRating";
 import { addReview, getReviews, voteReview } from "@/lib/storage";
 import type { Review } from "@/lib/types";
