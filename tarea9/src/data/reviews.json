@@ -1,0 +1,57 @@
+{
+  "2zgRDXFWkm8C": [
+    {
+      "user": "Benja",
+      "rating": 3,
+      "text": "ta pochi ",
+      "bookId": "2zgRDXFWkm8C",
+      "likes": 0,
+      "dislikes": 0,
+      "id": "3f828de0-4d2c-47ad-ad52-ea78243641e4",
+      "createdAt": "2025-08-19T15:32:44.036Z"
+    },
+    {
+      "user": "Joni",
+      "rating": 4,
+      "text": "elegante",
+      "bookId": "2zgRDXFWkm8C",
+      "likes": 1,
+      "dislikes": 0,
+      "id": "a1981a95-650f-4bd3-9208-5bffa78ff41d",
+      "createdAt": "2025-08-19T15:31:57.598Z"
+    },
+    {
+      "user": "Jus",
+      "rating": 5,
+      "text": "bello",
+      "bookId": "2zgRDXFWkm8C",
+      "id": "0599af6e-faf2-40dd-aad3-53f10e6c67d0",
+      "likes": 4,
+      "dislikes": 0,
+      "createdAt": "2025-08-19T15:29:45.274Z"
+    },
+    {
+      "user": "Jav",
+      "rating": 5,
+      "text": "Muy buen libro che!",
+      "bookId": "2zgRDXFWkm8C",
+      "id": "b46eadf8-3c0b-4e2a-9a48-636031f52739",
+      "votes": 0,
+      "createdAt": "2025-08-18T20:53:39.991Z",
+      "likes": 5,
+      "dislikes": 1
+    }
+  ],
+  "we_FwgeUXrgC": [
+    {
+      "user": "Jav",
+      "rating": 5,
+      "text": "Buen libro \n",
+      "bookId": "we_FwgeUXrgC",
+      "likes": 14,
+      "dislikes": 15,
+      "id": "84f75e56-dfa4-438f-9e64-79d7d1fac197",
+      "createdAt": "2025-08-20T13:42:33.557Z"
+    }
+  ]
+}
