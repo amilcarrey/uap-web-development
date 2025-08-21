@@ -36,8 +36,8 @@ describe('reviewsStore', () => {
 
   it('uses wilson score to update review score', async () => {
     vi.resetModules()
-    const scoreMock = vi.fn(() => 0.42)
-    vi.mock('./ranking', () => ({ wilsonScore: scoreMock }))
+    const ranking = await import('./ranking')
+    const scoreMock = vi.spyOn(ranking, 'wilsonScore').mockReturnValue(0.42)
     const mod = await import('./reviewsStore')
     const add = mod.addReview
     const vote = mod.voteReview

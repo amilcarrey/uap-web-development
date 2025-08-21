@@ -6,5 +6,8 @@ export default defineConfig({
     globals: true,
     setupFiles: './vitest.setup.ts',
   },
+  esbuild: {
+    jsx: 'automatic',
+  },
 })
 
