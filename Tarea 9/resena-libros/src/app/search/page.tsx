@@ -8,7 +8,7 @@ export default async function SearchPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
-  const sp = await searchParams;              // con await
+  const sp = await searchParams;
   const q = (sp.q || "").trim();
   const items = q ? await searchBooks(q) : [];
 
@@ -19,25 +19,25 @@ export default async function SearchPage({
       </h2>
 
       {!q ? (
-        <p className="text-muted-foreground">Volvé al Home e ingresá una consulta.</p>
+        <p className="text-[#a0a0a0]">Volvé al Home e ingresá una consulta.</p>
       ) : items.length === 0 ? (
-        <p className="text-muted-foreground">No se encontraron libros.</p>
+        <p className="text-[#a0a0a0]">No se encontraron libros.</p>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((b: any) => {
             const v = b.volumeInfo ?? {};
-            const raw = v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || "";
+            const raw = v.imageLinks?.large || v.imageLinks?.medium || v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || "";
             const img = raw.replace(/^http:\/\//, "https://");
             return (
               <Card key={b.id} className="overflow-hidden">
                 <CardHeader>
                   <CardTitle className="line-clamp-2">{v.title}</CardTitle>
-                  <p className="text-sm text-muted-foreground line-clamp-1">
+                  <p className="text-sm text-[#a0a0a0] line-clamp-1">
                     {v.authors?.join(", ") || "Autor desconocido"}
                   </p>
                 </CardHeader>
                 <CardContent className="flex gap-3">
-                  <div className="relative w-20 h-28 bg-muted rounded-md overflow-hidden shrink-0">
+                  <div className="relative w-20 h-28 bg-[#f0f4f7] rounded-md overflow-hidden shrink-0">
                     {img && (
                       <Image src={img} alt={v.title || "cover"} fill className="object-cover" />
                     )}

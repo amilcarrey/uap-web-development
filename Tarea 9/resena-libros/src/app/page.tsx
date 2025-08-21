@@ -28,12 +28,11 @@ export default function HomePage() {
         />
         <Button onClick={go}>Buscar</Button>
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-[#a0a0a0]">
         Ejemplos: <button onClick={() => setQ("harry potter")} className="underline">harry potter</button> ·
         <button onClick={() => setQ("inauthor:rowling")} className="underline ml-1">inauthor:rowling</button> ·
         <button onClick={() => setQ("isbn:9780439708180")} className="underline ml-1">isbn:9780439708180</button>
       </p>
-      <Link href="/about" className="text-sm underline">Sobre el proyecto</Link>
     </section>
   );
 }

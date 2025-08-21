@@ -21,7 +21,7 @@ export function StarRating({
           onClick={() => onChange?.(n as 1|2|3|4|5)}
         >
           <svg viewBox="0 0 24 24" width={size} height={size}
-               className={n <= curr ? "fill-yellow-400" : "fill-muted stroke-muted-foreground"}>
+               className={n <= curr ? "fill-yellow-400" : "fill-[#f0f4f7] stroke-[#a0a0a0]"}>
             <path d="M12 .6 15.7 8l8.2 1.2-5.9 5.8 1.4 8.2L12 18.9 4.7 23.2l1.4-8.2L.1 9.2 8.3 8 12 .6z"/>
           </svg>
         </button>

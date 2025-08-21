@@ -49,7 +49,7 @@ export default function ReviewSection({ bookId }: { bookId: string }) {
         <div className="flex items-center gap-3 mb-3">
           <span className="text-sm">Tu calificación:</span>
           <StarRating value={stars} onChange={setStars} />
-          <span className="text-sm text-muted-foreground">{stars}/5</span>
+          <span className="text-sm text-[#2c2c2c]">{stars}/5</span>
         </div>
         <div className="flex gap-2">
           <Input
@@ -65,7 +65,7 @@ export default function ReviewSection({ bookId }: { bookId: string }) {
       <div className="flex items-center gap-3">
         <span className="font-medium">Promedio comunidad:</span>
         <StarRating value={Math.round(avg) as 1|2|3|4|5} />
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-[#2c2c2c]">
           {avg ? avg.toFixed(1) : "—"} ({list.length} reseñas)
         </span>
       </div>
@@ -73,7 +73,7 @@ export default function ReviewSection({ bookId }: { bookId: string }) {
       {/* Lista */}
       <div className="space-y-3">
         {list.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Sé la primera persona en opinar.</p>
+          <p className="text-sm text-[#2c2c2c]">Sé la primera persona en opinar.</p>
         ) : (
           list
             .sort((a,b) => b.votes - a.votes || b.createdAt - a.createdAt)
@@ -82,7 +82,7 @@ export default function ReviewSection({ bookId }: { bookId: string }) {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <StarRating value={r.stars} />
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-[#2c2c2c]">
                       {new Date(r.createdAt).toLocaleString()}
                     </span>
                   </div>
@@ -90,7 +90,7 @@ export default function ReviewSection({ bookId }: { bookId: string }) {
                   <div className="mt-3 flex items-center gap-2">
                     <Button size="sm" variant="secondary" onClick={() => vote(r.id, 1)}>👍</Button>
                     <Button size="sm" variant="secondary" onClick={() => vote(r.id, -1)}>👎</Button>
-                    <span className="text-sm text-muted-foreground">Puntaje: {r.votes}</span>
+                    <span className="text-sm text-[#2c2c2c]">Puntaje: {r.votes}</span>
                   </div>
                 </CardContent>
               </Card>

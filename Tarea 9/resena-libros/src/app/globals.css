@@ -5,30 +5,30 @@
   --foreground: #333333; /* Un gris oscuro para el texto */
 
   /* Colores pastel */
-  --muted: #0091ff;
-  --muted-foreground: #ff0000;
+  --muted: #f0f4f7;
+  --muted-foreground: #a0a0a0;
   
-  --card: #ffbb00;
-  --card-foreground: #00c3ff;
+  --card: #fdf6e3;
+  --card-foreground: #586e75;
 
-  --popover: #ffbb00;
-  --popover-foreground: #00c3ff;
+  --popover: #fdf6e3;
+  --popover-foreground: #586e75;
 
-  --primary: #00ddff;
-  --primary-foreground: #00a6ff;
+  --primary: #c2d5d8;
+  --primary-foreground: #1c2b33;
 
-  --secondary: #ff0000;
-  --secondary-foreground: #ff0000;
+  --secondary: #e6e6e6;
+  --secondary-foreground: #4a4a4a;
 
-  --accent: #ff0000;
-  --accent-foreground: #ff0000;
+  --accent: #d3d3d3;
+  --accent-foreground: #4a4a4a;
 
-  --destructive: #ee0000;
-  --destructive-foreground: #ff0000;
+  --destructive: #ffb6c1;
+  --destructive-foreground: #8b0000;
 
-  --border: #ff0000;
-  --input: #ff0000;
-  --ring: #00ddff;
+  --border: #e0e0e0;
+  --input: #f0f0f0;
+  --ring: #b3cdd1;
   
   /* Otros colores */
   --radius: 0.5rem;

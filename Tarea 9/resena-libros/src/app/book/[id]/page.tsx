@@ -7,11 +7,11 @@ export default async function BookPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;           //await params
+  const { id } = await params;
   const book = await getBook(id);
 
   const v = book.volumeInfo ?? {};
-  const raw = v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || "";
+  const raw = v.imageLinks?.large || v.imageLinks?.medium || v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || "";
   const img = raw.replace(/^http:\/\//, "https://");
 
   return (
