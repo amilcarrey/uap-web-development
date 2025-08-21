@@ -51,11 +51,18 @@ export class BookReviewUtils {
    */
   static getBookCoverUrl(book: any): string {
     const imageLinks = book.volumeInfo?.imageLinks;
-    return imageLinks?.extraLarge || 
-           imageLinks?.large || 
-           imageLinks?.medium || 
-           imageLinks?.thumbnail || 
-           "";
+    
+    if (!imageLinks) return "";
+    
+    // Priorizar imágenes de mayor calidad y convertir a HTTPS
+    const imageUrl = imageLinks.extraLarge || 
+                     imageLinks.large || 
+                     imageLinks.medium || 
+                     imageLinks.thumbnail || 
+                     "";
+    
+    // Convertir HTTP a HTTPS para evitar problemas de mixed content
+    return imageUrl.replace('http://', 'https://');
   }
 
   /*
