@@ -14,39 +14,38 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
   const params = await searchParams;
   const results = await getData(params?.q);
   const hasResults = params?.q && results.length > 0;
-  // Si hay una búsqueda activa, mantener la vista en 'search'
   const currentView = params?.q ? 'search' : (params?.view || 'menu');
 
   return (
-    <div className="min-h-screen bg-amber-50">
+    <div className="min-h-screen bg-stone-50">
       {/* Header */}
-      <header className={`bg-amber-900 text-white transition-all duration-500 ${hasResults ? 'py-4' : 'py-16'}`}>
+      <header className={`bg-green-800 text-white transition-all duration-500 ${hasResults ? 'py-4' : 'py-16'}`}>
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-8">Books & Reviews</h1>
+          <h1 className="text-4xl font-light mb-8 tracking-wide">Libros y Review</h1>
           
           {/* Navigation */}
-          <nav className="flex justify-center gap-4 mb-8">
+          <nav className="flex justify-center gap-6 mb-8">
             <a 
               href="/" 
-              className={`px-4 py-2 rounded-lg transition-colors ${currentView === 'menu' ? 'bg-amber-700 text-white' : 'text-amber-200 hover:text-white'}`}
+              className={`px-6 py-2 rounded-full transition-all duration-300 font-light ${currentView === 'menu' ? 'bg-green-700 text-white shadow-lg' : 'text-green-100 hover:text-white hover:bg-green-700/50'}`}
             >
               Inicio
             </a>
             <a 
               href="/?view=search" 
-              className={`px-4 py-2 rounded-lg transition-colors ${currentView === 'search' ? 'bg-amber-700 text-white' : 'text-amber-200 hover:text-white'}`}
+              className={`px-6 py-2 rounded-full transition-all duration-300 font-light ${currentView === 'search' ? 'bg-green-700 text-white shadow-lg' : 'text-green-100 hover:text-white hover:bg-green-700/50'}`}
             >
               Buscar
             </a>
             <a 
               href="/?view=reviews" 
-              className={`px-4 py-2 rounded-lg transition-colors ${currentView === 'reviews' ? 'bg-amber-700 text-white' : 'text-amber-200 hover:text-white'}`}
+              className={`px-6 py-2 rounded-full transition-all duration-300 font-light ${currentView === 'reviews' ? 'bg-green-700 text-white shadow-lg' : 'text-green-100 hover:text-white hover:bg-green-700/50'}`}
             >
               Mis Reseñas
             </a>
           </nav>
           
-          {/* Search Form - Only show when in search view */}
+          {/* Search Form */}
           {currentView === 'search' && (
             <form action="/?view=search" className="max-w-2xl mx-auto">
               <input
@@ -54,7 +53,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
                 name="q"
                 defaultValue={params?.q || ''}
                 placeholder="Busca por título, autor o ISBN..."
-                className="w-full px-6 py-4 rounded-lg text-white text-lg bg-amber-800/30 border-2 border-amber-200 placeholder-amber-200/70 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-200"
+                className="w-full px-6 py-4 rounded-full text-green-800 text-lg bg-white/90 border-2 border-green-600 placeholder-green-600/70 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 shadow-lg"
               />
             </form>
           )}
@@ -68,12 +67,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
         {currentView === 'search' && (
           <>
             {!params?.q ? (
-              <div className="text-center text-amber-800">
-                <p className="text-xl">Ingresa un término de búsqueda para comenzar</p>
+              <div className="text-center text-green-700">
+                <p className="text-xl font-light">Ingresa un término de búsqueda para comenzar</p>
               </div>
             ) : results.length === 0 ? (
-              <div className="text-center text-amber-800">
-                <p className="text-xl">No se encontraron resultados :(</p>
+              <div className="text-center text-green-700">
+                <p className="text-xl font-light">No se encontraron resultados</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

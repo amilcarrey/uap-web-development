@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Books & Reviews",
-  description: "Plataforma simple para buscar libros y compartir reseñas",
+  title: "Libros y review",
+  description: "Busqueda y reseñas de libros",
 };
 
 export default function RootLayout({
