@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1755715418124",
+    "idLibro": "93hVEAAAQBAJ",
+    "usuario": "Usuario de ejemplo",
+    "valoracion": 1,
+    "comentario": "que onda",
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1755715441545",
+    "idLibro": "HtpAAQAAMAAJ",
+    "usuario": "Usuario de ejemplo",
+    "valoracion": 2,
+    "comentario": "qeiee",
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1755741470056",
+    "idLibro": "sim2EAAAQBAJ",
+    "usuario": "Usuario de ejemplo",
+    "valoracion": 1,
+    "comentario": "hola\n",
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1755743158674",
+    "idLibro": "sim2EAAAQBAJ",
+    "usuario": "justin",
+    "valoracion": 2,
+    "comentario": "holax2",
+    "likes": 0,
+    "dislikes": 0
+  }
+]
