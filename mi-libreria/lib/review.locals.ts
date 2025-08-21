@@ -1,5 +1,8 @@
+// --- Funciones y tipos para manejar reseñas locales de libros ---
+// Este archivo se encarga de guardar, leer y votar reseñas usando localStorage
 import { z } from 'zod';
 
+// Defino el esquema de una reseña usando Zod para validación
 export const ReviewSchema = z.object({
   id: z.string(),
   rating: z.number().min(1).max(5),
@@ -10,9 +13,11 @@ export const ReviewSchema = z.object({
 });
 export type Review = z.infer<typeof ReviewSchema>;
 
+// Claves para guardar reseñas y votos en localStorage
 const KEY = (volumeId: string) => `reviews:${volumeId}`;
 const VOTEKEY = (reviewId: string) => `vote:${reviewId}`;
 
+// Obtiene todas las reseñas de un libro desde localStorage
 export function getReviews(volumeId: string): Review[] {
   if (typeof window === 'undefined') return [];
   const raw = localStorage.getItem(KEY(volumeId));
@@ -25,11 +30,13 @@ export function getReviews(volumeId: string): Review[] {
   }
 }
 
+// Guarda el array de reseñas en localStorage
 export function saveReviews(volumeId: string, reviews: Review[]) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(KEY(volumeId), JSON.stringify(reviews));
 }
 
+// Crea una nueva reseña y la guarda en localStorage
 export function createReview(volumeId: string, data: { rating: number; content: string }) {
   const all = getReviews(volumeId);
   const r: Review = {
@@ -45,6 +52,7 @@ export function createReview(volumeId: string, data: { rating: number; content: 
   return r;
 }
 
+// Vota una reseña (up/down) y guarda el voto en localStorage
 export function voteReview(volumeId: string, reviewId: string, delta: 1 | -1) {
   const all = getReviews(volumeId);
   const idx = all.findIndex((r) => r.id === reviewId);

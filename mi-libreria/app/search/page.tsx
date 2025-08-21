@@ -1,3 +1,5 @@
+// --- Página de búsqueda de libros ---
+// Permite buscar libros y ver resultados usando la API de Google Books
 'use client';
 
 import SearchBar from '@/components/SearchBar';
@@ -5,12 +7,14 @@ import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+// Componente que muestra los resultados de la búsqueda
 function BookResults() {
   const params = useSearchParams();
   const q = params.get('q');
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Cuando cambia la query, hago la búsqueda llamando al endpoint interno
   useEffect(() => {
     if (!q) return setBooks([]);
     setLoading(true);
@@ -22,10 +26,12 @@ function BookResults() {
       });
   }, [q]);
 
+  // Distintos estados: sin query, cargando, sin resultados, o lista de libros
   if (!q) return null;
   if (loading) return <div className="mt-8 text-center text-gray-600 animate-pulse">Buscando libros...</div>;
   if (!books.length) return <div className="mt-8 text-center text-gray-900">No se encontraron resultados.</div>;
 
+  // Renderizo la grilla de libros encontrados
   return (
     <ul className="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
       {books.map((b: any) => (
@@ -65,6 +71,7 @@ function BookResults() {
   );
 }
 
+// Componente principal de la página de búsqueda
 export default function SearchPage() {
   return (
     <section className="max-w-5xl mx-auto py-10 px-4 rounded-3xl bg-white/60 border border-violet-100 shadow-[0_20px_80px_-20px_rgba(139,77,255,.25)] backdrop-blur-xl">
