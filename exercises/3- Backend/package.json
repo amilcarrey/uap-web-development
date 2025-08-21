@@ -1,0 +1,14 @@
+{
+  "name": "mi-proyecto",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "start": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.2.2",
+    "@vitejs/plugin-vue": "^5.2.3",
+    "astro": "^5.8.1"
+  }
+}
