@@ -16,12 +16,6 @@
  * 
  * PROPS RECIBIDAS:
  * - bookId: ID único del libro para filtrar reseñas
- * 
- * TECNOLOGÍAS USADAS:
- * - React con hooks (useState, useEffect)
- * - TypeScript (tipado estricto)
- * - Fetch API (comunicación con backend)
- * - Tailwind CSS (estilos y responsive design)
  */
 
 "use client"; // Este componente se ejecuta en el navegador

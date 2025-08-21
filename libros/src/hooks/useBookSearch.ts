@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * Hook personalizado para manejar la búsqueda de libros
  * 
  * Este hook encapsula toda la lógica relacionada con:
  * - Estado de búsqueda (término, resultados, loading, errores)
+ * - Persistencia del estado en sessionStorage
  * - Detección automática del tipo de búsqueda (ISBN, autor, título)
  * - Formateo de queries para la API de Google Books
  * - Manejo de errores y estados de carga
@@ -12,11 +13,70 @@ import { useState } from 'react';
  * @returns {Object} Objeto con estados y funciones para la búsqueda
  */
 const useBookSearch = () => {
-  // Estados del hook
-  const [searchTerm, setSearchTerm] = useState(''); // Término de búsqueda ingresado por el usuario
-  const [books, setBooks] = useState([]); // Array de libros encontrados
-  const [isLoading, setIsLoading] = useState(false); // Indica si está realizando una búsqueda
-  const [error, setError] = useState<string | null>(null); // Mensaje de error si algo sale mal
+  // Claves para sessionStorage
+  const STORAGE_KEYS = {
+    searchTerm: 'book-search-term',
+    books: 'book-search-results',
+    error: 'book-search-error'
+  };
+
+  // Estados del hook con valores iniciales desde sessionStorage
+  const [searchTerm, setSearchTerm] = useState('');
+  const [books, setBooks] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Efecto para cargar el estado desde sessionStorage al montar el componente
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedSearchTerm = sessionStorage.getItem(STORAGE_KEYS.searchTerm);
+      const savedBooks = sessionStorage.getItem(STORAGE_KEYS.books);
+      const savedError = sessionStorage.getItem(STORAGE_KEYS.error);
+
+      if (savedSearchTerm) {
+        setSearchTerm(savedSearchTerm);
+      }
+      if (savedBooks) {
+        try {
+          setBooks(JSON.parse(savedBooks));
+        } catch (e) {
+          console.error('Error parsing saved books:', e);
+        }
+      }
+      if (savedError) {
+        setError(savedError);
+      }
+    }
+  }, []);
+
+  // Función para guardar en sessionStorage
+  const saveToStorage = (key: string, value: any) => {
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+      } catch (e) {
+        console.error('Error saving to sessionStorage:', e);
+      }
+    }
+  };
+
+  // Función personalizada para actualizar searchTerm y guardarlo
+  const updateSearchTerm = (term: string) => {
+    setSearchTerm(term);
+    saveToStorage(STORAGE_KEYS.searchTerm, term);
+  };
+
+  // Función para limpiar todos los datos de búsqueda
+  const clearSearch = () => {
+    setSearchTerm('');
+    setBooks([]);
+    setError(null);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(STORAGE_KEYS.searchTerm);
+      sessionStorage.removeItem(STORAGE_KEYS.books);
+      sessionStorage.removeItem(STORAGE_KEYS.error);
+    }
+  };
 
   /**
    * Función principal que ejecuta la búsqueda de libros
@@ -27,6 +87,7 @@ const useBookSearch = () => {
    * 3. Formatea el query apropiadamente para Google Books API
    * 4. Realiza la petición HTTP
    * 5. Procesa los resultados y maneja errores
+   * 6. Guarda los resultados en sessionStorage
    */
   const searchBooks = async () => {
     // No buscar si el campo está vacío
@@ -34,6 +95,7 @@ const useBookSearch = () => {
 
     setIsLoading(true); // Activar estado de carga
     setError(null); // Limpiar errores previos
+    saveToStorage(STORAGE_KEYS.error, ''); // Limpiar error guardado
 
     try {
       // Detectar si es un ISBN (solo números, con o sin guiones)
@@ -67,14 +129,24 @@ const useBookSearch = () => {
       
       // Verificar si se encontraron resultados
       if (data.totalItems === 0) {
-        setError('No se encontraron libros con ese término de búsqueda.');
+        const errorMsg = 'No se encontraron libros con ese término de búsqueda.';
+        setError(errorMsg);
+        saveToStorage(STORAGE_KEYS.error, errorMsg);
+        setBooks([]);
+        saveToStorage(STORAGE_KEYS.books, []);
+      } else {
+        // Guardar resultados (data.items puede ser undefined si no hay resultados)
+        const results = data.items || [];
+        setBooks(results);
+        saveToStorage(STORAGE_KEYS.books, results);
+        setError(null);
+        saveToStorage(STORAGE_KEYS.error, '');
       }
-      
-      // Guardar resultados (data.items puede ser undefined si no hay resultados)
-      setBooks(data.items || []);
     } catch (err) {
       // Manejar errores de red o de la API
-      setError('Error al buscar libros. Inténtalo de nuevo.');
+      const errorMsg = 'Error al buscar libros. Inténtalo de nuevo.';
+      setError(errorMsg);
+      saveToStorage(STORAGE_KEYS.error, errorMsg);
     } finally {
       // Siempre desactivar el estado de carga, sin importar si hubo error o éxito
       setIsLoading(false);
@@ -83,12 +155,13 @@ const useBookSearch = () => {
 
   // Retornar todo lo que los componentes necesitan para usar este hook
   return {
-    searchTerm,      // Término actual de búsqueda
-    setSearchTerm,   // Función para actualizar el término
-    books,           // Array de libros encontrados
-    isLoading,       // Estado de carga
-    error,           // Mensaje de error (si existe)
-    searchBooks,     // Función para ejecutar la búsqueda
+    searchTerm,           // Término actual de búsqueda
+    setSearchTerm: updateSearchTerm, // Función para actualizar el término (con persistencia)
+    books,                // Array de libros encontrados
+    isLoading,            // Estado de carga
+    error,                // Mensaje de error (si existe)
+    searchBooks,          // Función para ejecutar la búsqueda
+    clearSearch,          // Función para limpiar la búsqueda
   };
 };
 

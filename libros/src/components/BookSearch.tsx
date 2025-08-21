@@ -11,11 +11,6 @@
  * - Muestra estados de carga y error
  * - Muestra resultados en una lista de libros
  * 
- * TECNOLOGÍAS USADAS:
- * - React con hooks (useState, custom hook)
- * - Next.js (navegación)
- * - Tailwind CSS (estilos)
- * - API de Google Books (datos)
  */
 
 "use client"; // Directiva de Next.js: este componente se ejecuta en el navegador (cliente)
@@ -41,7 +36,8 @@ const BookSearch: React.FC = () => {
     books,         // Array de libros encontrados
     isLoading,     // Boolean: ¿está buscando libros?
     error,         // String: mensaje de error (null si no hay error)
-    searchBooks    // Función que ejecuta la búsqueda
+    searchBooks,   // Función que ejecuta la búsqueda
+    clearSearch    // Función para limpiar la búsqueda
   } = useBookSearch();
 
   /**
@@ -75,13 +71,27 @@ const BookSearch: React.FC = () => {
           className="w-full p-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         
-        {/* BOTÓN DE BÚSQUEDA */}
-        <button
-          type="submit" // Al hacer clic, envía el formulario
-          className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          Buscar
-        </button>
+        {/* BOTONES DE ACCIÓN */}
+        <div className="flex gap-2">
+          {/* BOTÓN DE BÚSQUEDA */}
+          <button
+            type="submit" // Al hacer clic, envía el formulario
+            className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Buscar
+          </button>
+          
+          {/* BOTÓN PARA LIMPIAR - Solo mostrar si hay resultados */}
+          {(books.length > 0 || searchTerm.length > 0) && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            >
+              Limpiar
+            </button>
+          )}
+        </div>
       </form>
 
       {/* ESTADOS DE LA BÚSQUEDA */}

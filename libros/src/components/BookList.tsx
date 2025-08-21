@@ -14,17 +14,12 @@
  * 
  * PROPS RECIBIDAS:
  * - books: Array de objetos libro con información de Google Books API
- * 
- * TECNOLOGÍAS USADAS:
- * - React con TypeScript (tipado estricto)
- * - Next.js Router (navegación)
- * - Tailwind CSS (estilos y responsive design)
  */
 
 "use client"; // Este componente se ejecuta en el navegador
 
 import React from 'react';
-import { useRouter } from 'next/navigation'; // Hook de Next.js para navegación programática
+import { useRouter } from 'next/navigation'; 
 
 // DEFINICIÓN DE TIPOS
 // Estas interfaces definen la estructura de datos que esperamos recibir de Google Books API
@@ -37,7 +32,7 @@ interface Book {
   id: string; // ID único del libro en Google Books
   volumeInfo: {
     title: string; // Título del libro
-    authors?: string[]; // Array de autores (opcional, por eso el ?)
+    authors?: string[]; // Array de autores (opcional)
     publishedDate?: string; // Fecha de publicación (formato: YYYY-MM-DD)
     description?: string; // Descripción/sinopsis del libro
     imageLinks?: {
@@ -74,7 +69,7 @@ const BookList: React.FC<BookListProps> = ({ books }) => {
    * @param {string} bookId - ID único del libro
    */
   const handleBookClick = (bookId: string) => {
-    router.push(`/book/${bookId}`); // Navega a /book/[id] donde [id] es el ID del libro
+    router.push(`/book/${bookId}`);
   };
 
   // CASO: No hay libros para mostrar
@@ -95,7 +90,7 @@ const BookList: React.FC<BookListProps> = ({ books }) => {
         Resultados de búsqueda ({books.length} {books.length === 1 ? 'libro' : 'libros'})
       </h2>
       
-      {/* GRID RESPONSIVO DE LIBROS */}
+      {/* GRID DE LIBROS */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {books.map((book) => (
           <div

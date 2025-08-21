@@ -9,20 +9,20 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model Book {
   id          String @id // ID del libro desde Google Books API
   title       String
-  authors     String[] // Array de autores
+  authors     String   // Array de autores separados por comas
   publisher   String?
   publishedDate String?
   description String?
   imageUrl    String?
   pageCount   Int?
-  categories  String[]
+  categories  String   // Categorías separadas por comas
   language    String?
   previewLink String?
   infoLink    String?
@@ -39,7 +39,7 @@ model Review {
   id         String   @id @default(cuid())
   bookId     String   // ID del libro desde Google Books API
   userName   String
-  rating     Int      @db.SmallInt // 1-5 estrellas
+  rating     Int      // 1-5 estrellas
   reviewText String
   upvotes    Int      @default(0)
   downvotes  Int      @default(0)

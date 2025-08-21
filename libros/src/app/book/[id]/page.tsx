@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import ReviewForm from '../../../components/ReviewForm';
 import ReviewList from '../../../components/ReviewList';
 
@@ -31,10 +31,19 @@ interface Book {
 
 const BookDetailPage: React.FC = () => {
   const params = useParams();
+  const router = useRouter();
   const bookId = params.id as string;
+  
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Función simple para volver a la página anterior
+   */
+  const handleGoBack = () => {
+    router.back();
+  };
 
   useEffect(() => {
     const fetchBookDetails = async () => {
@@ -80,7 +89,7 @@ const BookDetailPage: React.FC = () => {
         <div className="text-center">
           <p className="text-red-500 text-lg">{error || 'Libro no encontrado'}</p>
           <button 
-            onClick={() => window.history.back()}
+            onClick={handleGoBack}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Volver
@@ -98,7 +107,7 @@ const BookDetailPage: React.FC = () => {
       <div className="bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <button 
-            onClick={() => window.history.back()}
+            onClick={handleGoBack}
             className="flex items-center text-blue-600 hover:text-blue-800"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

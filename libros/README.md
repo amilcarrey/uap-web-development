@@ -16,7 +16,7 @@ Esta es una aplicación web completa para descubrir y reseñar libros. Los usuar
 
 ### **Backend**
 - **Next.js API Routes** - APIs REST integradas
-- **PostgreSQL** - Base de datos relacional
+- **SQLite** - Base de datos local (archivo)
 - **Prisma** - ORM (Object-Relational Mapping) para manejar la base de datos
 
 ### **APIs Externas**
@@ -53,13 +53,13 @@ La aplicación usa **3 tablas principales**:
 Almacena información de los libros obtenida de Google Books API:
 - `id` - ID único del libro (viene de Google Books)
 - `title` - Título del libro
-- `authors` - Array de autores
+- `authors` - Autores (string separado por comas)
 - `publisher` - Editorial
 - `publishedDate` - Fecha de publicación
 - `description` - Descripción del libro
 - `imageUrl` - URL de la portada
 - `pageCount` - Número de páginas
-- `categories` - Categorías del libro
+- `categories` - Categorías del libro (string separado por comas)
 
 #### **2. Reviews (Reseñas)**
 Almacena las reseñas escritas por usuarios:
@@ -94,7 +94,7 @@ Usuario hace clic en libro → Navegación a /book/[id] → API Google Books (de
 
 ### **3. Escribir Reseña**
 ```
-Usuario completa formulario → POST /api/reviews → Guardar en PostgreSQL → Actualizar lista
+Usuario completa formulario → POST /api/reviews → Guardar en SQLite → Actualizar lista
 ```
 
 ### **4. Votar Reseña**
@@ -168,7 +168,7 @@ Usuario vota → POST /api/reviews/vote → Verificar voto único → Actualizar
 
 #### **`lib/prisma.ts`**
 - Configura cliente de Prisma
-- Maneja conexión a PostgreSQL
+- Maneja conexión a SQLite
 - Previene múltiples instancias en desarrollo
 
 ---
@@ -177,8 +177,7 @@ Usuario vota → POST /api/reviews/vote → Verificar voto único → Actualizar
 
 ### **Requisitos Previos**
 - Node.js instalado
-- PostgreSQL ejecutándose
-- Credenciales de base de datos
+- No requiere instalación adicional de base de datos (SQLite incluido)
 
 ### **Pasos de Instalación**
 
@@ -188,9 +187,9 @@ Usuario vota → POST /api/reviews/vote → Verificar voto único → Actualizar
    ```
 
 2. **Configurar base de datos**:
-   - Crear archivo `.env` con:
+   - Crear archivo `.env` (copiar desde `.env.example`):
    ```
-   DATABASE_URL="postgresql://postgres:tu_password@localhost:5432/libros_db?schema=public"
+   DATABASE_URL="file:./dev.db"
    ```
 
 3. **Ejecutar migraciones**:
@@ -228,7 +227,7 @@ Usuario vota → POST /api/reviews/vote → Verificar voto único → Actualizar
 - Formulario con validación
 - Calificación por estrellas (1-5)
 - Campo de texto para opinión detallada
-- Persistencia en base de datos PostgreSQL
+- Persistencia en base de datos SQLite
 
 ### ✅ **Votación Comunitaria**
 - Votos positivos y negativos en reseñas
@@ -236,22 +235,4 @@ Usuario vota → POST /api/reviews/vote → Verificar voto único → Actualizar
 - Cálculo automático de utilidad
 - Ordenamiento por votos
 
-### ✅ **Interfaz de Usuario**
-- Diseño responsive con Tailwind CSS
-- Estados de carga y error
-- Transiciones y animaciones suaves
-- Experiencia de usuario intuitiva
 
----
-
-## 🔧 **Posibles Mejoras Futuras**
-
-- **Autenticación de usuarios** con cuentas reales
-- **Sistema de favoritos** para guardar libros
-- **Recomendaciones personalizadas** basadas en reseñas
-- **Búsqueda avanzada** con filtros por género, año, etc.
-- **Sistema de comentarios** en las reseñas
-- **Notificaciones** cuando alguien vota tu reseña
-- **API propia** para compartir reseñas entre aplicaciones
-
----

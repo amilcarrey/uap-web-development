@@ -18,12 +18,6 @@
  * - bookId: ID único del libro para asociar la reseña
  * - bookData: Información del libro para guardar en base de datos
  * - onReviewAdded: Callback para actualizar lista de reseñas
- * 
- * TECNOLOGÍAS USADAS:
- * - React con hooks (useState para estado local)
- * - TypeScript (tipado estricto)
- * - Fetch API (comunicación con backend)
- * - Tailwind CSS (estilos y responsive design)
  */
 
 "use client"; // Este componente se ejecuta en el navegador
