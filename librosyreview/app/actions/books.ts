@@ -30,10 +30,17 @@ export function mapVolumeToSimple(volume: any): SimpleBook {
 
   const info = volume.volumeInfo || {};
   const imageLinks = info.imageLinks || {};
+  
+  // Asegurar que authors sea siempre un array
+  let authors = info.authors || [];
+  if (!Array.isArray(authors)) {
+    authors = [];
+  }
+  
   return {
     id: volume.id,
     title: info.title || 'Título desconocido',
-    authors: info.authors || [],  // Preservar valor original, no forzar array
+    authors: authors,
     thumbnail: imageLinks.thumbnail || imageLinks.smallThumbnail || undefined,
   };
 }
@@ -57,12 +64,19 @@ export function mapVolumeToDetailed(volume: any): DetailedBook {
 
   const simple = mapVolumeToSimple(volume);
   const info = volume.volumeInfo || {};
+  
+  // Asegurar que categories sea siempre un array
+  let categories = info.categories || [];
+  if (!Array.isArray(categories)) {
+    categories = [];
+  }
+  
   return {
     ...simple,
     description: info.description,
     publishedDate: info.publishedDate,
-    pageCount: info.pageCount,  // Preservar valor original
-    categories: info.categories || [],  // Preservar valor original, no forzar array
+    pageCount: info.pageCount,
+    categories: categories,
     publisher: info.publisher,
     language: info.language,
   };
@@ -107,10 +121,15 @@ export async function getBookById(id: string): Promise<DetailedBook | null> {
       return null;
     }
     
-    // Para respuestas null, mapVolumeToDetailed las maneja correctamente
+    // Verificar si la respuesta es null o no tiene datos válidos
+    if (!data || !data.id) {
+      return null;
+    }
+    
     return mapVolumeToDetailed(data);
   } catch (error) {
-    // Propagar todos los errores de red (fetch failures)
-    throw error;
+    // Manejar errores de red devolviendo null en lugar de propagar
+    console.error('Error fetching book:', error);
+    return null;
   }
 }

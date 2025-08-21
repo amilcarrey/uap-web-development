@@ -29,12 +29,14 @@ export default function BookModal() {
       const bookId = customEvent.detail;
       setLoading(true);
       setIsOpen(true);
+      setBook(null); // ✅ RESETEAR el estado del libro al abrir modal
       
       try {
         const bookData = await getBookById(bookId);
         setBook(bookData);
       } catch (error) {
         console.error('Error loading book:', error);
+        setBook(null); // ✅ ASEGURAR que book sea null en caso de error
       } finally {
         setLoading(false);
       }
