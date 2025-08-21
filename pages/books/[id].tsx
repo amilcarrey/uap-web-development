@@ -1,3 +1,4 @@
+// pages/books/[id].tsx
 import { GetServerSideProps } from "next";
 import { useEffect, useState } from "react";
 import { getBookById } from "../../utils/googleBooks";
@@ -12,6 +13,7 @@ interface Review {
   text: string;
   upvotes: number;
   downvotes: number;
+  userVote?: "like" | "dislike" | null; // Para votos únicos
 }
 
 interface Props {
@@ -52,6 +54,7 @@ const BookPage: React.FC<Props> = ({ book }) => {
       text,
       upvotes: 0,
       downvotes: 0,
+      userVote: null, // Inicialmente sin votar
     };
     saveReviews([newReview, ...reviews]);
     setUser("");
@@ -59,31 +62,48 @@ const BookPage: React.FC<Props> = ({ book }) => {
     setText("");
   };
 
-  // Votar reseña
-  const voteReview = (id: string, type: "up" | "down") => {
-    const newReviews = reviews.map((r) =>
-      r.id === id
-        ? {
-            ...r,
-            upvotes: type === "up" ? r.upvotes + 1 : r.upvotes,
-            downvotes: type === "down" ? r.downvotes + 1 : r.downvotes,
-          }
-        : r
-    );
+  // Lógica de voto único: un usuario solo puede dar like o dislike, no ambos
+  const voteReview = (id: string, type: "like" | "dislike") => {
+    const newReviews = reviews.map((r) => {
+      if (r.id !== id) return r;
+
+      // Si ya votó del mismo tipo, no hace nada
+      if (r.userVote === type) return r;
+
+      let newUpvotes = r.upvotes;
+      let newDownvotes = r.downvotes;
+
+      // Si cambia de voto, resta del otro contador
+      if (r.userVote === "like" && type === "dislike") newUpvotes -= 1;
+      if (r.userVote === "dislike" && type === "like") newDownvotes -= 1;
+
+      // Suma el voto actual
+      if (type === "like") newUpvotes += 1;
+      if (type === "dislike") newDownvotes += 1;
+
+      return {
+        ...r,
+        upvotes: newUpvotes,
+        downvotes: newDownvotes,
+        userVote: type,
+      };
+    });
     saveReviews(newReviews);
   };
 
-  if (!book) return <p>Libro no encontrado</p>;
+  if (!book) return <Layout><p>Libro no encontrado</p></Layout>;
 
   return (
     <Layout>
-      {/*boton d volver atras*/}
+      {/* Botón de volver atrás */}
       <button 
         onClick={() => router.back()}
         className="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm"
       >
         ← Volver atrás
       </button>
+
+      {/* Información del libro */}
       <div className="flex flex-col md:flex-row gap-8 bg-white p-6 rounded-lg shadow">
         <img
           src={book.image}
@@ -140,7 +160,7 @@ const BookPage: React.FC<Props> = ({ book }) => {
         </form>
       </div>
 
-      {/* Lista de reseñas */}
+      {/* Lista de reseñas con votos únicos */}
       <div className="mt-8">
         <h2 className="text-lg font-semibold mb-4">Reseñas de la comunidad</h2>
         {reviews.length === 0 ? (
@@ -157,15 +177,24 @@ const BookPage: React.FC<Props> = ({ book }) => {
                 </div>
                 <p className="mb-2">{r.text}</p>
                 <div className="flex items-center gap-4 text-sm">
+                  {/* Botones de like/dislike integrados con voto único */}
                   <button
-                    className="px-2 py-1 bg-green-100 rounded hover:bg-green-200"
-                    onClick={() => voteReview(r.id, "up")}
+                    className={`px-2 py-1 rounded ${
+                      r.userVote === "like"
+                        ? "bg-blue-600 text-white"
+                        : "bg-green-100 hover:bg-green-200"
+                    }`}
+                    onClick={() => voteReview(r.id, "like")}
                   >
                     👍 {r.upvotes}
                   </button>
                   <button
-                    className="px-2 py-1 bg-red-100 rounded hover:bg-red-200"
-                    onClick={() => voteReview(r.id, "down")}
+                    className={`px-2 py-1 rounded ${
+                      r.userVote === "dislike"
+                        ? "bg-red-600 text-white"
+                        : "bg-red-100 hover:bg-red-200"
+                    }`}
+                    onClick={() => voteReview(r.id, "dislike")}
                   >
                     👎 {r.downvotes}
                   </button>
@@ -179,6 +208,7 @@ const BookPage: React.FC<Props> = ({ book }) => {
   );
 };
 
+// Fetch del libro desde la API de Google Books
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { id } = context.params!;
   const book = await getBookById(id as string);
