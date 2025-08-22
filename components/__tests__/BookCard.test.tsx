@@ -1,3 +1,4 @@
+//components/__tests__/BookCard.test.tsx
 import { render, screen } from "@testing-library/react";
 import BookCard from "../BookCard";
 import { describe, it, expect } from "vitest";
@@ -31,4 +32,18 @@ describe("BookCard", () => {
     const link = screen.getByRole("link", { name: /ver detalles/i });
     expect(link).toHaveAttribute("href", "/books/123");
   });
+
+ // test edge case: fallback de imagen
+    it("usa la imagen por defecto si no hay portada", () => {
+    const mockBookSinImagen = {
+        ...mockBook,
+        image: "/no-image.png", // así como lo arma googleBooks.ts
+    };
+
+    render(<BookCard book={mockBookSinImagen} />);
+
+    const img = screen.getByAltText("Harry Potter");
+    expect(img).toHaveAttribute("src", "/no-image.png");
+    });
+
 });

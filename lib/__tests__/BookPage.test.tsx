@@ -12,7 +12,6 @@ vi.mock("next/router", () => ({
   }),
 }));
 
-
 // Datos de prueba del libro
 const mockBook: Book = {
   id: "123",
@@ -29,6 +28,14 @@ describe("BookPage reseñas", () => {
   beforeEach(() => {
     // Limpiar localStorage antes de cada test
     localStorage.clear();
+  });
+
+  it("muestra mensaje si no hay reseñas", () => {
+    render(<BookPage book={mockBook} />);
+    // Coincide con el texto real en el componente
+    expect(
+      screen.getByText(/sé el primero en reseñar este libro/i)
+    ).toBeInTheDocument();
   });
 
   it("permite agregar una reseña y se muestra en la lista", () => {
