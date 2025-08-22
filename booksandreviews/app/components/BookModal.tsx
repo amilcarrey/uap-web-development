@@ -78,7 +78,7 @@ export default function BookModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div role="dialog" className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-amber-50 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="bg-amber-900 text-white p-6 rounded-t-lg">
@@ -99,6 +99,7 @@ export default function BookModal() {
             <button
               onClick={() => setIsOpen(false)}
               className="text-amber-200 hover:text-white transition-colors"
+              aria-label="close"
             >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -134,7 +135,7 @@ export default function BookModal() {
                     <img src={book.thumbnail} alt={book.title} className="w-32 h-48 object-cover rounded border border-amber-200" />
                   ) : (
                     <div className="w-32 h-48 bg-amber-200 rounded flex items-center justify-center border border-amber-300">
-                      <svg className="w-12 h-12 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg data-testid="book-placeholder" className="w-12 h-12 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
                     </div>
