@@ -1,3 +1,4 @@
+//components/Header.tsx
 export default function Header() {
   return (
     <header className="bg-blue-700 text-white shadow-md">
