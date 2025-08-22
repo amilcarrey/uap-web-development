@@ -95,4 +95,19 @@ describe("BookPage reseñas", () => {
     expect(screen.getByText("👍 0")).toBeInTheDocument();
     expect(screen.getByText("👎 1")).toBeInTheDocument();
   });
+
+    it("no permite enviar reseña si los campos están vacíos", () => {
+    render(<BookPage book={mockBook} />);
+
+    const submitButton = screen.getByText("Enviar Reseña");
+
+    // Intentamos enviar sin completar nada
+    fireEvent.click(submitButton);
+
+    // Como no hay reseñas, debería seguir mostrando el mensaje "Sé el primero en reseñar..."
+    expect(
+        screen.getByText(/sé el primero en reseñar este libro/i)
+    ).toBeInTheDocument();
+    });
+
 });
