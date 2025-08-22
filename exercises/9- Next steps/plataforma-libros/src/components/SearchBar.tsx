@@ -11,12 +11,10 @@ export default function SearchBar({ onSearch }: { onSearch: (books: any[]) => vo
     e.preventDefault();
     if (!query) return;
 
-    setError(null); // Limpia errores previos
+    setError(null);
 
-    // Detecta si es un ISBN (10 o 13 dígitos, solo números)
     const isISBN = /^[0-9]{10}$|^[0-9]{13}$/.test(query.replace(/[^0-9]/g, ''));
 
-    // Construye la URL según el tipo de búsqueda
     const searchQuery = isISBN ? `isbn:${query.replace(/[^0-9]/g, '')}` : query;
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}`;
 
@@ -41,11 +39,20 @@ export default function SearchBar({ onSearch }: { onSearch: (books: any[]) => vo
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Busca por título, autor o ISBN (10 o 13 dígitos)"
         className="border p-2 w-full md:w-1/2"
+        data-testid="search-input" // Añadido para pruebas
       />
-      <button type="submit" className="bg-blue-500 text-white p-2 ml-2">
+      <button
+        type="submit"
+        className="bg-blue-500 text-white p-2 ml-2"
+        data-testid="search-button" // Añadido para pruebas
+      >
         Buscar
       </button>
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {error && (
+        <p className="text-red-500 mt-2" data-testid="error-message">
+          {error}
+        </p>
+      )}
     </form>
   );
 }

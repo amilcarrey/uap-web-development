@@ -1,25 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { saveReview } from '@/lib/localStorage';
+import { saveReview } from '../lib/localStorage';
 import { FaStar } from 'react-icons/fa';
 
 export default function ReviewForm({ bookId }: { bookId: string }) {
   const [rating, setRating] = useState(0);
   const [text, setText] = useState('');
-  const [name, setName] = useState(''); // Nuevo estado para el nombre
+  const [name, setName] = useState('');
+  const [error, setError] = useState<string | null>(null); // Nuevo estado para el mensaje de error
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (rating < 1 || !text || !name) {
-      alert('Por favor, completa todos los campos: nombre, calificación y reseña.');
+      setError('Por favor, completa todos los campos: nombre, calificación y reseña.');
       return;
     }
-    saveReview(bookId, { rating, text, name }); // Incluye el nombre en la reseña
+    setError(null); // Limpiar error si el formulario es válido
+    saveReview(bookId, { rating, text, name });
     setRating(0);
     setText('');
-    setName(''); // Limpia el campo del nombre
-    window.location.reload(); // Recarga para ver cambios
+    setName('');
+    window.location.reload();
   };
 
   return (
@@ -41,6 +43,9 @@ export default function ReviewForm({ bookId }: { bookId: string }) {
         {[1, 2, 3, 4, 5].map((star) => (
           <FaStar
             key={star}
+            data-testid="star" // Añadido para pruebas
+            role="button" // Añadido para accesibilidad
+            aria-label={`Calificar ${star} estrella${star > 1 ? 's' : ''}`} // Añadido para accesibilidad
             className={star <= rating ? 'text-yellow-400' : 'text-gray-300'}
             onClick={() => setRating(star)}
           />
@@ -52,6 +57,7 @@ export default function ReviewForm({ bookId }: { bookId: string }) {
         placeholder="Escribe tu reseña..."
         className="border p-2 w-full mb-2"
       />
+      {error && <p className="text-red-500 mb-2" data-testid="error-message">{error}</p>} {/* Mensaje de error en el DOM */}
       <button type="submit" className="bg-green-500 text-white p-2">
         Enviar Reseña
       </button>
