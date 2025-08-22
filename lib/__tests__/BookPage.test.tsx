@@ -110,4 +110,36 @@ describe("BookPage reseñas", () => {
     ).toBeInTheDocument();
     });
 
+    
+    //test de localStorage
+    it("guarda y carga reseñas desde localStorage", () => {
+    // Simulamos una reseña previamente guardada
+    const savedReviews = [
+        {
+        id: "1",
+        user: "Lucía",
+        rating: 5,
+        text: "Reseña para localStorage",
+        upvotes: 0,
+        downvotes: 0,
+        userVote: null,
+        },
+    ];
+    // Guardamos en localStorage
+    localStorage.setItem(`reviews-${mockBook.id}`, JSON.stringify(savedReviews));
+
+    // Renderizamos el componente
+    render(<BookPage book={mockBook} />);
+
+    // Obtenemos todos los list items y filtramos el que tenga "Lucía"
+    const reviewItem = screen.getAllByRole("listitem").find((li) =>
+        li.textContent?.includes("Lucía")
+    );
+
+    expect(reviewItem).toBeInTheDocument();
+    expect(reviewItem).toHaveTextContent("Reseña para localStorage");
+    });
+
+
+
 });
