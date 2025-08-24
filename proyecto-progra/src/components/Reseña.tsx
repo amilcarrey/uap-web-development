@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
-interface Review {
+interface ReviewInput {
     rating: number;
     text: string;
 }
 
 interface ReviewFormProps {
-    onSubmit: (review: Review) => void;
+    onSubmit: (review: ReviewInput) => void;
 }
 
 const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
@@ -21,11 +21,11 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
+        <form onSubmit={handleSubmit}>
             <div>
-                <label>Calificación (1-5):</label>
-                <select value={rating} onChange={(e) => setRating(parseInt(e.target.value))}>
-                    {[1, 2, 3, 4, 5].map(num => (
+                <label>Calificación:</label>
+                <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
+                    {[1, 2, 3, 4, 5].map((num) => (
                         <option key={num} value={num}>
                             {num}
                         </option>
@@ -37,8 +37,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
                 <textarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    rows={4}
-                    cols={50}
                     placeholder="Escribe tu reseña aquí..."
                 ></textarea>
             </div>
