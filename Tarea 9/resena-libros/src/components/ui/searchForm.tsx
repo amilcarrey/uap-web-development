@@ -1,29 +1,29 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useFormStatus } from "react-dom";
+import { search } from "@/actions";
 
-export function SearchForm({ initialQuery }: { initialQuery?: string }) {
-  const [q, setQ] = useState(initialQuery || "");
-  const router = useRouter();
-
-  function go() {
-    const query = q.trim();
-    if (!query) return;
-    router.push(`/search?q=${encodeURIComponent(query)}`);
-  }
+export function SubmitButton() {
+  const { pending } = useFormStatus();
 
   return (
-    <div className="flex gap-2">
+    <Button type="submit" disabled={pending}>
+      Buscar
+    </Button>
+  );
+}
+
+export function SearchForm({ initialQuery }: { initialQuery?: string }) {
+  return (
+    <form action={search} className="flex gap-2">
       <Input
+        name="q"
+        defaultValue={initialQuery || ""}
         placeholder="Título, autor o ISBN…"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && go()}
       />
-      <Button onClick={go}>Buscar</Button>
-    </div>
+      <SubmitButton />
+    </form>
   );
 }
