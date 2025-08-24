@@ -18,18 +18,11 @@ interface Book {
     };
 }
 
-interface Review {
-    rating: number;
-    text: string;
-    votes: number;
-}
-
 export default function BookDetails({ params }: { params: Promise<{ id: string }> }) {
     const [book, setBook] = useState<Book | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
-    const [reviews, setReviews] = useState<Review[]>([]);
 
     useEffect(() => {
         const resolveParams = async () => {
@@ -65,59 +58,38 @@ export default function BookDetails({ params }: { params: Promise<{ id: string }
     }, [resolvedParams]);
 
     const handleReviewSubmit = (review: { rating: number; text: string }) => {
-        setReviews((prevReviews) => [...prevReviews, { ...review, votes: 0 }]);
-    };
-
-    const handleVote = (index: number, direction: 'up' | 'down') => {
-        setReviews((prevReviews) => {
-            const updatedReviews = [...prevReviews];
-            if (direction === 'up') {
-                updatedReviews[index].votes += 1;
-            } else {
-                updatedReviews[index].votes -= 1;
-            }
-            return updatedReviews;
-        });
+        // Puedes agregar lógica aquí si quieres guardar la reseña en algún lado
+        // Por ahora solo es un placeholder para evitar el error
     };
 
     if (loading) return <p>Cargando...</p>;
     if (error) return <p>{error}</p>;
 
     return (
-        <div style={{ padding: '2rem' }}>
+        <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-lg mt-8">
             {book && (
                 <>
-                    <h1>{book.volumeInfo.title}</h1>
-                    {book.volumeInfo.imageLinks?.thumbnail && (
-                        <img
-                            src={book.volumeInfo.imageLinks.thumbnail}
-                            alt={book.volumeInfo.title}
-                            style={{ float: 'left', marginRight: '1rem' }}
-                        />
-                    )}
-                    {book.volumeInfo.authors && <p>Autores: {book.volumeInfo.authors.join(', ')}</p>}
-                    {book.volumeInfo.publishedDate && <p>Publicado: {book.volumeInfo.publishedDate}</p>}
-                    {book.volumeInfo.pageCount && <p>Páginas: {book.volumeInfo.pageCount}</p>}
-                    {book.volumeInfo.description && <p>{book.volumeInfo.description}</p>}
-                    <div style={{ clear: 'both' }}></div>
+                    <div className="flex flex-col md:flex-row items-start gap-6 mb-6">
+                        {book.volumeInfo.imageLinks?.thumbnail && (
+                            <img
+                                src={book.volumeInfo.imageLinks.thumbnail}
+                                alt={book.volumeInfo.title}
+                                className="w-40 h-auto rounded-lg shadow-md mb-4 md:mb-0"
+                            />
+                        )}
+                        <div className="flex-1">
+                            <h1 className="text-3xl font-bold text-gray-800 mb-2">{book.volumeInfo.title}</h1>
+                            {book.volumeInfo.authors && <p className="text-gray-600 mb-1">Autores: <span className="font-medium">{book.volumeInfo.authors.join(', ')}</span></p>}
+                            {book.volumeInfo.publishedDate && <p className="text-gray-600 mb-1">Publicado: <span className="font-medium">{book.volumeInfo.publishedDate}</span></p>}
+                            {book.volumeInfo.pageCount && <p className="text-gray-600 mb-1">Páginas: <span className="font-medium">{book.volumeInfo.pageCount}</span></p>}
+                            {book.volumeInfo.categories && <p className="text-gray-600 mb-1">Categorías: <span className="font-medium">{book.volumeInfo.categories.join(', ')}</span></p>}
+                        </div>
+                    </div>
+                    {book.volumeInfo.description && <p className="text-gray-700 mb-6 whitespace-pre-line">{book.volumeInfo.description}</p>}
 
-                    <ReviewForm onSubmit={handleReviewSubmit} />
-
-                    <div>
-                        <h3>Reseñas</h3>
-                        {reviews.map((review, index) => (
-                            <div key={index} style={{ border: '1px solid #ddd', padding: '1rem', marginBottom: '1rem' }}>
-                                <p><strong>Calificación:</strong> {review.rating} estrellas</p>
-                                <p>{review.text}</p>
-                                <p><strong>Votos:</strong> {review.votes}</p>
-                                <button onClick={() => handleVote(index, 'up')} style={{ marginRight: '1rem' }}>
-                                    👍
-                                </button>
-                                <button onClick={() => handleVote(index, 'down')}>
-                                    👎
-                                </button>
-                            </div>
-                        ))}
+                    <div className="mb-8">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4">Agregar Reseña</h2>
+                        <ReviewForm onSubmit={handleReviewSubmit} />
                     </div>
                 </>
             )}

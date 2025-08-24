@@ -23,6 +23,7 @@ export default function Home() {
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [visibleCount, setVisibleCount] = useState(20);
 
     useEffect(() => {
         const fetchDefaultBooks = async () => {
@@ -68,8 +69,8 @@ export default function Home() {
     };
 
     return (
-        <div className="p-8 bg-gray-100 min-h-screen">
-            <h1 className="text-3xl font-bold text-center mb-8">Buscador de Libros</h1>
+        <div className="min-h-screen bg-blue-50 p-8">
+            <h1 className="text-3xl font-bold text-center mb-8 text-blue-900">Buscador de Libros</h1>
             <div className="flex justify-center mb-8">
                 <input
                     type="text"
@@ -87,33 +88,43 @@ export default function Home() {
             </div>
             {loading && <p className="text-center text-gray-500">Cargando...</p>}
             {error && <p className="text-center text-red-500">{error}</p>}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {books.map((book) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-items-center">
+                {books.slice(0, visibleCount).map((book) => (
                     <div
                         key={book.id}
-                        className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
+                        className="bg-white shadow-lg rounded-xl p-4 border border-gray-200 flex flex-col items-center w-56 h-[400px] hover:scale-105 transition-transform duration-200 overflow-hidden"
                     >
                         {book.volumeInfo.imageLinks?.thumbnail && (
                             <img
                                 src={book.volumeInfo.imageLinks.thumbnail}
                                 alt={book.volumeInfo.title}
-                                className="w-full h-48 object-cover rounded-md mb-4"
+                                className="w-32 h-44 object-cover rounded-md mb-4 shadow"
                             />
                         )}
-                        <h2 className="text-xl font-semibold mb-2">{book.volumeInfo.title}</h2>
+                        <h2 className="text-base font-bold mb-2 text-center line-clamp-2 text-blue-800">{book.volumeInfo.title}</h2>
                         {book.volumeInfo.authors && (
-                            <p className="text-gray-700 mb-2">
+                            <p className="text-gray-600 mb-2 text-xs text-center">
                                 <strong>Autores:</strong> {book.volumeInfo.authors.join(', ')}
                             </p>
                         )}
                         <Link href={`/books/${book.id}`}>
-                            <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                            <button className="mt-auto px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 shadow text-xs">
                                 Ver detalles
                             </button>
                         </Link>
                     </div>
                 ))}
             </div>
+            {visibleCount < books.length && (
+                <div className="flex justify-center mt-8">
+                    <button
+                        onClick={() => setVisibleCount(visibleCount + 20)}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow"
+                    >
+                        Cargar más libros
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
