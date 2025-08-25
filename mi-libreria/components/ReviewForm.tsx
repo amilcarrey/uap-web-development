@@ -15,6 +15,7 @@ export default function ReviewForm({ volumeId }: { volumeId: string }) {
 
   return (
     <form
+      data-testid="review-form"
       onSubmit={(e) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget as HTMLFormElement);
