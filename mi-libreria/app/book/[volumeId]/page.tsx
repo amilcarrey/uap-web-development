@@ -3,8 +3,10 @@ import { getVolume, bestImage } from '@/lib/googleBooks';
 import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
 
-export default async function BookDetailPage({ params }: { params: { volumeId: string } }) {
-  const book = await getVolume(params.volumeId);
+export default async function BookDetailPage(props: { params: { volumeId: string } }) {
+  const params = await props.params;
+  const volumeId = await params.volumeId;
+  const book = await getVolume(volumeId);
   const v = book.volumeInfo;
   const img = bestImage(v);
   const isbn = v.industryIdentifiers?.find((i) => i.type.includes('ISBN'))?.identifier;
@@ -52,8 +54,8 @@ export default async function BookDetailPage({ params }: { params: { volumeId: s
 
       {/* Reseñas locales */}
       <section className="space-y-4">
-        <ReviewForm volumeId={params.volumeId} />
-        <ReviewList volumeId={params.volumeId} />
+  <ReviewForm volumeId={volumeId} />
+  <ReviewList volumeId={volumeId} />
       </section>
 
       <div>
@@ -68,3 +70,24 @@ export default async function BookDetailPage({ params }: { params: { volumeId: s
   );
 
 }
+
+// next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'books.google.com',
+        pathname: '/books/content*',
+      },
+      {
+        protocol: 'https',
+        hostname: 'books.google.com',
+        pathname: '/books/content*',
+      },
+    ],
+  },
+};
+
+module.exports = nextConfig;

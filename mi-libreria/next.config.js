@@ -2,14 +2,38 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Simple y efectivo
-    domains: ['books.google.com', 'books.googleusercontent.com'],
-
-    // Alternativa:
-    // remotePatterns: [
-    //   { protocol: 'https', hostname: 'books.google.com' },
-    //   { protocol: 'https', hostname: 'books.googleusercontent.com' },
-    // ],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'books.google.com',
+        pathname: '/books/content*',
+      },
+      {
+        protocol: 'https',
+        hostname: 'books.google.com',
+        pathname: '/books/content*',
+      },
+      {
+        protocol: 'http',
+        hostname: 'books.google.com',
+        pathname: '/books/publisher/content*',
+      },
+      {
+        protocol: 'https',
+        hostname: 'books.google.com',
+        pathname: '/books/publisher/content*',
+      },
+      {
+        protocol: 'http',
+        hostname: 'books.googleusercontent.com',
+        pathname: '/books/content*',
+      },
+      {
+        protocol: 'https',
+        hostname: 'books.googleusercontent.com',
+        pathname: '/books/content*',
+      },
+    ],
   },
 };
 
