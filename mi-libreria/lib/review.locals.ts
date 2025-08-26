@@ -1,3 +1,5 @@
+// lib/review.locals.ts
+
 // Agrego zod y exporto reviewSchema para validación en API
 import { z } from 'zod';
 
@@ -9,8 +11,8 @@ export const reviewSchema = z.object({
   down: z.number().int().min(0),
   createdAt: z.union([z.string(), z.number()]),
 });
-// review.locals.ts — versión robusta
-type Review = {
+
+export type Review = {
   id: string;
   rating: number;       // 1..5, entero
   content: string;      // >=5 chars (trim)
@@ -21,6 +23,35 @@ type Review = {
 
 const KEY = (volumeId: string) => `reviews:${volumeId}`;
 
+// ---------- Shim de storage para SSR ----------
+const isBrowser =
+  typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+
+const storage = {
+  getItem(key: string): string | null {
+    try {
+      return isBrowser ? window.localStorage.getItem(key) : null;
+    } catch {
+      return null;
+    }
+  },
+  setItem(key: string, val: string): void {
+    try {
+      if (isBrowser) window.localStorage.setItem(key, val);
+    } catch {
+      /* no-op */
+    }
+  },
+  removeItem(key: string): void {
+    try {
+      if (isBrowser) window.localStorage.removeItem(key);
+    } catch {
+      /* no-op */
+    }
+  },
+};
+
+// ---------- Utilidades ----------
 function safeParse<T>(raw: string | null, fallback: T): T {
   if (!raw) return fallback;
   try {
@@ -32,11 +63,11 @@ function safeParse<T>(raw: string | null, fallback: T): T {
 }
 
 function load(volumeId: string): Review[] {
-  return safeParse<Review[]>(localStorage.getItem(KEY(volumeId)), []);
+  return safeParse<Review[]>(storage.getItem(KEY(volumeId)), []);
 }
 
 function save(volumeId: string, rows: Review[]): void {
-  localStorage.setItem(KEY(volumeId), JSON.stringify(rows));
+  storage.setItem(KEY(volumeId), JSON.stringify(rows));
 }
 
 function uuid(): string {
@@ -58,6 +89,7 @@ function assertValidInput(rating: number, content: string) {
   }
 }
 
+// ---------- API ----------
 export function createReview(
   volumeId: string,
   input: { rating: number; content: string }
@@ -96,7 +128,7 @@ export function voteReview(volumeId: string, id: string, delta: number): void {
   if (delta !== 1 && delta !== -1) return; // no-op para inválidos
 
   const rows = load(volumeId);
-  const idx = rows.findIndex(r => r.id === id);
+  const idx = rows.findIndex((r) => r.id === id);
   if (idx === -1) return;
 
   const r = rows[idx];
