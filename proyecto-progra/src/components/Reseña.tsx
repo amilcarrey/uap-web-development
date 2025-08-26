@@ -34,11 +34,12 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
     const [reviews, setReviews] = useState<Array<{ rating: number; text: string; up: number; down: number }>>([]);
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSubmit({ rating, text });
-        setReviews([...reviews, { rating, text, up: 0, down: 0 }]);
-        setRating(1);
-        setText('');
+    e.preventDefault();
+    if (text.trim() === '') return;
+    onSubmit({ rating, text });
+    setReviews([...reviews, { rating, text, up: 0, down: 0 }]);
+    setRating(1);
+    setText('');
     };
 
     // Sumar votos totales
@@ -56,12 +57,14 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
         <div>
             <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-xl p-6 mb-6 w-full max-w-md mx-auto">
                 <div className="mb-4">
-                    <label className="block font-semibold mb-2">Calificación:</label>
+                    <label htmlFor="rating" className="block font-semibold mb-2">Calificación:</label>
+                    <input type="hidden" id="rating" value={rating} readOnly />
                     <StarRating rating={rating} setRating={setRating} />
                 </div>
                 <div className="mb-4">
-                    <label className="block font-semibold mb-2">Reseña:</label>
+                    <label htmlFor="review" className="block font-semibold mb-2">Reseña:</label>
                     <textarea
+                        id="review"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         placeholder="Escribe tu reseña aquí..."
