@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { ReviewSchema } from '@/lib/review.locals';
+import { reviewSchema } from '@/lib/review.locals';
 
 // Simple in-memory store for demo (replace with DB for production)
 const reviewsStore: Record<string, any[]> = {};
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
   try {
-    const review = ReviewSchema.parse({
+    const review = reviewSchema.parse({
       id: String(Date.now() + Math.random()),
       rating,
       content,

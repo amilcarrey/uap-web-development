@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { ReviewSchema } from '@/lib/review.locals';
+
 
 // Simple in-memory store for demo (replace with DB for production)
 const votesStore: Record<string, number> = {};

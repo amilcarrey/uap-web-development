@@ -1,136 +1,110 @@
-// --- Funciones y tipos para manejar reseñas locales de libros ---
-// Este archivo se encarga de guardar, leer y votar reseñas usando localStorage
+// Agrego zod y exporto reviewSchema para validación en API
 import { z } from 'zod';
 
-// Defino el esquema de una reseña usando Zod para validación
-export const ReviewSchema = z.object({
+export const reviewSchema = z.object({
   id: z.string(),
-  rating: z.number().min(1).max(5),
-  content: z.string().min(5).max(2000),
-  createdAt: z.number(),
-  up: z.number().default(0),
-  down: z.number().default(0),
+  rating: z.number().int().min(1).max(5),
+  content: z.string().trim().min(5),
+  up: z.number().int().min(0),
+  down: z.number().int().min(0),
+  createdAt: z.union([z.string(), z.number()]),
 });
-export type Review = z.infer<typeof ReviewSchema>;
-
-// Claves para guardar reseñas y votos en localStorage
-const KEY = (volumeId: string) => `reviews:${volumeId}`;
-const VOTEKEY = (reviewId: string) => `vote:${reviewId}`;
-
-// Obtiene todas las reseñas de un libro desde localStorage
-export function getReviews(volumeId: string): Review[] {
-  if (typeof window === 'undefined') return [];
-  const raw = localStorage.getItem(KEY(volumeId));
-  if (!raw) return [];
-  try {
-    const arr = JSON.parse(raw) as unknown[];
-    return arr.map((r) => ReviewSchema.parse(r));
-  } catch {
-    return [];
-  }
-}
-
-// Guarda el array de reseñas en localStorage
-export function saveReviews(volumeId: string, reviews: Review[]) {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(KEY(volumeId), JSON.stringify(reviews));
-}
-
-// Crea una nueva reseña y la guarda en localStorage
-export function createReview(volumeId: string, data: { rating: number; content: string }) {
-  const all = getReviews(volumeId);
-  const r: Review = {
-    id: typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : String(Date.now() + Math.random()),
-    rating: data.rating,
-    content: data.content,
-    createdAt: Date.now(),
-    up: 0,
-    down: 0,
-  };
-  all.unshift(r);
-  saveReviews(volumeId, all);
-  return r;
-}
-
-// Vota una reseña (up/down) y guarda el voto en localStorage
-export function voteReview(volumeId: string, reviewId: string, delta: 1 | -1) {
-  const all = getReviews(volumeId);
-  const idx = all.findIndex((r) => r.id === reviewId);
-  if (idx === -1) return;
-
-  const mark = localStorage.getItem(VOTEKEY(reviewId)); // "1" | "-1" | null
-
-  if (!mark) {
-    if (delta === 1) all[idx].up += 1; else all[idx].down += 1;
-    localStorage.setItem(VOTEKEY(reviewId), String(delta));
-  } else if (Number(mark) === delta) {
-    if (delta === 1) all[idx].up = Math.max(0, all[idx].up - 1);
-    else all[idx].down = Math.max(0, all[idx].down - 1);
-    localStorage.removeItem(VOTEKEY(reviewId));
-  } else {
-    if (delta === 1) { all[idx].up += 1; all[idx].down = Math.max(0, all[idx].down - 1); }
-    else { all[idx].down += 1; all[idx].up = Math.max(0, all[idx].up - 1); }
-    localStorage.setItem(VOTEKEY(reviewId), String(delta));
-  }
-
-  saveReviews(volumeId, all);
-}
-// lib/googleBooks.ts
-
-export type Volume = {
+// review.locals.ts — versión robusta
+type Review = {
   id: string;
-  volumeInfo: {
-    title?: string;
-    authors?: string[];
-    description?: string;
-    imageLinks?: {
-      smallThumbnail?: string;
-      thumbnail?: string;
-      small?: string;
-      medium?: string;
-      large?: string;
-      extraLarge?: string;
-    };
-    pageCount?: number;
-    categories?: string[];
-    publisher?: string;
-    publishedDate?: string;
-    language?: string;
-    industryIdentifiers?: { type: string; identifier: string }[];
-  };
+  rating: number;       // 1..5, entero
+  content: string;      // >=5 chars (trim)
+  up: number;           // >=0
+  down: number;         // >=0
+  createdAt: string;    // ISO string
 };
 
-const BASE = 'https://www.googleapis.com/books/v1/volumes';
+const KEY = (volumeId: string) => `reviews:${volumeId}`;
 
-export async function searchBooks(q: string, startIndex = 0, maxResults = 24) {
-  const url = `${BASE}?q=${encodeURIComponent(q)}&startIndex=${startIndex}&maxResults=${maxResults}`;
-  const res = await fetch(url, { next: { revalidate: 3600 } }); // cache de 1h en RSC
-  if (!res.ok) throw new Error('Error al consultar Google Books');
-  return (await res.json()) as { items?: Volume[]; totalItems?: number };
+function safeParse<T>(raw: string | null, fallback: T): T {
+  if (!raw) return fallback;
+  try {
+    const val = JSON.parse(raw);
+    return Array.isArray(val) ? (val as T) : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
-export async function getVolume(volumeId: string) {
-  const url = `${BASE}/${volumeId}`;
-  const res = await fetch(url, { next: { revalidate: 3600 } });
-  if (!res.ok) throw new Error('Libro no encontrado');
-  return (await res.json()) as Volume;
+function load(volumeId: string): Review[] {
+  return safeParse<Review[]>(localStorage.getItem(KEY(volumeId)), []);
 }
 
-/**
- * Devuelve la mejor imagen disponible y fuerza HTTPS si llega como HTTP.
- * Así evitás "mixed content" y no necesitás autorizar protocolo http en next/image.
- */
-export function bestImage(v?: Volume['volumeInfo']) {
-  const links = v?.imageLinks;
-  const url =
-    links?.extraLarge ||
-    links?.large ||
-    links?.medium ||
-    links?.small ||
-    links?.thumbnail ||
-    links?.smallThumbnail ||
-    '';
+function save(volumeId: string, rows: Review[]): void {
+  localStorage.setItem(KEY(volumeId), JSON.stringify(rows));
+}
 
-  // Forzar https si viene http
-  return url ? url.replace(/^http:\/\//, 'https://') : '';
+function uuid(): string {
+  const g: any = globalThis as any;
+  if (g.crypto && typeof g.crypto.randomUUID === 'function') {
+    return g.crypto.randomUUID();
+  }
+  // fallback simple
+  return 'id-' + Math.random().toString(36).slice(2);
+}
+
+function assertValidInput(rating: number, content: string) {
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    throw new Error('rating inválido (debe ser entero entre 1 y 5)');
+  }
+  const trimmed = content.trim();
+  if (trimmed.length < 5) {
+    throw new Error('contenido inválido (al menos 5 caracteres después de trim)');
+  }
+}
+
+export function createReview(
+  volumeId: string,
+  input: { rating: number; content: string }
+): Review {
+  const rating = input.rating;
+  const content = input.content?.toString() ?? '';
+
+  assertValidInput(rating, content);
+  const normalized: Review = {
+    id: uuid(),
+    rating,
+    content: content.trim(),
+    up: 0,
+    down: 0,
+    createdAt: new Date(Date.now()).toISOString(),
+  };
+
+  const rows = load(volumeId);
+  rows.push(normalized);
+  // Ordenar desc por fecha (más nuevo primero)
+  rows.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  save(volumeId, rows);
+
+  return normalized;
+}
+
+export function getReviews(volumeId: string): Review[] {
+  const rows = load(volumeId);
+  // Garantizar orden desc por fecha
+  return [...rows].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+}
+
+export function voteReview(volumeId: string, id: string, delta: number): void {
+  if (delta !== 1 && delta !== -1) return; // no-op para inválidos
+
+  const rows = load(volumeId);
+  const idx = rows.findIndex(r => r.id === id);
+  if (idx === -1) return;
+
+  const r = rows[idx];
+  if (delta === 1) {
+    r.up = Math.max(0, (r.up ?? 0) + 1);
+  } else {
+    r.down = Math.max(0, (r.down ?? 0) + 1);
+  }
+
+  save(volumeId, rows);
 }
