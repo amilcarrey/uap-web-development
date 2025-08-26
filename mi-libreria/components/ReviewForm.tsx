@@ -39,18 +39,36 @@ export default function ReviewForm({ volumeId }: { volumeId: string }) {
     setSending(true);
     setError(undefined);
 
-    // Limpia el form *antes* de esperar al createReview:
-    formEl.reset();
-
-    await createReview(volumeId, parsed.data);
-
-    setOk(true);
-    window.dispatchEvent(
-      new CustomEvent('reviews-changed', { detail: { volumeId } })
-    );
+    // Solo limpiar el form si no hay error de límite de palabras
+    let reviewCreated = false;
+    try {
+      await createReview(volumeId, parsed.data);
+      reviewCreated = true;
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('superaste el límite')) {
+        setOk(false);
+        setError(err.message);
+        // No limpiar el form
+        return;
+      } else {
+        throw err;
+      }
+    }
+    if (reviewCreated) {
+      formEl.reset();
+      setOk(true);
+      window.dispatchEvent(
+        new CustomEvent('reviews-changed', { detail: { volumeId } })
+      );
+    }
   } catch (err) {
     setOk(false);
-    setError('Ocurrió un error al publicar. Intentá de nuevo.');
+    // Si el error es por límite de palabras, mostramos el mensaje específico
+    if (err instanceof Error && err.message.includes('superaste el límite')) {
+      setError(err.message);
+    } else {
+      setError('Ocurrió un error al publicar. Intentá de nuevo.');
+    }
     // Nota: dejamos el form limpio incluso si falla (mejor UX y hace pasar el test)
   } finally {
     setSending(false);

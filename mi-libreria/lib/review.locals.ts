@@ -87,6 +87,12 @@ function assertValidInput(rating: number, content: string) {
   if (trimmed.length < 5) {
     throw new Error('contenido inválido (al menos 5 caracteres después de trim)');
   }
+  // Validación de límite máximo de palabras (ejemplo: 100 palabras)
+  const maxWords = 100;
+  const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+  if (wordCount > maxWords) {
+    throw new Error(`contenido inválido: superaste el límite de ${maxWords} palabras`);
+  }
 }
 
 // ---------- API ----------
