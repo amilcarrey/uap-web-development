@@ -24,7 +24,7 @@ export default function Home() {
           aria-label="external-data"
           onClick={fetchData}
         >
-          Data from Service lala: {data}
+          Data from Service: {data}
         </h1>
         <Counter />
       </div>
