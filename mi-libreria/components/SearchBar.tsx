@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
-export default function SearchBar({ placeholder = 'Título, autor o ISBN' }: { placeholder?: string }) {
+export default function SearchBar({ placeholder = 'Título, autor o ISBN', onSearch }: { placeholder?: string; onSearch?: (q: string) => void }) {
   const router = useRouter();
   const params = useSearchParams();
   const [q, setQ] = useState(() => params.get('q') ?? '');
@@ -11,7 +11,11 @@ export default function SearchBar({ placeholder = 'Título, autor o ISBN' }: { p
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     const query = q.trim();
-    router.push(query ? `/search?q=${encodeURIComponent(query)}` : '/search');
+    if (onSearch) {
+      onSearch(query);
+    } else {
+      router.push(query ? `/search?q=${encodeURIComponent(query)}` : '/search');
+    }
   }
 
   return (
