@@ -54,6 +54,7 @@ jobs:
       with:
         context: ./examples/unit-testing
         tags: ${{ steps.meta.outputs.tags }}
+        push: true
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
