@@ -19,7 +19,7 @@ export function validateReviewText(
   text: string,
   opts: { min?: number; max?: number } = {}
 ): { ok: true } | { ok: false; error: string } {
-  const min = opts.min ?? 2;   // ← ahora 2 para que "ok" sea válido
+  const min = opts.min ?? 2;   // ← 2 para que "ok" sea válido
   const max = opts.max ?? 500;
 
   const t = (text ?? "").trim();

@@ -10,7 +10,7 @@ vi.mock("@/lib/googleBooks", () => ({
   }),
 }));
 
-// Importá la page DESPUÉS de mockear
+// Importa la page DESPUÉS de mockear
 import BookPage from "@/app/book/[id]/page";
 
 describe("BookPage", () => {
