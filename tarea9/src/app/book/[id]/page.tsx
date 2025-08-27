@@ -1,3 +1,4 @@
+import React from "react";
 import type { GoogleBook } from '../../../types';
 import Reviews from '../[id]/reviews';
 

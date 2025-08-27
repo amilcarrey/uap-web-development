@@ -1,126 +1,114 @@
-'use client';
-
-import { useEffect, useState } from 'react';
+import React from "react";
+import { getReviews, addReview, voteReview } from '@/lib/reviews';
 import type { Review } from '@/types';
+import { revalidatePath } from 'next/cache'; 
 
-function Stars({ value, onChange }: { value: number; onChange?: (n: number) => void }) {
+export function Stars({ value }: { value: number }) {
   return (
     <div className="flex">
-      {[1,2,3,4,5].map((n) => (
-        <button
-          key={n}
-          type="button"
-          onClick={() => onChange?.(n)}
-          aria-label={`${n} estrellas`}
-          className="text-2xl leading-none"
-        >
+      {[1, 2, 3, 4, 5].map((n) => (
+        <span key={n} className="text-2xl leading-none">
           {n <= value ? '★' : '☆'}
-        </button>
+        </span>
       ))}
     </div>
   );
 }
+// Server action para crear reseña
+export async function handleCreateReview(formData: FormData) {
+  'use server';
+  const bookId = formData.get('bookId') as string;
+  const user = formData.get('user') as string;
+  const rating = Number(formData.get('rating'));
+  const text = formData.get('text') as string;
 
-export default function Reviews({ bookId }: { bookId: string }) {
-  const [items, setItems] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
+  if (!user.trim() || !text.trim()) return;
 
-  // form state
-  const [user, setUser] = useState('');
-  const [rating, setRating] = useState(5);
-  const [text, setText] = useState('');
-  const [sending, setSending] = useState(false);
+  await addReview(bookId, { user, rating, text, bookId, likes: 0, dislikes: 0 });
 
-  const load = async () => {
-    setLoading(true);
-    const res = await fetch(`/api/reviews/${bookId}`, { cache: 'no-store' });
-    const data = await res.json();
-    setItems(data);
-    setLoading(false);
-  };
+  // Forzar actualización de la UI
+  revalidatePath(`/book/${bookId}`);
+}
 
-  useEffect(() => {
-    load();
-  }, [bookId]);
+// Server action para votar reseña
+export async function handleVoteReview(formData: FormData) {
+  'use server';
+  const bookId = formData.get('bookId') as string;
+  const reviewId = formData.get('reviewId') as string;
+  const delta = Number(formData.get('delta')) as 1 | -1;
 
-  const submit = async () => {
-    if (!user.trim() || !text.trim()) return;
-    setSending(true);
-    try {
-      const res = await fetch(`/api/reviews/${bookId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user, rating, text }),
-      });
-      if (res.ok) {
-        setUser(''); setText(''); setRating(5);
-        await load();
-      } else {
-        alert('Error creando reseña');
-      }
-    } finally {
-      setSending(false);
-    }
-  };
+  await voteReview(bookId, reviewId, delta);
 
-  const vote = async (reviewId: string, delta: 1 | -1) => {
-    const res = await fetch(`/api/reviews/${bookId}/vote`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reviewId, delta }),
-    });
-    if (res.ok) {
-      // actualiza en memoria sin recargar todo
-      const updated = await res.json();
-      setItems((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
-    }
-  };
+  //Refresca la lista de reseñas del libro
+  revalidatePath(`/book/${bookId}`);
+}
+
+export default async function Reviews({ bookId }: { bookId: string }) {
+  const items: Review[] = await getReviews(bookId);
+  // Ordenar las reseñas por número de likes (descendente)
+  const sortedItems = items.slice().sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
 
   return (
     <section className="space-y-4">
       <h2 className="text-xl font-semibold">Reseñas</h2>
 
       {/* Formulario */}
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <form
+        action={handleCreateReview}
+        className="rounded-xl border bg-white p-4 shadow-sm"
+      >
         <div className="grid gap-3 sm:grid-cols-2">
           <input
-            value={user}
-            onChange={(e) => setUser(e.target.value)}
+            name="user"
             placeholder="Tu nombre o alias"
             className="rounded-lg border px-3 py-2"
+            required
           />
+          <input type="hidden" name="bookId" value={bookId} />
           <div className="flex items-center gap-2">
             <span className="text-sm text-slate-600">Calificación:</span>
-            <Stars value={rating} onChange={setRating} />
+            <select
+              name="rating"
+              defaultValue={5}
+              className="rounded-lg border px-2 py-1"
+            >
+              {[1, 2, 3, 4, 5].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
           </div>
           <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
+            name="text"
             placeholder="Escribe tu reseña…"
             className="rounded-lg border px-3 py-2 sm:col-span-2"
             rows={3}
+            required
           />
         </div>
         <div className="mt-3">
           <button
-            onClick={submit}
-            disabled={sending}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 disabled:opacity-60"
+            type="submit"
+            className="rounded-lg bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
           >
-            {sending ? 'Enviando…' : 'Publicar reseña'}
+            Publicar reseña
           </button>
         </div>
-      </div>
+      </form>
 
       {/* Lista */}
-      {loading ? (
-        <p>Cargando reseñas…</p>
-      ) : items.length === 0 ? (
-        <p className="text-slate-600">Sé la primera persona en reseñar este libro.</p>
+      {sortedItems.length === 0 ? (
+        <p className="text-slate-600">
+          Sé la primera persona en reseñar este libro.
+        </p>
       ) : (
         <ul className="space-y-3">
-          {items.map((r) => (
-            <li key={r.id} className="rounded-xl border bg-white p-4 shadow-sm">
+          {sortedItems.map((r) => (
+            <li
+              key={r.id}
+              className="rounded-xl border bg-white p-4 shadow-sm"
+            >
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2">
@@ -129,28 +117,43 @@ export default function Reviews({ bookId }: { bookId: string }) {
                       {new Date(r.createdAt).toLocaleString()}
                     </span>
                   </div>
-                  <div className="text-amber-500"><Stars value={r.rating} /></div>
+                  <div className="text-amber-500">
+                    <Stars value={r.rating} />
+                  </div>
                   <p className="mt-1 whitespace-pre-wrap">{r.text}</p>
                 </div>
 
-                <div className="flex flex-col items-center gap-1">
+                <form
+                  action={handleVoteReview}
+                  className="flex flex-col items-center gap-1"
+                >
+                  <input type="hidden" name="reviewId" value={r.id} />
+                  <input type="hidden" name="bookId" value={bookId} />
                   <button
-                    onClick={() => vote(r.id, 1)}
+                    type="submit"
+                    name="delta"
+                    value={1}
                     className="rounded-md border px-2 py-1 hover:bg-green-50"
                     aria-label="Like"
                   >
                     👍
                   </button>
-                  <span className="w-10 text-center font-semibold text-green-700">{r.likes ?? 0}</span>
+                  <span className="w-10 text-center font-semibold text-green-700">
+                    {r.likes ?? 0}
+                  </span>
                   <button
-                    onClick={() => vote(r.id, -1)}
+                    type="submit"
+                    name="delta"
+                    value={-1}
                     className="rounded-md border px-2 py-1 hover:bg-red-50"
                     aria-label="Dislike"
                   >
                     👎
                   </button>
-                  <span className="w-10 text-center font-semibold text-red-700">{r.dislikes ?? 0}</span>
-                </div>
+                  <span className="w-10 text-center font-semibold text-red-700">
+                    {r.dislikes ?? 0}
+                  </span>
+                </form>
               </div>
             </li>
           ))}
