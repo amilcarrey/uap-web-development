@@ -4,7 +4,7 @@ export type Volume = {
     title: string;
     authors?: string[];
     description?: string;
-    imageLinks?: { smallThumbnail?: string; thumbnail?: string };
+    imageLinks?: { smallThumbnail?: string; thumbnail?: string; medium?: string; large?: string };
     categories?: string[];
     publishedDate?: string;
     pageCount?: number;

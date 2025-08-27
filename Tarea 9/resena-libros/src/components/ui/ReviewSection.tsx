@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { v4 as uuid } from "uuid";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "./button";
+import { Input } from "./input";
+import { Card, CardContent } from "./card";
 import { StarRating } from "./StarRating";
-import { addReview, getReviews, voteReview } from "@/lib/storage";
-import type { Review } from "@/lib/types";
+import { addReview, getReviews, voteReview } from "../../lib/storage";
+import type { Review } from "../../lib/types";
 
 export default function ReviewSection({ bookId }: { bookId: string }) {
   const [list, setList] = useState<Review[]>([]);
