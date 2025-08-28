@@ -1,44 +1,54 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getBookById } from "@/lib/googleBooks";
+import { getBookById, Book } from "@/lib/googleBooks";
 import Image from "next/image";
-import { Book } from "@/types/book";
 import { Review, Vote } from "@/types";
 
 interface BookPageProps {
-  id: string;
+  params: { id: string };
 }
 
-export default function BookPage({ id }: BookPageProps) {
+export default function BookPage({ params }: BookPageProps) {
   const [book, setBook] = useState<Book | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [name, setName] = useState("");
   const [content, setContent] = useState("");
   const [rating, setRating] = useState(5);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchBook = useCallback(async () => {
-    const data = await getBookById(id);
+    if (!params?.id) return;
+    const data = await getBookById(params.id);
+    if (!data) {
+      setError("No se pudo cargar el libro.");
+      return;
+    }
     setBook(data);
-  }, [id]);
+  }, [params?.id]);
 
   const fetchReviews = useCallback(async () => {
+    if (!params?.id) return;
     try {
-      const res = await fetch(`/api/reviews?bookId=${id}`);
+      const res = await fetch(`/api/reviews?bookId=${params.id}`);
       if (!res.ok) throw new Error("Error al obtener reseñas");
       const data: Review[] = await res.json();
       setReviews(data);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       setReviews([]);
     }
-  }, [id]);
+  }, [params?.id]);
 
   const addReview = useCallback(async () => {
-    if (!name || !content) return alert("Debes ingresar tu nombre y la reseña.");
+    if (!name || !content) {
+      alert("Debes ingresar tu nombre y la reseña.");
+      return;
+    }
+    if (!params?.id) return;
 
     const newReview: Omit<Review, "votes"> = {
-      bookId: id,
+      bookId: params.id,
       userName: name,
       rating,
       content,
@@ -47,23 +57,22 @@ export default function BookPage({ id }: BookPageProps) {
     };
 
     try {
-      const res = await fetch(`/api/reviews`, {
+      const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newReview),
       });
-
       if (!res.ok) throw new Error("No se pudo enviar la reseña");
 
       setName("");
       setContent("");
       setRating(5);
       await fetchReviews();
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       alert("No se pudo enviar la reseña");
     }
-  }, [name, content, rating, id, fetchReviews]);
+  }, [name, content, rating, params?.id, fetchReviews]);
 
   const voteReview = useCallback(
     async (reviewId: string, value: 1 | -1) => {
@@ -71,19 +80,16 @@ export default function BookPage({ id }: BookPageProps) {
         userId: name || "Anónimo",
         value,
       };
-
       try {
         const res = await fetch(`/api/reviews/${reviewId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(vote),
         });
-
         if (!res.ok) throw new Error("No se pudo votar la reseña");
-
         await fetchReviews();
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        console.error(err);
         alert("No se pudo votar la reseña");
       }
     },
@@ -95,6 +101,7 @@ export default function BookPage({ id }: BookPageProps) {
     fetchReviews();
   }, [fetchBook, fetchReviews]);
 
+  if (error) return <p className="text-red-500">{error}</p>;
   if (!book) return <p>Cargando libro...</p>;
 
   return (
@@ -111,11 +118,11 @@ export default function BookPage({ id }: BookPageProps) {
         />
       )}
 
-      {/* --- Descripción con HTML renderizado --- */}
       <div
         className="mb-2"
         dangerouslySetInnerHTML={{
-          __html: book.volumeInfo.description || "<p>Sin descripción disponible</p>",
+          __html:
+            book.volumeInfo.description || "<p>Sin descripción disponible</p>",
         }}
       />
 
@@ -143,7 +150,9 @@ export default function BookPage({ id }: BookPageProps) {
           {[1, 2, 3, 4, 5].map((star) => (
             <span
               key={star}
-              className={`cursor-pointer text-2xl ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
+              className={`cursor-pointer text-2xl ${
+                star <= rating ? "text-yellow-500" : "text-gray-300"
+              }`}
               onClick={() => setRating(star)}
             >
               ★
@@ -176,7 +185,9 @@ export default function BookPage({ id }: BookPageProps) {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span
                       key={star}
-                      className={star <= r.rating ? "text-yellow-500" : "text-gray-300"}
+                      className={
+                        star <= r.rating ? "text-yellow-500" : "text-gray-300"
+                      }
                     >
                       ★
                     </span>

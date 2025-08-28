@@ -1,6 +1,8 @@
 "use client";
+
 import { useState } from "react";
 import StarRating from "./StarRating";
+import { Review } from "@/types";
 
 export default function ReviewForm({ bookId, onNewReview }: { bookId: string; onNewReview?: () => void }) {
   const [userName, setUserName] = useState("");
@@ -9,14 +11,21 @@ export default function ReviewForm({ bookId, onNewReview }: { bookId: string; on
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newReview: Omit<Review, "id" | "createdAt" | "votes"> = {
+      bookId,
+      userName,
+      rating,
+      content,
+    };
     await fetch("/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bookId, userName, rating, content }),
+      body: JSON.stringify(newReview),
     });
     setUserName("");
     setContent("");
-    if (onNewReview) onNewReview(); 
+    setRating(3);
+    if (onNewReview) onNewReview();
   };
 
   return (

@@ -30,5 +30,37 @@
     "content": "j",
     "createdAt": "2025-08-19T16:06:31.304Z",
     "votes": []
+  },
+  {
+    "id": "1",
+    "bookId": "123",
+    "userName": "Usuario1",
+    "rating": 5,
+    "content": "Excelente libro",
+    "createdAt": "2025-08-22T14:22:56.808Z",
+    "votes": [
+      {
+        "userId": "u2",
+        "value": -1
+      }
+    ]
+  },
+  {
+    "id": "1",
+    "bookId": "123",
+    "userName": "Usuario1",
+    "rating": 4,
+    "content": "Muy bueno",
+    "createdAt": "2025-08-22T14:22:56.826Z",
+    "votes": []
+  },
+  {
+    "id": "1",
+    "bookId": "123",
+    "userName": "Usuario1",
+    "rating": 3,
+    "content": "Interesante",
+    "createdAt": "2025-08-22T14:22:56.829Z",
+    "votes": []
   }
 ]
