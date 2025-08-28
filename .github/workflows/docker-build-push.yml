@@ -41,6 +41,6 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./examples/unit-testing
-        tags: docker.io/amilcarrey/uap-unit-testing-app:latest
+        tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
         push: true
         platforms: linux/amd64,linux/arm64
