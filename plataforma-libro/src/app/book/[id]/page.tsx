@@ -7,8 +7,11 @@ async function getBook(id: string) {
   return res.json();
 }
 
-const BookPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params; // 👈 hay que await
+export default async function BookPage(props: { params: { id: string } }) {
+  // await props.params antes de usarlo
+  const params = await props.params;
+  const id = params.id.toString();
+
   const book = await getBook(id);
   if (!book) return notFound();
 
@@ -22,9 +25,9 @@ const BookPage = async ({ params }: { params: Promise<{ id: string }> }) => {
       {/* Portada grande */}
       {info.imageLinks?.large || info.imageLinks?.thumbnail ? (
         <img
-           src={book.volumeInfo.imageLinks?.thumbnail}
-            alt={book.volumeInfo.title}
-            className="w-auto h-auto max-w-[120px] max-h-[180px]"
+          src={info.imageLinks?.thumbnail}
+          alt={info.title}
+          className="w-auto h-auto max-w-[120px] max-h-[180px]"
         />
       ) : (
         <div className="w-48 h-64 bg-gray-200 flex items-center justify-center text-gray-500">
@@ -35,19 +38,17 @@ const BookPage = async ({ params }: { params: Promise<{ id: string }> }) => {
       {/* Descripción */}
       <p className="mt-4">{info.description || "Sin descripción disponible."}</p>
 
-      {/* Extras */}
-      <ul className="mt-4 text-sm text-gray-700">
-        <li><strong>Fecha de publicación:</strong> {info.publishedDate || "N/A"}</li>
-        <li><strong>Número de páginas:</strong> {info.pageCount || "N/A"}</li>
-        <li><strong>Categorías:</strong> {info.categories?.join(", ") || "N/A"}</li>
+      {/* Detalles */}
+      <ul className="mt-4 text-sm text-white">
+        <li><span className="text-[#fcf7d3]">Fecha de publicación:</span> {info.publishedDate || "N/A"}</li>
+        <li><span className="text-[#fcf7d3]">Número de páginas:</span> {info.pageCount || "N/A"}</li>
+        <li><span className="text-[#fcf7d3]">Categorías:</span> {info.categories?.join(", ") || "N/A"}</li>
       </ul>
 
-      {/* Reseñas propias (tu sistema local, no Google) */}
+      {/* Reseñas propias */}
       <div className="mt-8">
         <ReseñaComponente libroId={id} />
       </div>
     </main>
   );
-};
-
-export default BookPage;
+}

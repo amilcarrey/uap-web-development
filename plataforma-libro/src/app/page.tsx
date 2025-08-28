@@ -1,16 +1,16 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { fetchBooks } from "../actions/server-actions"; //accion que consulta los libros
+import Carta from "../app/componentes/portada";
 
-const Main = () => {
-  const [buscar, setBuscar] = useState("");
-  const router = useRouter();
-
-  const handleBuscar = () => {
-    if (buscar.trim()) {
-      router.push(`/search?q=${encodeURIComponent(buscar)}`);
-    }
+export const metadata = {
+  title: "Biblioteca Justito",
   };
+
+
+export default async function Principal(props: { searchParams?: Record<string, string | string[]> }) {
+
+  const searchParams = await props.searchParams;
+  const query = (searchParams?.q ?? "").toString(); // ahora seguro
+  const libros = await fetchBooks(query); // llamo a la accion del servidor para obtener los libros
 
   return (
     <main className="min-h-screen bg-[#F5F5F5] flex flex-col items-center py-8">
@@ -33,31 +33,34 @@ const Main = () => {
             Encuentra tu libro
           </h2>
           <div className="search flex justify-center items-center gap-4">
-            <input
-              type="text"
-              placeholder="Ingresa el nombre del libro"
-              value={buscar}
-              onChange={(e) => setBuscar(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
-              className="px-4 py-2 rounded-md text-black focus:outline-none focus:ring-2"
-              style={{
-                border: "2px solid #cd8c52",
-                borderRadius: "0.375rem",
-                color: "#000",
-              }}
-            />
-            <button
-              onClick={handleBuscar}
-              style={{ backgroundColor: "#cd8c52", color: "#171717" }}
-              className="px-4 py-2 rounded-md font-semibold shadow-md"
-            >
-              Buscar
-            </button>
+          {/* antes aca iba El input de búsqueda, ahora ya no */}
+            <form action="/search" method="get">
+              <input
+                type="text"
+                name="q"
+                placeholder="Ingresa el nombre del libro"
+                className="px-4 py-2 rounded-md text-black focus:outline-none focus:ring-2"
+                style={{
+                  border: "2px solid #cd8c52",
+                  borderRadius: "0.375rem",
+                  color: "#000",
+                }}
+              />
+              <button
+                type="submit"
+                style={{ backgroundColor: "#cd8c52", color: "#171717" }}
+                className="px-4 py-2 rounded-md font-semibold shadow-md"
+              >
+                Buscar
+              </button>
+            </form>  
           </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {libros.map(libro => <Carta key={libro.id} libro={libro} />)}
       </div>
     </main>
   );
 };
-
-export default Main;
