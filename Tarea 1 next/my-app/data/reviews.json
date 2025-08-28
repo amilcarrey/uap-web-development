@@ -33,5 +33,19 @@
     "rating": 4,
     "text": "nose",
     "votes": 1
+  },
+  {
+    "id": "8264d6ef-9b6c-40bb-b7c7-c314543ef818",
+    "bookId": "B0loOBA3ejIC",
+    "rating": 3,
+    "text": "god",
+    "votes": 3
+  },
+  {
+    "id": "90071360-a5fd-47f8-b26a-0b8191fee932",
+    "bookId": "B0loOBA3ejIC",
+    "rating": 5,
+    "text": "buenardo",
+    "votes": 3
   }
 ]
