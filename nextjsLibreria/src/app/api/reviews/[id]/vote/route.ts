@@ -47,7 +47,10 @@ export async function POST(
     return NextResponse.json({ error: "Review not found" }, { status: 404 });
   }
 
-  const score = review.votes.reduce((s, v) => s + v.value, 0);
+  const score = review.votes.reduce(
+    (s: number, v: { value: number }) => s + v.value,
+    0
+  );
 
   return NextResponse.json({
     success: true,
