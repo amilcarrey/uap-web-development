@@ -1,13 +1,13 @@
 'use client' // Ya que necesitamos de interactividad con el ususario como en los likes y reviews
 import { useState, useTransition } from "react";
-import { addReview } from "@/app/book/[id]/actions"; // importante: path con alias
+import { addReview } from "@/app/book/[id]/actions"; 
 import { useRouter } from "next/navigation";
 
 export default function ReviewForm({ volumeId }: { volumeId: string }) {
   const [rating, setRating] = useState(5);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [isPending, startTransition] = useTransition(); // opcional, solo para UI
+  const [isPending, startTransition] = useTransition(); 
   const router = useRouter();
 
    async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -17,7 +17,6 @@ export default function ReviewForm({ volumeId }: { volumeId: string }) {
 
     setSubmitting(true);
     try {
-      // Hacer I/O FUERA de la transición
       await addReview(volumeId, rating, trimmed);
 
       // UI en transición (no bloquea interacción)
@@ -28,8 +27,6 @@ export default function ReviewForm({ volumeId }: { volumeId: string }) {
       });
     } catch (_err) {
       // ⛑️ Importante: NO re-lanzar.
-      // Podrías setear un estado de error si querés mostrar un mensaje.
-      // setError('No se pudo publicar');
     } finally {
       setSubmitting(false); // siempre re-habilita el botón
     }

@@ -32,19 +32,15 @@ export default async function BookPage({ params, searchParams }: { params: { id:
   return (
     <main className="min-h-screen bg-gradient-to-br from-indigo-950 via-neutral-900 to-indigo-900">
       <section className="w-full max-w-5xl mx-auto bg-neutral-950/80 rounded-2xl shadow-2xl border border-neutral-800 p-6 md:p-10 mt-10 mb-16">
-        {/* ✅ MANTENER MISMA ESTRUCTURA */}
         <div className="mb-8 flex items-center justify-between gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-indigo-300 drop-shadow">
             {info.title ?? "Sin título"}
           </h1>
-          {/* ✅ USAR COMPONENTE */}
           <BackButton searchQuery={q} startIndex={start} />
         </div>
-
-        {/* ✅ USAR COMPONENTE */}
+      
         <BookDetails volume={volume} />
-
-        {/* ✅ MANTENER RESTO IGUAL */}
+        
         <hr className="my-10 border-neutral-800" />
 
         <section className="space-y-6">

@@ -22,13 +22,10 @@ type BookDetailsProps = {
 export default function BookDetails({ volume }: BookDetailsProps) {
   const info = volume.volumeInfo ?? {};
   const cover = pickCover(info.imageLinks);
-  
-  // ✅ MISMA LÓGICA que tenías
   const isbn = (info.industryIdentifiers ?? []).find((x) => x.type?.includes("ISBN"));
 
   return (
     <article className="grid gap-10 md:grid-cols-2 items-start">
-      {/* ✅ MISMA ESTRUCTURA que tenías */}
       <div className="flex md:justify-start justify-center">
         <div
           className="relative w-[360px] max-w-full rounded-2xl border border-neutral-800 bg-neutral-900 shadow-inner"

@@ -20,11 +20,9 @@ export default function ReviewList({ volumeId, initial }: { volumeId: string; in
     try {
       await voteReview(volumeId, id, delta);
     } catch {
-      // opcional: revertir el optimismo si querés
-      // setItems(arr => arr.map(r => r.id === id ? { ...r, votes: r.votes - delta } : r));
     } finally {
       setIsVoting(false);
-      router.refresh(); // ✅ siempre refresca, incluso con error
+      router.refresh(); // siempre refresca incluso con error
     }
   }
 

@@ -49,7 +49,7 @@ describe("Review actions", () => {
       expect(reviews[0].text).toBe("Great book");
     });
 
-    // ✅ AGREGAR: Test para múltiples volúmenes
+    // Test para múltiples volúmenes
     it("should return reviews only for specific volume", async () => {
       const g = globalThis as any;
       g.__reviews = {
@@ -70,7 +70,7 @@ describe("Review actions", () => {
       expect(reviews2[0].text).toBe("Book 2 review");
     });
 
-    // ✅ AGREGAR: Test con volumeId inexistente
+    // Test con volumeId inexistente
     it("should handle non-existent volume gracefully", async () => {
       const reviews = await getReviews("non-existent-volume");
       expect(reviews).toEqual([]);
@@ -87,7 +87,7 @@ describe("Review actions", () => {
       // No dependemos de un UUID exacto
       expect(typeof reviews[0].id).toBe("string");
       expect(reviews[0].id).not.toHaveLength(0);
-      // opcional: regex básica de uuid v4
+      // regex básica de uuid v4
       expect(reviews[0].id).toMatch(
         /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
       );
@@ -100,7 +100,7 @@ describe("Review actions", () => {
       });
     });
 
-    // ✅ MEJORAR: Test de validación más completo
+    //  Test de validación más completo
     it("should throw error for invalid rating", async () => {
       await expect(addReview("volume-1", 0, "Bad rating")).rejects.toThrow("rating inválido");
       await expect(addReview("volume-1", 6, "Bad rating")).rejects.toThrow("rating inválido");
@@ -108,7 +108,7 @@ describe("Review actions", () => {
       await expect(addReview("volume-1", 10, "Bad rating")).rejects.toThrow("rating inválido");
     });
 
-    // ✅ AGREGAR: Test con ratings límite válidos
+    //  Test con ratings límite válidos
     it("should accept valid rating boundaries", async () => {
       await addReview("volume-1", 1, "Minimum rating");
       await addReview("volume-1", 5, "Maximum rating");
@@ -119,7 +119,7 @@ describe("Review actions", () => {
       expect(reviews[1].rating).toBe(5);
     });
 
-    // ✅ AGREGAR: Test para múltiples reseñas en el mismo volumen
+    // Test para múltiples reseñas en el mismo volumen
     it("should add multiple reviews to same volume", async () => {
       await addReview("volume-1", 5, "First review");
       await addReview("volume-1", 3, "Second review");
@@ -132,7 +132,7 @@ describe("Review actions", () => {
       expect(reviews[2].text).toBe("Third review");
     });
 
-    // ✅ AGREGAR: Test de revalidateTag
+    //Test de revalidateTag
     it("should call revalidateTag after adding review", async () => {
       await addReview("volume-1", 4, "Test review");
 
@@ -140,7 +140,7 @@ describe("Review actions", () => {
       expect(mockRevalidateTag).toHaveBeenCalledTimes(1);
     });
 
-    // ✅ AGREGAR: Test con texto vacío
+    // Test con texto vacío
     it("should handle empty text", async () => {
       await addReview("volume-1", 4, "");
 
@@ -148,7 +148,7 @@ describe("Review actions", () => {
       expect(reviews[0].text).toBe("");
     });
 
-    // ✅ AGREGAR: Test con texto muy largo
+    // Test con texto muy largo
     it("should handle very long text", async () => {
       const longText = "A".repeat(1000);
       await addReview("volume-1", 4, longText);
@@ -182,7 +182,7 @@ describe("Review actions", () => {
       expect(reviews[0].votes).toBe(-1);
     });
 
-    // ✅ AGREGAR: Test de múltiples votos
+    // Test de múltiples votos
     it("should handle multiple votes on same review", async () => {
       await voteReview("volume-1", reviewId, 1);
       await voteReview("volume-1", reviewId, 1);
@@ -192,7 +192,7 @@ describe("Review actions", () => {
       expect(reviews[0].votes).toBe(1); // 0 + 1 + 1 - 1 = 1
     });
 
-    // ✅ AGREGAR: Test con review inexistente
+    //Test con review inexistente
     it("should handle non-existent review gracefully", async () => {
       const reviewsBefore = await getReviews("volume-1");
 
@@ -203,12 +203,12 @@ describe("Review actions", () => {
       expect(reviewsAfter[0].votes).toBe(0); // Sin cambios
     });
 
-    // ✅ AGREGAR: Test con volumen inexistente
+    // Test con volumen inexistente
     it("should handle non-existent volume gracefully", async () => {
       await expect(voteReview("non-existent-volume", "any-id", 1)).resolves.not.toThrow();
     });
 
-    // ✅ AGREGAR: Test de votos negativos extremos
+    // Test de votos negativos extremos
     it("should handle negative votes correctly", async () => {
       await voteReview("volume-1", reviewId, -1);
       await voteReview("volume-1", reviewId, -1);
@@ -218,13 +218,13 @@ describe("Review actions", () => {
       expect(reviews[0].votes).toBe(-3);
     });
 
-    // ✅ AGREGAR: Test de revalidateTag
+    // Test de revalidateTag
     it("should call revalidateTag after voting", async () => {
       await voteReview("volume-1", reviewId, 1);
       expect(mockRevalidateTag).toHaveBeenCalledWith("reviews:volume-1");
     });
 
-    // ✅ AGREGAR: Test con múltiples reseñas
+    // Test con múltiples reseñas
     it("should vote on correct review when multiple exist", async () => {
       await addReview("volume-1", 3, "Second review");
       const reviewsNow = await getReviews("volume-1");
@@ -241,7 +241,7 @@ describe("Review actions", () => {
       expect(second.votes).toBe(0);
     });
 
-    // ✅ AGREGAR: Test de inmutabilidad
+    //  Test de inmutabilidad
     it("should not modify original review object", async () => {
       const reviewsBefore = await getReviews("volume-1");
       const originalReview = reviewsBefore[0];

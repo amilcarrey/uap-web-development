@@ -20,7 +20,6 @@ type BookCardProps = {
   startIndex: number;
 };
 
-// Normaliza http -> https (y tolera strings no-URL)
 function toHttps(url?: string) {
   if (!url) return "";
   try {
