@@ -1,9 +1,18 @@
-import { Book, GoogleBooksResponse } from '@/types';
+import { Book, GoogleBooksResponse, PaginationParams, SearchBooksResponse } from '@/types';
 
-export const searchBooks = async (query: string): Promise<Book[]> => {
+export const searchBooks = async (
+  query: string, 
+  pagination?: PaginationParams
+): Promise<SearchBooksResponse> => {
   try {
+    const startIndex = pagination?.page && pagination?.limit 
+      ? (pagination.page - 1) * pagination.limit 
+      : 0;
+    
+    const maxResults = pagination?.limit || 12;
+    
     const response = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20`
+      `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&startIndex=${startIndex}&maxResults=${maxResults}`
     );
     
     if (!response.ok) {
@@ -13,10 +22,10 @@ export const searchBooks = async (query: string): Promise<Book[]> => {
     const data: GoogleBooksResponse = await response.json();
     
     if (!data.items) {
-      return [];
+      return { books: [], totalItems: 0, hasMore: false, actualTotal: 0 };
     }
     
-    return data.items.map(item => ({
+    const books = data.items.map(item => ({
       id: item.id,
       title: item.volumeInfo.title,
       authors: item.volumeInfo.authors,
@@ -29,9 +38,24 @@ export const searchBooks = async (query: string): Promise<Book[]> => {
       ratingsCount: item.volumeInfo.ratingsCount,
       industryIdentifiers: item.volumeInfo.industryIdentifiers
     }));
+    
+    // Detectar si hay más resultados
+    const hasMore = data.items.length === maxResults && 
+                   startIndex + maxResults < data.totalItems &&
+                   startIndex + maxResults < 1000; // Límite de la API
+    
+    // Calcular el total real (mínimo entre el total reportado y 1000)
+    const actualTotal = Math.min(data.totalItems, 1000);
+    
+    return { 
+      books, 
+      totalItems: actualTotal,
+      hasMore,
+      actualTotal
+    };
   } catch (error) {
     console.error('Error searching books:', error);
-    return [];
+    return { books: [], totalItems: 0, hasMore: false, actualTotal: 0 };
   }
 };
 

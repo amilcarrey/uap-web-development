@@ -38,7 +38,19 @@ export interface GoogleBooksResponse {
   totalItems: number;
 }
 
-// Tipos para las respuestas de la API
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
+
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
@@ -55,4 +67,11 @@ export interface CreateReviewRequest {
 export interface VoteRequest {
   reviewId: string;
   vote: 'upvote' | 'downvote';
+}
+
+export interface SearchBooksResponse {
+  books: Book[];
+  totalItems: number;
+  hasMore: boolean;
+  actualTotal: number;
 }
