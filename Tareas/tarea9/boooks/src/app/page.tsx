@@ -1,7 +1,7 @@
 "use client"
-import { searchBooks } from "@/lib/googleBooks";
-import BookCard from "@/components/BookCard";
-import SearchBar from "@/components/SearchBar";
+import { searchBooks } from "@/app/lib/googleBooks";
+import BookCard from "@/app/components/BookCard";
+import SearchBar from "@/app/components/SearchBar";
 import { useState } from "react";
 
 export default function HomePage() {

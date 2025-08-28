@@ -1,5 +1,5 @@
-import { getBookById } from "@/lib/googleBooks";
-import ReviewSection from "@/components/ReviewSection";
+import { getBookById } from "@/app/lib/googleBooks";
+import ReviewSection from "@/app/components/ReviewSection";
 
 interface BookPageProps {
   params: Promise<{ id: string }>;
