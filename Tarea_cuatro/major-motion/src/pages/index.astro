@@ -1,0 +1,23 @@
+---
+import Welcome from '../components/Welcome.astro';
+import Layout from '../layouts/Layout.astro';
+import Gestor from '../components/Gestor.astro'
+import { state } from '../services/state';
+import { toCodes } from 'astro:i18n';
+import { getTasksFiltered } from '../lib/tasks';
+
+
+const url = new URL(Astro.request.url);
+const filter = url.searchParams.get("filter");
+
+let filteredTasks = getTasksFiltered(filter);
+
+---
+
+
+
+<Layout>
+    <Gestor filteredTasks={filteredTasks}  filter={filter}/>
+</Layout>
+
+
