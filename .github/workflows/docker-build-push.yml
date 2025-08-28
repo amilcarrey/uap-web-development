@@ -2,15 +2,15 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'examples/unit-testing/**'
-      - '.github/workflows/docker-build-push.yml'
+      - "examples/unit-testing/**"
+      - ".github/workflows/docker-build-push.yml"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'examples/unit-testing/**'
-      - '.github/workflows/docker-build-push.yml'
+      - "examples/unit-testing/**"
+      - ".github/workflows/docker-build-push.yml"
   workflow_dispatch:
 
 env:
@@ -23,24 +23,24 @@ defaults:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
-    - name: Log in to Docker Hub
-      if: github.event_name != 'pull_request'
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: ./examples/unit-testing
-        tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-        push: true
-        platforms: linux/amd64,linux/arm64
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./examples/unit-testing
+          tags: amilcarrey/uap-unit-testing-app:latest
+          push: true
+          platforms: linux/amd64,linux/arm64
