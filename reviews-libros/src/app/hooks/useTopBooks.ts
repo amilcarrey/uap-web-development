@@ -11,7 +11,6 @@ export function useTopBooks() {
   useEffect(() => {
     async function loadTopBooks() {
       try {
-        setLoading(true);
         const topBookIds = getTopReviewedBooks(10);
         
         if (topBookIds.length === 0) {
