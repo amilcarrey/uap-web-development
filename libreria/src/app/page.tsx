@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { searchBooks } from "./api/searchBooks";
 import ReviewForm from "./components/ReviewForm";
 import { addReview, getReviews } from "./actions/review";
+import BookCard from "./components/BookCard";
 
 export default function Home() {
   const [query, setQuery] = useState("");
@@ -65,42 +66,12 @@ export default function Home() {
       {loading && <p className="mt-6">Buscando...</p>}
       <div className="w-full max-w-2xl mt-8 grid gap-6">
         {books.map((book: any) => (
-          <div
+          <BookCard
             key={book.id}
-            className="border rounded-lg p-4 flex gap-4 flex-col"
-          >
-            {book.volumeInfo.imageLinks?.thumbnail && (
-              <img
-                src={book.volumeInfo.imageLinks.thumbnail}
-                alt={book.volumeInfo.title}
-                className="w-24 h-auto"
-              />
-            )}
-            <div>
-              <h2 className="font-semibold">{book.volumeInfo.title}</h2>
-              <p className="text-sm text-gray-600">
-                {book.volumeInfo.authors?.join(", ")}
-              </p>
-              <p className="text-xs mt-2">
-                {book.volumeInfo.description?.slice(0, 120)}...
-              </p>
-            </div>
-            <ReviewForm
-              bookId={book.id}
-              onSubmit={(rating, text) => handleAddReview(book.id, rating, text)}
-            />
-            <div className="mt-2">
-              {(reviews[book.id] || []).map((review, idx) => (
-                <div
-                  key={idx}
-                  className="border rounded p-2 mb-2 bg-gray-50"
-                >
-                  <span>{"⭐".repeat(review.rating)}</span>
-                  <p className="text-sm">{review.text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+            book={book}
+            reviews={reviews[book.id] || []}
+            onAddReview={(rating, text) => handleAddReview(book.id, rating, text)}
+          />
         ))}
       </div>
     </div>
