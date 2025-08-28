@@ -7,7 +7,7 @@ import {
   serverActionGuardarReseña,
   serverActionVotarReseña,
   Reseña
-} from "./serverActionGuardarReseña";
+} from "../serverActionGuardarReseña";
 
 interface BookPageProps {
   params: { id: string };
