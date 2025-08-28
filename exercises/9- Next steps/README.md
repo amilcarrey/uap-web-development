@@ -1,5 +1,3 @@
-#Ejercicio de App de Reseñas de Libros
-
 Descripción del Proyecto:
 Construir una plataforma de descubrimiento y reseñas de libros donde los usuarios pueden buscar libros, ver detalles y compartir reseñas con votación comunitaria.
 Características Principales:
