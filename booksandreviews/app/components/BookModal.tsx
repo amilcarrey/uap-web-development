@@ -44,17 +44,26 @@ export default function BookModal() {
     const handleBookClick = async (event: Event) => {
       const customEvent = event as CustomEvent;
       const bookId = customEvent.detail;
+      console.log('BookModal: Recibido evento openBookModal con bookId:', bookId);
+      
       setLoading(true);
       setIsOpen(true);
       setShowReviewForm(true);
       setUserReview(null);
       
       try {
+        console.log('BookModal: Haciendo fetch a /api/books/', bookId);
         const response = await fetch(`/api/books/${encodeURIComponent(bookId)}`);
+        console.log('BookModal: Response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Error al cargar el libro');
+          const errorText = await response.text();
+          console.error('BookModal: Error response:', errorText);
+          throw new Error(`Error al cargar el libro: ${response.status}`);
         }
+        
         const bookData = await response.json();
+        console.log('BookModal: Datos del libro recibidos:', bookData);
         setBook(bookData);
         
         // Verificar si ya existe una reseña para este libro
@@ -68,8 +77,8 @@ export default function BookModal() {
           }
         }
       } catch (error) {
-        console.error('Error loading book:', error);
-        setToastMessage('Error al cargar la información del libro');
+        console.error('BookModal: Error loading book:', error);
+        setToastMessage(`Error al cargar la información del libro: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         setToastType('error');
         setShowToast(true);
       } finally {

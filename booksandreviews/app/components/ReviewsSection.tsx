@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 interface Review {
   id: string;
@@ -58,12 +59,12 @@ export default function ReviewsSection() {
     return (
       <div className="text-center text-amber-800">
         <p className="text-xl mb-4">Aún no has escrito reseñas</p>
-        <a 
+        <Link 
           href="/?view=search" 
           className="inline-block bg-amber-900 text-white px-6 py-3 rounded-lg hover:bg-amber-800 transition-colors"
         >
           Buscar libros para reseñar
-        </a>
+        </Link>
       </div>
     );
   }

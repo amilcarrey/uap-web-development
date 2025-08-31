@@ -9,6 +9,7 @@ interface Book {
 
 export default function BookCard({ book }: { book: Book }) {
   const handleMoreInfo = () => {
+    console.log('BookCard: Disparando evento openBookModal con bookId:', book.id);
     const event = new CustomEvent('openBookModal', { detail: book.id });
     window.dispatchEvent(event);
   };

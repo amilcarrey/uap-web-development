@@ -1,4 +1,5 @@
 import { searchBooks } from './actions/books';
+import Link from 'next/link';
 import BookCard from './components/BookCard';
 import BookModal from './components/BookModal';
 import MainMenu from './components/MainMenu';
@@ -26,24 +27,24 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
           
           {/* Navigation */}
           <nav className="flex justify-center gap-4 mb-8">
-            <a 
+            <Link 
               href="/" 
               className={`px-4 py-2 rounded-lg transition-colors ${currentView === 'menu' ? 'bg-amber-700 text-white' : 'text-amber-200 hover:text-white'}`}
             >
               Inicio
-            </a>
-            <a 
+            </Link>
+            <Link 
               href="/?view=search" 
               className={`px-4 py-2 rounded-lg transition-colors ${currentView === 'search' ? 'bg-amber-700 text-white' : 'text-amber-200 hover:text-white'}`}
             >
               Buscar
-            </a>
-            <a 
+            </Link>
+            <Link 
               href="/?view=reviews" 
               className={`px-4 py-2 rounded-lg transition-colors ${currentView === 'reviews' ? 'bg-amber-700 text-white' : 'text-amber-200 hover:text-white'}`}
             >
               Mis Reseñas
-            </a>
+            </Link>
           </nav>
           
           {/* Search Form - Only show when in search view */}
