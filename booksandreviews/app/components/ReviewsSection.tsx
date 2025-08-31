@@ -18,8 +18,7 @@ export default function ReviewsSection() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Load reviews from localStorage
+  const loadReviews = () => {
     const savedReviews = localStorage.getItem('book_reviews_v1');
     if (savedReviews) {
       try {
@@ -28,7 +27,23 @@ export default function ReviewsSection() {
         console.error('Error loading reviews:', error);
       }
     }
+  };
+
+  useEffect(() => {
+    // Load reviews from localStorage
+    loadReviews();
     setLoading(false);
+
+    // Escuchar el evento de nueva reseña agregada
+    const handleReviewAdded = () => {
+      loadReviews();
+    };
+
+    window.addEventListener('reviewAdded', handleReviewAdded);
+    
+    return () => {
+      window.removeEventListener('reviewAdded', handleReviewAdded);
+    };
   }, []);
 
   if (loading) {

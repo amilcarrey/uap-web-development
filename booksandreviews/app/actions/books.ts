@@ -16,7 +16,8 @@ export interface DetailedBook extends SimpleBook {
   language?: string;
 }
 
-export function mapVolumeToSimple(volume: any): SimpleBook {
+// Funciones de utilidad para mapeo de datos
+function mapVolumeToSimple(volume: any): SimpleBook {
   const info = volume.volumeInfo || {};
   const imageLinks = info.imageLinks || {};
   return {
@@ -27,7 +28,7 @@ export function mapVolumeToSimple(volume: any): SimpleBook {
   };
 }
 
-export function mapVolumeToDetailed(volume: any): DetailedBook {
+function mapVolumeToDetailed(volume: any): DetailedBook {
   const simple = mapVolumeToSimple(volume);
   const info = volume.volumeInfo || {};
   return {
