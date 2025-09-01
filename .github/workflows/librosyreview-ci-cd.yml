@@ -21,25 +21,21 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
         
     # Instalar dependencias del proyecto librosyreview
     - name: Install dependencies
-      run: |
-        cd librosyreview
-        npm ci
+      working-directory: ./librosyreview
+      run: npm ci
         
     # Ejecutar tests
     - name: Run tests
-      run: |
-        cd librosyreview
-        npm test -- --watchAll=false
+      working-directory: ./librosyreview
+      run: npm test -- --watchAll=false
         
     # Construir la aplicación
     - name: Build application
-      run: |
-        cd librosyreview
-        npm run build
+      working-directory: ./librosyreview
+      run: npm run build
         
     # Desplegar a Vercel
     - name: Deploy to Vercel
