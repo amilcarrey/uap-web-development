@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { getBookById } from '../actions/books';
 
 interface Book {
@@ -133,7 +134,13 @@ export default function BookModal() {
               <div className="flex gap-6">
                 <div className="flex-shrink-0">
                   {book.thumbnail ? (
-                    <img src={book.thumbnail} alt={book.title} className="w-32 h-48 object-cover rounded border border-amber-200" />
+                    <Image 
+                      src={book.thumbnail} 
+                      alt={book.title} 
+                      width={128} 
+                      height={192} 
+                      className="w-32 h-48 object-cover rounded border border-amber-200" 
+                    />
                   ) : (
                     <div className="w-32 h-48 bg-amber-200 rounded flex items-center justify-center border border-amber-300">
                       <svg className="w-12 h-12 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

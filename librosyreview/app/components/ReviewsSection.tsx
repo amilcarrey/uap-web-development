@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Review {
   id: string;
@@ -90,9 +91,11 @@ export default function ReviewsSection() {
           <div key={review.id} className="bg-white border border-amber-200 rounded-lg p-6">
             <div className="flex items-start gap-4">
               {review.bookThumbnail && (
-                <img 
+                <Image 
                   src={review.bookThumbnail} 
                   alt={review.bookTitle} 
+                  width={64} 
+                  height={96} 
                   className="w-16 h-24 object-cover rounded border border-amber-200"
                 />
               )}
