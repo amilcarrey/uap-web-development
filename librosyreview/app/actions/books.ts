@@ -13,8 +13,14 @@ export async function searchBooks(query: string): Promise<SimpleBook[]> {
   
   try {
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20`;
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) return [];
+    const res = await fetch(url, { 
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10000) // Timeout de 10 segundos
+    });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
     
     const data = await res.json();
     
@@ -23,8 +29,22 @@ export async function searchBooks(query: string): Promise<SimpleBook[]> {
     if (!data.items || !Array.isArray(data.items)) return [];
     
     return data.items.map(mapVolumeToSimple);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error searching books:', error);
+    
+    // Manejo específico de errores
+    if (error instanceof SyntaxError) {
+      throw new Error('Invalid JSON response');
+    }
+    if (error instanceof Error) {
+      if (error.message.includes('timeout') || error.name === 'TimeoutError') {
+        throw new Error('Request timeout');
+      }
+      if (error.message.includes('fetch')) {
+        throw new Error('Network error');
+      }
+    }
+    
     return [];
   }
 }
@@ -34,8 +54,14 @@ export async function getBookById(id: string): Promise<DetailedBook | null> {
   
   try {
     const url = `https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(id)}`;
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) return null;
+    const res = await fetch(url, { 
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10000) // Timeout de 10 segundos
+    });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
     
     const volume = await res.json();
     
@@ -43,8 +69,22 @@ export async function getBookById(id: string): Promise<DetailedBook | null> {
     if (!volume || typeof volume !== 'object') return null;
     
     return mapVolumeToDetailed(volume);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching book by ID:', error);
+    
+    // Manejo específico de errores
+    if (error instanceof SyntaxError) {
+      throw new Error('Invalid JSON response');
+    }
+    if (error instanceof Error) {
+      if (error.message.includes('timeout') || error.name === 'TimeoutError') {
+        throw new Error('Request timeout');
+      }
+      if (error.message.includes('fetch')) {
+        throw new Error('Network error');
+      }
+    }
+    
     return null;
   }
 }

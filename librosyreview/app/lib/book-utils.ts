@@ -40,7 +40,7 @@ export function mapVolumeToSimple(volume: GoogleBooksVolume | null | undefined):
   // Manejar casos extremos: null, undefined
   if (!volume || typeof volume !== 'object') {
     return {
-      id: undefined, // Remover 'as any'
+      id: '', // Cambiar de undefined a string vacío
       title: 'Título desconocido',
       authors: [],
       thumbnail: undefined,
@@ -68,7 +68,7 @@ export function mapVolumeToDetailed(volume: GoogleBooksVolume | null | undefined
   // Manejar casos extremos: null, undefined
   if (!volume || typeof volume !== 'object') {
     return {
-      id: undefined, // Remover 'as any'
+      id: '', // Cambiar de undefined a string vacío
       title: 'Título desconocido',
       authors: [],
       thumbnail: undefined,
