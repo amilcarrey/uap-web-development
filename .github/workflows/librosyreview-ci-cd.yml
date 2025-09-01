@@ -27,10 +27,10 @@ jobs:
       working-directory: ./librosyreview
       run: npm ci
         
-    # Ejecutar tests
+    # Ejecutar tests con Vitest
     - name: Run tests
       working-directory: ./librosyreview
-      run: npm test -- --watchAll=false
+      run: npm run test:run
         
     # Construir la aplicación
     - name: Build application
