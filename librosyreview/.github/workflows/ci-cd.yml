@@ -1,11 +1,11 @@
 name: CI/CD Pipeline
 
-# Ejecutar el workflow cuando se haga push o pull request a main/master
+# Ejecutar el workflow cuando se haga push o pull request a main/master/libros
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, libros ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, libros ]
 
 jobs:
   test-and-deploy:
