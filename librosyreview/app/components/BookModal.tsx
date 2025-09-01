@@ -72,7 +72,7 @@ export default function BookModal() {
       alert('¡Reseña publicada con éxito!');
       setRating(0);
       setReview('');
-    } catch (error) {
+    } catch {
       alert('Error al publicar la reseña');
     }
   };

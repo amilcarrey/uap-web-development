@@ -3,6 +3,7 @@ import BookCard from './components/BookCard';
 import BookModal from './components/BookModal';
 import MainMenu from './components/MainMenu';
 import ReviewsSection from './components/ReviewsSection';
+import Link from 'next/link';
 
 async function getData(q: string | undefined) {
   const query = q?.trim() || '';
@@ -25,24 +26,24 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
           
           {/* Navigation */}
           <nav className="flex justify-center gap-6 mb-8">
-            <a 
+            <Link 
               href="/" 
               className={`px-6 py-2 rounded-full transition-all duration-300 font-light ${currentView === 'menu' ? 'bg-green-700 text-white shadow-lg' : 'text-green-100 hover:text-white hover:bg-green-700/50'}`}
             >
               Inicio
-            </a>
-            <a 
+            </Link>
+            <Link 
               href="/?view=search" 
               className={`px-6 py-2 rounded-full transition-all duration-300 font-light ${currentView === 'search' ? 'bg-green-700 text-white shadow-lg' : 'text-green-100 hover:text-white hover:bg-green-700/50'}`}
             >
               Buscar
-            </a>
-            <a 
+            </Link>
+            <Link 
               href="/?view=reviews" 
               className={`px-6 py-2 rounded-full transition-all duration-300 font-light ${currentView === 'reviews' ? 'bg-green-700 text-white shadow-lg' : 'text-green-100 hover:text-white hover:bg-green-700/50'}`}
             >
               Mis Reseñas
-            </a>
+            </Link>
           </nav>
           
           {/* Search Form */}
