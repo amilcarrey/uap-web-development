@@ -3,23 +3,12 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { getBookById } from '../actions/books';
+import { DetailedBook } from '../lib/book-utils'; // Importar la interfaz existente
 
-interface Book {
-  id: string;
-  title: string;
-  authors: string[];
-  thumbnail?: string;
-  description?: string;
-  publishedDate?: string;
-  pageCount?: number;
-  categories?: string[];
-  publisher?: string;
-  language?: string;
-}
-
+// Eliminar la interfaz Book local y usar DetailedBook
 export default function BookModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const [book, setBook] = useState<Book | null>(null);
+  const [book, setBook] = useState<DetailedBook | null>(null); // Usar DetailedBook
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
@@ -30,14 +19,14 @@ export default function BookModal() {
       const bookId = customEvent.detail;
       setLoading(true);
       setIsOpen(true);
-      setBook(null); // ✅ RESETEAR el estado del libro al abrir modal
+      setBook(null);
       
       try {
         const bookData = await getBookById(bookId);
         setBook(bookData);
       } catch (error) {
         console.error('Error loading book:', error);
-        setBook(null); // ✅ ASEGURAR que book sea null en caso de error
+        setBook(null);
       } finally {
         setLoading(false);
       }

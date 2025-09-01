@@ -20,7 +20,7 @@ interface GoogleBooksVolume {
 }
 
 export interface SimpleBook {
-  id?: string; // Cambiar de string a string opcional
+  id: string; // Cambiar de id?: string a id: string (obligatorio)
   title: string;
   authors: string[];
   thumbnail?: string;
