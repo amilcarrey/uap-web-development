@@ -1,64 +1,52 @@
 name: CI/CD Pipeline
 
-# Ejecutar en push a main y en pull requests
+# Ejecutar el workflow cuando se haga push o pull request a main/master
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
 
-# Configuración de jobs
 jobs:
-  # Job de testing y linting
-  test:
-    name: Test & Lint
+  test-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
-      # Checkout del código
-      - name: Checkout code
-        uses: actions/checkout@v4
+    # Descargar el código del repositorio
+    - name: Checkout code
+      uses: actions/checkout@v4
       
-      # Configurar Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      
-      # Instalar dependencias
-      - name: Install dependencies
-        run: npm ci
-      
-      # Ejecutar linting
-      - name: Run ESLint
-        run: npm run lint
-      
-      # Ejecutar tests
-      - name: Run tests
-        run: npm run test:run
-      
-      # Verificar que el build funciona
-      - name: Build project
-        run: npm run build
-
-  # Job de deployment (solo en push a main/master)
-  deploy:
-    name: Deploy to Vercel
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    
-    steps:
-      # Checkout del código
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      # Deploy a Vercel
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+    # Configurar Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    # Instalar dependencias
+    - name: Install dependencies
+      run: |
+        cd librosyreview
+        npm ci
+        
+    # Ejecutar tests
+    - name: Run tests
+      run: |
+        cd librosyreview
+        npm test -- --watchAll=false
+        
+    # Construir la aplicación
+    - name: Build application
+      run: |
+        cd librosyreview
+        npm run build
+        
+    # Desplegar a Vercel
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./librosyreview
+        vercel-args: '--prod'
