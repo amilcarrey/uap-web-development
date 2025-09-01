@@ -32,16 +32,20 @@ export async function searchBooks(query: string): Promise<SimpleBook[]> {
   } catch (error: unknown) {
     console.error('Error searching books:', error);
     
-    // Manejo específico de errores
+    // Manejo específico de errores - retornar array vacío en lugar de lanzar excepciones
     if (error instanceof SyntaxError) {
-      throw new Error('Invalid JSON response');
+      console.error('Invalid JSON response');
+      return [];
     }
     if (error instanceof Error) {
       if (error.message.includes('timeout') || error.name === 'TimeoutError') {
-        throw new Error('Request timeout');
+        console.error('Request timeout');
+        return [];
       }
-      if (error.message.includes('fetch')) {
-        throw new Error('Network error');
+      if (error.message.includes('fetch') || error.message.includes('Network') || 
+          error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED')) {
+        console.error('Network error');
+        return [];
       }
     }
     
@@ -60,7 +64,7 @@ export async function getBookById(id: string): Promise<DetailedBook | null> {
     });
     
     if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
+      return null; // Cambiar throw por return null
     }
     
     const volume = await res.json();
@@ -72,19 +76,7 @@ export async function getBookById(id: string): Promise<DetailedBook | null> {
   } catch (error: unknown) {
     console.error('Error fetching book by ID:', error);
     
-    // Manejo específico de errores
-    if (error instanceof SyntaxError) {
-      throw new Error('Invalid JSON response');
-    }
-    if (error instanceof Error) {
-      if (error.message.includes('timeout') || error.name === 'TimeoutError') {
-        throw new Error('Request timeout');
-      }
-      if (error.message.includes('fetch')) {
-        throw new Error('Network error');
-      }
-    }
-    
+    // Retornar null en todos los casos de error
     return null;
   }
 }

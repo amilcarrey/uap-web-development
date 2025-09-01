@@ -1,13 +1,8 @@
 'use client'
 
-interface Book {
-  id: string;
-  title: string;
-  authors: string[];
-  thumbnail?: string;
-}
+import { SimpleBook } from '../lib/book-utils';
 
-export default function BookCard({ book }: { book: Book }) {
+export default function BookCard({ book }: { book: SimpleBook }) {
   const handleMoreInfo = () => {
     const event = new CustomEvent('openBookModal', { detail: book.id });
     window.dispatchEvent(event);

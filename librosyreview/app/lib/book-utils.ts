@@ -20,7 +20,7 @@ interface GoogleBooksVolume {
 }
 
 export interface SimpleBook {
-  id: string; // Cambiar de id?: string a id: string (obligatorio)
+  id?: string; // Cambiar de obligatorio a opcional
   title: string;
   authors: string[];
   thumbnail?: string;
@@ -37,17 +37,28 @@ export interface DetailedBook extends SimpleBook {
 
 // Funciones utilitarias (no son Server Actions)
 export function mapVolumeToSimple(volume: GoogleBooksVolume | null | undefined): SimpleBook {
-  // Manejar casos extremos: null, undefined
-  if (!volume || typeof volume !== 'object') {
+  // Caso 1: volume es null o undefined -> retornar undefined para id
+  if (!volume) {
     return {
-      id: '', // Cambiar de undefined a string vacío
+      id: undefined, // Remover 'as any'
       title: 'Título desconocido',
       authors: [],
-      thumbnail: undefined,
+      thumbnail: undefined // Remover 'as any'
     };
   }
 
-  const info = volume.volumeInfo || {};
+  // Caso 2: volume existe pero no tiene volumeInfo -> usar volume.id
+  if (!volume.volumeInfo) {
+    return {
+      id: volume.id,
+      title: 'Título desconocido',
+      authors: [],
+      thumbnail: undefined // Remover 'as any'
+    };
+  }
+
+  // Caso 3: volume y volumeInfo existen -> mapeo normal
+  const info = volume.volumeInfo;
   const imageLinks = info.imageLinks || {};
   
   // Asegurar que authors sea siempre un array
@@ -65,38 +76,53 @@ export function mapVolumeToSimple(volume: GoogleBooksVolume | null | undefined):
 }
 
 export function mapVolumeToDetailed(volume: GoogleBooksVolume | null | undefined): DetailedBook {
-  // Manejar casos extremos: null, undefined
-  if (!volume || typeof volume !== 'object') {
+  // Caso 1: volume es null o undefined -> retornar undefined para id
+  if (!volume) {
     return {
-      id: '', // Cambiar de undefined a string vacío
+      id: undefined, // Remover 'as any'
       title: 'Título desconocido',
       authors: [],
-      thumbnail: undefined,
-      description: undefined,
-      publishedDate: undefined,
-      pageCount: undefined,
       categories: [],
-      publisher: undefined,
-      language: undefined,
+      thumbnail: undefined
     };
   }
 
-  const simple = mapVolumeToSimple(volume);
-  const info = volume.volumeInfo || {};
+  // Caso 2: volume existe pero no tiene volumeInfo -> usar volume.id
+  if (!volume.volumeInfo) {
+    return {
+      id: volume.id,
+      title: 'Título desconocido',
+      authors: [],
+      categories: [],
+      thumbnail: undefined
+    };
+  }
+
+  // Caso 3: volume y volumeInfo existen -> mapeo normal
+  const info = volume.volumeInfo;
+  const imageLinks = info.imageLinks || {};
   
-  // Asegurar que categories sea siempre un array
+  // Asegurar que authors y categories sean siempre arrays
+  let authors = info.authors || [];
+  if (!Array.isArray(authors)) {
+    authors = [];
+  }
+  
   let categories = info.categories || [];
   if (!Array.isArray(categories)) {
     categories = [];
   }
   
   return {
-    ...simple,
+    id: volume.id,
+    title: info.title || 'Título desconocido',
+    authors: authors,
     description: info.description,
     publishedDate: info.publishedDate,
     pageCount: info.pageCount,
     categories: categories,
     publisher: info.publisher,
     language: info.language,
+    thumbnail: imageLinks.thumbnail || imageLinks.smallThumbnail
   };
 }

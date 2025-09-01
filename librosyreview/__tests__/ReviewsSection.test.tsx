@@ -31,6 +31,7 @@ describe('ReviewsSection', () => {
       id: 'review2',
       bookId: 'book2',
       bookTitle: 'Test Book 2',
+      bookThumbnail: 'http://example.com/thumb2.jpg', // Añadir thumbnail faltante
       rating: 3,
       content: 'Average book.',
       createdAt: '2023-01-02T00:00:00.000Z',
@@ -138,16 +139,51 @@ describe('ReviewsSection', () => {
   })
 
   it('should display book thumbnails when available', async () => {
-    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockReviews))
+    const mockReviews = [
+      {
+        id: '1',
+        bookId: 'book1',
+        bookTitle: 'Test Book 1',
+        bookThumbnail: 'http://example.com/thumb1.jpg',
+        rating: 5,
+        comment: 'Great book!',
+        date: '2022-12-31',
+        likes: 2,
+        dislikes: 0
+      },
+      {
+        id: '2',
+        bookId: 'book2',
+        bookTitle: 'Test Book 2',
+        bookThumbnail: 'http://example.com/thumb2.jpg',
+        rating: 3,
+        comment: 'Okay book',
+        date: '2023-01-01',
+        likes: 1,
+        dislikes: 1
+      }
+    ]
+  
+    // Mock localStorage
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        getItem: vi.fn(() => JSON.stringify(mockReviews)),
+        setItem: vi.fn(),
+      },
+      writable: true
+    })
+  
+    render(<ReviewsSection />)
+  
+    // Verificar que las imágenes están presentes con alt text correcto
+    const image1 = screen.getByAltText('Test Book 1')
+    const image2 = screen.getByAltText('Test Book 2')
     
-    await act(async () => {
-      render(<ReviewsSection />)
-    })
-
-    await waitFor(() => {
-      const thumbnail = screen.getByAltText('Test Book 1')
-      expect(thumbnail).toBeInTheDocument()
-      expect(thumbnail).toHaveAttribute('src', 'http://example.com/thumb1.jpg')
-    })
+    expect(image1).toBeInTheDocument()
+    expect(image2).toBeInTheDocument()
+    
+    // Para Next.js Image, verificar que el src contiene la URL original
+    expect(image1.getAttribute('src')).toContain('http%3A%2F%2Fexample.com%2Fthumb1.jpg')
+    expect(image2.getAttribute('src')).toContain('http%3A%2F%2Fexample.com%2Fthumb2.jpg')
   })
 })
