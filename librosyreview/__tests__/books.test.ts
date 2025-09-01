@@ -752,8 +752,6 @@ describe('Books API Functions', () => {
               pageCount: null,
               publisher: null,
               language: null,
-              pageCount: null,
-              publishedDate: null,
               categories: null,
               authors: null,
               imageLinks: null
