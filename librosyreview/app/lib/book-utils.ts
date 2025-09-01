@@ -20,7 +20,7 @@ interface GoogleBooksVolume {
 }
 
 export interface SimpleBook {
-  id: string;
+  id?: string; // Cambiar de string a string opcional
   title: string;
   authors: string[];
   thumbnail?: string;
@@ -40,7 +40,7 @@ export function mapVolumeToSimple(volume: GoogleBooksVolume | null | undefined):
   // Manejar casos extremos: null, undefined
   if (!volume || typeof volume !== 'object') {
     return {
-      id: undefined as any,
+      id: undefined, // Remover 'as any'
       title: 'Título desconocido',
       authors: [],
       thumbnail: undefined,
@@ -68,7 +68,7 @@ export function mapVolumeToDetailed(volume: GoogleBooksVolume | null | undefined
   // Manejar casos extremos: null, undefined
   if (!volume || typeof volume !== 'object') {
     return {
-      id: undefined as any,
+      id: undefined, // Remover 'as any'
       title: 'Título desconocido',
       authors: [],
       thumbnail: undefined,
