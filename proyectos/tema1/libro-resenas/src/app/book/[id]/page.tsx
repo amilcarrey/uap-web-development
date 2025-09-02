@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
@@ -14,6 +13,7 @@ interface BookPageProps {
 }
 
 export default function BookPage({ params }: BookPageProps) {
+  const { id } = params;
   const [book, setBook] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +22,7 @@ export default function BookPage({ params }: BookPageProps) {
 
 
   useEffect(() => {
-    fetch(`https://www.googleapis.com/books/v1/volumes/${params.id}`)
+    fetch(`https://www.googleapis.com/books/v1/volumes/${id}`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => {
         setBook(data);
@@ -35,7 +35,7 @@ export default function BookPage({ params }: BookPageProps) {
       const reseñas = await serverActionObtenerReseñas(params.id);
       setResenas(reseñas);
     })();
-  }, [params.id]);
+  }, [id]);
 
 
   const formAction = async (formData: FormData) => {
