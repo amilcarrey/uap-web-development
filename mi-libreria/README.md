@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Plataforma de reseñas de libros
 
-First, run the development server:
+## URL de la aplicación deployada
+https://mi-libreria-progra4.vercel.app
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Repositorio
+https://github.com/FlorSilvero/Tarea-10
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deploy local
+1. Clona el repositorio:
+	```bash
+	git clone https://github.com/FlorSilvero/Tarea-10.git
+	cd Tarea-10
+	```
+2. Instala dependencias:
+	```bash
+	npm install
+	```
+3. Ejecuta la app en desarrollo:
+	```bash
+	npm run dev
+	```
+4. Accede a `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Ejecutar con Docker
+1. Construye la imagen:
+	```bash
+	docker build -t tarea10-app .
+	```
+2. Ejecuta el contenedor:
+	```bash
+	docker run -p 3000:3000 tarea10-app
+	```
+3. Accede a `http://localhost:3000`
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+## Workflows de GitHub Actions
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Build en Pull Requests (https://github.com/FlorSilvero/Tarea-10/actions/workflows/pr-build.yml):**
+	- Se ejecuta automáticamente en cada Pull Request y en cada push a la rama `main`.
+	- Descarga el código fuente, instala las dependencias y realiza el build de la aplicación Next.js.
+	- Utiliza cache para acelerar el proceso de build.
+	- Si el build falla, el PR se marca como fallido y no puede ser mergeado.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Tests en Pull Requests (https://github.com/FlorSilvero/Tarea-10/actions/workflows/pr-test.yml):**
+	- Se ejecuta automáticamente en cada Pull Request.
+	- Instala las dependencias y ejecuta todos los tests unitarios usando Vitest.
+	- Genera reportes de los resultados y los publica en la PR.
+	- Si algún test falla, el PR se marca como fallido y no puede ser mergeado.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Docker Container (https://github.com/FlorSilvero/Tarea-10/actions/workflows/docker-publish.yml):**
+	- Se ejecuta automáticamente cuando se hace merge a la rama `main` o se crea un tag de versión.
+	- Construye una imagen Docker optimizada de la aplicación usando el Dockerfile del proyecto.
+	- Publica la imagen en GitHub Container Registry (GHCR) con los tags `latest`, versión y hash de commit.
+	- Utiliza cache para acelerar el proceso de build y soporta multiplataforma.
+	
+## Demostración de que las GitHub actions funcionan
+    -Publish-docker: https://github.com/FlorSilvero/Tarea-10/actions/runs/17385231289
+	-PR- Test: https://github.com/FlorSilvero/Tarea-10/actions/runs/17380094531
+	- PR - Build: https://github.com/FlorSilvero/Tarea-10/actions/runs/17385231295
