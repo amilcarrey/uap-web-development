@@ -2,9 +2,18 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import BookDetails from "@/components/BookDetails";
 
+interface ImageLinks {
+  smallThumbnail?: string;
+  thumbnail?: string;
+  small?: string;
+  medium?: string;
+  large?: string;
+  extraLarge?: string;
+}
+
 // Mock SOLO de pickCover (BookDetails no necesita actions)
 vi.mock("@/lib/cover", () => ({
-  pickCover: vi.fn((imageLinks: any) => {
+  pickCover: vi.fn((imageLinks?: ImageLinks) => {
     if (!imageLinks) return "";
     return imageLinks.large || imageLinks.medium || imageLinks.thumbnail || "";
   }),
@@ -27,6 +36,8 @@ describe("BookDetails", () => {
       ],
     },
   };
+
+  // ...existing code...
 
   it("should render all book information correctly", () => {
     render(<BookDetails volume={mockVolume} />);

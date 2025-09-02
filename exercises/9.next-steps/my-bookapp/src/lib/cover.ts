@@ -1,21 +1,24 @@
-// src/lib/cover.ts
-export function normalizeCover(url?: string | null) {
-  if (!url) return "";
-  // Google a veces manda http:
-  return url.replace(/^http:\/\//, "https://");
-}
-
-export function pickCover(images?: {
-  thumbnail?: string;
+interface ImageLinks {
   smallThumbnail?: string;
+  thumbnail?: string;
   small?: string;
   medium?: string;
   large?: string;
-}) {
-  const order = ["large", "medium", "thumbnail", "small", "smallThumbnail"] as const;
-  for (const k of order) {
-    const u = images?.[k];
-    if (u) return normalizeCover(u);
+  extraLarge?: string;
+}
+
+export function pickCover(imageLinks?: ImageLinks, size: 'small' | 'medium' | 'large' = 'medium'): string {
+  if (!imageLinks) {
+    return "";
   }
-  return "";
+
+  switch (size) {
+    case 'small':
+      return imageLinks.smallThumbnail || imageLinks.thumbnail || "";
+    case 'large':
+      return imageLinks.large || imageLinks.extraLarge || imageLinks.medium || imageLinks.thumbnail || "";
+    case 'medium':
+    default:
+      return imageLinks.medium || imageLinks.thumbnail || imageLinks.small || "";
+  }
 }

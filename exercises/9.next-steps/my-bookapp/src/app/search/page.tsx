@@ -39,7 +39,7 @@ export default async function SearchPage({
         <header className="mb-8 flex items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-indigo-300 drop-shadow">
-              Resultados para "{q}"
+              Resultados para &quot;{q}&quot;
             </h1>
             <p className="text-sm text-neutral-400 mt-2">
               {totalItems?.toLocaleString()} resultados

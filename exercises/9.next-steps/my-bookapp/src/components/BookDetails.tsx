@@ -1,5 +1,19 @@
 import { pickCover } from "@/lib/cover";
 
+interface ImageLinks {
+  smallThumbnail?: string;
+  thumbnail?: string;
+  small?: string;
+  medium?: string;
+  large?: string;
+  extraLarge?: string;
+}
+
+interface IndustryIdentifier {
+  type?: string;
+  identifier: string;
+}
+
 type BookDetailsProps = {
   volume: {
     volumeInfo?: {
@@ -10,11 +24,8 @@ type BookDetailsProps = {
       pageCount?: number;
       categories?: string[];
       description?: string;
-      imageLinks?: any;
-      industryIdentifiers?: Array<{
-        type?: string;
-        identifier: string;
-      }>;
+      imageLinks?: ImageLinks;
+      industryIdentifiers?: IndustryIdentifier[];
     };
   };
 };
