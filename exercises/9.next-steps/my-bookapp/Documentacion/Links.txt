@@ -1,0 +1,3 @@
+Link a mi repo donde esta la tarea: https://github.com/Joaquinchin/bookApp
+
+Link del deploy: https://book-app-xi-ten.vercel.app
