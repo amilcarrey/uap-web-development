@@ -1,4 +1,4 @@
-#tarea 10: Deploy y CI/CD
+#Tarea 10: Deploy y CI/CD
 
 ## URL de vercel
 https://vercel-nine-gilt-52.vercel.app/
