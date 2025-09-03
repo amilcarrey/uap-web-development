@@ -10,23 +10,15 @@ import {
 } from "../serverActionGuardarReseña";
 
 // 🔹 Next 15 puede pasar params como objeto o como Promise
-interface BookPageProps {
-  params: { id: string } | Promise<{ id: string }>;
-}
-
-export default function BookPage({ params }: BookPageProps) {
+export default function BookPage({ params }: { params: Promise<{ id: string }> }) {
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
   const [book, setBook] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [resenas, setResenas] = useState<Reseña[]>([]);
 
-  // Resolver params si vienen como Promise
+  // Resolver params (siempre es Promise en Next.js 15)
   useEffect(() => {
-    if (params instanceof Promise) {
-      params.then(setResolvedParams);
-    } else {
-      setResolvedParams(params);
-    }
+    params.then(setResolvedParams);
   }, [params]);
 
   // Cargar datos del libro y reseñas
