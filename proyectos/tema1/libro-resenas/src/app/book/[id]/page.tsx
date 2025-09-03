@@ -13,7 +13,8 @@ interface BookPageProps {
   params: { id: string } | Promise<{ id: string }>;
 }
 
-export default function BookPage({ params }: BookPageProps) {
+export default async function BookPage({ params }: { params: Promise<{ id: string }> }) {
+
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
   const [book, setBook] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -55,7 +56,8 @@ export default function BookPage({ params }: BookPageProps) {
     );
   }
 
-  const { id } = resolvedParams;
+  const { id } = await params;
+
 
   const formAction = async (formData: FormData) => {
     const usuario = "Anónimo";
