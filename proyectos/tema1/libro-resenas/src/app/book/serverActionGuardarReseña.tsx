@@ -56,22 +56,33 @@ export async function serverActionGuardarReseña(
   texto: string,
   rating: number
 ) {
-  const nuevaReseña: Reseña = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    usuario,
-    texto,
-    fecha: new Date().toISOString(),
-    rating,
-    likes: 0,
-    dislikes: 0,
-  };
-  const reseñasPorLibro = await leerReseñas();
-  if (!reseñasPorLibro[libroId]) {
-    reseñasPorLibro[libroId] = [];
+  try {
+    console.log("[serverActionGuardarReseña] Params:", { libroId, usuario, texto, rating });
+    if (!libroId || !usuario || !texto || rating === undefined || rating === null) {
+      console.error("[serverActionGuardarReseña] Faltan datos requeridos", { libroId, usuario, texto, rating });
+      throw new Error("Faltan datos requeridos para guardar la reseña");
+    }
+    const nuevaReseña: Reseña = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      usuario,
+      texto,
+      fecha: new Date().toISOString(),
+      rating,
+      likes: 0,
+      dislikes: 0,
+    };
+    const reseñasPorLibro = await leerReseñas();
+    if (!reseñasPorLibro[libroId]) {
+      reseñasPorLibro[libroId] = [];
+    }
+    reseñasPorLibro[libroId].push(nuevaReseña);
+    await guardarReseñas(reseñasPorLibro);
+    console.log("[serverActionGuardarReseña] Reseña guardada", nuevaReseña);
+    return reseñasPorLibro[libroId];
+  } catch (error) {
+    console.error("[serverActionGuardarReseña] Error al guardar reseña:", error);
+    throw error;
   }
-  reseñasPorLibro[libroId].push(nuevaReseña);
-  await guardarReseñas(reseñasPorLibro);
-  return reseñasPorLibro[libroId];
 }
 
 
