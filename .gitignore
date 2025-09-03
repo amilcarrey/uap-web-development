@@ -39,3 +39,24 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+#archivos q no me sirven para entrega 10
+/components/
+/docs/
+/exercises/
+/lib/
+/pages/
+/public/
+/styles/
+/types/
+/utils/
+.eslint.config.ts
+.next.config.ts
+.package-lock.json
+.package.json
+.postcss.config.js
+.setupTests.ts
+.tailwind.config.js
+.vitest.config.ts
+.vitest.setup.ts
+.yarn.lock
