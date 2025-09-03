@@ -32,7 +32,7 @@ export interface Reseña {
   dislikes: number;
 }
 
-const DATA_PATH = path.join(process.cwd(), "data", "reseñas.json");
+const DATA_PATH = path.join("/tmp", "reseñas.json");
 
 async function leerReseñas(): Promise<Record<string, Reseña[]>> {
   try {
