@@ -46,7 +46,11 @@ async function leerReseñas(): Promise<Record<string, Reseña[]>> {
 }
 
 async function guardarReseñas(reseñas: Record<string, Reseña[]>) {
-  await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
+  // Si la ruta es /tmp, no intentes crear el directorio (ya existe en Vercel)
+  const dir = path.dirname(DATA_PATH);
+  if (dir !== "/tmp") {
+    await fs.mkdir(dir, { recursive: true });
+  }
   await fs.writeFile(DATA_PATH, JSON.stringify(reseñas, null, 2), "utf-8");
 }
 
