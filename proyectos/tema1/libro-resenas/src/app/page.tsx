@@ -3,6 +3,7 @@ import { useActionState } from "react";
 import { buscarLibros } from "./lib/buscarLibro";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
 interface GoogleBook {
   id: string;
   volumeInfo: {
