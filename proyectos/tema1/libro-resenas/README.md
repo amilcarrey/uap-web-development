@@ -1,7 +1,10 @@
-
 # Libro Reseñas
 
 Plataforma de descubrimiento y reseñas de libros.
+
+## URL de la aplicación deployada
+
+[https://libro-resenas.vercel.app/](https://libro-resenas.vercel.app/)
 
 ## Deploy local
 
@@ -33,3 +36,7 @@ API_KEY=tu_api_key
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [Docker Best Practices](https://docs.docker.com/develop/dev-best-practices/)
 - [Next.js Deployment Guide](https://nextjs.org/docs/deployment)
+
+## Demostración de Workflows
+
+![Workflows funcionando](./workflows-funcionando.png)
