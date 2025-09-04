@@ -19,6 +19,9 @@
     "preview:vercel": "vercel"
   },
   "dependencies": {
+    "dotenv": "^17.2.2",
+    "mongodb": "^6.19.0",
+    "mongoose": "^8.18.0",
     "next": "15.5.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"
@@ -30,6 +33,7 @@
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.1",
+    "@types/mongoose": "^5.11.96",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
