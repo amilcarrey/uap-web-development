@@ -1,129 +1,139 @@
-'use client';
-
-import { useState } from 'react';
-import { Review } from '@/types';
+import { useState } from 'react'
+import { Review } from '@/types'
 
 interface ReviewFormProps {
+  onSubmit: (review: Omit<Review, 'id' | 'votes'>) => void;
+  onCancel: () => void;
   bookId: string;
-  onSubmit: (review: Omit<Review, 'id' | 'createdAt' | 'upvotes' | 'downvotes'>) => void;
 }
 
-const ReviewForm: React.FC<ReviewFormProps> = ({ bookId, onSubmit }) => {
-  const [rating, setRating] = useState(5);
-  const [author, setAuthor] = useState('');
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface ReviewFormData {
+  author: string;
+  rating: number;
+  comment: string;
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      await onSubmit({
-        bookId,
-        author,
-        rating,
-        title,
-        content
-      });
-      
-      // Reset form on successful submission
-      setAuthor('');
-      setTitle('');
-      setContent('');
-      setRating(5);
-    } catch (error) {
-      console.error('Error submitting review:', error);
-    } finally {
-      setIsSubmitting(false);
+export default function ReviewForm({ onSubmit, onCancel, bookId }: ReviewFormProps) {
+  const [formData, setFormData] = useState<ReviewFormData>({
+    author: '',
+    rating: 0,
+    comment: ''
+  })
+  const [hoverRating, setHoverRating] = useState(0)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (formData.rating === 0) {
+      alert('Por favor selecciona una calificación')
+      return
     }
-  };
+    
+    onSubmit({
+      bookId: bookId,
+      author: formData.author || 'Anónimo',
+      rating: formData.rating,
+      comment: formData.comment,
+      date: new Date().toISOString()
+    })
+    
+    setFormData({ author: '', rating: 0, comment: '' })
+  }
+
+  const handleRatingClick = (rating: number) => {
+    setFormData({ ...formData, rating })
+  }
+
+  const handleRatingHover = (rating: number) => {
+    setHoverRating(rating)
+  }
+
+  const handleMouseLeave = () => {
+    setHoverRating(0)
+  }
+
+  const renderStars = () => {
+    const stars = []
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <button
+          key={i}
+          type="button"
+          className={`text-2xl ${
+            i <= (hoverRating || formData.rating)
+              ? 'text-yellow-400'
+              : 'text-gray-300'
+          } transition-colors duration-200`}
+          onClick={() => handleRatingClick(i)}
+          onMouseEnter={() => handleRatingHover(i)}
+          onMouseLeave={handleMouseLeave}
+        >
+          ★
+        </button>
+      )
+    }
+    return stars
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-xl font-semibold mb-4">Escribe tu reseña</h3>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre
-          </label>
-          <input
-            type="text"
-            id="author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={isSubmitting}
-          />
+    <form onSubmit={handleSubmit} className="mb-6 p-4 bg-gray-50 rounded-lg">
+      <h3 className="font-semibold text-gray-800 mb-3">Escribe tu reseña</h3>
+      
+      <div className="mb-4">
+        <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre (opcional)
+        </label>
+        <input
+          type="text"
+          id="author"
+          value={formData.author}
+          onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+          placeholder="Tu nombre"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500"
+        />
+      </div>
+      
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Calificación *
+        </label>
+        <div className="flex items-center space-x-1" onMouseLeave={handleMouseLeave}>
+          {renderStars()}
+          <span className="ml-2 text-sm text-gray-600">
+            {formData.rating > 0 ? `${formData.rating} estrella${formData.rating !== 1 ? 's' : ''}` : 'Selecciona una calificación'}
+          </span>
         </div>
-        
-        <div className="mb-4">
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-            Título de la reseña
-          </label>
-          <input
-            type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={isSubmitting}
-          />
-        </div>
-        
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Calificación (1-5 estrellas)
-          </label>
-          <div className="flex">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                onClick={() => setRating(star)}
-                className="text-2xl focus:outline-none p-1"
-                disabled={isSubmitting}
-              >
-                <span className={star <= rating ? 'text-yellow-400' : 'text-gray-300'}>
-                  {star <= rating ? '★' : '☆'}
-                </span>
-              </button>
-            ))}
-          </div>
-          <div className="text-sm text-gray-500 mt-1">
-            {rating} de 5 estrellas
-          </div>
-        </div>
-        
-        <div className="mb-4">
-          <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-            Reseña
-          </label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Comparte tus pensamientos sobre este libro..."
-            disabled={isSubmitting}
-          />
-        </div>
-        
+      </div>
+      
+      <div className="mb-4">
+        <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
+          Reseña *
+        </label>
+        <textarea
+          id="comment"
+          value={formData.comment}
+          onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+          placeholder="Escribe tu reseña aquí..."
+          rows={4}
+          required
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500"
+        />
+      </div>
+      
+      <div className="flex space-x-2">
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-          disabled={isSubmitting}
+          className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
         >
-          {isSubmitting ? 'Enviando...' : 'Enviar Reseña'}
+          Enviar Reseña
         </button>
-      </form>
-    </div>
-  );
-};
-
-export default ReviewForm;
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  )
+}
