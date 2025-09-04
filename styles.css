@@ -1,0 +1,190 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 1.2rem;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #ffffff;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2%;
+  width: 100%;
+  justify-content: center;
+}
+
+header {
+  background-color: #333;
+  color: #ffffff;
+  width: 100%;
+  z-index: 1000;
+  padding: 2%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  text-align: center;
+  box-shadow: 0 0.5% 2% rgba(0, 0, 0, 0.2);
+  height: 25%;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  letter-spacing: 0.2rem;
+}
+
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 2rem;
+  }
+}
+
+main {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+h1 {
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: white;
+  margin: 2% 0;
+  padding: 2%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 5%;
+  box-shadow: 0 0.5% 1% rgba(0, 0, 0, 0.1);
+}
+
+#formulario-tareas {
+  background-color: green;
+  padding: 2rem;
+  color: white;
+  border-radius: 2rem;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0 auto;
+}
+
+.tareas {
+  height: auto;
+  width: 100%;
+  margin-top: 5%;
+  padding: 5%;
+}
+
+#clear {
+  align-self: flex-end;
+  margin-top: 1rem;
+  color: greenyellow;
+  border: none;
+  background-color: transparent;
+  padding: 1rem;
+  cursor: pointer;
+}
+
+.añadir-tarea {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 5%;
+}
+
+#añadir {
+  border-radius: 2rem 0 0 2rem;
+  height: 4rem;
+  border: none;
+  width: 90%;
+  padding-left: 2%;
+  background-color: rgb(232, 227, 227);
+  margin-top: 5%;
+}
+
+#añadir-boton {
+  border-radius: 0 2rem 2rem 0;
+  background-color: greenyellow;
+  width: 10%;
+  position: absolute;
+  height: 4rem;
+  margin-left: -2%;
+  border: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  margin-top: 4.3%;
+}
+
+#añadir-boton:hover {
+  background-color: #b5ff4d;
+}
+
+.borrar-tarea {
+  border: none;
+  padding: 1%;
+  background-color: transparent;
+}
+
+.botones-tarea {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.borrar-tarea,
+.finalizar-tarea {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.contenedor-tarea {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid black;
+  padding: 0.5rem 0;
+}
+
+.info-tarea {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+}
+
+.tab {
+  padding: 1rem 2rem;
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  color: #555;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.tab.active {
+  color: white;
+  border-bottom: 3px solid greenyellow;
+}
+
+.tab:hover {
+  color: greenyellow;
+}
