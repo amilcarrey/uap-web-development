@@ -1,0 +1,324 @@
+---
+import { updateLanguageServiceSourceFile } from "typescript";
+
+import { state } from "../services/state.ts";
+import type { Task } from "../services/state";
+
+
+
+
+const { filteredTasks, filter } = Astro.props;
+
+const { tasks } = state;
+console.log(state);
+---
+
+<head>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+</head>
+
+<body>
+    <header>
+        <h1>Gestor de Tareas</h1>
+    </header>
+    <main>
+        <div class="tasksType">
+            <div>
+                <h2>Personal</h2>
+            </div>
+            <div>
+                <h2>Professional</h2>
+            </div>
+
+            <i class="fa-solid fa-plus"></i>
+        </div>
+
+        <form action="/api/add" class="addTask" id="addTask" method="POST">
+            <input
+                type="text"
+                name="task"
+                id="task"
+                placeholder="Añadir tarea"
+            />
+            <button type="submit" name="add">ADD</button>
+        </form>
+
+        <div id="taskList">
+            <div id="classList" >
+                <a id="allTasks" href="/?filter=all" class={filter === "all" ? "active" : ""}>All</a>
+                <a id="incompletedTasks" href="/?filter=incompleted" class={filter === "incompleted" ? "active" : ""}>Incompleted</a>
+                <a id="completedTasks" href="/?filter=completed" class={filter === "completed" ? "active" : ""}>Completed</a>
+            </div>
+
+            <ul>
+                {
+                    filteredTasks.map((task:Task) => (
+                        <li>
+                            <div  class="tasksForm">
+                                <form method="POST" action="/api/complete-task" >
+                                    <button type="submit" name="complete" value={task.id} class="checkbox-button">
+                                        {task.completed ? "✔": ""}
+                                    </button>
+                                </form>
+                                
+                                <label class={task.completed ? "completeTask" : ""}>
+                                    {task.name}
+                                </label>
+
+                                <form method="POST" action="/api/delete-task">
+                                    <button
+                                        type="submit"
+                                        class="delete"
+                                        name="delete"
+                                        value={task.id}>
+                                            <i class="fa-solid fa-trash" />
+                                    </button>
+
+                                </form>
+
+                                
+                            </div>
+                        </li>
+                    ))
+                }
+            </ul>
+            <form method="POST" action="/api/clear-completed">
+                <button type="submit" name="clearCompleted" class="clear" value="true">Clear Completed</button>
+            </form>
+        </div>
+    </main>
+</body>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+    header {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        background-color: rgb(33, 38, 38);
+        padding: 10px;
+        position: fixed;
+        width: 100%;
+        height: 80px;
+        cursor: pointer;
+        color: white;
+        font-size: 16px;
+    }
+    
+
+    
+    main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+    h2{
+        font-size: 25px;
+    }
+    .tasksType {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        width: 100%;
+
+        margin-top: 100px;
+        background: rgb(50, 52, 52);
+        color: aliceblue;
+    }
+    .tasksType div {
+        cursor: pointer;
+    }
+
+    .tasksType div:hover {
+        border-bottom: 2px solid rgb(57, 98, 218);
+        color: white;
+        line-height: 20px;
+    }
+
+    .tasksType i {
+        cursor: pointer;
+        font-size: 25px;
+        padding: 10px;
+        border-radius: 50%;
+    }
+    .tasksType i:hover {
+        background-color: rgb(57, 98, 218);
+    }
+
+    .addTask {
+        display: flex;
+        justify-content: center;
+        margin-top: 50px;
+        height: 50px;
+    }
+
+    .addTask input {
+        width: 400px;
+        height: 30px;
+        border: 2px solid rgb(154, 161, 161);
+        border-radius: 10px 0 0 10px;
+        border-right: none;
+        padding: 5px;
+    }
+    .addTask button {
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 15px;
+        border-top-right-radius: 15px;
+        background-color: rgb(57, 98, 218);
+        height: 43px;
+        border: none;
+        cursor: pointer;
+        color: white;
+    }
+    .addTask button:hover {
+        background-color: rgb(14, 14, 211);
+        color: white;
+    }
+
+    #taskList {
+        display: flex;
+        flex-direction: column;
+        background-color: rgb(219, 227, 227);
+        width: 445px;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    .checkbox-button {
+        background: none;
+        border: 2px solid rgb(154, 161, 161);
+        border-radius: 50px;
+        cursor: pointer;
+        width: 25px;
+        height: 25px;
+    }
+
+    .completeTask{
+        text-decoration: line-through;
+        color: rgb(106, 107, 109);
+    }
+    
+
+   
+
+    .tasksForm {
+        list-style: none;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgb(154, 161, 161);
+        border-radius: 0px;
+    }
+
+    #taskList ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    .delete {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: red;
+    }
+
+    .delete :hover {
+        color: rgb(173, 4, 4);
+    }
+    form[method="POST"] .clear {
+        display: flex;
+        padding: 10px;
+    }
+
+    .clear {
+        cursor: pointer;
+        margin-left: auto;
+        border: none;
+        background: none;
+        font-size: 16px;
+    }
+    .clear:hover {
+        color: rgb(57, 98, 218);
+    }
+
+    #classList {
+        display: flex;
+        justify-content: space-around;
+        padding: 10px;
+    }
+
+    #classList a {
+        border: none;
+        text-decoration: none;
+        color: rgb(57, 98, 218);;
+        border-bottom: 2px solid rgb(57, 98, 218);
+        background-color: rgb(219, 227, 227);
+        width: 120px;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 10px;
+        border-top-left-radius: 2px;
+        border-top-right-radius: 2px;
+        text-align: center;
+    }
+
+    #classList a:hover {
+        background-color: rgb(57, 98, 218);
+        color: aliceblue;
+        
+    }
+
+    #classList a.active{
+        background-color: rgb(57, 98, 218);
+        color: aliceblue;
+
+    }
+
+    @media screen and (max-height: 368px) {
+        #news {
+            display: none;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        #container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #hero {
+            display: block;
+            padding-top: 10%;
+        }
+
+        #links {
+            flex-wrap: wrap;
+        }
+
+        #links a.button {
+            padding: 14px 18px;
+        }
+
+        #news {
+            right: 16px;
+            left: 16px;
+            bottom: 2.5rem;
+            max-width: 100%;
+        }
+
+        h1 {
+            line-height: 1.5;
+        }
+    }
+</style>
