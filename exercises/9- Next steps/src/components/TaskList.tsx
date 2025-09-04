@@ -1,0 +1,33 @@
+import React from "react";
+import TaskItem from "./TaskItem";
+
+type Task = {
+  id: string;
+  text: string;
+  completed: boolean;
+};
+
+type Props = {
+  tasks: Task[];
+  onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
+};
+
+const TaskList: React.FC<Props> = ({ tasks, onToggle, onDelete }) => {
+  if (tasks.length === 0) return <p>No hay tareas</p>;
+
+  return (
+    <div>
+      {tasks.map((task) => (
+        <TaskItem
+          key={task.id}
+          task={task}
+          onToggle={onToggle}
+          onDelete={onDelete}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default TaskList;
