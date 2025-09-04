@@ -1,25 +1,39 @@
 "use client";
 import { useState } from "react";
 
-export default function ReviewForm({ bookId }: { bookId: string }) {
+type Props = {
+  bookId: string;
+  onSubmitted?: () => void;
+};
+
+export default function ReviewForm({ bookId, onSubmitted }: Props) {
   const [author, setAuthor] = useState("");
   const [rating, setRating] = useState(5);
-  const [hover, setHover] = useState(0); // ⭐ para hover
+  const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
+  const [sending, setSending] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/reviews", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bookId, author, rating, comment })
-    });
+    try {
+      setSending(true);
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookId, author, rating, comment }),
+      });
+      if (!res.ok) throw new Error("No se pudo enviar la reseña");
 
-    if (res.ok) {
-      alert("Reseña enviada!");
+      // limpiar y avisar
       setAuthor("");
       setRating(5);
       setComment("");
+      onSubmitted?.();
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo enviar la reseña");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -45,6 +59,7 @@ export default function ReviewForm({ bookId }: { bookId: string }) {
             className={`text-3xl transition-colors ${
               (hover || rating) >= n ? "text-yellow-400" : "text-gray-300"
             }`}
+            aria-label={`Calificación ${n}`}
           >
             ★
           </button>
@@ -59,8 +74,12 @@ export default function ReviewForm({ bookId }: { bookId: string }) {
         required
       />
 
-      <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded font-medium transition-colors">
-        Enviar reseña
+      <button
+        type="submit"
+        disabled={sending}
+        className="bg-blue-500 hover:bg-blue-600 disabled:opacity-60 text-white p-2 rounded font-medium transition-colors"
+      >
+        {sending ? "Enviando..." : "Enviar reseña"}
       </button>
     </form>
   );

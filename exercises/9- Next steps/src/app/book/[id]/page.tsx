@@ -1,11 +1,14 @@
+// src/app/book/[id]/page.tsx
+import React from "react";
 import { Book, GoogleBooksItem } from "@/types/book";
-import ReviewForm from "@/components/ReviewForm";
-import ReviewList from "@/components/ReviewList";
 import { cleanDescription } from "@/utils/cleanDescription";
+import ReviewsSection from "@/components/ReviewsSection";
 
 async function getBook(id: string): Promise<Book | null> {
   const url = `https://www.googleapis.com/books/v1/volumes/${id}`;
   const res = await fetch(url);
+  if (!res.ok) return null;
+
   const data: GoogleBooksItem = await res.json();
   if (!data) return null;
 
@@ -17,24 +20,33 @@ async function getBook(id: string): Promise<Book | null> {
     publishedDate: data.volumeInfo.publishedDate,
     pageCount: data.volumeInfo.pageCount,
     categories: data.volumeInfo.categories,
-    thumbnail: data.volumeInfo.imageLinks?.thumbnail
+    thumbnail: data.volumeInfo.imageLinks?.thumbnail,
   };
 }
 
+// Este es un componente servidor
 export default async function BookDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params; 
-  const book = await getBook(id);
-  if (!book) return <p>No se encontró el libro</p>;
+  const book = await getBook(params.id);
+  if (!book) return <p>Libro no encontrado.</p>;
 
   return (
-    <div className="bg-white p-4 rounded shadow">
-      {book.thumbnail && <img src={book.thumbnail} alt={book.title} />}
-      <h1 className="text-2xl font-bold mt-2">{book.title}</h1>
-      <p className="text-gray-600">{book.authors?.join(", ")}</p>
-      <p className="mt-4">{cleanDescription(book.description)}</p>
+    <div className="max-w-4xl mx-auto p-4 bg-white rounded shadow">
+      {book.thumbnail && (
+        <img
+          src={book.thumbnail}
+          alt={book.title}
+          className="w-full h-96 object-cover rounded-md mb-4"
+        />
+      )}
+      <h1 className="text-3xl font-bold mb-1">{book.title}</h1>
+      {book.authors && <p className="text-gray-600 mb-2">Autor(es): {book.authors.join(", ")}</p>}
+      {book.publishedDate && <p className="text-gray-600 mb-1">Publicado: {book.publishedDate}</p>}
+      {book.pageCount && <p className="text-gray-600 mb-1">Páginas: {book.pageCount}</p>}
+      {book.categories && <p className="text-gray-600 mb-2">Categorías: {book.categories.join(", ")}</p>}
+      {book.description && <p className="text-gray-700 mt-4">{cleanDescription(book.description)}</p>}
 
-      <ReviewForm bookId={book.id} />
-      <ReviewList bookId={book.id} />
+      {/* Client Component */}
+      <ReviewsSection bookId={book.id} />
     </div>
   );
 }
