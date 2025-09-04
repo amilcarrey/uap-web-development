@@ -1,0 +1,21 @@
+---
+import TaskItem from "./TaskItem.astro";
+
+const { tasks = [] } = Astro.props; // Si no recibe `tasks`, usa un array vacío
+---
+<div class="Main flex flex-col gap-[10px] m-[20px] mx-auto bg-[antiquewhite] w-[80%] p-[20px] max-w-[1200px] mt-[20px] rounded-[10px]">
+  <div class="Tasks flex flex-col items-center space-y-[20px]" id="task-list">
+  {tasks.length > 0 ? (
+    tasks.map(task => <TaskItem task={task} />)
+  ) : (
+    <p>No hay tareas disponibles.</p>
+  )}
+</div>
+<form action="/api/tasks" method="post" id="clear-completed-form">
+  <input type="hidden" name="_method" value="DELETE_COMPLETED" />
+  <button type="submit" class="clearCompletedButton bg-orange-400 text-white font-bold cursor-pointer placeholder:text-gray hover:bg-[rgb(139,90,0)] w-[84%] h-[40px] ml-[8%] rounded-[5px] border-none flex items-center justify-center">
+    Clear Completed
+  </button>
+</form>
+</div>
+
