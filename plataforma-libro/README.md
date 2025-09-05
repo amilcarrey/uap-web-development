@@ -1,3 +1,5 @@
+# README COPIADO DEL REPOSITORIO AL CUAL TENGO EN EL LINK DE ABAJO DE MI API DEPLOYADA
+
 # URL de la aplicación deployada funcionando correctamente
 
 Aplicacion deployada en: 
@@ -79,7 +81,7 @@ Build y tests fallidos marcan automáticamente el PR como fallido.
 
 El workflow de Docker construye y publica la imagen al hacer push en main.
 
-![alt text](captura_workflows.png)
+![alt text](captura_workflow.png)
 
 captura de api deployada 
-![alt text](api_deployada.png)
+![alt text](captura_api_deployada.png)
