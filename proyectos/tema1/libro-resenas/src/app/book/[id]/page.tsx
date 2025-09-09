@@ -6,8 +6,8 @@ import {
   serverActionObtenerReseñas,
   serverActionGuardarReseña,
   serverActionVotarReseña,
-  Reseña
 } from "../serverActionGuardarReseña";
+import { Reseña } from "../../types/Reseña";
 
 // 🔹 Next 15 puede pasar params como objeto o como Promise
 export default function BookPage({ params }: { params: Promise<{ id: string }> }) {
