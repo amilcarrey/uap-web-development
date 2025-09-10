@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           message: 'Datos de entrada inválidos',
-          errors: error.errors.map(err => ({
+          errors: error.issues.map(err => ({
             field: err.path.join('.'),
             message: err.message
           }))
