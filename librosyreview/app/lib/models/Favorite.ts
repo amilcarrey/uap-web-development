@@ -14,14 +14,6 @@ export const FavoriteValidationSchema = z.object({
   notes: z.string().max(500, 'Las notas no pueden exceder 500 caracteres').optional()
 });
 
-// Esquema para actualización
-export const FavoriteUpdateSchema = FavoriteValidationSchema.partial().omit({ userId: true, bookId: true });
-
-// Tipos TypeScript
-export type FavoriteInput = z.infer<typeof FavoriteValidationSchema>;
-export type FavoriteUpdate = z.infer<typeof FavoriteUpdateSchema>;
-export type ReadingStatus = 'want_to_read' | 'currently_reading' | 'read';
-
 // Interface para el documento de MongoDB
 export interface IFavorite extends Document {
   userId: Types.ObjectId;
@@ -35,7 +27,7 @@ export interface IFavorite extends Document {
   updatedAt: Date;
 }
 
-// Esquema de Mongoose
+// Esquema de Mongoose con múltiples índices
 const favoriteSchema = new Schema<IFavorite>({
   userId: {
     type: Schema.Types.ObjectId,
@@ -48,6 +40,12 @@ const favoriteSchema = new Schema<IFavorite>({
     required: [true, 'ID de libro requerido'],
     index: true
   },
+  status: {
+    type: String,
+    enum: ['want_to_read', 'currently_reading', 'read'],
+    default: 'want_to_read',
+    index: true
+  }
   bookTitle: {
     type: String,
     required: [true, 'Título del libro requerido'],
@@ -68,12 +66,6 @@ const favoriteSchema = new Schema<IFavorite>({
       message: 'URL de imagen inválida'
     }
   },
-  status: {
-    type: String,
-    enum: ['want_to_read', 'currently_reading', 'read'],
-    default: 'want_to_read',
-    index: true
-  },
   notes: {
     type: String,
     maxlength: [500, 'Las notas no pueden exceder 500 caracteres'],
@@ -88,10 +80,10 @@ const favoriteSchema = new Schema<IFavorite>({
   versionKey: false
 });
 
-// Índice compuesto único: un usuario no puede tener el mismo libro duplicado
+// Índices compuestos para optimización
 favoriteSchema.index({ userId: 1, bookId: 1 }, { unique: true });
-favoriteSchema.index({ userId: 1, status: 1, addedAt: -1 }); // Para filtrar por estado
-favoriteSchema.index({ userId: 1, addedAt: -1 }); // Para ordenar por fecha
+favoriteSchema.index({ userId: 1, status: 1, addedAt: -1 });
+favoriteSchema.index({ userId: 1, addedAt: -1 });
 
 // Crear y exportar el modelo
 const Favorite = mongoose.models.Favorite || mongoose.model<IFavorite>('Favorite', favoriteSchema);

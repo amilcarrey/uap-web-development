@@ -1,6 +1,15 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 import { z } from 'zod';
 
+// Tipos para votaciones
+export type VoteType = 'like' | 'dislike';
+
+export interface VoteInput {
+  userId: string;
+  reviewId: string;
+  voteType: VoteType;
+}
+
 // Esquema de validación con Zod para votaciones
 export const VoteValidationSchema = z.object({
   userId: z.string().min(1, 'ID de usuario requerido'),
@@ -10,10 +19,6 @@ export const VoteValidationSchema = z.object({
   })
 });
 
-// Tipos TypeScript
-export type VoteInput = z.infer<typeof VoteValidationSchema>;
-export type VoteType = 'like' | 'dislike';
-
 // Interface para el documento de MongoDB
 export interface IVote extends Document {
   userId: Types.ObjectId;
@@ -22,7 +27,7 @@ export interface IVote extends Document {
   createdAt: Date;
 }
 
-// Esquema de Mongoose
+// Esquema de Mongoose con índices optimizados
 const voteSchema = new Schema<IVote>({
   userId: {
     type: Schema.Types.ObjectId,
@@ -42,7 +47,7 @@ const voteSchema = new Schema<IVote>({
     required: [true, 'Tipo de voto requerido']
   }
 }, {
-  timestamps: { createdAt: true, updatedAt: false }, // Solo createdAt
+  timestamps: { createdAt: true, updatedAt: false },
   versionKey: false
 });
 
@@ -93,9 +98,15 @@ export class VoteService {
   /**
    * Crear o actualizar voto
    */
-  static async toggleVote(voteData: VoteInput): Promise<{ action: 'created' | 'updated' | 'removed', vote?: IVote }> {
+  static async toggleVote(userId: string, reviewId: string, voteType: VoteType): Promise<{
+    success: boolean;
+    message: string;
+    vote?: IVote;
+    reviewStats?: { likesCount: number; dislikesCount: number };
+  }> {
     try {
       // Validar datos
+      const voteData = { userId, reviewId, voteType };
       const validatedData = VoteValidationSchema.parse(voteData);
       
       // Buscar voto existente
@@ -104,28 +115,46 @@ export class VoteService {
         reviewId: validatedData.reviewId
       });
       
+      let result;
       if (existingVote) {
         if (existingVote.voteType === validatedData.voteType) {
           // Mismo tipo de voto: eliminar
           await Vote.findByIdAndDelete(existingVote._id);
-          return { action: 'removed' };
+          result = { action: 'removed', message: 'Voto eliminado' };
         } else {
           // Diferente tipo: actualizar
           existingVote.voteType = validatedData.voteType;
           await existingVote.save();
-          return { action: 'updated', vote: existingVote };
+          result = { action: 'updated', vote: existingVote, message: 'Voto actualizado' };
         }
       } else {
         // Nuevo voto: crear
         const newVote = new Vote(validatedData);
         await newVote.save();
-        return { action: 'created', vote: newVote };
+        result = { action: 'created', vote: newVote, message: 'Voto creado' };
       }
+      
+      // Obtener estadísticas actualizadas de la reseña
+      const likesCount = await Vote.countDocuments({ reviewId, voteType: 'like' });
+      const dislikesCount = await Vote.countDocuments({ reviewId, voteType: 'dislike' });
+      
+      return {
+        success: true,
+        message: result.message,
+        vote: result.vote,
+        reviewStats: { likesCount, dislikesCount }
+      };
     } catch (error) {
       if (error instanceof z.ZodError) {
-        throw new Error(`Datos inválidos: ${error.errors.map(e => e.message).join(', ')}`);
+        return {
+          success: false,
+          message: `Datos inválidos: ${error.errors.map(e => e.message).join(', ')}`
+        };
       }
-      throw error;
+      return {
+        success: false,
+        message: 'Error interno al procesar voto'
+      };
     }
   }
   
