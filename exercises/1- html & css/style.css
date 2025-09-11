@@ -1,0 +1,87 @@
+
+body {
+    
+    font-family: Poppins, sans-serif;
+    background-color: #f5f0ea;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 400px;
+    margin: 50px auto;
+    background: #f7f2ec;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+h1 {
+    color: #d6892d;
+    font-family: Poppins, sans-serif;
+
+}
+.task-input {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-family: Poppins, sans-serif;
+
+}
+button {
+    background: #61b5c6;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: Poppins, sans-serif;
+
+}
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+.task-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background: white;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.completed {
+    text-decoration: line-through;
+    color: gray;
+}
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.tab {
+    background: none;
+    border: none;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s, border-bottom 0.3s;
+}
+
+.tab.active {
+    color: black;
+    border-bottom: 3px solid #d6892d;
+}
+
+.tab:hover {
+    color: black;
+}
