@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #1f2937;
+  --accent: #6b7280;
+  --muted: #9ca3af;
+  --border: #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #1f2937;
+    --accent: #6b7280;
+    --muted: #9ca3af;
+    --border: #e5e7eb;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Utility classes for line clamping */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Minimalist components */
+.btn-minimal {
+  @apply px-6 py-3 text-sm font-light border border-gray-200 hover:border-gray-400 transition-all duration-300 bg-white hover:bg-gray-50 rounded-none;
+}
+
+.card-minimal {
+  @apply bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 rounded-none;
+}
+
+.input-minimal {
+  @apply border-0 border-b border-gray-200 focus:border-gray-500 bg-transparent px-0 py-3 text-sm font-light focus:outline-none transition-colors duration-300 rounded-none;
+}
