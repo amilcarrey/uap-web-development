@@ -5,6 +5,40 @@ import Image from 'next/image';
 import { getBookById } from '../actions/books';
 import { DetailedBook } from '../lib/book-utils'; // Importar la interfaz existente
 
+// Componente para manejar la descripción sin problemas de hidratación
+function DescriptionContent({ description }: { description: string }) {
+  const [sanitizedContent, setSanitizedContent] = useState('');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    // Procesar el contenido HTML solo en el cliente
+    const processed = description
+      .replace(/<p>/g, '<p class="mb-2">')
+      .replace(/<i>/g, '<em>')
+      .replace(/<\/i>/g, '</em>')
+      .replace(/�/g, '');
+    setSanitizedContent(processed);
+  }, [description]);
+
+  // Mostrar contenido simple durante la hidratación inicial
+  if (!isClient) {
+    return (
+      <div className="text-green-800 leading-relaxed">
+        {description.replace(/<[^>]*>/g, '').replace(/�/g, '')}
+      </div>
+    );
+  }
+
+  // Mostrar contenido HTML procesado después de la hidratación
+  return (
+    <div 
+      className="text-green-800 leading-relaxed prose prose-green max-w-none"
+      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+    />
+  );
+}
+
 // Eliminar la interfaz Book local y usar DetailedBook
 export default function BookModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,10 +107,10 @@ export default function BookModal() {
         credentials: 'include', // Incluir cookies para autenticación
         body: JSON.stringify({
           bookId: book.id,
-          bookTitle: book.title,
-          bookThumbnail: book.thumbnail,
-          rating,
+          title: `Reseña de ${book.title}`, // Título de la reseña
           content: review.trim(),
+          rating,
+          bookTitle: book.title,
           bookAuthor: book.authors?.join(', ') || 'Autor desconocido',
           bookImage: book.thumbnail
         })
@@ -214,7 +248,7 @@ export default function BookModal() {
               {book.description && (
                 <div>
                   <h3 className="text-lg font-semibold text-green-900 mb-2">Descripción</h3>
-                  <p className="text-green-800 leading-relaxed">{book.description}</p>
+                  <DescriptionContent description={book.description} />
                 </div>
               )}
 

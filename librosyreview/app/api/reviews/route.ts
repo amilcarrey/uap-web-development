@@ -118,7 +118,26 @@ export const GET = withOptionalAuth(async (request: NextRequest, user) => {
     const filters: any = { isActive: true };
     
     if (bookId) filters.bookId = bookId;
-    if (userId) filters.userId = userId;
+    
+    // Manejar userId especial 'current' para obtener reseñas del usuario autenticado
+    if (userId) {
+      if (userId === 'current') {
+        // Si se solicita 'current' pero no hay usuario autenticado, devolver error
+        if (!user) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: 'Debes iniciar sesión para ver tus reseñas'
+            },
+            { status: 401 }
+          );
+        }
+        filters.userId = user.id;
+      } else {
+        filters.userId = userId;
+      }
+    }
+    
     if (rating) filters.rating = { $gte: parseInt(rating) };
     
     // Validar campo de ordenamiento
