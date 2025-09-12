@@ -43,17 +43,26 @@ export async function validateAuthToken(request: NextRequest): Promise<{
   error?: string;
 }> {
   try {
-    // Extraer token del header Authorization
-    const authHeader = request.headers.get('authorization');
+    // Conectar a la base de datos
+    await connectToDatabase();
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Extraer token del header Authorization o de las cookies
+    const authHeader = request.headers.get('authorization');
+    let token: string | undefined;
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7); // Remover 'Bearer '
+    } else {
+      // Buscar en cookies si no está en el header
+      token = request.cookies.get('token')?.value;
+    }
+    
+    if (!token) {
       return {
         isValid: false,
         error: 'Token de autorización requerido'
       };
     }
-
-    const token = authHeader.substring(7); // Remover 'Bearer '
 
     // Verificar que existe la clave secreta
     const jwtSecret = process.env.JWT_SECRET;

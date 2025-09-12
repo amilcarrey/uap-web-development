@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
     // Generar token de autenticación
     const token = newUser.generateAuthToken();
     
-    // Respuesta exitosa con usuario y token
-    return NextResponse.json(
+    // Crear respuesta exitosa con usuario y token
+    const response = NextResponse.json(
       {
         success: true,
         message: 'Usuario registrado exitosamente',
@@ -39,6 +39,16 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
+    
+    // Establecer cookie del token
+    response.cookies.set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7 // 7 días
+    });
+    
+    return response;
     
   } catch (error) {
     console.error('❌ Error en registro de usuario:', error);
@@ -63,8 +73,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: 'El email ya está registrado',
-          error: 'DUPLICATE_EMAIL'
+          message: 'Ya existe una cuenta registrada con este email. Por favor, utiliza otro email o inicia sesión si ya tienes una cuenta.',
+          error: 'Ya existe una cuenta con este email'
+        },
+        { status: 409 }
+      );
+    }
+    
+    // Manejo de errores de MongoDB para email duplicado
+    if (error instanceof Error && (error.message.includes('E11000') || error.message.includes('duplicate key'))) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Ya existe una cuenta registrada con este email. Por favor, utiliza otro email o inicia sesión si ya tienes una cuenta.',
+          error: 'Ya existe una cuenta con este email'
         },
         { status: 409 }
       );

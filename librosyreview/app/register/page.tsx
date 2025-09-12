@@ -73,6 +73,7 @@ export default function RegisterPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Incluir cookies
         body: JSON.stringify({
           nombre: formData.name,
           email: formData.email,
@@ -86,11 +87,15 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Error al registrar usuario');
       }
 
-      setSuccess('¡Registro exitoso! Redirigiendo al login...');
+      setSuccess('¡Registro exitoso! Redirigiendo...');
       
-      // Redirigir al login después de 2 segundos
+      // El token se guarda automáticamente en cookies por el servidor
+      // Disparar evento personalizado para notificar el login
+      window.dispatchEvent(new CustomEvent('userLogin'));
+      
+      // Redirigir a la página principal después de 2 segundos
       setTimeout(() => {
-        router.push('/login');
+        router.push('/');
       }, 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');

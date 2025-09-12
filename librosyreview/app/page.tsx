@@ -3,6 +3,7 @@ import BookCard from './components/BookCard';
 import BookModal from './components/BookModal';
 import MainMenu from './components/MainMenu';
 import ReviewsSection from './components/ReviewsSection';
+import UserMenu from './components/UserMenu';
 import Link from 'next/link';
 
 async function getData(q: string | undefined) {
@@ -25,7 +26,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
           <h1 className="text-4xl font-light mb-8 tracking-wide">Libros y Review</h1>
           
           {/* Navigation */}
-          <nav className="flex justify-center gap-6 mb-8">
+          <nav className="flex justify-center items-center gap-6 mb-8">
             <Link 
               href="/" 
               className={`px-6 py-2 rounded-full transition-all duration-300 font-light ${currentView === 'menu' ? 'bg-green-700 text-white shadow-lg' : 'text-green-100 hover:text-white hover:bg-green-700/50'}`}
@@ -44,18 +45,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
             >
               Mis Reseñas
             </Link>
-            <Link 
-              href="/login" 
-              className="px-6 py-2 rounded-full transition-all duration-300 font-light text-green-100 hover:text-white hover:bg-green-700/50"
-            >
-              Iniciar Sesión
-            </Link>
-            <Link 
-              href="/register" 
-              className="px-6 py-2 rounded-full transition-all duration-300 font-light bg-green-600 text-white hover:bg-green-500 shadow-lg"
-            >
-              Registrarse
-            </Link>
+            {/* Menú de usuario */}
+            <UserMenu />
           </nav>
           
           {/* Search Form */}

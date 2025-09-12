@@ -46,6 +46,7 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Incluir cookies
         body: JSON.stringify(formData),
       });
 
@@ -55,8 +56,9 @@ export default function LoginPage() {
         throw new Error(data.error || 'Error al iniciar sesión');
       }
 
-      // Guardar el token en localStorage
-      localStorage.setItem('token', data.token);
+      // El token se guarda automáticamente en cookies por el servidor
+      // Disparar evento personalizado para notificar el login
+      window.dispatchEvent(new CustomEvent('userLogin'));
       
       // Redirigir a la página principal
       router.push('/');

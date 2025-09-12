@@ -127,5 +127,6 @@ function mapVolumeToDetailed(volume: GoogleBooksVolume | null | undefined): Deta
   };
 }
 
-// Exportar las funciones
+// Exportar las funciones e interfaces
 export { mapVolumeToSimple, mapVolumeToDetailed };
+export type { SimpleBook, DetailedBook };

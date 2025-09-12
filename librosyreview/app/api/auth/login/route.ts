@@ -24,8 +24,8 @@ export async function POST(request: NextRequest) {
     // Autenticar usuario usando el servicio
     const { user, token } = await UserService.authenticateUser(validatedData);
     
-    // Respuesta exitosa con usuario y token
-    return NextResponse.json(
+    // Crear respuesta exitosa con usuario y token
+    const response = NextResponse.json(
       {
         success: true,
         message: 'Inicio de sesión exitoso',
@@ -36,6 +36,16 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
+    
+    // Establecer cookie del token
+    response.cookies.set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7 // 7 días
+    });
+    
+    return response;
     
   } catch (error) {
     console.error('❌ Error en inicio de sesión:', error);

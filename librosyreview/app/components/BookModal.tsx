@@ -10,22 +10,43 @@ export default function BookModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [book, setBook] = useState<DetailedBook | null>(null); // Usar DetailedBook
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null); // Agregar estado de error
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
+  const [mounted, setMounted] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
+    // Marcar como montado para evitar problemas de hidratación
+    setMounted(true);
+    
     const handleBookClick = async (event: Event) => {
       const customEvent = event as CustomEvent;
       const bookId = customEvent.detail;
+      
+      // Resetear estados
       setLoading(true);
       setIsOpen(true);
       setBook(null);
+      setError(null);
+      setImageError(false);
       
       try {
+        console.log('Cargando libro con ID:', bookId); // Debug
         const bookData = await getBookById(bookId);
-        setBook(bookData);
+        
+        if (bookData) {
+          console.log('Libro cargado exitosamente:', bookData.title); // Debug
+          setBook(bookData);
+          setError(null);
+        } else {
+          console.log('No se pudo obtener datos del libro'); // Debug
+          setError('No se pudo cargar la información del libro');
+          setBook(null);
+        }
       } catch (error) {
         console.error('Error loading book:', error);
+        setError('Error al cargar la información del libro');
         setBook(null);
       } finally {
         setLoading(false);
@@ -43,27 +64,48 @@ export default function BookModal() {
     if (!book || !rating || !review.trim()) return;
 
     try {
-      // Save to localStorage instead of API
-      const newReview = {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        bookId: book.id,
-        bookTitle: book.title,
-        bookThumbnail: book.thumbnail,
-        rating,
-        content: review.trim(),
-        createdAt: new Date().toISOString()
-      };
+      // Enviar reseña a la API
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Incluir cookies para autenticación
+        body: JSON.stringify({
+          bookId: book.id,
+          bookTitle: book.title,
+          bookThumbnail: book.thumbnail,
+          rating,
+          content: review.trim(),
+          bookAuthor: book.authors?.join(', ') || 'Autor desconocido',
+          bookImage: book.thumbnail
+        })
+      });
 
-      const existingReviews = localStorage.getItem('book_reviews_v1');
-      const reviews = existingReviews ? JSON.parse(existingReviews) : [];
-      reviews.unshift(newReview);
-      localStorage.setItem('book_reviews_v1', JSON.stringify(reviews));
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Manejar errores específicos
+        if (response.status === 401) {
+          alert('Debes iniciar sesión para escribir una reseña');
+          return;
+        }
+        if (response.status === 409) {
+          alert('Ya has reseñado este libro anteriormente');
+          return;
+        }
+        throw new Error(data.message || 'Error al publicar la reseña');
+      }
 
       alert('¡Reseña publicada con éxito!');
       setRating(0);
       setReview('');
-    } catch {
-      alert('Error al publicar la reseña');
+      
+      // Disparar evento personalizado para actualizar la lista de reseñas
+      window.dispatchEvent(new CustomEvent('reviewCreated'));
+    } catch (error) {
+      console.error('Error al publicar reseña:', error);
+      alert(error instanceof Error ? error.message : 'Error al publicar la reseña');
     }
   };
 
@@ -117,18 +159,36 @@ export default function BookModal() {
                 <div className="h-4 bg-green-200 rounded w-5/6"></div>
               </div>
             </div>
+          ) : error ? (
+            <div className="text-center text-green-800 py-8">
+              <div className="mb-4">
+                <svg className="w-16 h-16 mx-auto text-green-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-lg font-medium mb-2">{error}</p>
+              <p className="text-sm text-green-600 mb-4">Por favor, intenta nuevamente más tarde</p>
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="bg-green-900 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
           ) : book ? (
             <>
               {/* Book Info */}
               <div className="flex gap-6">
                 <div className="flex-shrink-0">
-                  {book.thumbnail ? (
+                  {mounted && book.thumbnail && !imageError ? (
                     <Image 
                       src={book.thumbnail} 
                       alt={book.title} 
                       width={128} 
                       height={192} 
-                      className="w-32 h-48 object-cover rounded border border-green-200" 
+                      className="w-32 h-48 object-cover rounded border border-green-200"
+                      onError={() => setImageError(true)}
+                      unoptimized
                     />
                   ) : (
                     <div className="w-32 h-48 bg-green-200 rounded flex items-center justify-center border border-green-300">
@@ -212,8 +272,8 @@ export default function BookModal() {
               </div>
             </>
           ) : (
-            <div className="text-center text-green-800">
-              <p>Error al cargar la información del libro</p>
+            <div className="text-center text-green-800 py-8">
+              <p>Cargando información del libro...</p>
             </div>
           )}
         </div>

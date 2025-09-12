@@ -13,9 +13,11 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(request: NextRequest) {
   try {
-    // Obtener token del header Authorization (opcional)
+    // Obtener token del header Authorization o de cookies
     const authHeader = request.headers.get('authorization');
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const cookieToken = request.cookies.get('token')?.value;
+    const token = headerToken || cookieToken;
     
     // Log del logout para auditoría (opcional)
     if (token) {
@@ -24,14 +26,25 @@ export async function POST(request: NextRequest) {
       // o registrar el evento en una tabla de auditoría
     }
     
-    // Respuesta exitosa
-    return NextResponse.json(
+    // Crear respuesta exitosa
+    const response = NextResponse.json(
       {
         success: true,
         message: 'Sesión cerrada exitosamente'
       },
       { status: 200 }
     );
+
+    // Limpiar la cookie del token
+    response.cookies.set('token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 0, // Expira inmediatamente
+      path: '/'
+    });
+
+    return response;
     
   } catch (error) {
     console.error('❌ Error en logout:', error);

@@ -21,21 +21,48 @@ export default function ReviewsSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load reviews from localStorage
-    const savedReviews = localStorage.getItem('book_reviews_v1');
-    if (savedReviews) {
+    // Cargar reseñas desde la API
+    const loadReviews = async () => {
       try {
-        setReviews(JSON.parse(savedReviews));
+        const response = await fetch('/api/reviews?userId=current', {
+          credentials: 'include' // Incluir cookies para autenticación
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data.reviews) {
+            setReviews(data.data.reviews);
+          }
+        } else if (response.status === 401) {
+          // Usuario no autenticado, mostrar reseñas vacías
+          setReviews([]);
+        } else {
+          console.error('Error al cargar reseñas:', response.statusText);
+        }
       } catch (error) {
-        console.error('Error loading reviews:', error);
+        console.error('Error al cargar reseñas:', error);
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    loadReviews();
+
+    // Escuchar evento de nueva reseña creada
+    const handleReviewCreated = () => {
+      loadReviews();
+    };
+
+    window.addEventListener('reviewCreated', handleReviewCreated);
+    
+    return () => {
+      window.removeEventListener('reviewCreated', handleReviewCreated);
+    };
   }, []);
 
   if (loading) {
     return (
-      <div className="text-center text-amber-800">
+      <div className="text-center text-green-800">
         <p className="text-xl">Cargando reseñas...</p>
       </div>
     );
@@ -43,11 +70,11 @@ export default function ReviewsSection() {
 
   if (reviews.length === 0) {
     return (
-      <div className="text-center text-amber-800">
+      <div className="text-center text-green-800">
         <p className="text-xl mb-4">Aún no has escrito reseñas</p>
         <Link 
           href="/?view=search" 
-          className="inline-block bg-amber-900 text-white px-6 py-3 rounded-lg hover:bg-amber-800 transition-colors"
+          className="inline-block bg-green-900 text-white px-6 py-3 rounded-lg hover:bg-green-800 transition-colors"
         >
           Buscar libros para reseñar
         </Link>
@@ -55,40 +82,74 @@ export default function ReviewsSection() {
     );
   }
 
-  const handleLike = (reviewId: string) => {
-    const updatedReviews = reviews.map(review => {
-      if (review.id === reviewId) {
-        return {
-          ...review,
-          likes: (review.likes || 0) + 1
-        };
+  const handleLike = async (reviewId: string) => {
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ voteType: 'like' })
+      });
+
+      if (response.ok) {
+        // Actualizar el estado local optimísticamente
+        const updatedReviews = reviews.map(review => {
+          if (review.id === reviewId) {
+            return {
+              ...review,
+              likes: (review.likes || 0) + 1
+            };
+          }
+          return review;
+        });
+        setReviews(updatedReviews);
+      } else {
+        console.error('Error al dar like:', response.statusText);
       }
-      return review;
-    });
-    setReviews(updatedReviews);
-    localStorage.setItem('book_reviews_v1', JSON.stringify(updatedReviews));
+    } catch (error) {
+      console.error('Error al dar like:', error);
+    }
   };
 
-  const handleDislike = (reviewId: string) => {
-    const updatedReviews = reviews.map(review => {
-      if (review.id === reviewId) {
-        return {
-          ...review,
-          dislikes: (review.dislikes || 0) + 1
-        };
+  const handleDislike = async (reviewId: string) => {
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ voteType: 'dislike' })
+      });
+
+      if (response.ok) {
+        // Actualizar el estado local optimísticamente
+        const updatedReviews = reviews.map(review => {
+          if (review.id === reviewId) {
+            return {
+              ...review,
+              dislikes: (review.dislikes || 0) + 1
+            };
+          }
+          return review;
+        });
+        setReviews(updatedReviews);
+      } else {
+        console.error('Error al dar dislike:', response.statusText);
       }
-      return review;
-    });
-    setReviews(updatedReviews);
-    localStorage.setItem('book_reviews_v1', JSON.stringify(updatedReviews));
+    } catch (error) {
+      console.error('Error al dar dislike:', error);
+    }
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-amber-900 mb-6">Mis Reseñas</h2>
+      <h2 className="text-2xl font-bold text-green-900 mb-6">Mis Reseñas</h2>
       <div className="grid gap-6">
         {reviews.map((review: Review) => (
-          <div key={review.id} className="bg-white border border-amber-200 rounded-lg p-6">
+          <div key={review.id} className="bg-white border border-green-200 rounded-lg p-6">
             <div className="flex items-start gap-4">
               {review.bookThumbnail && (
                 <Image 
@@ -96,16 +157,16 @@ export default function ReviewsSection() {
                   alt={review.bookTitle} 
                   width={64} 
                   height={96} 
-                  className="w-16 h-24 object-cover rounded border border-amber-200"
+                  className="w-16 h-24 object-cover rounded border border-green-200"
                 />
               )}
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-amber-900 mb-2">{review.bookTitle}</h3>
+                <h3 className="text-lg font-semibold text-green-900 mb-2">{review.bookTitle}</h3>
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="text-amber-500 font-semibold">{review.rating}★</div>
-                  <span className="text-amber-600 text-sm">{new Date(review.createdAt).toLocaleDateString()}</span>
+                  <div className="text-green-500 font-semibold">{review.rating}★</div>
+                  <span className="text-green-600 text-sm">{new Date(review.createdAt).toLocaleDateString()}</span>
                 </div>
-                <p className="text-amber-800 mb-4">{review.content}</p>
+                <p className="text-green-800 mb-4">{review.content}</p>
                 
                 {/* Like/Dislike buttons */}
                 <div className="flex items-center gap-4">
