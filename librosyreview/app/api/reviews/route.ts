@@ -96,8 +96,9 @@ export const POST = withAuth(async (request: NextRequest, user) => {
  * - bookId: filtrar por libro específico
  * - userId: filtrar por usuario específico
  * - rating: filtrar por calificación mínima
- * - sortBy: ordenar por 'createdAt', 'rating', 'likesCount' (default: 'createdAt')
+ * - sortBy: ordenar por 'createdAt', 'rating', 'likesCount', 'popularity' (default: 'createdAt')
  * - sortOrder: 'asc' o 'desc' (default: 'desc')
+ * - popularity: ordenamiento por (likesCount - dislikesCount) descendente
  */
 export const GET = withOptionalAuth(async (request: NextRequest, user) => {
   try {
@@ -141,7 +142,7 @@ export const GET = withOptionalAuth(async (request: NextRequest, user) => {
     if (rating) filters.rating = { $gte: parseInt(rating) };
     
     // Validar campo de ordenamiento
-    const validSortFields = ['createdAt', 'rating', 'likesCount', 'updatedAt'];
+    const validSortFields = ['createdAt', 'rating', 'likesCount', 'updatedAt', 'popularity'];
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'createdAt';
     
     // Calcular skip para paginación
@@ -150,15 +151,51 @@ export const GET = withOptionalAuth(async (request: NextRequest, user) => {
     // Obtener reseñas con filtros y paginación
     const Review = (await import('../../lib/models/Review')).default;
     
-    const [reviews, total] = await Promise.all([
-      Review.find(filters)
-        .populate('userId', 'nombre email')
-        .sort({ [sortField]: sortOrder })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      Review.countDocuments(filters)
-    ]);
+    let reviews, total;
+    
+    if (sortField === 'popularity') {
+      // Ordenamiento especial por popularidad usando agregación
+      const [reviewsResult, totalResult] = await Promise.all([
+        Review.aggregate([
+          { $match: filters },
+          {
+            $addFields: {
+              popularityScore: { $subtract: ['$likesCount', '$dislikesCount'] }
+            }
+          },
+          { $sort: { popularityScore: sortOrder, createdAt: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'userId',
+              foreignField: '_id',
+              as: 'userId',
+              pipeline: [{ $project: { nombre: 1, email: 1 } }]
+            }
+          },
+          {
+            $unwind: '$userId'
+          }
+        ]),
+        Review.countDocuments(filters)
+      ]);
+      
+      reviews = reviewsResult;
+      total = totalResult;
+    } else {
+      // Ordenamiento normal
+      [reviews, total] = await Promise.all([
+        Review.find(filters)
+          .populate('userId', 'nombre email')
+          .sort({ [sortField]: sortOrder })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        Review.countDocuments(filters)
+      ]);
+    }
     
     // Calcular información de paginación
     const totalPages = Math.ceil(total / limit);
