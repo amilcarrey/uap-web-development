@@ -10,7 +10,7 @@ console.log('📍 Directorio actual:', process.cwd());
 console.log('📄 Archivo .env.local:', resolve(process.cwd(), '.env.local'));
 console.log('🔑 MONGODB_URI cargada:', process.env.MONGODB_URI ? 'SÍ' : 'NO');
 // Solo después de cargar las variables, importar las funciones de base de datos
-import { connectToDatabase, disconnectFromDatabase, isConnected } from './app/lib/db';
+import { connectToDatabase, disconnectFromDatabase, isConnected } from './app/lib/db.js';
 /**
  * Función principal para probar la conexión a MongoDB
  * Verifica que la base de datos esté accesible y funcionando

@@ -44,6 +44,18 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
             >
               Mis Reseñas
             </Link>
+            <Link 
+              href="/login" 
+              className="px-6 py-2 rounded-full transition-all duration-300 font-light text-green-100 hover:text-white hover:bg-green-700/50"
+            >
+              Iniciar Sesión
+            </Link>
+            <Link 
+              href="/register" 
+              className="px-6 py-2 rounded-full transition-all duration-300 font-light bg-green-600 text-white hover:bg-green-500 shadow-lg"
+            >
+              Registrarse
+            </Link>
           </nav>
           
           {/* Search Form */}

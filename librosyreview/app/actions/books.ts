@@ -1,9 +1,6 @@
 'use server'
 
-import { SimpleBook, DetailedBook, mapVolumeToSimple, mapVolumeToDetailed } from '../lib/book-utils';
-
-// Re-exportar los tipos e interfaces para mantener compatibilidad
-export type { SimpleBook, DetailedBook };
+import { type SimpleBook, type DetailedBook, mapVolumeToSimple, mapVolumeToDetailed } from '../lib/book-utils';
 
 // Re-exportar las funciones utilitarias para testing
 export { mapVolumeToSimple, mapVolumeToDetailed };

@@ -36,7 +36,7 @@ export interface DetailedBook extends SimpleBook {
 }
 
 // Funciones utilitarias (no son Server Actions)
-export function mapVolumeToSimple(volume: GoogleBooksVolume | null | undefined): SimpleBook {
+function mapVolumeToSimple(volume: GoogleBooksVolume | null | undefined): SimpleBook {
   // Caso 1: volume es null o undefined -> retornar undefined para id
   if (!volume) {
     return {
@@ -75,7 +75,7 @@ export function mapVolumeToSimple(volume: GoogleBooksVolume | null | undefined):
   };
 }
 
-export function mapVolumeToDetailed(volume: GoogleBooksVolume | null | undefined): DetailedBook {
+function mapVolumeToDetailed(volume: GoogleBooksVolume | null | undefined): DetailedBook {
   // Caso 1: volume es null o undefined -> retornar undefined para id
   if (!volume) {
     return {
@@ -126,3 +126,6 @@ export function mapVolumeToDetailed(volume: GoogleBooksVolume | null | undefined
     thumbnail: imageLinks.thumbnail || imageLinks.smallThumbnail
   };
 }
+
+// Exportar las funciones
+export { mapVolumeToSimple, mapVolumeToDetailed };
