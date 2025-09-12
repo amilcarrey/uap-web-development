@@ -1,9 +1,9 @@
 // app/tabs/index.tsx
-import { useEffect, useState } from "react";
-import { View, Text, Button, ActivityIndicator, Alert } from "react-native";
+import { useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
 import { Link } from "expo-router";
-import { useCameraPermissions } from "expo-camera";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, Button, Text, View } from "react-native";
 
 export default function HomeTab() {
   const [loading, setLoading] = useState(true);
@@ -65,9 +65,10 @@ export default function HomeTab() {
 
       <Button title="Reintentar permisos" onPress={requestAllPermissions} />
 
-      {/* Ejemplo de navegación a una pantalla de cámara real (opcional) */}
-      <Link href="/camera" asChild>
-        <Button title="Ir a la cámara" />
+      {/* Navegación a la pantalla de fotos */}
+      <Link href="/camera" asChild></Link>
+      <Link href="/photos" asChild>
+        <Button title="Ver fotos de la galería" />
       </Link>
     </View>
   );
