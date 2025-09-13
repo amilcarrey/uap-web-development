@@ -1,0 +1,138 @@
+/* Estilos del título principal */
+h1 {
+    background-color: rgb(93, 207, 169); /* Color de fondo verde claro */
+    text-align: center;                  /* Centra el texto */
+    margin: 0px;                         /* Sin margen */
+    padding: 20px;                       /* Espaciado interior */
+}
+
+/* Estilo para la parte 'TO' del título */
+.gray {
+    color: #06b600; /* Verde claro */
+}
+
+/* Estilo para la parte 'DO' del título */
+.orange {
+    color: #016406; /* Verde más oscuro */
+}
+
+/* Contenedor de las pestañas */
+.tabs {
+    display: flex;           /* Las pestañas se acomodan en fila */
+    background: #adffbe;     /* Fondo verde claro */
+    overflow: hidden;        /* Oculta cualquier desbordamiento */
+    margin-bottom: 15px;     /* Espacio debajo de las pestañas */
+}
+
+/* Estilo general para cada pestaña */
+.tab {
+    flex: 1;                  /* Cada pestaña ocupa el mismo ancho */
+    text-align: center;       /* Centra el texto */
+    padding: 12px;            /* Espaciado interno */
+    font-weight: bold;        /* Texto en negrita */
+    color: #8e8e8e;           /* Gris */
+}
+
+/* Pestaña activa (seleccionada) */
+.tab.active {
+    border-bottom: 3px solid #006d12; /* Línea inferior como indicador de activa */
+    color: #3c3c3c;                   /* Color más oscuro */
+}
+
+/* Contenedor del input y botón de agregar tarea */
+.escriba {
+    display: flex;                  /* Coloca input y botón en fila */
+    justify-content: space-between;/* Espacio entre input y botón */
+    width: 80%;                     /* Ocupa el 80% del ancho del cuerpo */
+    margin: 0 auto;                 /* Centrado horizontal */
+    margin-bottom: 20px;           /* Margen inferior */
+}
+
+/* Estilo del campo de entrada de texto */
+.escriba input {
+    flex: 1;                            /* Ocupa todo el espacio posible */
+    padding: 12px;
+    border: none;
+    border-radius: 20px 0 0 20px;      /* Bordes redondeados en la izquierda */
+    background: #f1ede9;               /* Fondo beige claro */
+    font-size: 14px;
+    width: 100%;                       /* Asegura que use todo el ancho disponible */
+}
+
+/* Estilo del botón para enviar tarea */
+.escriba button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 0 20px 20px 0;     /* Bordes redondeados en la derecha */
+    background-color: #1eb56c;        /* Verde oscuro */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;                  /* Cursor de mano al pasar por encima */
+}
+
+/* Contenedor de la lista de tareas */
+.list-container {
+    width: 80%;                      /* Ocupa el 80% del ancho */
+    margin: 20px auto;               /* Centrado con margen superior/inferior */
+    padding: 20px;
+    background-color: #aaffd0;       /* Fondo verde agua */
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;          /* Alinea los elementos en columna */
+}
+
+/* Estilos para la lista sin viñetas ni margen/padding */
+.task-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilo para cada ítem de tarea */
+.task-item {
+    display: flex;                     /* Ítems en fila */
+    align-items: center;              /* Centra verticalmente */
+    justify-content: space-between;   /* Distribuye espacio entre elementos */
+    background-color: #f9f9f9;        /* Fondo blanco grisáceo */
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Si la tarea está completada, táchala y cambia el color */
+.task-item.completed .task-name {
+    text-decoration: line-through; /* Línea tachada */
+    color: #888;                   /* Gris */
+}
+
+/* Estilo para el nombre de la tarea */
+.task-name {
+    flex-grow: 1;       /* Ocupa el espacio disponible */
+    padding-left: 10px; /* Espacio a la izquierda del texto */
+}
+
+/* Botón para limpiar todas las tareas */
+.clear-tasks {
+    background-color: #00de5d;  /* Verde brillante */
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-left: auto;          /* Alinea a la derecha */
+}
+
+/* Iconos de estado y eliminar son clickeables */
+.icon-pending {
+    cursor: pointer;
+}
+
+.icon-completed {
+    cursor: pointer;
+}
+
+.icon-trash {
+    cursor: pointer;
+}
