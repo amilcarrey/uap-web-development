@@ -1,0 +1,32 @@
+body{
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f8f8f8; /* Solo para visualizar mejor */
+}
+
+.buttons {
+    display: flex;
+    gap: 10px; /* Espacio entre botones */
+}
+
+button {
+    padding: 8px 12px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+
