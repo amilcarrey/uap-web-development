@@ -1,3 +1,6 @@
+url-pagina-deployada: https://trinitycollegelibrary.vercel.app/
+repositorio-nuevo-para-deploy: https://github.com/andrewblockernst/deploy-trinitycollegelibrary
+
 # uap-web-development 
 
 ## Entrega de github actions, deploy y documentación requerida
@@ -115,6 +118,3 @@ Este proyecto usa GitHub Actions tales como:
 2. Los workflows se activan automáticamente en push/PR a `main`.
 
 
-
-
-##### Fin. 
