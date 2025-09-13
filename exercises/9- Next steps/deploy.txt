@@ -1,3 +1,6 @@
+url-pagina-deployada: https://trinitycollegelibrary.vercel.app/
+repositorio-nuevo-para-deploy: https://github.com/andrewblockernst/deploy-trinitycollegelibrary
+
 # uap-web-development 
 
 ## Entrega de github actions, deploy y documentación requerida
