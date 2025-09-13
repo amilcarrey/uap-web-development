@@ -1,0 +1,263 @@
+URL DE LA APP DEPLOYADA:
+https://elpapu-lector.vercel.app/
+
+REPOSITORIO:
+https://github.com/imanol676/librerianextjs
+
+DEPLOY LOCAL:
+
+1. Clonar repositorio:
+   git clone https://github.com/imanol676/librerianextjs.git
+   cd nextjsLibreria
+
+2. Instalar dependencias:
+   npm install
+
+3. Correr en desarrollo:
+   npm run dev
+
+4. Build de producción:
+   npm run build && npm start
+
+VARIABLES DE ENTORNO:
+- DATABASE_CONNECTION_STRING: conexión a PostgreSQL
+- DIRECT_URL: URL directa de base de datos
+- PASSWORD: contraseña para el entorno de build
+- NEXTAUTH_URL: URL local para NextAuth
+- NEXTAUTH_SECRET: clave secreta para el entorno de CI
+
+
+WORKFLOWS CONFIGURADOS:
+
+1. DOCKER-RELEASE.YML
+----------------------------------------------
+Objetivo: Construir y publicar imágenes Docker automáticamente
+
+Trigger (Cuándo se ejecuta):
+- Se activa cuando se hace push a la rama main
+
+Configuración del Job:
+- ubuntu-latest
+- Permisos: read (contenido), write (paquetes)
+
+Pasos del workflow:
+1. Checkout del repositorio (actions/checkout@v4)
+2. Configuración de Docker Buildx para builds multiplataforma
+3. Login al GitHub Container Registry (ghcr.io) usando GITHUB_TOKEN
+4. Extracción de metadatos para etiquetado de la imagen:
+   - Etiqueta por rama
+   - Etiqueta por SHA del commit (prefijo: rama-)
+   - Etiqueta 'latest' para la rama principal
+5. Build y push de la imagen Docker:
+   - Contexto: directorio raíz
+   - Dockerfile: ./dockerfile
+   - Plataformas soportadas: linux/amd64, linux/arm64
+   - Cache optimizado con GitHub Actions cache
+
+Resultado: Imagen Docker publicada en ghcr.io/imanol676/librerianextjs
+
+
+2. PR-BUILD.YML
+----------------------------------------------
+Objetivo: Validar que el código compila correctamente en Pull Requests
+
+Trigger (Cuándo se ejecuta):
+- Pull requests abiertos, sincronizados o reabiertos
+
+Configuración del Job:
+- ubuntu-latest
+- Directorio de trabajo: ./nextjsLibreria
+- Base de datos: PostgreSQL 15 como servicio
+
+Servicios configurados:
+- PostgreSQL 15:
+  - Usuario: postgres
+  - Contraseña: postgres
+  - Base de datos: build
+  - Puerto: 5432
+  - Health checks configurados
+
+Variables de entorno:
+- DATABASE_CONNECTION_STRING
+- DIRECT_URL
+- PASSWORD
+- NEXTAUTH_URL
+- NEXTAUTH_SECRET
+
+Pasos del workflow:
+1. Checkout del repositorio
+2. Configuración de Node.js 20 con cache de npm
+3. Instalación de dependencias (npm install)
+4. Generación del cliente Prisma
+5. Push del schema de base de datos a PostgreSQL
+6. Build de la aplicación Next.js
+
+Resultado: Validación de que el código compila sin errores
+
+
+3. PR-TESTS.YML
+----------------------------------------------
+Objetivo: Ejecutar suite de pruebas en Pull Requests
+
+Trigger (Cuándo se ejecuta):
+- Pull requests abiertos, sincronizados o reabiertos
+
+Configuración del Job:
+- ubuntu-latest
+- Directorio de trabajo: ./nextjsLibreria
+- Base de datos: PostgreSQL 15 como servicio
+
+Servicios configurados:
+- PostgreSQL 15:
+  - Usuario: postgres
+  - Contraseña: postgres
+  - Base de datos: test (dedicada para testing)
+  - Puerto: 5432
+  - Health checks configurados
+
+Variables de entorno:
+- DATABASE_CONNECTION_STRING
+- DIRECT_URL
+- PASSWORD
+- NEXTAUTH_URL
+- NEXTAUTH_SECRET
+
+Pasos del workflow:
+1. Checkout del repositorio
+2. Configuración de Node.js 20 con cache de npm
+3. Instalación de dependencias (npm install)
+4. Generación del cliente Prisma
+5. Push del schema de base de datos a PostgreSQL de test
+6. Ejecución de pruebas con Vitest (npm run test:ci)
+
+Resultado: Verificación de que todas las pruebas pasan correctamente
+
+FLUJO ESPERADO:
+1. Desarrollo local:
+   - Desarrollador crea una rama feature
+   - Realiza commits con cambios
+
+2. Pull Request:
+   - Se abre PR hacia main
+   - Se ejecutan automáticamente:
+     * pr-build.yml: Verifica compilación
+     * pr-tests.yml: Ejecuta pruebas
+   - Los checks deben pasar para hacer merge
+
+3. Merge a main:
+   - Una vez aprobado y merged el PR
+   - Se ejecuta docker-release.yml automáticamente
+   - Se construye y publica nueva imagen Docker
+
+
+
+INSTRUCCIONES PARA EJECUTAR CON DOCKER: 
+
+
+1. Crear archivo docker-compose.yml:
+    version: '3.8'
+    services:
+    app:
+        image: ghcr.io/imanol676/librerianextjs:latest
+        ports:
+        - "3000:3000"
+        environment:
+        - DATABASE_CONNECTION_STRING=postgresql://postgres:password@db:5432/libreria
+        - DIRECT_URL=postgresql://postgres:password@db:5432/libreria
+        - PASSWORD=tu_password_secreto
+        - NEXTAUTH_URL=http://localhost:3000
+        - NEXTAUTH_SECRET=tu_nextauth_secret_muy_largo_y_seguro
+        - NODE_ENV=production
+        depends_on:
+        - db
+        restart: unless-stopped
+
+    db:
+        image: postgres:15-alpine
+        environment:
+        - POSTGRES_DB=libreria
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=password
+        volumes:
+        - postgres_data:/var/lib/postgresql/data
+        ports:
+        - "5432:5432"
+        restart: unless-stopped
+
+    volumes:
+    postgres_data:
+
+2. Ejecutar la aplicación:
+
+    # Iniciar los servicios
+    docker-compose up -d
+
+    # Ver logs (opcional)
+    docker-compose logs -f app
+
+    # Detener servicios
+    docker-compose down
+
+    # Detener y eliminar volúmenes (CUIDADO: elimina datos)
+    docker-compose down -v
+
+
+OPCIÓN 2: CONSTRUIR IMAGEN LOCALMENTE
+=====================================
+
+Si quieres construir la imagen desde el código fuente:
+
+1. Clonar el repositorio:
+    git clone https://github.com/imanol676/LibreriaNextjs.git
+    cd LibreriaNextjs
+
+2. Construir la imagen:
+----------------------
+
+# Construir la imagen Docker
+docker build -t libreria-nextjs .
+
+# Ver la imagen creada
+docker images libreria-nextjs
+
+
+3. Crear docker-compose-local.yml:
+
+    version: '3.8'
+    services:
+    app:
+        build: .
+        ports:
+        - "3000:3000"
+        environment:
+        - DATABASE_CONNECTION_STRING=postgresql://postgres:password@db:5432/libreria
+        - DIRECT_URL=postgresql://postgres:password@db:5432/libreria
+        - PASSWORD=tu_password_secreto
+        - NEXTAUTH_URL=http://localhost:3000
+        - NEXTAUTH_SECRET=tu_nextauth_secret_muy_largo_y_seguro
+        - NODE_ENV=production
+        depends_on:
+        - db
+        restart: unless-stopped
+
+    db:
+        image: postgres:15-alpine
+        environment:
+        - POSTGRES_DB=libreria
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=password
+        volumes:
+        - postgres_data:/var/lib/postgresql/data
+        ports:
+        - "5432:5432"
+        restart: unless-stopped
+
+    volumes:
+    postgres_data:
+
+
+4. Ejecutar con la imagen local:
+    docker-compose -f docker-compose-local.yml up -d
+
+
+
