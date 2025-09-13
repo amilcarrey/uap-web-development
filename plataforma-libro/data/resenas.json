@@ -1,0 +1,128 @@
+[
+  {
+    "id": "1755715441545",
+    "idLibro": "HtpAAQAAMAAJ",
+    "usuario": "Usuario de ejemplo",
+    "valoracion": 2,
+    "comentario": "qeiee",
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1755743158674",
+    "idLibro": "sim2EAAAQBAJ",
+    "usuario": "justin",
+    "valoracion": 2,
+    "comentario": "holax2",
+    "likes": 7,
+    "dislikes": 4
+  },
+  {
+    "id": "1756224680088",
+    "idLibro": "sim2EAAAQBAJ",
+    "usuario": "cvc",
+    "comentario": "ffg",
+    "valoracion": 1,
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1756225039628",
+    "idLibro": "sim2EAAAQBAJ",
+    "usuario": "garcia",
+    "comentario": "hualpa\r\n",
+    "valoracion": 4,
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1756225128646",
+    "idLibro": "sim2EAAAQBAJ",
+    "usuario": "hulpa",
+    "comentario": "garcia",
+    "valoracion": 5,
+    "likes": 1,
+    "dislikes": 0
+  },
+  {
+    "id": "1756225430939",
+    "idLibro": "sim2EAAAQBAJ",
+    "usuario": "garcia",
+    "comentario": "fdf",
+    "valoracion": 1,
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1756225461899",
+    "idLibro": "q8XweiNdep8C",
+    "usuario": "garcia",
+    "comentario": "dfdf",
+    "valoracion": 1,
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1756225474855",
+    "idLibro": "q8XweiNdep8C",
+    "usuario": "ola",
+    "comentario": "dfvf",
+    "valoracion": 1,
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1756225487219",
+    "idLibro": "q8XweiNdep8C",
+    "usuario": "hulpa",
+    "comentario": "fdfdf",
+    "valoracion": 1,
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1756226886706",
+    "idLibro": "uoxUloj09YEC",
+    "usuario": "garcia",
+    "comentario": "ola",
+    "valoracion": 1,
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1756352545008",
+    "idLibro": "123",
+    "usuario": "Pepe",
+    "comentario": "Muy bueno",
+    "valoracion": 5,
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1756352589340",
+    "idLibro": "123",
+    "usuario": "Pepe",
+    "comentario": "Muy bueno",
+    "valoracion": 5,
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1756352654434",
+    "idLibro": "123",
+    "usuario": "Pepe",
+    "comentario": "Muy bueno",
+    "valoracion": 5,
+    "likes": 0,
+    "dislikes": 0
+  },
+  {
+    "id": "1756352697607",
+    "idLibro": "123",
+    "usuario": "Pepe",
+    "comentario": "Muy bueno",
+    "valoracion": 5,
+    "likes": 0,
+    "dislikes": 0
+  }
+]

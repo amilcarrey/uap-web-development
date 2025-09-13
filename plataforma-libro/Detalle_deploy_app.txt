@@ -1,0 +1,41 @@
+REACT 
+No es un framework en realidad es una librería de Java. Para construir interfaces de usuario interactivas. Tomamos una raíz a partir del id, lo llamamos raíz y una vez que la tomamos renderizamos en conjunto con el DOM. 
+
+Hooks: engacharse al estado y ciclo de vida a componentes funcionales. 
+Llamarlos en la parte superior de la función, no en bucles, solo en funciones react, no dentro de condicional, ofrece un plugin de cumplimiento. Ejecución en un orden en cada render
+Router leer de la diapo. 
+
+UseState: Estados que se obtienen del DOM.
+
+UseEffect: Efectos secundarios en base de un evento 
+
+UseContext: Heredar información a través de la API. Almacenamos el contexto, y los hijos del dom, usa cada uno de estos contextos
+
+UseCallback: redefinir funciones, o constantemente cambiar funciones. Memoriza las funciones para evitar que se redefinan n cada render.
+
+UseMemo: Memoriza valores computados pesados, evitando calculos innecesarios, esta enconjunto con useCallback, crean una cache de la cual se traen los valores.
+
+UseRef: guardar una referencia mutable que no causa renderizados al cambiar, mantiene persistencia de los valores
+
+UseReduce: proporciona transisiones de estado mas predecibles que useState
+arquitectura basada en componentes, basado en
+todo es un componente al construir algo en react, como un árbol con con sus componentes hijos y asi
+2 tipos de componentes:
+funcionales
+de base
+
+componentes simplemente llama la función q necesite dentro de la suya
+
+
+Hard reset 
+
+
+usar useeffect
+hacer que el buscador no renderize cada vez que tipeo una letra y haga una búsqueda, sino que a una n cantidad de palabras recién busque
+
+
+
+
+flucks: 2 tipos de estados de q puede tener un cliente
+estado puro del cliente
+estado del servidor con el cliente
