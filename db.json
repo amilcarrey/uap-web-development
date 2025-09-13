@@ -1,0 +1,20 @@
+{
+  "books": [
+    {
+      "id": "1",
+      "title": "Ejemplo de Libro",
+      "description": "Descripción del libro de ejemplo."
+    }
+  ],
+  "reviews": [
+    {
+      "id": "df53",
+      "bookId": "My2UEAAAQBAJ",
+      "rating": 4,
+      "text": "PORQUE AI PORQUEEEEEEEEEE",
+      "upVotes": 5,
+      "downVotes": 1,
+      "author": "Anónimo"
+    }
+  ]
+}
