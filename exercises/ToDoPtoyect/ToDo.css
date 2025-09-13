@@ -1,0 +1,221 @@
+body{
+    font-family: 'Arial', sans-serif;
+    background-color: rgba(247, 242, 245, 0.848);
+    margin: 0;
+    padding: 0;
+
+.title{
+    display: flex;
+    justify-content: center;
+    font-family: "Boldonse", system-ui;
+    font-weight: 400;
+    font-style: normal;
+    background-color: rgb(83, 57, 88);
+}
+}
+      
+
+.title h1:first-child {
+    color: white;
+}
+
+.title h1:last-child {
+    color: orange;
+}
+
+.Area {
+    display: flex;
+    align-items: center;  /* Alinea verticalmente */
+    justify-content: flex-end; /* Espacia los elementos */
+    padding: 0 20px; /* Espaciado lateral */
+    background-color: antiquewhite;
+    gap: 400PX;
+}
+#AreaText{
+    font-size: 30px;
+    font-weight: bold;
+}
+
+#AreaText:hover{
+    color: rgb(120, 118, 0);
+    border-bottom: 3px solid rgb(64, 0, 83);
+}
+
+.Category {
+    margin: 0 10px; /* Evita que se junten demasiado */
+    cursor: POINTER;    
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;  
+    background-color: antiquewhite;
+}
+#AddAreaButton{
+    font-size: 20px;
+    padding: 5px 10px;
+    border: none;
+    background-color: orange;
+    color: white;
+    cursor: pointer;    
+    border-radius: 5px;
+}
+#AddAreaButton:hover{
+    background-color: rgb(139, 90, 0);
+}
+
+.BarTask{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 20px;
+} 
+#addtask{
+    width: 800px;
+    height: 40px;
+    border-radius: 5px;
+    border: 1px solid black;
+    padding: 0 10px;
+}
+
+#addtask::placeholder {
+    color: gray; /* Color del texto dentro de la barra */
+    font-style: italic;
+}
+
+#addTaskButton{
+    width: 200px;
+    height: 40px;
+    border-radius: 5px;
+    border: 1px solid black;
+    background-color: rgb(83, 57, 88);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#addTaskButton:hover{
+    background-color: rgb(124, 1, 118);
+}
+
+.Main{
+    gap: 10px;
+    margin: 20px auto; /* Centra el div horizontalmente */
+    background-color: antiquewhite; 
+    width: 80%; 
+    max-width: 1200px; 
+    padding: 20px;
+    border-radius: 10px; 
+    background-color: antiquewhite;
+}
+
+.Filter {
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Espacio entre los elementos */
+    margin-bottom: 20px; /* Espacio entre el filtro y las tareas */
+    background-color: orange;
+    color: white;
+    border-radius: 6px;
+    border: none;
+    padding: 10px 15px; /* Espacio interno */
+    cursor: pointer;
+}
+.Filter:hover {
+    background-color: rgb(139, 90, 0);
+}
+
+.Tasks {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.Task{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 1000px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: rgb(83, 57, 88);
+    color: white;
+}   
+
+    .Task p {
+        font-size: 16px;
+        transition: 0.3s; /* Animación suave */
+    }
+
+    .Task input:checked + p {
+        text-decoration: line-through;
+        color: gray; 
+    }
+
+#checkTask {
+    appearance: none; 
+    width: 47px;
+    height: 40px;
+    border: 2px solid gray;
+    border-radius: 8px; 
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+}
+
+
+#checkTask:checked {
+    background-color: green;
+    border-color: green;
+}
+
+#checkTask:checked::after {
+    content: "DONE";
+    font-size: 14px;
+    color: white;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#deleteTask {
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+  }
+  
+  #deleteTask i {
+    margin-right: 8px; 
+  }
+  
+  #deleteTask:hover {
+    background-color: rgb(139, 90, 0);
+  }
+
+  #clearCompleteButton{
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    margin-left: auto; /* Empuja el botón a la derecha */
+    margin-top: 20px; /* Agrega espacio entre las tareas y el botón */
+  }
+
+  #clearCompleteButton:hover {
+    background-color: rgb(139, 90, 0);
+  }
+  
