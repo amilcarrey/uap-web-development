@@ -63,7 +63,7 @@ export default function FavoritesPage() {
                   className="w-12 h-auto rounded shadow"
                 />
               )}
-              <Link href={`/book/${b.id}`} className="text-blue-600">
+              <Link href={`/book/${b.id}`} className="text-blue-400">
                 {b.title}
               </Link>
             </li>

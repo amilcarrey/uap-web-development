@@ -123,20 +123,20 @@ export default function ReviewList({
 
   return (
     <div className="space-y-3">
-      {error && <div className="text-red-500 text-sm">{error}</div>}
+      {error && <div className="text-red-400 text-sm">{error}</div>}
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-500">Ordenar:</span>
-        <select value={sort} onChange={e=>setSort(e.target.value as any)} className="border rounded p-1">
+        <span className="text-sm text-gray-400">Ordenar:</span>
+        <select value={sort} onChange={e=>setSort(e.target.value as any)} className="border border-gray-700 rounded p-1 bg-gray-800 text-gray-100">
           <option value="best">Mejores</option>
           <option value="new">Más nuevas</option>
           <option value="rating">Mayor rating</option>
         </select>
       </div>
 
-      {items.length === 0 && <div className="text-gray-500">Sé el primero en reseñar ✍️</div>}
+      {items.length === 0 && <div className="text-gray-400">Sé el primero en reseñar ✍️</div>}
 
       {items.map(r => (
-        <div key={r.id} className="border rounded-xl p-4">
+        <div key={r.id} className="border border-gray-700 rounded-xl p-4 bg-gray-800">
           <div className="flex items-center justify-between">
             <div className="font-medium">{r.userName}</div>
             <div className="text-yellow-500">{'★'.repeat(r.rating)}{'☆'.repeat(5-r.rating)}</div>
@@ -146,28 +146,28 @@ export default function ReviewList({
             <div className="mt-2 space-y-2">
               <StarRating value={editRating} onChange={setEditRating} />
               <textarea
-                className="w-full border rounded p-2"
+                className="w-full border border-gray-700 rounded p-2 bg-gray-800 text-gray-100"
                 value={editContent}
                 onChange={e => setEditContent(e.target.value)}
               />
               <div className="flex gap-2 text-sm">
                 <button onClick={saveEdit} className="px-2 py-1 bg-blue-600 text-white rounded">Guardar</button>
-                <button onClick={() => setEditingId(null)} className="px-2 py-1 border rounded">Cancelar</button>
+                <button onClick={() => setEditingId(null)} className="px-2 py-1 border border-gray-700 rounded">Cancelar</button>
               </div>
             </div>
           ) : (
             <>
               <p className="mt-2 whitespace-pre-wrap">{r.content}</p>
               <div className="mt-3 flex items-center gap-3 text-sm">
-                <button onClick={()=>vote(r.id, 1)} className="px-2 py-1 rounded border">👍 {r.upVotes}</button>
-                <button onClick={()=>vote(r.id, -1)} className="px-2 py-1 rounded border">👎 {r.downVotes}</button>
-                <span className="text-gray-500">Score: {r.score.toFixed(3)}</span>
-                <span className="text-gray-400">{new Date(r.createdAt).toLocaleString()}</span>
+                <button onClick={()=>vote(r.id, 1)} className="px-2 py-1 rounded border border-gray-700 bg-gray-800">👍 {r.upVotes}</button>
+                <button onClick={()=>vote(r.id, -1)} className="px-2 py-1 rounded border border-gray-700 bg-gray-800">👎 {r.downVotes}</button>
+                <span className="text-gray-400">Score: {r.score.toFixed(3)}</span>
+                <span className="text-gray-500">{new Date(r.createdAt).toLocaleString()}</span>
               </div>
               {r.userId === userId && (
                 <div className="mt-2 flex gap-2 text-sm">
-                  <button onClick={() => { setEditingId(r.id); setEditRating(r.rating); setEditContent(r.content) }} className="px-2 py-1 border rounded">Editar</button>
-                  <button onClick={() => deleteReview(r.id)} className="px-2 py-1 border rounded">Eliminar</button>
+                  <button onClick={() => { setEditingId(r.id); setEditRating(r.rating); setEditContent(r.content) }} className="px-2 py-1 border border-gray-700 rounded">Editar</button>
+                  <button onClick={() => deleteReview(r.id)} className="px-2 py-1 border border-gray-700 rounded">Eliminar</button>
                 </div>
               )}
             </>
