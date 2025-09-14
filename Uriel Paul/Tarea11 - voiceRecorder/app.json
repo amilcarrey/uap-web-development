@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Voice Recorder",
+    "slug": "voice-recorder-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Necesitamos el micrófono para grabar audio."
+      }
+    },
+    "android": {
+      "permissions": [
+        "RECORD_AUDIO"
+      ],
+      "package": "com.example.voicerecorderapp"
+    },
+    "web": {
+      "favicon": "./assets/icons/favicon.png"
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}

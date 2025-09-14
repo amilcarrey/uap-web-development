@@ -1,0 +1,23 @@
+# Dependency directories
+node_modules
+
+# Git history
+.git
+
+# Logs
+*.log
+npm-debug.log*
+
+# Next.js build output
+.next
+
+# Environment files
+.env
+.env.*
+
+# Test configuration
+vitest.*
+
+# Other build artifacts
+coverage
+dist
