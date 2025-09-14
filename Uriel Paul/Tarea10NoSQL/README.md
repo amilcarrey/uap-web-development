@@ -4,9 +4,6 @@ Aplicación de reseñas de libros construida con [Next.js](https://nextjs.org).
 
 Ahora incluye autenticación con JWT y persistencia de reseñas en una base de datos **MongoDB**.
 
-## URL pública
-
-https://progra4-deploy-vercel.vercel.app
 
 ## Variables de entorno
 
