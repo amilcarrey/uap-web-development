@@ -38,7 +38,7 @@ export default function LoginPage() {
           onChange={e => setEmail(e.target.value)}
           placeholder="Email"
           required
-          className="w-full border px-3 py-2 rounded"
+          className="w-full border border-gray-700 bg-gray-800 text-gray-100 px-3 py-2 rounded"
         />
         <input
           type="password"
@@ -46,9 +46,9 @@ export default function LoginPage() {
           onChange={e => setPassword(e.target.value)}
           placeholder="Contraseña"
           required
-          className="w-full border px-3 py-2 rounded"
+          className="w-full border border-gray-700 bg-gray-800 text-gray-100 px-3 py-2 rounded"
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-400">{error}</p>}
         <button className="px-4 py-2 bg-blue-600 text-white rounded" type="submit">Entrar</button>
       </form>
     </main>

@@ -43,7 +43,7 @@ export default async function BookPage({ params }: PageCtx) {
     <main className="mx-auto max-w-3xl p-6 space-y-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-bold">{book.title}</h1>
-        <ul className="text-sm text-gray-700 space-y-1">
+        <ul className="text-sm text-gray-300 space-y-1">
           {meta.filter(([, v]) => v).map(([k, v]) => (
             <li key={k}><span className="font-medium">{k}:</span> {v as any}</li>
           ))}
@@ -51,7 +51,7 @@ export default async function BookPage({ params }: PageCtx) {
       </header>
 
       {book.description && (
-        <article className="prose max-w-none">
+        <article className="prose prose-invert max-w-none">
           <h2>Descripción</h2>
           <div dangerouslySetInnerHTML={{ __html: book.description }} />
         </article>

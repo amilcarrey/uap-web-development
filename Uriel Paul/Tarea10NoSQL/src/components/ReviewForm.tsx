@@ -31,16 +31,16 @@ export default function ReviewForm({ bookId, onCreated }: { bookId: string; onCr
   }
 
   return (
-    <div className="space-y-2 p-4 border rounded-xl">
+    <div className="space-y-2 p-4 border border-gray-700 rounded-xl bg-gray-800">
       <div className="font-semibold">Escribir reseña</div>
       <StarRating value={rating} onChange={setRating} />
       <textarea
-        className="w-full border rounded p-2 min-h-24"
+        className="w-full border border-gray-700 rounded p-2 min-h-24 bg-gray-800 text-gray-100"
         placeholder="Contá tu experiencia (mín. 10 caracteres)"
         value={content}
         onChange={e=>setContent(e.target.value)}
       />
-      {error && <div className="text-red-500 text-sm">{error}</div>}
+      {error && <div className="text-red-400 text-sm">{error}</div>}
       <button
         onClick={submit}
         disabled={!canSend || loading}

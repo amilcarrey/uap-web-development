@@ -31,7 +31,7 @@ export default function Home() {
           value={q}
           onChange={e=>setQ(e.target.value)}
           placeholder="Título, autor o ISBN (p.ej. inauthor:rowling)"
-          className="flex-1 border rounded px-3 py-2"
+          className="flex-1 border border-gray-700 bg-gray-800 rounded px-3 py-2 text-gray-100"
         />
         <button className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50" disabled={!q}>Buscar</button>
       </form>
@@ -40,12 +40,12 @@ export default function Home() {
 
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {items.map(b => (
-          <li key={b.id} className="border rounded-xl p-3 flex gap-3">
+          <li key={b.id} className="border border-gray-700 rounded-xl p-3 flex gap-3 bg-gray-800">
             {b.thumbnail && <img src={b.thumbnail} alt="cover" className="w-16 h-24 object-cover rounded" />}
             <div>
               <div className="font-semibold">{b.title}</div>
-              <div className="text-sm text-gray-600">{b.authors?.join(', ')}</div>
-              <Link href={`/book/${b.id}`} className="text-blue-600 text-sm">Ver detalles →</Link>
+              <div className="text-sm text-gray-400">{b.authors?.join(', ')}</div>
+              <Link href={`/book/${b.id}`} className="text-blue-400 text-sm">Ver detalles →</Link>
             </div>
           </li>
         ))}
