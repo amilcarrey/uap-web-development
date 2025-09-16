@@ -1,7 +1,10 @@
-import type { NextConfig } from "next";
+import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  turbopack: {
+    root: "C:\\Users\\johann beskow\\Desktop\\uap-web-development\\Tareas\\tarea9\\tutorial",
+  },
+
 };
 
 export default nextConfig;
