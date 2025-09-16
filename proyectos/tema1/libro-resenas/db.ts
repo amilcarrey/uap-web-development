@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = 'mongodb://localhost:27017/libro-resenas'; // Cambia el nombre si tu base es otra
+const MONGODB_URI = 'mongodb://localhost:27017/libro-resenas'; 
 
 export const connectDB = async () => {
   try {

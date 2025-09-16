@@ -10,4 +10,4 @@ const ResenaSchema = new mongoose.Schema({
   dislikes: { type: Number, default: 0 },
 });
 
-export const Resena = mongoose.model('Resena', ResenaSchema);
+export const Resena = mongoose.models.Resena || mongoose.model('Resena', ResenaSchema);
