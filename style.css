@@ -1,0 +1,161 @@
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    width: 80vw;
+    height: 100vh;
+    margin: 0 auto;
+    border-radius: 5%;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+header h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+nav ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+    padding: 0;
+}
+
+nav ul button {
+    background-color: white;
+    color: rgb(0, 0, 0);
+    font-size: large;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: #000000 solid 2px;
+    width: 30vw;
+}
+
+nav ul button:hover {
+    background-color: gray;
+    color: white;
+    border-radius: 5px;
+}
+
+.taskbar {
+    display: flex;
+    margin-top: 20px;
+}
+
+.taskbar input {
+    padding: 10px;
+    border-radius: 10px 0 0 10px;
+    border: 1px solid #ccc;
+    width: 40vw;
+}
+
+.taskbar button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 0 10px 10px 0;
+    cursor: pointer;
+}
+
+.taskbar button:hover {
+    background-color: #0056b3;
+}
+
+main {
+    margin-top: 20px;
+    width: 50vw;
+}
+
+.filtros {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filtros button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.filtros button:hover {
+    background-color: #0056b3;
+}
+
+.nueva-tarea {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+
+.tarea-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.tarea-item span {
+    flex-grow: 1;
+    font-size: 16px;
+    color: #333;
+}
+
+
+.tarea-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+.tarea-item input[type="checkbox"]:checked + span {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.boton-borrar {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    background-color: #d13b3b;
+    border-radius: 5px;
+    padding: 5px;
+
+}
+
+.boton-borrar:hover {
+    background-color: #000000;
+}
+
+
+#boton-clear {
+    margin-top: 10px;
+    padding: 10px;
+    width: 100%;
+    border: none;
+    background-color: rgb(167, 141, 141);
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#boton-clear:hover {
+    background-color: rgb(82, 54, 54);
+}
