@@ -1,20 +1,24 @@
 "use client";
 export const dynamic = "force-dynamic";
 import React, { useEffect, useState } from "react";
+import UsuarioLogueado from "../../components/UsuarioLogueado";
 import { notFound } from "next/navigation";
-import {
-  serverActionObtenerReseñas,
-  serverActionGuardarReseña,
-  serverActionVotarReseña,
-  Reseña
-} from "../serverActionGuardarReseña";
+
+// Función para obtener el usuario de las cookies
+const getUsuario = () => {
+  if (typeof document !== "undefined") {
+    const match = document.cookie.match(/(?:^|; )user=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : "Anónimo";
+  }
+  return "Anónimo";
+};
 
 // 🔹 Next 15 puede pasar params como objeto o como Promise
 export default function BookPage({ params }: { params: Promise<{ id: string }> }) {
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
   const [book, setBook] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [resenas, setResenas] = useState<Reseña[]>([]);
+  const [resenas, setResenas] = useState<any[]>([]);
 
   // Resolver params (siempre es Promise en Next.js 15)
   useEffect(() => {
@@ -34,10 +38,10 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
       })
       .catch(() => setLoading(false));
 
-    (async () => {
-      const reseñas = await serverActionObtenerReseñas(id);
-      setResenas(reseñas);
-    })();
+    // Obtener reseñas desde la API
+    fetch(`/api/resenas?libroId=${id}`)
+      .then((res) => res.json())
+      .then((data) => setResenas(data));
   }, [resolvedParams]);
 
   if (!resolvedParams) {
@@ -51,22 +55,47 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
   const { id } = resolvedParams;
 
   const formAction = async (formData: FormData) => {
-    const usuario = "Anónimo";
+    // Leer usuario de la cookie
+    let usuario = "Anónimo";
+    if (typeof document !== "undefined") {
+      const match = document.cookie.match(/(?:^|; )user=([^;]*)/);
+      usuario = match ? decodeURIComponent(match[1]) : "Anónimo";
+    }
     const texto = formData.get("review") as string;
     const rating = Number(formData.get("rating"));
-    const nuevasResenas = await serverActionGuardarReseña(id, usuario, texto, rating);
-    setResenas(nuevasResenas);
+    await fetch("/api/resenas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ libroId: id, usuario, texto, rating })
+    });
+    // Refrescar reseñas
+    fetch(`/api/resenas?libroId=${id}`)
+      .then((res) => res.json())
+      .then((data) => setResenas(data));
   };
 
+  // Actualizar la función votar para guardar el voto por usuario y reseña
   const votar = async (reseñaId: string, tipo: "like" | "dislike") => {
+    const usuario = getUsuario();
     const votos = JSON.parse(localStorage.getItem("votosResenas") || "{}");
-    if (votos[reseñaId]) {
+    const votoKey = `${usuario}_${reseñaId}`;
+    if (votos[votoKey]) {
       alert("Ya votaste esta reseña.");
       return;
     }
-    const nuevasResenas = await serverActionVotarReseña(id, reseñaId, tipo);
-    setResenas(nuevasResenas);
-    votos[reseñaId] = tipo;
+    // PATCH para actualizar likes/dislikes
+    await fetch(`/api/resenas`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reseñaId, tipo })
+    });
+    // Refrescar reseñas
+    if (resolvedParams) {
+      fetch(`/api/resenas?libroId=${resolvedParams.id}`)
+        .then((res) => res.json())
+        .then((data) => setResenas(data));
+    }
+    votos[votoKey] = tipo;
     localStorage.setItem("votosResenas", JSON.stringify(votos));
   };
 
@@ -101,6 +130,7 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div className="max-w-2xl mx-auto p-4 bg-gradient-to-br from-pink-100 via-white to-pink-200">
+      <UsuarioLogueado />
       <div className="flex flex-col sm:flex-row gap-6 items-start mb-6">
         {book.volumeInfo.imageLinks?.thumbnail && (
           <img
@@ -181,14 +211,15 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
       ) : (
         <ul className="space-y-6">
           {[...resenas]
-            .sort(
-              (a, b) => b.likes - b.dislikes - (a.likes - a.dislikes)
-            )
+            .sort((a, b) => b.likes - b.dislikes - (a.likes - a.dislikes))
             .map((r, i, arr) => {
               const isBest = i === 0 && arr.length > 1;
+              const usuario = getUsuario();
+              const votos = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("votosResenas") || "{}") : {};
+              const votoKey = `${usuario}_${r._id || r.id}`;
               return (
                 <li
-                  key={r.id}
+                  key={r._id || r.id}
                   className={`relative bg-white rounded-xl shadow p-6 border-2 flex flex-col sm:flex-row sm:items-center justify-between transition-all ${
                     isBest
                       ? "border-yellow-400 ring-2 ring-yellow-200"
@@ -213,15 +244,10 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
                   <div className="flex items-center gap-2 mt-2 sm:mt-0">
                     <button
                       type="button"
-                      onClick={() => votar(r.id, "like")}
+                      onClick={() => votar(r._id || r.id, "like")}
                       className="w-10 h-10 flex items-center justify-center bg-green-100 rounded-full hover:bg-green-200 text-green-700 text-xl font-bold shadow-sm border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-300 disabled:opacity-50"
                       aria-label="Me gusta"
-                      disabled={
-                        typeof window !== "undefined" &&
-                        JSON.parse(
-                          localStorage.getItem("votosResenas") || "{}"
-                        )[r.id]
-                      }
+                      disabled={votos[votoKey]}
                     >
                       👍
                     </button>
@@ -230,15 +256,10 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
                     </span>
                     <button
                       type="button"
-                      onClick={() => votar(r.id, "dislike")}
+                      onClick={() => votar(r._id || r.id, "dislike")}
                       className="w-10 h-10 flex items-center justify-center bg-red-100 rounded-full hover:bg-red-200 text-red-700 text-xl font-bold shadow-sm border border-red-200 focus:outline-none focus:ring-2 focus:ring-red-300 disabled:opacity-50"
                       aria-label="No me gusta"
-                      disabled={
-                        typeof window !== "undefined" &&
-                        JSON.parse(
-                          localStorage.getItem("votosResenas") || "{}"
-                        )[r.id]
-                      }
+                      disabled={votos[votoKey]}
                     >
                       👎
                     </button>

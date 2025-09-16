@@ -8,6 +8,10 @@ function setTokenCookie(token: string) {
   document.cookie = `token=${token}; path=/; max-age=86400`;
 }
 
+function setUserCookie(user: string) {
+  document.cookie = `user=${encodeURIComponent(user)}; path=/; max-age=86400`;
+}
+
 function parseJwt(token: string) {
   try {
     return JSON.parse(atob(token.split('.')[1]));
@@ -39,6 +43,7 @@ export default function Login() {
     e.preventDefault();
     const data = await login(form.mail, form.contraseña);
     if (data && data.ok) {
+      setUserCookie(form.mail);
       setBienvenida(`Bienvenido/a, ${form.mail}`);
       setTimeout(() => {
         router.push('/');

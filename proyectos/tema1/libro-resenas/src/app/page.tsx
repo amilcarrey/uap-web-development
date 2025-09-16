@@ -1,7 +1,9 @@
 'use client';
+
 import { useActionState } from "react";
 import { buscarLibros } from "./lib/buscarLibro";
 import Link from "next/link";
+import UsuarioLogueado from "./components/UsuarioLogueado";
 
 export const dynamic = "force-dynamic";
 interface GoogleBook {
@@ -21,6 +23,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-pink-100 via-white to-pink-200 py-8 px-2">
+      <UsuarioLogueado />
       <div className="w-full max-w-3xl bg-white/80 rounded-2xl shadow-xl p-8 mb-10 border border-pink-200">
         <h1 className="text-4xl font-extrabold mb-6 text-pink-800 text-center drop-shadow">Busca un libro</h1>
         <form action={formAction} className="flex flex-col sm:flex-row gap-3 w-full max-w-xl mx-auto">
