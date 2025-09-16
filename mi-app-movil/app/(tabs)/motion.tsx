@@ -27,7 +27,7 @@ export default function MotionScreen() {
   // Calibración: offset que se resta a la lectura del giroscopio
   const [offset, setOffset] = useState<Vec3>({ x: 0, y: 0, z: 0 });
   const filteredRef = useRef<Vec3>({ x: 0, y: 0, z: 0 });
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const subRef = useRef<ReturnType<typeof Gyroscope.addListener> | null>(null);
 
   // Cargar mejor tiempo
