@@ -1,7 +1,6 @@
 // app/tabs/index.tsx
 import { useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
-import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Button, Text, View } from "react-native";
 
@@ -65,11 +64,7 @@ export default function HomeTab() {
 
       <Button title="Reintentar permisos" onPress={requestAllPermissions} />
 
-      {/* Navegación a la pantalla de fotos */}
-      <Link href="/camera" asChild></Link>
-      <Link href="/photos" asChild>
-        <Button title="Ver fotos de la galería" />
-      </Link>
+  
     </View>
   );
 }
