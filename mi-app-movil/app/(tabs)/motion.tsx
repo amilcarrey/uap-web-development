@@ -1,9 +1,9 @@
 // app/(tabs)/motion.tsx
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Dimensions, StyleSheet, Text, View } from "react-native";
-import { Gyroscope } from "expo-sensors";
-import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Haptics from "expo-haptics";
+import { Gyroscope } from "expo-sensors";
+import React, { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Button, Dimensions, StyleSheet, Text, View } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 const BALL_SIZE = 50;
@@ -20,9 +20,12 @@ export default function MotionScreen() {
   const [gyro, setGyro] = useState<Vec3>({ x: 0, y: 0, z: 0 });
   const [pos, setPos] = useState({ x: GAME_SIZE / 2 - BALL_SIZE / 2, y: GAME_SIZE / 2 - BALL_SIZE / 2 });
   const [won, setWon] = useState(false);
-  const [startTs, setStartTs] = useState<number | null>(null);
+  const startRef = useRef<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [best, setBest] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [storageError, setStorageError] = useState<string | null>(null);
+  const [sensorAvailable, setSensorAvailable] = useState(true);
 
   // Calibración: offset que se resta a la lectura del giroscopio
   const [offset, setOffset] = useState<Vec3>({ x: 0, y: 0, z: 0 });
@@ -33,50 +36,68 @@ export default function MotionScreen() {
   // Cargar mejor tiempo
   useEffect(() => {
     (async () => {
-      const raw = await AsyncStorage.getItem("@best_time_ms");
-      if (raw) setBest(Number(raw));
+      setLoading(true);
+      setStorageError(null);
+      try {
+        const raw = await AsyncStorage.getItem("@best_time_ms");
+        if (raw) setBest(Number(raw));
+      } catch (e) {
+        setStorageError("Error al cargar el récord");
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
-  // Suscribirse al giroscopio
+  // Suscribirse al giroscopio y verificar disponibilidad
   useEffect(() => {
-    Gyroscope.setUpdateInterval(INTERVAL_MS);
-    subRef.current = Gyroscope.addListener((data) => {
-      // low-pass simple
-      const prev = filteredRef.current;
-      const nx = prev.x + LP_ALPHA * (data.x - prev.x);
-      const ny = prev.y + LP_ALPHA * (data.y - prev.y);
-      const nz = prev.z + LP_ALPHA * (data.z - prev.z);
-      filteredRef.current = { x: nx, y: ny, z: nz };
-      setGyro({ x: nx - offset.x, y: ny - offset.y, z: nz - offset.z });
-    });
+    let mounted = true;
+    (async () => {
+      try {
+        const isAvailable = await Gyroscope.isAvailableAsync();
+        if (!isAvailable && mounted) {
+          setSensorAvailable(false);
+          return;
+        }
+        setSensorAvailable(true);
+        Gyroscope.setUpdateInterval(INTERVAL_MS);
+        subRef.current = Gyroscope.addListener((data) => {
+          // low-pass simple
+          const prev = filteredRef.current;
+          const nx = prev.x + LP_ALPHA * (data.x - prev.x);
+          const ny = prev.y + LP_ALPHA * (data.y - prev.y);
+          const nz = prev.z + LP_ALPHA * (data.z - prev.z);
+          filteredRef.current = { x: nx, y: ny, z: nz };
+          setGyro({ x: nx - offset.x, y: ny - offset.y, z: nz - offset.z });
+        });
+      } catch (e) {
+        setSensorAvailable(false);
+      }
+    })();
     return () => {
+      mounted = false;
       subRef.current?.remove();
       subRef.current = null;
     };
   }, [offset]);
 
-  // Timer de juego
+  // Timer de juego (usando startRef para evitar bug)
   useEffect(() => {
     if (won) {
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = null;
       return;
     }
-    setStartTs(Date.now());
+    startRef.current = Date.now();
     setElapsed(0);
     timerRef.current = setInterval(() => {
-      setElapsed((prev) => {
-        if (startTs) return Date.now() - startTs;
-        return prev;
-      });
+      if (startRef.current) setElapsed(Date.now() - startRef.current);
     }, 50);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [won]);
 
   // Movimiento por giroscopio (x ↔ y cruzado para sensación natural)
@@ -95,12 +116,12 @@ export default function MotionScreen() {
   const centerY = GAME_SIZE / 2 - BALL_SIZE / 2;
   const isCentered = Math.abs(pos.x - centerX) < TOLERANCE && Math.abs(pos.y - centerY) < TOLERANCE;
 
-  // Win logic
+  // Win logic (usando startRef)
   useEffect(() => {
     if (isCentered && !won) {
       setWon(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      const final = Date.now() - (startTs ?? Date.now());
+      const final = Date.now() - (startRef.current ?? Date.now());
       setElapsed(final);
       (async () => {
         if (best === null || final < best) {
@@ -109,7 +130,7 @@ export default function MotionScreen() {
         }
       })();
     }
-  }, [isCentered, won, best, startTs]);
+  }, [isCentered, won, best]);
 
   const handleRestart = () => {
     setPos({ x: 10, y: 10 });
@@ -127,41 +148,65 @@ export default function MotionScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Detector de Movimiento</Text>
 
-      <View style={styles.row}>
-        <Text style={styles.badge}>Tiempo: {msToS(elapsed)}</Text>
-        <Text style={styles.badge}>Récord: {best ? msToS(best) : "—"}</Text>
-      </View>
+      {loading ? (
+        <ActivityIndicator size="large" color="#2196f3" accessibilityLabel="Cargando récord" />
+      ) : storageError ? (
+        <Text style={{ color: 'red', marginBottom: 8 }}>{storageError}</Text>
+      ) : null}
 
-      <Text style={styles.subtitle}>Giroscopio (filtrado):</Text>
-      <Text style={styles.data}>
-        x: {gyro.x.toFixed(2)} | y: {gyro.y.toFixed(2)} | z: {gyro.z.toFixed(2)}
-      </Text>
+      {!sensorAvailable ? (
+        <Text style={{ color: 'red', marginBottom: 8 }}>Sensor de giroscopio no disponible en este dispositivo.</Text>
+      ) : (
+        <>
+          <View style={styles.row}>
+            <Text style={styles.badge}>Tiempo: {msToS(elapsed)}</Text>
+            <Text style={styles.badge}>Récord: {best ? msToS(best) : "—"}</Text>
+          </View>
 
-      <View style={styles.gameArea}>
-        <View
-          style={[
-            styles.centerTarget,
-            { left: centerX, top: centerY, borderColor: isCentered ? "#4caf50" : "#ff9800" },
-          ]}
-        />
-        <View
-          style={[
-            styles.ball,
-            { left: pos.x, top: pos.y, backgroundColor: isCentered ? "#4caf50" : "#2196f3" },
-          ]}
-        />
-      </View>
+          <Text style={styles.subtitle}>Giroscopio (filtrado):</Text>
+          <Text style={styles.data}>
+            x: {gyro.x.toFixed(2)} | y: {gyro.y.toFixed(2)} | z: {gyro.z.toFixed(2)}
+          </Text>
 
-      <Text style={styles.instructions}>¡Inclina el teléfono para llevar la pelota al centro!</Text>
+          <View style={styles.gameArea}>
+            <View
+              style={[
+                styles.centerTarget,
+                { left: centerX, top: centerY, borderColor: isCentered ? "#4caf50" : "#ff9800" },
+              ]}
+              accessibilityLabel="Zona objetivo central"
+              accessible
+            />
+            <View
+              style={[
+                styles.ball,
+                { left: pos.x, top: pos.y, backgroundColor: isCentered ? "#4caf50" : "#2196f3" },
+              ]}
+              accessibilityLabel="Pelota controlada por giroscopio"
+              accessible
+            />
+          </View>
 
-      <View style={styles.buttons}>
-        <View style={{ flex: 1, marginRight: 6 }}>
-          <Button title={won ? "Volver a jugar" : "Reiniciar"} onPress={handleRestart} />
-        </View>
-        <View style={{ flex: 1, marginLeft: 6 }}>
-          <Button title="Calibrar" onPress={handleCalibrate} />
-        </View>
-      </View>
+          <Text style={styles.instructions}>¡Inclina el teléfono para llevar la pelota al centro!</Text>
+
+          <View style={styles.buttons}>
+            <View style={{ flex: 1, marginRight: 6 }}>
+              <Button
+                title={won ? "Volver a jugar" : "Reiniciar"}
+                onPress={handleRestart}
+                accessibilityLabel={won ? "Volver a jugar" : "Reiniciar el juego"}
+              />
+            </View>
+            <View style={{ flex: 1, marginLeft: 6 }}>
+              <Button
+                title="Calibrar"
+                onPress={handleCalibrate}
+                accessibilityLabel="Calibrar giroscopio"
+              />
+            </View>
+          </View>
+        </>
+      )}
     </View>
   );
 }
