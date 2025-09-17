@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>App de Tareas</title>
+</head>
+<body>
+    <header>
+        <h1>APP TAREAS :]</h1>
+    </header>
+
+    <div class="contenedor">
+        <div class="modos">
+            <button id="modoPersonal" class="modo activo" aria-label="Modo Personal">Personal</button>
+            <button id="modoProfesional" class="modo" aria-label="Modo Profesional">Profesional</button>
+        </div>
+
+        <div class="contenedorinput">
+            <form id="form" class="formulario">
+                <input type="text" id="nuevaTarea" placeholder="Nueva tarea" required>
+                <button type="submit">Agregar</button>
+            </form>
+        </div>
+
+        <section class="contenedorlista">
+            <ul id="lista" class="lista">
+                <li>
+                    <button type="button" class="check">✔</button> 
+                    Estudiar 
+                    <button type="button" class="eliminar">🗑️</button>
+                </li>
+                <li>
+                    <button type="button" class="check">✔</button> 
+                    Comer 
+                    <button type="button" class="eliminar">🗑️</button>
+                </li>
+                <li>
+                    <button type="button" class="check">✔</button> 
+                    Dormir 
+                    <button type="button" class="eliminar">🗑️</button>
+                </li>
+                <li>
+                    <button type="button" class="check">✔</button> 
+                    Correr 
+                    <button type="button" class="eliminar">🗑️</button>
+                </li>
+                <li>
+                    <button type="button" class="check">✔</button> 
+                    Jugar
+                    <button type="button" class="eliminar">🗑️</button>
+                </li>
+            </ul>
+
+            <div class="acciones">
+                <button id="borratodo" type="button">Borrar tareas</button>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
