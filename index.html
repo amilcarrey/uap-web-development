@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-do list</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>TO-DO</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><button>Personal</button></li>
+        <li><button>Professional</button></li>
+      </ul>
+    </nav>
+    <div class="taskbar">
+      <input
+        type="text"
+        placeholder="What do you want to do?"
+        id="nueva-tarea"
+      />
+      <button id="boton-agregar">ADD</button>
+    </div>
+    <main>
+      <div class="filtros">
+        <button id="todas">Todas</button>
+        <button id="incompletas">Incompletas</button>
+        <button id="completas">Completas</button>
+      </div>
+      <form>
+        <div>
+          <div class="nueva-tarea" id="agregar"></div>
+        </div>
+
+      </form>
+      <button id="boton-clear">Clear complete</button>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
