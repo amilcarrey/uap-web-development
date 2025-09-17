@@ -1,0 +1,10 @@
+# El contenido respecto a la tarea 10 esta en el repositorio de la api deployada en vercel
+
+# Adjunto link del repositorio en donde esta subida mi api de plataforma libro 
+
+https://github.com/justingarciaH/Plataforma-libro
+
+
+# Adjunto el link de mi deploy
+
+https://plataforma-libro.vercel.app/
