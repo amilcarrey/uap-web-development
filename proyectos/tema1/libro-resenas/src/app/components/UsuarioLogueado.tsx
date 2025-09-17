@@ -19,16 +19,9 @@ export default function UsuarioLogueado() {
   };
 
   if (!usuario) return null;
-
   return (
     <div className="flex items-center gap-4 mb-4">
       <span className="font-semibold text-pink-700">Usuario: {usuario}</span>
-      <button
-        onClick={handleLogout}
-        className="bg-pink-500 hover:bg-pink-700 text-white px-4 py-2 rounded shadow"
-      >
-        Cerrar sesión
-      </button>
     </div>
   );
 }

@@ -1,6 +1,26 @@
 "use client";
 export const dynamic = "force-dynamic";
 import React, { useEffect, useState } from "react";
+import { useUsuario } from "../../hooks/useUsuario";
+// Componente para agregar libro a favoritos
+function FavoritoButton({ libroId }: { libroId: string }) {
+  const { agregarFavorito, loading } = useUsuario();
+  const [added, setAdded] = useState(false);
+  const handleClick = async () => {
+    const res = await agregarFavorito(libroId);
+    if (res && res._id) setAdded(true);
+  };
+  return (
+    <button
+      onClick={handleClick}
+      disabled={loading || added}
+      className={`mt-3 px-4 py-2 rounded bg-pink-500 text-white font-semibold shadow hover:bg-pink-700 transition ${added ? "opacity-60" : ""}`}
+    >
+      {added ? "Agregado a favoritos" : "Agregar a favoritos"}
+    </button>
+  );
+}
+import { useResenas } from "../../hooks/useResenas";
 import UsuarioLogueado from "../../components/UsuarioLogueado";
 import { notFound } from "next/navigation";
 
@@ -15,9 +35,24 @@ const getUsuario = () => {
 
 // 🔹 Next 15 puede pasar params como objeto o como Promise
 export default function BookPage({ params }: { params: Promise<{ id: string }> }) {
+  // Función para refrescar las reseñas desde la API
+  const fetchResenas = () => {
+    if (!resolvedParams) return;
+    fetch(`/api/resenas?libroId=${resolvedParams.id}`)
+      .then((res) => res.json())
+      .then((data) => setResenas(data));
+  };
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
   const [book, setBook] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalResena, setModalResena] = useState<any>(null);
+  const [editTexto, setEditTexto] = useState("");
+  const [editRating, setEditRating] = useState(1);
+  const {
+    editarResena,
+    eliminarResena
+  } = useResenas();
   const [resenas, setResenas] = useState<any[]>([]);
 
   // Resolver params (siempre es Promise en Next.js 15)
@@ -165,6 +200,10 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
               </span>
             )}
           </div>
+          {/* Botón de favoritos */}
+          {typeof document !== "undefined" && document.cookie.includes("user=") && (
+            <FavoritoButton libroId={id} />
+          )}
         </div>
       </div>
       <p className="mb-6 text-gray-800 text-base leading-relaxed">
@@ -217,6 +256,7 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
               const usuario = getUsuario();
               const votos = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("votosResenas") || "{}") : {};
               const votoKey = `${usuario}_${r._id || r.id}`;
+              const esPropia = r.usuarioId && r.usuarioId.mail === usuario;
               return (
                 <li
                   key={r._id || r.id}
@@ -266,11 +306,96 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
                     <span className="inline-block min-w-[2.5rem] text-center bg-red-600 text-white rounded-full px-2 py-1 text-sm font-semibold shadow">
                       {r.dislikes}
                     </span>
+                    {esPropia && (
+                      <>
+                        <button
+                          type="button"
+                          className="ml-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 border border-blue-300"
+                          onClick={() => {
+                            setModalResena(r);
+                            setEditTexto(r.texto);
+                            setEditRating(r.rating);
+                            setModalOpen(true);
+                          }}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="ml-2 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 border border-red-300"
+                          onClick={async () => {
+                            if (window.confirm("¿Seguro que quieres eliminar esta reseña?")) {
+                              await eliminarResena(r._id || r.id);
+                              fetchResenas();
+                            }
+                          }}
+                        >
+                          Eliminar
+                        </button>
+                      </>
+                    )}
                   </div>
                 </li>
               );
             })}
         </ul>
+      )}
+
+      {/* Modal de edición de reseña */}
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4">Editar reseña</h3>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                await editarResena(modalResena._id || modalResena.id, editTexto, editRating);
+                setModalOpen(false);
+                fetchResenas();
+              }}
+            >
+              <div className="mb-4">
+                <label className="block font-semibold mb-1">Calificación:</label>
+                <select
+                  value={editRating}
+                  onChange={e => setEditRating(Number(e.target.value))}
+                  className="border rounded px-2 py-1"
+                  required
+                >
+                  {[1,2,3,4,5].map(n => (
+                    <option key={n} value={n}>{n} ⭐</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block font-semibold mb-1">Reseña:</label>
+                <textarea
+                  value={editTexto}
+                  onChange={e => setEditTexto(e.target.value)}
+                  maxLength={300}
+                  className="border rounded px-2 py-1 w-full min-h-[60px]"
+                  required
+                />
+                <span className="text-xs text-gray-600">Máx. 300 caracteres</span>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                  onClick={() => setModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+                >
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

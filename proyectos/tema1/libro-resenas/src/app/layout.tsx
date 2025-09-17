@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { PerfilUsuarioHeader } from "./components/PerfilUsuario";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +18,9 @@ const geistMono = Geist_Mono({
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   useEffect(() => {
+    const path = window.location.pathname;
+    // Permitir acceso libre a /login y /register
+    if (path === "/login" || path === "/register") return;
     const match =
       typeof document !== "undefined" &&
       document.cookie.match(/(?:^|; )user=([^;]*)/);
@@ -24,7 +28,29 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
       router.push("/login");
     }
   }, [router]);
-  return <>{children}</>;
+  // Mostrar el header en todas las páginas excepto login/register
+  const path = typeof window !== "undefined" ? window.location.pathname : "";
+  const showHeader = path !== "/login" && path !== "/register";
+  return (
+    <>
+      {showHeader && (
+        <header
+          style={{
+            background: "#ffb6c1",
+            padding: "1rem 2rem",
+            borderBottom: "2px solid #e75480",
+            position: "sticky",
+            top: 0,
+            zIndex: 100,
+            boxShadow: "0 2px 8px #e7548055"
+          }}
+        >
+          <PerfilUsuarioHeader />
+        </header>
+      )}
+      {children}
+    </>
+  );
 }
 
 export default function RootLayout({

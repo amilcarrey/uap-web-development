@@ -29,6 +29,9 @@ export default function Login() {
 
   const handleLogout = async () => {
     setCerrando(true);
+    // Borrar cookies en frontend
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     await fetch('/api/logout', { method: 'POST' });
     setTimeout(() => {
       router.push('/login');
@@ -43,6 +46,7 @@ export default function Login() {
     e.preventDefault();
     const data = await login(form.mail, form.contraseña);
     if (data && data.ok) {
+      setTokenCookie(data.token);
       setUserCookie(form.mail);
       setBienvenida(`Bienvenido/a, ${form.mail}`);
       setTimeout(() => {

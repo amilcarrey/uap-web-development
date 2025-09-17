@@ -5,7 +5,7 @@ export function useRegister() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const register = async (mail: string, contraseña: string, role: string) => {
+  const register = async (mail: string, contrasena: string, role: string) => {
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -13,7 +13,7 @@ export function useRegister() {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mail, contraseña, role }),
+        body: JSON.stringify({ mail, contrasena, role }),
       });
       const data = await res.json();
       if (!res.ok) {
