@@ -1,0 +1,235 @@
+---
+type Tarea = {
+  id: string;
+  nombre: string;
+  tarea_completa: boolean;
+};
+
+let lista_tareas: Tarea[] = globalThis.lista_tareas || [
+  { id: "1", nombre: "Personal Work No.1", tarea_completa: false },
+  { id: "2", nombre: "Personal Work No.2", tarea_completa: false },
+  { id: "3", nombre: "Personal Work No.3", tarea_completa: false },
+  { id: "4", nombre: "Personal Work No.4", tarea_completa: false },
+  { id: "5", nombre: "Personal Work No.5", tarea_completa: false },
+];
+
+const method = Astro.request.method;
+const url = new URL(Astro.request.url);
+const filtro = url.searchParams.get("filtro") ?? "";
+
+if (method === "POST") {
+  const formData = await Astro.request.formData();
+  const _method = formData.get("_method")?.toString();
+
+  //agrego la tarea
+  if (!_method) { 
+    const nombre = formData.get("nombre")?.toString().trim();
+    if (nombre) {
+      lista_tareas.push({ id: Date.now().toString(), nombre, tarea_completa: false });
+    }
+  } else if (_method === "put") { 
+    const id = formData.get("id")?.toString();
+    const tarea_completa = formData.get("tarea_completa") === "true";
+    if (id) {
+      lista_tareas = lista_tareas.map((t) => t.id === id ? { ...t, tarea_completa } : t);
+    }
+  } else if (_method === "delete") { //elimino
+    const id = formData.get("id")?.toString();
+    if (id === "completadas") {
+      lista_tareas = lista_tareas.filter((t) => !t.tarea_completa);
+    } else if (id) {
+      lista_tareas = lista_tareas.filter((t) => t.id !== id);
+    }
+  }
+  globalThis.lista_tareas = lista_tareas;
+}
+
+let lista_tareasFiltradas = [...lista_tareas];
+if (filtro === "completas") {
+  lista_tareasFiltradas = lista_tareas.filter((t) => t.tarea_completa);
+} else if (filtro === "incompletas") {
+  lista_tareasFiltradas = lista_tareas.filter((t) => !t.tarea_completa);
+}
+---
+
+
+<div class="body">
+  <div>
+    <h1 class="encabezado">TO-DO</h1>
+  </div>
+
+  <div class="container">
+    <h4 id="subencabezado">Personal</h4>
+    <h4 id="subencabezado">Professional</h4>
+  </div>
+
+  <br><br>
+
+  <!-- Formulario para agregar lista_tareas -->
+  <form class="buscador" method="POST" action="/">
+    <input type="text" name="nombre" placeholder="What do you need to do?" maxlength="20" required>
+    <button class="boton-add" type="submit">ADD</button>
+  </form>
+
+  <br>
+
+  <div class="filtros">
+    <a href="/"><button type="button">lista_tareas</button></a>
+    <a href="/?filtro=completas"><button type="button">Completas</button></a>
+    <a href="/?filtro=incompletas"><button type="button">Incompletas</button></a>
+  </div>
+
+  <br>
+
+  <div class="to-do">
+    <div id="lista-lista_tareas">
+      {lista_tareasFiltradas.map(tarea => (
+        <div class="tarea">
+          <form method="POST" action="/">
+            <input type="hidden" name="_method" value="put">
+            <input type="hidden" name="id" value={tarea.id}>
+            <input type="hidden" name="tarea_completa" value={tarea.tarea_completa ? "false" : "true"}>
+            <input 
+              type="checkbox" 
+              checked={tarea.tarea_completa} 
+              onchange="this.form.submit()"
+            />
+          </form>
+          <span style={tarea.tarea_completa ? "text-decoration: line-through;" : ""}>{tarea.nombre}</span>
+          <form method="POST" action="/" style="margin-left: auto;">
+            <input type="hidden" name="_method" value="delete">
+            <input type="hidden" name="id" value={tarea.id}>
+            <button type="submit" class="basura">🗑️</button>
+          </form>
+        </div>
+      ))}
+    </div>
+
+    <form method="POST" action="/">
+      <input type="hidden" name="_method" value="delete">
+      <input type="hidden" name="id" value="completadas">
+      <p class="clear-completed" onclick="this.closest('form').submit()">Clear Completed</p>
+    </form>
+  </div>
+</div>
+
+
+
+<style>
+    .body {
+      width: auto;
+      background-color: white;
+      padding: 0 20px 20px 20px;
+      margin: 0;
+      border-radius: 10px;
+      font-family: 'Lucida Sans', sans-serif;
+    }
+  
+    .encabezado {
+      display: flex;
+      text-align: center;
+      align-content: flex-start;
+      justify-content: center;
+      height: 60px;
+      width: auto;
+      background-color: antiquewhite;
+      font-size: 50px;
+      color: #666;
+      border-radius: 20px;
+      margin: 0;                
+      padding: 0;                
+    }
+
+    .container {
+        display: flex;
+        align-content: flex-start;
+        justify-content: space-evenly;
+        font-weight: bold;
+        padding: 0;               
+        background-color: #f5ede4;
+        border-radius: 20px;
+        margin: 0;   
+        box-shadow: #000000;              
+    }
+
+    #subencabezado {
+        cursor: pointer;
+    }
+
+    .buscador {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5ede4;
+        padding: 10px;
+        border-radius: 20px;
+        width: 650px;
+        margin: 0 auto;          
+    }
+
+    .buscador input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .buscador button {
+        background-color: #60b0cf;
+        color: white;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        box-shadow: #000000;
+    }
+
+    .to-do {
+        width: 650px;
+        margin: 0 auto;         
+        padding: 10px;
+        background-color: #f8f5ef;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column; 
+    }
+
+    .tarea {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .basura {
+        margin-left: auto;
+        color: #000000;
+        cursor: pointer;
+        border: transparent;
+    }
+
+    .clear-completed {
+        text-align: right;
+        color: orange;
+        font-size: 14px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    .filtros {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .filtros button {
+        background-color: antiquewhite;
+        border: 2px dotted antiquewhite;
+        border-radius: 8%;
+        padding: 5px 15px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+</style>
