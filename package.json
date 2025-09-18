@@ -1,10 +1,27 @@
 {
+  "name": "fotos-ubicacion",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
   "dependencies": {
-    "sqlstring": "^2.3.3",
-    "validator": "^13.15.15"
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "~54.0.4",
+    "expo-camera": "~16.0.4",
+    "expo-font": "~14.0.8",
+    "expo-location": "~19.0.7",
+    "expo-media-library": "~18.2.0",
+    "expo-status-bar": "~3.0.8",
+    "react": "19.1.0",
+    "react-native": "0.81.4"
   },
   "devDependencies": {
-    "@types/sqlstring": "^2.3.2",
-    "@types/validator": "^13.15.1"
-  }
+    "@types/react": "~19.1.0",
+    "typescript": "~5.9.2"
+  },
+  "private": true
 }

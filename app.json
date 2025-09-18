@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "Mimi Fotos",
+    "slug": "mimi-fotos",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-location",
+      "expo-media-library",
+      "expo-font"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.miempresa.mimifotos",
+      "infoPlist": {
+        "NSCameraUsageDescription": "La app necesita acceder a la cámara para tomar fotos.",
+        "NSLocationWhenInUseUsageDescription": "La app usa tu ubicación para asociarla a las fotos.",
+        "NSPhotoLibraryAddUsageDescription": "La app necesita guardar fotos en tu galería.",
+        "NSPhotoLibraryUsageDescription": "La app necesita acceder a tus fotos para seleccionarlas."
+      }
+    },
+    "android": {
+      "package": "com.miempresa.mimifotos",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "READ_MEDIA_IMAGES"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
