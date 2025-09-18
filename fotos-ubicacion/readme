@@ -1,0 +1,35 @@
+ -Fotos con Ubicación (Expo + React Native)
+
+Aplicación móvil hecha con Expo y React Native que:
+Toma fotos con la cámara.
+Obtiene ubicación (lat/long) al momento de la captura.
+Persiste fotos (URI, coords, fecha) en AsyncStorage.
+Guarda cada foto en la galería del sistema
+Permite borrar todo (incluyendo las fotos creadas por la app en la galería).
+
+ -Tecnologías
+
+React Native + Expo
+
+expo-camera (API nueva: CameraView, useCameraPermissions)
+
+expo-location
+
+expo-media-library
+
+@react-native-async-storage/async-storage
+
+TypeScript
+
+- Puesta en marcha
+Clonar/entrar al proyecto
+cd fotos-ubicacion
+
+ Instalar dependencias
+npm install
+
+ Instalar APIs nativas (usa versiones compatibles con tu SDK)
+npx expo install expo-camera expo-location expo-media-library @react-native-async-storage/async-storage
+
+ Iniciar el dev server
+npx expo start -c --tunnel
