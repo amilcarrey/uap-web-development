@@ -18,6 +18,7 @@ La aplicación está deployada en Vercel con conexión a la base de datos median
 Cada vez que se hace push a main, se redeploya automáticamente en Vercel.
 Variables sensibles están configuradas en Vercel Environment Variables.
 Ejecución Local
+
 1. Clonar el repositorio
 git clone https://github.com/Ccmolina/Tarea-10.git
 cd Tarea-10
