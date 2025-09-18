@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "PhotoCameraApp",
+    "slug": "photo-camera-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "platforms": ["ios", "android"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permite acceder a tu cámara para tomar fotos."
+        }
+      ]
+    ]
+  }
+}
