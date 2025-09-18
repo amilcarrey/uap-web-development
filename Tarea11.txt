@@ -1,0 +1,58 @@
+📚 Aplicación: App Libros
+
+1. URL de la aplicación deployada
+
+https://app-libros-10.vercel.app/
+
+2. Repositorio GitHub
+
+https://github.com/HarrysonLadines/APPLibros (rama main)
+
+🛠️ 3. Tecnologías utilizadas
+
+Next.js (App Router)
+
+TypeScript
+
+Tailwind CSS
+
+MongoDB Atlas
+
+Vercel (deploy)
+
+API de Google Books
+
+🔐 4. Variables de entorno configuradas
+
+MONGODB_URI: conexión a MongoDB Atlas
+
+JWT_SECRET: secreto para tokens de autenticación
+
+🔍 5. Funcionalidades principales
+
+Autenticación de usuarios (registro/login)
+
+Búsqueda de libros usando la API pública de Google Books por Autor/Titulo/ISBN
+
+Visualización de detalles de libros
+
+Marcar libros como favoritos
+
+Agregar, editar, ver y calificar reseñas de libros
+
+Diseño responsivo
+
+👤 6. Usuario de prueba (si aplica)
+
+email: RegistroTest@gmail.com
+password: 1234qwer
+
+Puedes registrarte libremente.
+
+📝 7. Observaciones finales
+
+El proyecto fue desplegado correctamente en Vercel.
+
+Funciona tanto local como en producción.
+
+Todos los endpoints y la base de datos están activos.
