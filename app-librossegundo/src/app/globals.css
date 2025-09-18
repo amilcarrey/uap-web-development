@@ -2,11 +2,11 @@
 
 
 @theme {
-  /* Colores opcionales de marca (además de la paleta 'rose' que ya trae Tailwind) */
-  --color-ink: #0f172a;     /* slate-900 */
-  --color-sub: #475569;     /* slate-600 */
-  --color-bg:  #fff1f2;     /* rose-50 */
-  --color-ring:#fda4af;     /* rose-300 */
+  
+  --color-ink: #0f172a;     
+  --color-sub: #475569;     
+  --color-bg:  #fff1f2;     
+  --color-ring:#fda4af;     
 }
 
 
