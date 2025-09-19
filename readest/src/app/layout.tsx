@@ -1,5 +1,6 @@
 import "./globals.css";
 import { ReactNode } from "react";
+import Navbar from "./components/Navbar"; // ajusta la ruta según tu proyecto
 
 export const metadata = {
   title: "App de Reseñas de Libros",
@@ -10,9 +11,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
       <body className="bg-gray-100 text-gray-900">
-        <header className="bg-blue-600 text-white p-4 shadow">
-          <h1 className="text-2xl font-bold"> Reseñas de Libros</h1>
-        </header>
+        <Navbar />
 
         <main className="container mx-auto p-4">{children}</main>
 

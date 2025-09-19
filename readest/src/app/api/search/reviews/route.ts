@@ -1,44 +1,26 @@
-// File: /c:/Users/Ezequiel/OneDrive - uap.edu.ar/Escritorio/Ingeniería en sistemas/3 año/2 Cuatrimestre/Programación IV/Gestor_de_tareas/readest/src/app/api/search/reviews/route.ts
 import { NextResponse } from "next/server";
-import { prisma } from "@/app/lib/prisma";
+import { connectMongo } from "@/app/lib/mongo";
+import { Review } from "@/app/models/Review";
+import { requireAuth } from "@/app/middleware/auth";
 
-// GET: obtener todas las reseñas de un libro
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const bookId = searchParams.get("bookId");
-
-  if (!bookId) {
-    return NextResponse.json({ error: "Missing bookId" }, { status: 400 });
-  }
-
-  const reviews = await prisma.review.findMany({
-    where: { bookId: Number(bookId) },
-  });
-
-  return NextResponse.json(reviews);
-}
-
-// POST: crear una nueva reseña
 export async function POST(req: Request) {
   try {
-    const { bookId, reviewer, rating, content } = await req.json();
+    const user = requireAuth(req); // usuario autenticado
+    const { bookId, rating, comment } = await req.json();
 
-    if (!bookId || !reviewer || !rating || !content) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-    }
+    await connectMongo();
 
-    const review = await prisma.review.create({
-      data: {
-        bookId: Number(bookId),
-        reviewer,
-        rating: Number(rating),
-        content,
-      },
+    const review = await Review.create({
+      bookId,
+      userId: user.id,
+      userName: user.name,
+      rating,
+      comment,
+      votes: 0,
     });
 
     return NextResponse.json(review);
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Failed to create review" }, { status: 500 });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 401 });
   }
 }

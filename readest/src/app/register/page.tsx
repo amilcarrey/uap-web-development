@@ -1,35 +1,43 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { notFound, useParams } from "next/navigation";
+import { notFound, useParams, useRouter } from "next/navigation";
 
 interface Review {
-  id: string; // MongoDB _id
+  _id: string;
   bookId: string;
-  user: string;
+  userId: string;
+  userName: string;
   rating: number;
   comment: string;
   votes: number;
 }
 
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+}
+
 export default function BookPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+
   const [book, setBook] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [user, setUser] = useState<User | null>(null);
 
-  const [user, setUser] = useState<{ id: string; name: string } | null>(null);
-
-  // Cargar usuario logueado desde localStorage
+  // Cargar usuario logueado
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+    const stored = localStorage.getItem("user");
+    if (stored) setUser(JSON.parse(stored));
   }, []);
 
-  // Cargar datos del libro desde Google Books API
+  // Cargar datos del libro
   useEffect(() => {
     async function fetchBook() {
       const res = await fetch(`https://www.googleapis.com/books/v1/volumes/${id}`);
@@ -41,11 +49,11 @@ export default function BookPage() {
     fetchBook();
   }, [id]);
 
-  // Cargar reseñas desde nuestra API
+  // Cargar reseñas desde MongoDB
   useEffect(() => {
     async function fetchReviews() {
       const res = await fetch(`/api/reviews?bookId=${id}`);
-      const data = await res.json();
+      const data: Review[] = await res.json();
       setReviews(data);
     }
     fetchReviews();
@@ -54,15 +62,15 @@ export default function BookPage() {
   // Agregar reseña
   async function handleAddReview(e: React.FormEvent) {
     e.preventDefault();
-    if (!user) return alert("Debes iniciar sesión para agregar reseñas");
+    if (!user) return alert("Debes iniciar sesión para escribir reseñas");
     if (!rating || !comment.trim()) return;
 
     const token = localStorage.getItem("token");
     const res = await fetch("/api/reviews", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         bookId: id,
@@ -70,7 +78,13 @@ export default function BookPage() {
         comment,
       }),
     });
-    const newReview = await res.json();
+
+    if (!res.ok) {
+      const err = await res.json();
+      return alert(err.error || "Error al agregar reseña");
+    }
+
+    const newReview: Review = await res.json();
     setReviews([...reviews, newReview]);
     setRating(0);
     setComment("");
@@ -80,20 +94,23 @@ export default function BookPage() {
   async function handleVote(reviewId: string, vote: number) {
     if (!user) return alert("Debes iniciar sesión para votar");
     const token = localStorage.getItem("token");
-    await fetch("/api/reviews/vote", {
-      method: "POST",
-      headers: { 
+
+    const res = await fetch("/api/reviews", {
+      method: "PUT",
+      headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ reviewId, vote }),
+      body: JSON.stringify({ id: reviewId, vote }),
     });
 
-    setReviews(
-      reviews.map((r) =>
-        r.id === reviewId ? { ...r, votes: r.votes + vote } : r
-      )
-    );
+    if (!res.ok) {
+      const err = await res.json();
+      return alert(err.error || "Error al votar reseña");
+    }
+
+    const updated: Review = await res.json();
+    setReviews(reviews.map(r => (r._id === updated._id ? updated : r)));
   }
 
   if (loading) return <p className="text-center">⏳ Cargando...</p>;
@@ -137,33 +154,36 @@ export default function BookPage() {
       {/* Formulario reseña */}
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Escribir Reseña</h2>
-        {!user && <p className="text-red-500 mt-2">Inicia sesión para agregar reseñas o votar</p>}
-        <form onSubmit={handleAddReview} className="space-y-3">
-          <div className="flex gap-1">
-            {[1,2,3,4,5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                onClick={() => setRating(star)}
-                className={`text-2xl ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
-              >
-                ★
-              </button>
-            ))}
-          </div>
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Escribí tu opinión..."
-            className="w-full border rounded p-2"
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
-            Publicar
-          </button>
-        </form>
+        {user ? (
+          <form onSubmit={handleAddReview} className="space-y-3">
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map(star => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  className={`text-2xl ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+            <textarea
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              placeholder="Escribí tu opinión..."
+              className="w-full border rounded p-2"
+            />
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+              Publicar
+            </button>
+          </form>
+        ) : (
+          <p className="text-gray-500">Debes iniciar sesión para escribir reseñas</p>
+        )}
       </div>
 
       {/* Lista de reseñas */}
@@ -173,10 +193,10 @@ export default function BookPage() {
           <p className="text-gray-500">No hay reseñas todavía</p>
         ) : (
           <ul className="space-y-4">
-            {reviews.map((r) => (
-              <li key={r.id} className="border rounded p-4 bg-gray-50 shadow-sm">
+            {reviews.map(r => (
+              <li key={r._id} className="border rounded p-4 bg-gray-50 shadow-sm">
                 <div className="flex justify-between items-center">
-                  <p className="font-bold">{r.user || "Anónimo"}</p>
+                  <p className="font-bold">{r.userName || "Anónimo"}</p>
                   <p className="text-yellow-500">
                     {"★".repeat(r.rating)}{" "}
                     <span className="text-gray-400">{"★".repeat(5 - r.rating)}</span>
@@ -185,20 +205,18 @@ export default function BookPage() {
                 <p className="mt-2">{r.comment}</p>
                 <div className="flex gap-2 mt-3">
                   <button
-                    onClick={() => handleVote(r.id, +1)}
+                    onClick={() => handleVote(r._id, +1)}
                     className="px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
                   >
                     👍
                   </button>
                   <button
-                    onClick={() => handleVote(r.id, -1)}
+                    onClick={() => handleVote(r._id, -1)}
                     className="px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
                   >
                     👎
                   </button>
-                  <span className="text-sm text-gray-500">
-                    Votos: {r.votes || 0}
-                  </span>
+                  <span className="text-sm text-gray-500">Votos: {r.votes}</span>
                 </div>
               </li>
             ))}
