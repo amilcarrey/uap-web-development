@@ -1,0 +1,30 @@
+{
+  "name": "web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.51.9",
+    "@wagmi/core": "^2.12.1",
+    "@walletconnect/modal": "^2.7.4",
+    "@web3modal/standalone": "^4.1.11",
+    "@web3modal/wagmi": "^4.1.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "viem": "^2.9.28",
+    "wagmi": "^2.12.2",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.4",
+    "@types/react-dom": "^18.3.2",
+    "@vitejs/plugin-react-swc": "^3.7.1",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4"
+  }
+}
