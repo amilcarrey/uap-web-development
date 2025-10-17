@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { Message, MessageBubble } from '@/components/chat/MessageBubble';
 import { TypingIndicator } from '@/components/chat/TypingIndicator';
+import { useChatState } from '@/hooks/useChatState';
 
 const initialMessages: Message[] = [
   {
@@ -26,7 +27,7 @@ const initialMessages: Message[] = [
 ];
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const { messages, pushMessage } = useChatState(initialMessages);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -51,7 +52,7 @@ export default function ChatPage() {
       content: message,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    pushMessage(userMessage);
     setInputValue('');
     setIsTyping(true);
 
@@ -67,7 +68,7 @@ export default function ChatPage() {
           'Esta es una respuesta de ejemplo. Pronto conectaremos el chat con el modelo real para darte respuestas dinámicas.',
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      pushMessage(assistantMessage);
       setIsTyping(false);
     }, 1200);
   };
