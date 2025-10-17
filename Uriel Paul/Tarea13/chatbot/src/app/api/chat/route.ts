@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { transformOpenRouterStream } from '@/lib/stream';
 
 const OPENROUTER_COMPLETIONS_PATH = '/chat/completions';
 
@@ -145,10 +146,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return new Response(openRouterResponse.body, {
+  const transformedStream = transformOpenRouterStream(openRouterResponse.body);
+
+  return new Response(transformedStream, {
     status: 200,
     headers: {
-      'Content-Type': openRouterResponse.headers.get('content-type') ?? 'text/event-stream',
+      'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'no-cache',
     },
   });
