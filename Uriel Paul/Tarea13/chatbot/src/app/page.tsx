@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ChatInput } from '@/components/chat/ChatInput';
-import { Message, MessageBubble } from '@/components/chat/MessageBubble';
+import type { Message } from '@/components/chat/MessageBubble';
+import { MessageBubble } from '@/components/chat/MessageBubble';
 import { TypingIndicator } from '@/components/chat/TypingIndicator';
-import { useChatState } from '@/hooks/useChatState';
+import { useChatClient } from '@/hooks/useChatClient';
 
 const initialMessages: Message[] = [
   {
@@ -27,50 +28,24 @@ const initialMessages: Message[] = [
 ];
 
 export default function ChatPage() {
-  const { messages, pushMessage } = useChatState(initialMessages);
+  const { messages, isStreaming, sendMessage } = useChatClient({
+    initialMessages,
+  });
   const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
-
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, []);
+  }, [messages, isStreaming]);
 
   const handleSubmit = (message: string) => {
-    const userMessage: Message = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: message,
-    };
-
-    pushMessage(userMessage);
-    setInputValue('');
-    setIsTyping(true);
-
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) {
+      return;
     }
 
-    typingTimeoutRef.current = setTimeout(() => {
-      const assistantMessage: Message = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content:
-          'Esta es una respuesta de ejemplo. Pronto conectaremos el chat con el modelo real para darte respuestas dinámicas.',
-      };
-
-      pushMessage(assistantMessage);
-      setIsTyping(false);
-    }, 1200);
+    setInputValue('');
+    void sendMessage(trimmedMessage);
   };
 
   return (
@@ -93,7 +68,7 @@ export default function ChatPage() {
               <MessageBubble key={message.id} message={message} />
             ))}
 
-            <TypingIndicator isTyping={isTyping} />
+            <TypingIndicator isTyping={isStreaming} />
             <div ref={messagesEndRef} />
           </div>
 
@@ -102,7 +77,7 @@ export default function ChatPage() {
               value={inputValue}
               onChange={setInputValue}
               onSubmit={handleSubmit}
-              disabled={isTyping}
+              disabled={isStreaming}
             />
           </div>
         </section>
