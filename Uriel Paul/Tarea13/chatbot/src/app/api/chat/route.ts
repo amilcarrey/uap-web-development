@@ -1,54 +1,11 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
+import { DEFAULT_MODEL } from '@/lib/constants';
+import { sanitizeHTML } from '@/lib/sanitize';
 import { transformOpenRouterStream } from '@/lib/stream';
+import { chatRequestSchema, type ChatRequestInput } from '@/lib/validation';
 
 const OPENROUTER_COMPLETIONS_PATH = '/chat/completions';
-
-const roleSchema = z.preprocess((value) => {
-  if (typeof value === 'string') {
-    return value.trim().toLowerCase();
-  }
-  return value;
-}, z.enum(['user', 'assistant', 'system']));
-
-const messageSchema = z
-  .object({
-    role: roleSchema,
-    content: z.string().trim().min(1, 'El contenido del mensaje es requerido.'),
-  })
-  .strict();
-
-const requestSchema = z
-  .object({
-    messages: z.array(messageSchema).min(1, 'Se requiere al menos un mensaje.'),
-    model: z
-      .string()
-      .trim()
-      .min(1, 'El identificador del modelo no puede estar vacío.')
-      .optional(),
-  })
-  .strict();
-
-type ValidatedMessage = z.infer<typeof messageSchema>;
-
-type ChatRequestBody = z.infer<typeof requestSchema>;
-
-const TAGS_TO_STRIP = ['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta'];
-
-function sanitizeContent(content: string): string {
-  let sanitized = content;
-
-  for (const tag of TAGS_TO_STRIP) {
-    const pattern = new RegExp(`<${tag}[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi');
-    sanitized = sanitized.replace(pattern, '');
-  }
-
-  sanitized = sanitized.replace(/<[^>]*>/g, '');
-  sanitized = sanitized.replace(/javascript:/gi, '');
-
-  return sanitized.trim();
-}
 
 function createValidationErrorResponse(message: string, issues?: unknown) {
   return NextResponse.json(
@@ -73,11 +30,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let payload: ChatRequestBody;
+  let payload: ChatRequestInput;
 
   try {
     const json = await request.json();
-    const parsed = requestSchema.safeParse(json);
+    const parsed = chatRequestSchema.safeParse(json);
 
     if (!parsed.success) {
       return createValidationErrorResponse('El cuerpo de la solicitud es inválido.', parsed.error.flatten());
@@ -88,11 +45,11 @@ export async function POST(request: NextRequest) {
     return createValidationErrorResponse('No fue posible interpretar el cuerpo de la solicitud.');
   }
 
-  const sanitizedMessages: ValidatedMessage[] = [];
+  const sanitizedMessages: ChatRequestInput['messages'] = [];
 
   for (let index = 0; index < payload.messages.length; index += 1) {
     const message = payload.messages[index];
-    const sanitizedContent = sanitizeContent(message.content);
+    const sanitizedContent = sanitizeHTML(message.content).trim();
 
     if (!sanitizedContent) {
       return createValidationErrorResponse(
@@ -106,7 +63,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const normalizedModel = payload.model ?? 'openrouter/auto';
+  const normalizedModel = payload.model ?? DEFAULT_MODEL;
   const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
   let openRouterResponse: Response;
