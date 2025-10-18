@@ -1,4 +1,32 @@
-import DOMPurify from 'dompurify';
+import type { Config } from 'dompurify';
+import createDOMPurify from 'isomorphic-dompurify';
+
+const DOMPurify = createDOMPurify();
+
+const STRICT_CONFIG: Config = {
+  ALLOWED_TAGS: [],
+  ALLOWED_ATTR: [],
+  ALLOW_ARIA_ATTR: false,
+  FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta'],
+  FORBID_ATTR: ['style'],
+  RETURN_TRUSTED_TYPE: false,
+  KEEP_CONTENT: false,
+};
+
+const FALLBACK_ESCAPE_REGEX = /[&<>"'`]/g;
+
+const FALLBACK_ESCAPE_LOOKUP: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '`': '&#96;',
+};
+
+function escapeWithFallback(value: string): string {
+  return value.replace(FALLBACK_ESCAPE_REGEX, (match) => FALLBACK_ESCAPE_LOOKUP[match] ?? match);
+}
 
 /**
  * Sanitises HTML strings before rendering them in the UI.
@@ -9,10 +37,10 @@ export function sanitizeHTML(dirty: string): string {
     return '';
   }
 
-  if (typeof window !== 'undefined' && DOMPurify) {
-    return DOMPurify.sanitize(dirty);
+  try {
+    return DOMPurify.sanitize(dirty, STRICT_CONFIG);
+  } catch (error) {
+    console.warn('Falló la sanitización con DOMPurify, usando escape de respaldo.', error);
+    return escapeWithFallback(dirty);
   }
-
-  // Fallback for environments where DOMPurify cannot be initialised (e.g. SSR tests).
-  return dirty.replace(/[<>]/g, '');
 }

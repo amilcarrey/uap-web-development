@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Message } from '@/components/chat/MessageBubble';
+import { RATE_LIMIT_MAX_REQUESTS } from '@/lib/constants';
+import { sanitizeHTML } from '@/lib/sanitize';
+import { chatRequestSchema, messageContentSchema } from '@/lib/validation';
 import { useChatState } from './useChatState';
 
 interface UseChatClientOptions {
@@ -53,15 +56,28 @@ export function useChatClient({ initialMessages, model }: UseChatClientOptions):
 
   const sendMessage = useCallback(
     async (rawContent: string) => {
-      const content = rawContent.trim();
-      if (!content || isStreamingRef.current) {
+      if (isStreamingRef.current) {
+        return;
+      }
+
+      const contentValidation = messageContentSchema.safeParse(rawContent);
+
+      if (!contentValidation.success) {
+        console.warn('Mensaje inválido, se descarta el envío.', contentValidation.error.flatten());
+        return;
+      }
+
+      const sanitizedContent = sanitizeHTML(contentValidation.data).trim();
+
+      if (!sanitizedContent) {
+        console.warn('El mensaje quedó vacío tras la sanitización, se cancela el envío.');
         return;
       }
 
       const userMessage: Message = {
         id: crypto.randomUUID(),
         role: 'user',
-        content,
+        content: sanitizedContent,
       };
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
@@ -71,10 +87,44 @@ export function useChatClient({ initialMessages, model }: UseChatClientOptions):
 
       assistantMessageIdRef.current = assistantMessage.id;
 
-      const historyPayload = [...messagesSnapshotRef.current, userMessage].map((message) => ({
-        role: message.role,
-        content: message.content,
-      }));
+      const historyWithUser = [...messagesSnapshotRef.current, userMessage];
+      const recentHistory = historyWithUser.slice(-RATE_LIMIT_MAX_REQUESTS);
+
+      const preparedMessages = recentHistory
+        .map((message) => {
+          const sanitized = sanitizeHTML(message.content);
+          const normalized = sanitized.trim();
+
+          if (!normalized) {
+            return null;
+          }
+
+          return {
+            role: message.role,
+            content: sanitized,
+          };
+        })
+        .filter(
+          (message): message is { role: 'user' | 'assistant' | 'system'; content: string } =>
+            message !== null,
+        );
+
+      if (preparedMessages.length === 0) {
+        console.warn('La solicitud no contiene mensajes válidos tras la sanitización.');
+        return;
+      }
+
+      const requestCandidate = {
+        messages: preparedMessages,
+        ...(model ? { model } : {}),
+      };
+
+      const requestValidation = chatRequestSchema.safeParse(requestCandidate);
+
+      if (!requestValidation.success) {
+        console.warn('La solicitud del chat no superó la validación.', requestValidation.error.flatten());
+        return;
+      }
 
       pushMessage([userMessage, assistantMessage]);
       setIsStreaming(true);
@@ -89,10 +139,7 @@ export function useChatClient({ initialMessages, model }: UseChatClientOptions):
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            messages: historyPayload,
-            ...(model ? { model } : {}),
-          }),
+          body: JSON.stringify(requestValidation.data),
           signal: controller.signal,
         });
 
@@ -117,7 +164,7 @@ export function useChatClient({ initialMessages, model }: UseChatClientOptions):
           }
 
           if (assistantMessageIdRef.current) {
-            const currentContent = accumulatedContent;
+            const currentContent = sanitizeHTML(accumulatedContent);
             updateAssistantMessage(assistantMessageIdRef.current, (previous) => ({
               ...previous,
               content: currentContent,

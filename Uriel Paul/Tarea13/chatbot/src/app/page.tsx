@@ -6,6 +6,8 @@ import type { Message } from '@/components/chat/MessageBubble';
 import { MessageBubble } from '@/components/chat/MessageBubble';
 import { TypingIndicator } from '@/components/chat/TypingIndicator';
 import { useChatClient } from '@/hooks/useChatClient';
+import { sanitizeHTML } from '@/lib/sanitize';
+import { messageContentSchema } from '@/lib/validation';
 
 const initialMessages: Message[] = [
   {
@@ -39,13 +41,20 @@ export default function ChatPage() {
   }, [messages, isStreaming]);
 
   const handleSubmit = (message: string) => {
-    const trimmedMessage = message.trim();
-    if (!trimmedMessage) {
+    const validation = messageContentSchema.safeParse(message);
+
+    if (!validation.success) {
+      return;
+    }
+
+    const sanitizedContent = sanitizeHTML(validation.data).trim();
+
+    if (!sanitizedContent) {
       return;
     }
 
     setInputValue('');
-    void sendMessage(trimmedMessage);
+    void sendMessage(sanitizedContent);
   };
 
   return (
