@@ -4,8 +4,12 @@ import { DEFAULT_MODEL } from '@/lib/constants';
 import { sanitizeHTML } from '@/lib/sanitize';
 import { transformOpenRouterStream } from '@/lib/stream';
 import { chatRequestSchema, type ChatRequestInput } from '@/lib/validation';
+import { InMemoryRateLimiter } from '@/lib/rate-limit';
 
 const OPENROUTER_COMPLETIONS_PATH = '/chat/completions';
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+const RATE_LIMIT_MAX = 20;
+const rateLimiter = new InMemoryRateLimiter({ windowMs: RATE_LIMIT_WINDOW_MS, max: RATE_LIMIT_MAX });
 
 function createValidationErrorResponse(message: string, issues?: unknown) {
   return NextResponse.json(
@@ -18,6 +22,32 @@ function createValidationErrorResponse(message: string, issues?: unknown) {
 }
 
 export async function POST(request: NextRequest) {
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  const ip =
+    request.ip ??
+    forwardedFor?.split(',')[0]?.trim() ??
+    request.headers.get('x-real-ip')?.trim() ??
+    'unknown';
+
+  const rateLimitResult = rateLimiter.touch(ip);
+
+  if (!rateLimitResult.allowed) {
+    const retryAfterSeconds = Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000);
+    return NextResponse.json(
+      {
+        error: 'Has excedido el número de solicitudes permitidas. Intenta nuevamente más tarde.',
+      },
+      {
+        status: 429,
+        headers: {
+          ...(Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
+            ? { 'Retry-After': retryAfterSeconds.toString() }
+            : {}),
+        },
+      },
+    );
+  }
+
   const apiKey = process.env.OPENROUTER_API_KEY;
   const baseUrl = process.env.OPENROUTER_BASE_URL;
 

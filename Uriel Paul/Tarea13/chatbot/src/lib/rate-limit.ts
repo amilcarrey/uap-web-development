@@ -14,7 +14,7 @@ export interface RateLimiterOptions {
  * TODO: Replace with a distributed solution when deploying (Redis, Upstash, etc.).
  */
 export class InMemoryRateLimiter {
-  private readonly hits = new Map<string, { remaining: number; resetAt: number }>();
+  private readonly hits = new Map<string, number[]>();
 
   constructor(private readonly options: RateLimiterOptions) {}
 
@@ -22,22 +22,35 @@ export class InMemoryRateLimiter {
     const now = Date.now();
     const windowMs = Math.max(this.options.windowMs, 1);
     const max = Math.max(this.options.max, 1);
+    const windowStart = now - windowMs;
 
-    let entry = this.hits.get(key);
+    let timestamps = this.hits.get(key) ?? [];
 
-    if (!entry || now >= entry.resetAt) {
-      entry = { remaining: max, resetAt: now + windowMs };
+    if (timestamps.length > 0) {
+      let firstValidIndex = 0;
+
+      while (firstValidIndex < timestamps.length && timestamps[firstValidIndex] <= windowStart) {
+        firstValidIndex += 1;
+      }
+
+      if (firstValidIndex > 0) {
+        timestamps = timestamps.slice(firstValidIndex);
+      }
     }
 
-    if (entry.remaining <= 0) {
-      this.hits.set(key, entry);
-      return { allowed: false, remaining: 0, resetAt: entry.resetAt };
+    if (timestamps.length >= max) {
+      const resetAt = timestamps[0] + windowMs;
+      this.hits.set(key, timestamps);
+      return { allowed: false, remaining: 0, resetAt };
     }
 
-    entry.remaining -= 1;
-    this.hits.set(key, entry);
+    timestamps = [...timestamps, now];
+    this.hits.set(key, timestamps);
 
-    return { allowed: true, remaining: entry.remaining, resetAt: entry.resetAt };
+    const remaining = Math.max(0, max - timestamps.length);
+    const resetAt = timestamps[0] + windowMs;
+
+    return { allowed: true, remaining, resetAt };
   }
 
   reset(key?: string): void {
