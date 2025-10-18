@@ -5,12 +5,36 @@ import { InMemoryRateLimiter } from '@/lib/rate-limit';
 import { sanitizeHTML } from '@/lib/sanitize';
 import { transformOpenRouterStream } from '@/lib/stream';
 import { resolveError } from '@/lib/errors';
+import type { ResolvedError } from '@/lib/errors';
 import { chatRequestSchema, type ChatRequestInput } from '@/lib/validation';
 
 const OPENROUTER_COMPLETIONS_PATH = '/chat/completions';
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 const RATE_LIMIT_MAX = 20;
+const MAX_PAYLOAD_KB = 32;
+const MAX_PAYLOAD_BYTES = MAX_PAYLOAD_KB * 1024;
+const ALLOWED_ORIGINS = ['https://example.com']; // TODO: Replace with the real production origins.
+const SECURITY_HEADERS: Record<string, string> = {
+  'Referrer-Policy': 'same-origin',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Cross-Origin-Resource-Policy': 'same-origin',
+  'Permissions-Policy': 'microphone=(), geolocation=()',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+};
 const rateLimiter = new InMemoryRateLimiter({ windowMs: RATE_LIMIT_WINDOW_MS, max: RATE_LIMIT_MAX });
+const textDecoder = new TextDecoder('utf-8', { fatal: true });
+
+function createJsonResponse(resolved: ResolvedError, headers: Record<string, string> = {}) {
+  return NextResponse.json(resolved.body, {
+    status: resolved.status,
+    headers: {
+      ...SECURITY_HEADERS,
+      Vary: 'Origin',
+      ...headers,
+    },
+  });
+}
 
 function parseRetryAfterSeconds(rawValue: string | null): number | null {
   if (!rawValue) {
@@ -32,6 +56,25 @@ function parseRetryAfterSeconds(rawValue: string | null): number | null {
 }
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isAllowedOrigin = typeof origin === 'string' && ALLOWED_ORIGINS.includes(origin);
+  const originHeaders = isAllowedOrigin && origin ? { 'Access-Control-Allow-Origin': origin } : {};
+  const respond = (resolved: ResolvedError, headers: Record<string, string> = {}) =>
+    createJsonResponse(resolved, { ...originHeaders, ...headers });
+
+  if (isProduction) {
+    if (!isAllowedOrigin) {
+      const resolved = resolveError('VALIDATION', {
+        meta: {
+          reason: 'invalid_origin',
+        },
+      });
+
+      return respond(resolved);
+    }
+  }
+
   const forwardedFor = request.headers.get('x-forwarded-for');
   const ip =
     request.ip ??
@@ -50,11 +93,8 @@ export async function POST(request: NextRequest) {
       meta: hasRetryAfter ? { retryAfterSeconds } : undefined,
     });
 
-    return NextResponse.json(resolved.body, {
-      status: resolved.status,
-      headers: {
-        ...(retryAfterHeaderValue !== null ? { 'Retry-After': retryAfterHeaderValue } : {}),
-      },
+    return respond(resolved, {
+      ...(retryAfterHeaderValue !== null ? { 'Retry-After': retryAfterHeaderValue } : {}),
     });
   }
 
@@ -63,24 +103,55 @@ export async function POST(request: NextRequest) {
 
   if (!apiKey || !baseUrl) {
     const resolved = resolveError('CONFIGURATION');
-    return NextResponse.json(resolved.body, { status: resolved.status });
+    return respond(resolved);
   }
 
   let payload: ChatRequestInput;
 
   try {
-    const json = await request.json();
+    const contentLengthHeader = request.headers.get('content-length');
+
+    if (contentLengthHeader) {
+      const contentLength = Number(contentLengthHeader);
+
+      if (Number.isFinite(contentLength) && contentLength > MAX_PAYLOAD_BYTES) {
+        const resolved = resolveError('VALIDATION', {
+          meta: {
+            reason: 'payload_too_large',
+            limitKb: MAX_PAYLOAD_KB,
+          },
+        });
+
+        return respond(resolved);
+      }
+    }
+
+    const rawBodyBuffer = await request.arrayBuffer();
+
+    if (rawBodyBuffer.byteLength > MAX_PAYLOAD_BYTES) {
+      const resolved = resolveError('VALIDATION', {
+        meta: {
+          reason: 'payload_too_large',
+          limitKb: MAX_PAYLOAD_KB,
+        },
+      });
+
+      return respond(resolved);
+    }
+
+    const decodedBody = textDecoder.decode(rawBodyBuffer);
+    const json = JSON.parse(decodedBody);
     const parsed = chatRequestSchema.safeParse(json);
 
     if (!parsed.success) {
       const resolved = resolveError('VALIDATION', { meta: { issues: parsed.error.flatten() } });
-      return NextResponse.json(resolved.body, { status: resolved.status });
+      return respond(resolved);
     }
 
     payload = parsed.data;
   } catch (error) {
     const resolved = resolveError('VALIDATION', { meta: { reason: 'invalid_json' } });
-    return NextResponse.json(resolved.body, { status: resolved.status });
+    return respond(resolved);
   }
 
   const sanitizedMessages: ChatRequestInput['messages'] = [];
@@ -96,7 +167,7 @@ export async function POST(request: NextRequest) {
           index,
         },
       });
-      return NextResponse.json(resolved.body, { status: resolved.status });
+      return respond(resolved);
     }
 
     sanitizedMessages.push({
@@ -126,7 +197,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('OpenRouter request failed', error);
     const resolved = resolveError('PROVIDER', { statusOverride: 503 });
-    return NextResponse.json(resolved.body, { status: resolved.status });
+    return respond(resolved);
   }
 
   if (!openRouterResponse.ok || !openRouterResponse.body) {
@@ -146,11 +217,8 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return NextResponse.json(resolvedRateLimit.body, {
-        status: resolvedRateLimit.status,
-        headers: {
-          ...(retryAfterSeconds !== null ? { 'Retry-After': retryAfterSeconds.toString() } : {}),
-        },
+      return respond(resolvedRateLimit, {
+        ...(retryAfterSeconds !== null ? { 'Retry-After': retryAfterSeconds.toString() } : {}),
       });
     }
 
@@ -165,11 +233,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(resolvedProvider.body, {
-      status: resolvedProvider.status,
-      headers: {
-        ...(retryAfterSeconds !== null ? { 'Retry-After': retryAfterSeconds.toString() } : {}),
-      },
+    return respond(resolvedProvider, {
+      ...(retryAfterSeconds !== null ? { 'Retry-After': retryAfterSeconds.toString() } : {}),
     });
   }
 
@@ -178,8 +243,11 @@ export async function POST(request: NextRequest) {
   return new Response(transformedStream, {
     status: 200,
     headers: {
+      ...SECURITY_HEADERS,
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'no-cache',
+      Vary: 'Origin',
+      ...originHeaders,
     },
   });
 }
