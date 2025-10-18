@@ -1,24 +1,34 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { DEFAULT_MODEL } from '@/lib/constants';
+import { InMemoryRateLimiter } from '@/lib/rate-limit';
 import { sanitizeHTML } from '@/lib/sanitize';
 import { transformOpenRouterStream } from '@/lib/stream';
+import { resolveError } from '@/lib/errors';
 import { chatRequestSchema, type ChatRequestInput } from '@/lib/validation';
-import { InMemoryRateLimiter } from '@/lib/rate-limit';
 
 const OPENROUTER_COMPLETIONS_PATH = '/chat/completions';
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 const RATE_LIMIT_MAX = 20;
 const rateLimiter = new InMemoryRateLimiter({ windowMs: RATE_LIMIT_WINDOW_MS, max: RATE_LIMIT_MAX });
 
-function createValidationErrorResponse(message: string, issues?: unknown) {
-  return NextResponse.json(
-    {
-      error: message,
-      issues,
-    },
-    { status: 400 },
-  );
+function parseRetryAfterSeconds(rawValue: string | null): number | null {
+  if (!rawValue) {
+    return null;
+  }
+
+  const numeric = Number(rawValue);
+  if (Number.isFinite(numeric) && numeric >= 0) {
+    return Math.ceil(numeric);
+  }
+
+  const retryDate = new Date(rawValue);
+  if (!Number.isNaN(retryDate.getTime())) {
+    const seconds = Math.ceil((retryDate.getTime() - Date.now()) / 1000);
+    return seconds > 0 ? seconds : null;
+  }
+
+  return null;
 }
 
 export async function POST(request: NextRequest) {
@@ -32,32 +42,28 @@ export async function POST(request: NextRequest) {
   const rateLimitResult = rateLimiter.touch(ip);
 
   if (!rateLimitResult.allowed) {
-    const retryAfterSeconds = Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000);
-    return NextResponse.json(
-      {
-        error: 'Has excedido el número de solicitudes permitidas. Intenta nuevamente más tarde.',
+    const retryAfterSeconds = Math.max(0, Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000));
+    const hasRetryAfter = Number.isFinite(retryAfterSeconds) && retryAfterSeconds >= 0;
+    const retryAfterHeaderValue = hasRetryAfter ? retryAfterSeconds.toString() : null;
+
+    const resolved = resolveError('RATE_LIMIT', {
+      meta: hasRetryAfter ? { retryAfterSeconds } : undefined,
+    });
+
+    return NextResponse.json(resolved.body, {
+      status: resolved.status,
+      headers: {
+        ...(retryAfterHeaderValue !== null ? { 'Retry-After': retryAfterHeaderValue } : {}),
       },
-      {
-        status: 429,
-        headers: {
-          ...(Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
-            ? { 'Retry-After': retryAfterSeconds.toString() }
-            : {}),
-        },
-      },
-    );
+    });
   }
 
   const apiKey = process.env.OPENROUTER_API_KEY;
   const baseUrl = process.env.OPENROUTER_BASE_URL;
 
   if (!apiKey || !baseUrl) {
-    return NextResponse.json(
-      {
-        error: 'El servicio no está configurado correctamente.',
-      },
-      { status: 500 },
-    );
+    const resolved = resolveError('CONFIGURATION');
+    return NextResponse.json(resolved.body, { status: resolved.status });
   }
 
   let payload: ChatRequestInput;
@@ -67,12 +73,14 @@ export async function POST(request: NextRequest) {
     const parsed = chatRequestSchema.safeParse(json);
 
     if (!parsed.success) {
-      return createValidationErrorResponse('El cuerpo de la solicitud es inválido.', parsed.error.flatten());
+      const resolved = resolveError('VALIDATION', { meta: { issues: parsed.error.flatten() } });
+      return NextResponse.json(resolved.body, { status: resolved.status });
     }
 
     payload = parsed.data;
   } catch (error) {
-    return createValidationErrorResponse('No fue posible interpretar el cuerpo de la solicitud.');
+    const resolved = resolveError('VALIDATION', { meta: { reason: 'invalid_json' } });
+    return NextResponse.json(resolved.body, { status: resolved.status });
   }
 
   const sanitizedMessages: ChatRequestInput['messages'] = [];
@@ -82,9 +90,13 @@ export async function POST(request: NextRequest) {
     const sanitizedContent = sanitizeHTML(message.content).trim();
 
     if (!sanitizedContent) {
-      return createValidationErrorResponse(
-        `El mensaje en la posición ${index} quedó vacío tras la sanitización.`,
-      );
+      const resolved = resolveError('VALIDATION', {
+        meta: {
+          reason: 'empty_after_sanitization',
+          index,
+        },
+      });
+      return NextResponse.json(resolved.body, { status: resolved.status });
     }
 
     sanitizedMessages.push({
@@ -113,24 +125,52 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('OpenRouter request failed', error);
-    return NextResponse.json(
-      {
-        error: 'No fue posible contactar el servicio de chat.',
-      },
-      { status: 500 },
-    );
+    const resolved = resolveError('PROVIDER', { statusOverride: 503 });
+    return NextResponse.json(resolved.body, { status: resolved.status });
   }
 
   if (!openRouterResponse.ok || !openRouterResponse.body) {
     const errorPayload = await openRouterResponse.text().catch(() => undefined);
+    console.error('OpenRouter responded with an error', {
+      status: openRouterResponse.status,
+      body: errorPayload,
+    });
 
-    return NextResponse.json(
-      {
-        error: 'La solicitud al servicio de chat falló.',
-        details: errorPayload,
+    if (openRouterResponse.status === 429) {
+      const retryAfterHeader = openRouterResponse.headers.get('retry-after');
+      const retryAfterSeconds = parseRetryAfterSeconds(retryAfterHeader);
+      const resolvedRateLimit = resolveError('RATE_LIMIT', {
+        meta: {
+          source: 'provider',
+          ...(retryAfterSeconds !== null ? { retryAfterSeconds } : {}),
+        },
+      });
+
+      return NextResponse.json(resolvedRateLimit.body, {
+        status: resolvedRateLimit.status,
+        headers: {
+          ...(retryAfterSeconds !== null ? { 'Retry-After': retryAfterSeconds.toString() } : {}),
+        },
+      });
+    }
+
+    const retryAfterHeader = openRouterResponse.headers.get('retry-after');
+    const retryAfterSeconds = parseRetryAfterSeconds(retryAfterHeader);
+    const statusOverride = openRouterResponse.status >= 500 ? 503 : 502;
+    const resolvedProvider = resolveError('PROVIDER', {
+      statusOverride,
+      meta: {
+        upstreamStatus: openRouterResponse.status,
+        ...(retryAfterSeconds !== null ? { retryAfterSeconds } : {}),
       },
-      { status: 500 },
-    );
+    });
+
+    return NextResponse.json(resolvedProvider.body, {
+      status: resolvedProvider.status,
+      headers: {
+        ...(retryAfterSeconds !== null ? { 'Retry-After': retryAfterSeconds.toString() } : {}),
+      },
+    });
   }
 
   const transformedStream = transformOpenRouterStream(openRouterResponse.body);

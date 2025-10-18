@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Message } from '@/components/chat/MessageBubble';
 import { RATE_LIMIT_MAX_REQUESTS } from '@/lib/constants';
+import { normalizeAppErrorState, type AppErrorState } from '@/lib/errors';
 import { sanitizeHTML } from '@/lib/sanitize';
 import { chatRequestSchema, messageContentSchema } from '@/lib/validation';
 import { useChatState } from './useChatState';
@@ -17,11 +18,14 @@ interface UseChatClientResult {
   isStreaming: boolean;
   sendMessage: (content: string) => Promise<void>;
   cancel: () => void;
+  error: AppErrorState | null;
+  clearError: () => void;
 }
 
 export function useChatClient({ initialMessages, model }: UseChatClientOptions): UseChatClientResult {
   const { messages, setMessages, pushMessage } = useChatState(initialMessages);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [lastError, setLastError] = useState<AppErrorState | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const assistantMessageIdRef = useRef<string | null>(null);
@@ -35,6 +39,10 @@ export function useChatClient({ initialMessages, model }: UseChatClientOptions):
   useEffect(() => {
     isStreamingRef.current = isStreaming;
   }, [isStreaming]);
+
+  const clearError = useCallback(() => {
+    setLastError(null);
+  }, []);
 
   const cancel = useCallback(() => {
     if (abortControllerRef.current) {
@@ -59,6 +67,8 @@ export function useChatClient({ initialMessages, model }: UseChatClientOptions):
       if (isStreamingRef.current) {
         return;
       }
+
+      clearError();
 
       const contentValidation = messageContentSchema.safeParse(rawContent);
 
@@ -144,8 +154,18 @@ export function useChatClient({ initialMessages, model }: UseChatClientOptions):
         });
 
         if (!response.ok || !response.body) {
-          const errorText = await response.text().catch(() => undefined);
-          throw new Error(errorText ?? 'No se pudo obtener una respuesta válida del asistente.');
+          const contentType = response.headers.get('content-type') ?? '';
+          let parsedError: unknown;
+
+          if (contentType.includes('application/json')) {
+            parsedError = await response.json().catch(() => undefined);
+          } else {
+            parsedError = await response.text().catch(() => undefined);
+          }
+
+          const normalizedError = normalizeAppErrorState(parsedError);
+          setLastError(normalizedError);
+          throw new Error(normalizedError.message);
         }
 
         const reader = response.body.getReader();
@@ -184,6 +204,10 @@ export function useChatClient({ initialMessages, model }: UseChatClientOptions):
             content: previous.content || fallbackContent,
           }));
         }
+
+        if (!(error instanceof DOMException) || error.name !== 'AbortError') {
+          setLastError((previous) => previous ?? normalizeAppErrorState(error));
+        }
       } finally {
         abortControllerRef.current = null;
         assistantMessageIdRef.current = null;
@@ -191,7 +215,7 @@ export function useChatClient({ initialMessages, model }: UseChatClientOptions):
         isStreamingRef.current = false;
       }
     },
-    [model, pushMessage, updateAssistantMessage],
+    [clearError, model, pushMessage, updateAssistantMessage],
   );
 
   return useMemo(
@@ -200,7 +224,9 @@ export function useChatClient({ initialMessages, model }: UseChatClientOptions):
       isStreaming,
       sendMessage,
       cancel,
+      error: lastError,
+      clearError,
     }),
-    [messages, isStreaming, sendMessage, cancel],
+    [messages, isStreaming, sendMessage, cancel, lastError, clearError],
   );
 }

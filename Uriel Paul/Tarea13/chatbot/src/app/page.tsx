@@ -30,11 +30,15 @@ const initialMessages: Message[] = [
 ];
 
 export default function ChatPage() {
-  const { messages, isStreaming, sendMessage } = useChatClient({
+  const { messages, isStreaming, sendMessage, error, clearError } = useChatClient({
     initialMessages,
   });
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const retryAfterSeconds =
+    error && typeof error.meta?.['retryAfterSeconds'] === 'number'
+      ? Math.max(0, Math.round(Number(error.meta['retryAfterSeconds'])))
+      : null;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -59,6 +63,29 @@ export default function ChatPage() {
 
   return (
     <main className="flex min-h-screen flex-col bg-gradient-to-b from-slate-50 via-slate-100 to-white">
+      {error ? (
+        <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
+          <div className="flex w-full max-w-md items-start gap-3 rounded-2xl border border-red-200 bg-white/90 p-4 text-sm text-red-700 shadow-lg backdrop-blur">
+            <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-red-500" aria-hidden="true" />
+            <div className="flex-1">
+              <p className="font-semibold text-red-800">Ocurrió un problema</p>
+              <p className="mt-1 text-red-700">{error.message}</p>
+              {retryAfterSeconds !== null ? (
+                <p className="mt-2 text-xs text-red-600">
+                  Puedes intentar nuevamente en aproximadamente {retryAfterSeconds} segundos.
+                </p>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              onClick={clearError}
+              className="rounded-full border border-red-200 px-2 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-50"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      ) : null}
       <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-6 sm:px-6 sm:py-10">
         <header className="text-center sm:text-left">
           <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">Chatbot</p>
