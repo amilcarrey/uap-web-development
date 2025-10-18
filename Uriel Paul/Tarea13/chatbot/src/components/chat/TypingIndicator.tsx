@@ -18,7 +18,7 @@ export function TypingIndicator({ isTyping }: TypingIndicatorProps) {
           />
         ))}
       </div>
-      El asistente está escribiendo...
+      Escribiendo…
     </div>
   );
 }
