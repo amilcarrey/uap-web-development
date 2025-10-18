@@ -6,6 +6,7 @@ import { sanitizeHTML } from '@/lib/sanitize';
 import { transformOpenRouterStream } from '@/lib/stream';
 import { resolveError } from '@/lib/errors';
 import type { ResolvedError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 import { chatRequestSchema, type ChatRequestInput } from '@/lib/validation';
 
 const OPENROUTER_COMPLETIONS_PATH = '/chat/completions';
@@ -56,12 +57,28 @@ function parseRetryAfterSeconds(rawValue: string | null): number | null {
 }
 
 export async function POST(request: NextRequest) {
+  const requestStartedAt = Date.now();
+  const getLatencyMs = () => Date.now() - requestStartedAt;
   const origin = request.headers.get('origin');
   const isProduction = process.env.NODE_ENV === 'production';
   const isAllowedOrigin = typeof origin === 'string' && ALLOWED_ORIGINS.includes(origin);
   const originHeaders = isAllowedOrigin && origin ? { 'Access-Control-Allow-Origin': origin } : {};
   const respond = (resolved: ResolvedError, headers: Record<string, string> = {}) =>
     createJsonResponse(resolved, { ...originHeaders, ...headers });
+  const logAndRespond = (
+    resolved: ResolvedError,
+    headers?: Record<string, string>,
+    logContext?: Record<string, unknown>,
+  ) => {
+    logger.error('chat_api_request_failed', {
+      status: resolved.status,
+      errorCode: resolved.body.error.code,
+      latencyMs: getLatencyMs(),
+      ...(logContext ?? {}),
+    });
+
+    return respond(resolved, headers ?? {});
+  };
 
   if (isProduction) {
     if (!isAllowedOrigin) {
@@ -71,7 +88,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return respond(resolved);
+      return logAndRespond(resolved, undefined, { reason: 'invalid_origin' });
     }
   }
 
@@ -93,9 +110,16 @@ export async function POST(request: NextRequest) {
       meta: hasRetryAfter ? { retryAfterSeconds } : undefined,
     });
 
-    return respond(resolved, {
-      ...(retryAfterHeaderValue !== null ? { 'Retry-After': retryAfterHeaderValue } : {}),
-    });
+    return logAndRespond(
+      resolved,
+      {
+        ...(retryAfterHeaderValue !== null ? { 'Retry-After': retryAfterHeaderValue } : {}),
+      },
+      {
+        reason: 'rate_limit_exceeded',
+        ...(hasRetryAfter ? { retryAfterSeconds } : {}),
+      },
+    );
   }
 
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -103,7 +127,7 @@ export async function POST(request: NextRequest) {
 
   if (!apiKey || !baseUrl) {
     const resolved = resolveError('CONFIGURATION');
-    return respond(resolved);
+    return logAndRespond(resolved, undefined, { reason: 'missing_provider_configuration' });
   }
 
   let payload: ChatRequestInput;
@@ -122,7 +146,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        return respond(resolved);
+        return logAndRespond(resolved, undefined, { reason: 'payload_too_large_header' });
       }
     }
 
@@ -136,7 +160,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return respond(resolved);
+      return logAndRespond(resolved, undefined, { reason: 'payload_too_large_body' });
     }
 
     const decodedBody = textDecoder.decode(rawBodyBuffer);
@@ -145,13 +169,13 @@ export async function POST(request: NextRequest) {
 
     if (!parsed.success) {
       const resolved = resolveError('VALIDATION', { meta: { issues: parsed.error.flatten() } });
-      return respond(resolved);
+      return logAndRespond(resolved, undefined, { reason: 'schema_validation_failed' });
     }
 
     payload = parsed.data;
   } catch (error) {
     const resolved = resolveError('VALIDATION', { meta: { reason: 'invalid_json' } });
-    return respond(resolved);
+    return logAndRespond(resolved, undefined, { reason: 'invalid_json' });
   }
 
   const sanitizedMessages: ChatRequestInput['messages'] = [];
@@ -167,7 +191,7 @@ export async function POST(request: NextRequest) {
           index,
         },
       });
-      return respond(resolved);
+      return logAndRespond(resolved, undefined, { reason: 'empty_message_after_sanitization', index });
     }
 
     sanitizedMessages.push({
@@ -195,18 +219,14 @@ export async function POST(request: NextRequest) {
       }),
     });
   } catch (error) {
-    console.error('OpenRouter request failed', error);
     const resolved = resolveError('PROVIDER', { statusOverride: 503 });
-    return respond(resolved);
+    return logAndRespond(resolved, undefined, {
+      reason: 'provider_request_failed',
+      errorMessage: error instanceof Error ? error.message : 'unknown_error',
+    });
   }
 
   if (!openRouterResponse.ok || !openRouterResponse.body) {
-    const errorPayload = await openRouterResponse.text().catch(() => undefined);
-    console.error('OpenRouter responded with an error', {
-      status: openRouterResponse.status,
-      body: errorPayload,
-    });
-
     if (openRouterResponse.status === 429) {
       const retryAfterHeader = openRouterResponse.headers.get('retry-after');
       const retryAfterSeconds = parseRetryAfterSeconds(retryAfterHeader);
@@ -217,9 +237,17 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return respond(resolvedRateLimit, {
-        ...(retryAfterSeconds !== null ? { 'Retry-After': retryAfterSeconds.toString() } : {}),
-      });
+      return logAndRespond(
+        resolvedRateLimit,
+        {
+          ...(retryAfterSeconds !== null ? { 'Retry-After': retryAfterSeconds.toString() } : {}),
+        },
+        {
+          reason: 'provider_rate_limited',
+          upstreamStatus: openRouterResponse.status,
+          ...(retryAfterSeconds !== null ? { retryAfterSeconds } : {}),
+        },
+      );
     }
 
     const retryAfterHeader = openRouterResponse.headers.get('retry-after');
@@ -233,12 +261,26 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return respond(resolvedProvider, {
-      ...(retryAfterSeconds !== null ? { 'Retry-After': retryAfterSeconds.toString() } : {}),
-    });
+    return logAndRespond(
+      resolvedProvider,
+      {
+        ...(retryAfterSeconds !== null ? { 'Retry-After': retryAfterSeconds.toString() } : {}),
+      },
+      {
+        reason: 'provider_response_error',
+        upstreamStatus: openRouterResponse.status,
+        ...(retryAfterSeconds !== null ? { retryAfterSeconds } : {}),
+      },
+    );
   }
 
   const transformedStream = transformOpenRouterStream(openRouterResponse.body);
+
+  logger.info('chat_api_request_succeeded', {
+    status: 200,
+    latencyMs: getLatencyMs(),
+    model: normalizedModel,
+  });
 
   return new Response(transformedStream, {
     status: 200,
