@@ -23,7 +23,7 @@ interface UseChatClientResult {
 }
 
 export function useChatClient({ initialMessages, model }: UseChatClientOptions): UseChatClientResult {
-  const { messages, setMessages, pushMessage } = useChatState(initialMessages);
+  const { messages, setMessages, pushMessage } = useChatState({ initialMessages, model });
   const [isStreaming, setIsStreaming] = useState(false);
   const [lastError, setLastError] = useState<AppErrorState | null>(null);
 
