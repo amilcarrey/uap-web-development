@@ -74,14 +74,14 @@ export default function ChatPage() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-4 px-4 py-10">
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 p-6">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold text-gray-900">
+        <h1 className="text-4xl font-extrabold text-blue-600">
           Chatbot con OpenRouter
         </h1>
         <p className="text-sm text-gray-600">
-          Envía tus preguntas. Las respuestas se generan en tiempo real usando
-          el AI SDK de Vercel y un modelo gratuito de OpenRouter.
+          Envía tus preguntas. Las respuestas se generan en tiempo real usando el
+          AI SDK de Vercel y un modelo gratuito de OpenRouter.
         </p>
       </header>
 
@@ -92,9 +92,7 @@ export default function ChatPage() {
           aria-live="polite"
         >
           {chatHistory.length === 0 ? (
-            <EmptyState
-              onExample={(question) => void sendUserMessage(question)}
-            />
+            <EmptyState onExample={(question) => void sendUserMessage(question)} />
           ) : (
             chatHistory.map((message) => (
               <ChatMessage key={message.id} role={message.role} text={message.text} />
@@ -156,9 +154,7 @@ function ChatMessage({ role, text }: { role: MessageRole; text: string }) {
     >
       <div
         className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${
-          isUser
-            ? "bg-indigo-600 text-white"
-            : "bg-gray-100 text-gray-900"
+          isUser ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-900"
         }`}
       >
         <div className="mb-1 text-xs font-medium uppercase tracking-wide opacity-70">
