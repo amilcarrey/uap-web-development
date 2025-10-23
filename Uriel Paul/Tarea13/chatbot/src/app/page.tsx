@@ -74,73 +74,92 @@ export default function ChatPage() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 p-6">
-      <header className="space-y-2">
-        <h1 className="text-4xl font-extrabold text-blue-600">
-          Chatbot con OpenRouter
-        </h1>
-        <p className="text-sm text-gray-600">
-          Envía tus preguntas. Las respuestas se generan en tiempo real usando el
-          AI SDK de Vercel y un modelo gratuito de OpenRouter.
-        </p>
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <header
+        role="banner"
+        className="sticky top-0 inset-x-0 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur"
+      >
+        <div className="mx-auto max-w-3xl px-3 py-4 sm:px-4">
+          <h1 className="text-lg font-semibold tracking-tight text-zinc-100">
+            chatbot
+          </h1>
+        </div>
       </header>
 
-      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div
-          ref={listRef}
-          className="flex-1 space-y-4 overflow-y-auto p-6"
-          aria-live="polite"
-        >
-          {chatHistory.length === 0 ? (
-            <EmptyState onExample={(question) => void sendUserMessage(question)} />
-          ) : (
-            chatHistory.map((message) => (
-              <ChatMessage key={message.id} role={message.role} text={message.text} />
-            ))
-          )}
+      <main className="mx-auto flex min-h-[calc(100vh-64px)] max-w-3xl flex-col px-3 pb-24 pt-6 sm:px-4">
+        <div className="flex flex-1 flex-col rounded-3xl border border-zinc-800 bg-zinc-900/80 shadow-lg shadow-black/10">
+          <div
+            ref={listRef}
+            className="h-[calc(100vh-200px)] space-y-3 overflow-y-auto pl-4 pr-1 pb-6 pt-5"
+            aria-live="polite"
+          >
+            {chatHistory.length === 0 ? (
+              <EmptyState onExample={(question) => void sendUserMessage(question)} />
+            ) : (
+              chatHistory.map((message) => (
+                <ChatMessage key={message.id} role={message.role} text={message.text} />
+              ))
+            )}
 
-          {isAwaitingResponse ? <TypingIndicator /> : null}
+            {isAwaitingResponse ? <TypingIndicator /> : null}
 
-          {error ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error instanceof Error
-                ? error.message
-                : "Ocurrió un error al conectar con el modelo."}
-            </div>
-          ) : null}
-        </div>
-
-        <form
-          className="border-t border-gray-200 bg-gray-50/80 p-4"
-          onSubmit={onSubmit}
-        >
-          <label htmlFor="prompt" className="sr-only">
-            Escribe tu mensaje
-          </label>
-          <div className="flex gap-3">
-            <textarea
-              id="prompt"
-              name="prompt"
-              rows={2}
-              required
-              maxLength={2000}
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              className="flex-1 resize-none rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-indigo-100"
-              placeholder="Haz una pregunta al asistente…"
-              aria-label="Mensaje para el asistente"
-            />
-            <button
-              type="submit"
-              disabled={isAwaitingResponse || input.trim().length === 0}
-              className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
-            >
-              Enviar
-            </button>
+            {error ? (
+              <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                {error instanceof Error
+                  ? error.message
+                  : "Ocurrió un error al conectar con el modelo."}
+              </div>
+            ) : null}
           </div>
-        </form>
-      </div>
-    </main>
+
+          <form
+            className="sticky bottom-0 inset-x-0 rounded-b-3xl border-t border-zinc-800 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/60"
+            onSubmit={onSubmit}
+          >
+            <div className="p-3">
+              <label htmlFor="prompt" className="sr-only">
+                Escribe tu mensaje
+              </label>
+              <div className="flex items-center gap-2">
+                <textarea
+                  id="prompt"
+                  name="prompt"
+                  rows={2}
+                  required
+                  maxLength={2000}
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  className="w-full resize-none rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm text-zinc-100 shadow-inner outline-none transition duration-150 placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-600"
+                  placeholder="Haz una pregunta al asistente…"
+                  aria-label="Mensaje para el asistente"
+                />
+                <button
+                  type="submit"
+                  disabled={isAwaitingResponse || input.trim().length === 0}
+                  className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-600 hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Enviar
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </main>
+
+      <style jsx global>{`
+        *::-webkit-scrollbar {
+          width: 10px;
+          height: 10px;
+        }
+        *::-webkit-scrollbar-thumb {
+          background: rgb(39 39 42 / 0.8);
+          border-radius: 9999px;
+        }
+        *::-webkit-scrollbar-track {
+          background: transparent;
+        }
+      `}</style>
+    </div>
   );
 }
 
@@ -148,19 +167,18 @@ function ChatMessage({ role, text }: { role: MessageRole; text: string }) {
   const isUser = role === "user";
   return (
     <div
-      className={`flex ${isUser ? "justify-end" : "justify-start"} text-sm`}
+      className={`flex ${isUser ? "justify-end" : "justify-start"}`}
       role="group"
       aria-label={`${roleLabels[role]} dice`}
     >
       <div
-        className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${
-          isUser ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-900"
+        className={`max-w-[80%] rounded-2xl px-4 py-2 leading-relaxed transition duration-150 ${
+          isUser
+            ? "bg-indigo-600 text-white"
+            : "border border-zinc-800 bg-zinc-900 text-zinc-100"
         }`}
       >
-        <div className="mb-1 text-xs font-medium uppercase tracking-wide opacity-70">
-          {roleLabels[role]}
-        </div>
-        <p className="whitespace-pre-line leading-relaxed">{text}</p>
+        <p className="whitespace-pre-line break-words">{text}</p>
       </div>
     </div>
   );
@@ -168,13 +186,7 @@ function ChatMessage({ role, text }: { role: MessageRole; text: string }) {
 
 function TypingIndicator() {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-      <span className="relative flex h-2 w-2">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500" />
-      </span>
-      Escribiendo…
-    </div>
+    <div className="text-sm text-zinc-400">Escribiendo…</div>
   );
 }
 
@@ -184,8 +196,8 @@ function EmptyState({
   onExample: (question: string) => void;
 }) {
   return (
-    <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-6 text-sm text-gray-600">
-      <p className="font-medium text-gray-700">
+    <div className="rounded-3xl border border-dashed border-zinc-800 bg-zinc-900/60 p-6 text-sm text-zinc-400">
+      <p className="font-medium text-zinc-200">
         Tu conversación aparecerá aquí. Algunas ideas para empezar:
       </p>
       <ul className="mt-3 grid gap-2 md:grid-cols-2">
@@ -199,7 +211,7 @@ function EmptyState({
             <button
               type="button"
               onClick={() => onExample(suggestion)}
-              className="w-full rounded-2xl border border-gray-200 bg-white px-3 py-2 text-left text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50"
+              className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-left text-zinc-200 transition duration-150 hover:border-indigo-600 hover:bg-indigo-600/20 focus:outline-none focus:ring-2 focus:ring-indigo-600"
             >
               {suggestion}
             </button>
