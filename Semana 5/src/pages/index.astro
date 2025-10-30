@@ -1,0 +1,252 @@
+---
+import Layout from '../layouts/Layout.astro'; // Importa el layout que se usará para la página
+---
+
+<Layout>
+  <header>
+    <!-- Título principal con un diseño simple donde "TO" y "DO" están separados para dar énfasis -->
+    <h1 class="font-bold text-center text-[32px] text-[#333] text-[32px] my-4"><span class="text-[#e08e36]">TO</span>DO</h1>
+  </header>
+  
+  <!-- Barra de navegación con botones para diferentes categorías o acciones -->
+  <nav class="flex justify-between bg-white p-2 border-b-[2px] border-[#ddd] w-full">
+    <!-- Botón para la categoría "Personal" -->
+    <button class="border-none bg-transparent text-[18px] py-2 px-5 cursor-pointer font-bold border-b-[3px] border-orange font-bold">Personal</button>
+    <!-- Botón para la categoría "Professional" (sin clase) -->
+    <button class="border-none bg-transparent text-[18px] py-3 px-5 cursor-pointer">Professional</button>
+    <!-- Botón para añadir nuevas tareas -->
+    <button class="bg-[#b07c7c] text-white text-[20px] py-1 px-4 rounded-[5px] cursor-pointer">+</button>
+  </nav>
+
+  <!-- Filtros de tareas, para filtrar entre todas, incompletas y completadas -->
+  <div class="mt-5">
+    <form method="GET" class="flex justify-center gap-2" name="filter-form">
+      <button type="submit" class="px-4 py-2 bg-[#b07c7c] rounded-[5px] text-white text-[16px] cursor-pointer" name="filter" value="all">All</button>
+      <button type="submit" class="px-4 py-2 bg-[#b07c7c] rounded-[5px] text-white text-[16px] cursor-pointer" name="filter" value="incomplete">Incomplete</button>
+      <button type="submit" class="px-4 py-2 bg-[#b07c7c] rounded-[5px] text-white text-[16px] cursor-pointer" name="filter" value="completed">Completed</button>
+    </form>
+  </div>
+
+  <main>
+    <!-- Agregar tarea -->
+    <div class="flex justify-center items-center my-5" id="task-input">
+      <form method="POST" action="/api/agregar">
+        <input type="text" class="w-[60%] py-2 px-2 rounded-[20px] bg-[#eadecf] border-none placeholder:text-[13px] placeholder:text-[#888]" name="task" placeholder="What do you need to do?" required>
+        <button type="submit" class="bg-[#65b8d8] text-white py-2 px-5 ml-2 rounded-[20px] cursor-pointer hover:bg-[#4a9cbd]" name="add-task">ADD</button>
+      </form>
+    </div>
+
+    <!-- Lista de tareas -->
+    <ul class="list-none mx-auto bg-[#e4dfd9] rounded-[10px] p-[20px]" id="task-list">
+    </ul>
+
+    <!-- Botón para limpiar completadas -->
+    <form method="POST" class="clear-completed-form" name="clear-completed-form" action="/api/clear-completed">
+      <button type="submit" class="bg-[#d9534f] text-white py-2 px-5 rounded-[5px] mt-5 block mx-auto cursor-pointer hover:bg-[#c9302c]" name="clear-completed">Clear Completed</button>
+    </form>
+  </main>
+</Layout>
+
+<script type="module">
+
+  async function handleFilters (event) {
+    event.preventDefault();
+
+    const filter = event.currentTarget.getAttribute("value");
+
+    try {
+      const res = await fetch(`/api/filtros?filter=${filter}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!res.ok) throw new Error("Error al obtener tareas filtradas");
+
+      const tasks = await res.json();
+      taskList.innerHTML = ""; // Limpiar la lista de tareas
+      
+      tasks.forEach((task) => {
+        const li = document.createElement("li");
+        li.classList.add("flex", "justify-between", "items-center", "p-[10px]", "border-b-[1px]", "border-[#ccc]"); // Añadir clases de estilo
+        li.innerHTML = `
+          <form method="POST" class="flex jusitify-between items-center w-[100%]" name="task-form" action="/api/completar">
+            <div class="flex items-center g-[10px]" name="task-content">
+              <label>
+                <input type="hidden" name="task-id" value=${task.id} />
+                <button type="submit" class="text-[18px] cursor-pointer" name="task-btn">${task.done ? "✅" : "⬜"}</button>
+                <span>${ task.text }</span>
+              </label>
+            </div>
+          </form>
+          <form method="POST" class="delete-form" name="delete-form" action="/api/eliminar/">
+            <input type="hidden" name="task-id" value=${task.id} />
+            <button type="submit" class="text-[18px] cursor-pointer" name="delete-btn">🗑️</button>
+          </form>
+        `;
+
+        taskList?.appendChild(li);
+
+        li.querySelector('form[name="task-form"]')?.addEventListener("submit", handleCompletarTarea);
+        li.querySelector('form[name="delete-form"]')?.addEventListener("submit", handleEliminarTarea);
+      });
+
+    } catch (error) {
+      console.error("Error al filtrar tareas:", error);
+    }
+
+  }
+
+  async function handleCompletarTarea (event) {
+    event.preventDefault(); // Previene el envío por defecto
+
+    const form = event.currentTarget;
+    const input = form.querySelector("input[name='task-id']");
+    const id = input?.value?.trim();
+
+    try {
+      const response = await fetch("api/completar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+
+      if (!response.ok) throw new Error("Error al completar tarea");
+
+      const button = form.querySelector('button[name="task-btn"]');
+      if (button) {
+        button.textContent = button.textContent === "⬜" ? "✅" : "⬜";
+      }
+				
+
+    } catch (error) {
+      console.error("Error al marcar tarea:", error);
+    }
+  }
+
+  async function handleEliminarTarea (event) {
+    event.preventDefault(); // Previene el envío por defecto
+
+    const form = event.currentTarget;
+    const input = form.querySelector("input[name='task-id']");
+    const id = input?.value?.trim();
+
+    if (!input) return; // Verifica si el input existe
+
+    if (isNaN(id)) return;
+
+    try {
+      const response = await fetch(`/api/eliminar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+
+      if (!response.ok) throw new Error("Error al eliminar tarea");
+
+      form.closest("li")?.remove(); // Elimina el elemento de la lista
+
+    } catch (error) {
+      console.error("Error al eliminar tarea:", error);
+    }
+  }
+
+  async function handleClearCompleted (event) {
+    event.preventDefault();
+
+    try {
+      const response = await fetch(`/api/clear-completed`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!response.ok) throw new Error("Error al eliminar tareas completadas");
+
+      document.querySelectorAll("#task-list li").forEach((li) => {
+        const button = li.querySelector('button[name="task-btn"]');
+        if (button.textContent === "✅") {
+          li.remove();
+        }
+      });
+
+    } catch (error) {
+      console.error("Error al eliminar tareas completadas:", error);
+    }
+  }
+
+  // Agregar tarea
+  const form = document.querySelector("#task-input form");
+	const taskList = document.querySelector("#task-list");
+  console.log(form);
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault(); // Previene el envío por defecto
+
+    const input = form.querySelector('input[name="task"]');
+    if (!input) return; // Verifica si el input existe
+
+    const taskText = input?.value?.trim();
+    if (!taskText) return;
+
+    try {
+      const response = await fetch(`/api/agregar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: taskText, done: false })
+      });
+
+      if (!response.ok) throw new Error("Error al agregar tarea");
+
+			const task = await response.json(); // Espera la respuesta del servidor
+
+			const li = document.createElement("li");
+			li.classList.add("flex", "justify-between", "items-center", "p-[10px]", "border-b-[1px]", "border-[#ccc]"); // Añadir clases de estilo
+      li.innerHTML = `
+        <form method="POST" class="flex jusitify-between items-center w-[100%]" name="task-form" action="/api/completar">
+          <div class="flex items-center g-[10px]" name="task-content">
+            <label>
+              <input type="hidden" name="task-id" value=${task.id} />
+              <button type="submit" class="text-[18px] cursor-pointer" name="task-btn">${task.done ? "✅" : "⬜"}</button>
+              <span>${ task.text }</span>
+            </label>
+          </div>
+        </form>
+        <form method="POST" class="delete-form" name="delete-form" action="/api/eliminar/">
+          <input type="hidden" name="task-id" value=${task.id} />
+          <button type="submit" class="text-[18px] cursor-pointer" name="delete-btn">🗑️</button>
+        </form>
+      `;
+
+			taskList?.appendChild(li);
+
+      input.value = ""; // Limpiamos el input
+
+      li.querySelector('form[name="task-form"]')?.addEventListener("submit", handleCompletarTarea);
+      li.querySelector('form[name="delete-form"]')?.addEventListener("submit", handleEliminarTarea);
+
+
+    } catch (error) {
+      	console.error("Error al agregar tarea:", error);
+    }
+  });
+
+  // Completar tarea
+  document.querySelectorAll("#task-list form").forEach((form) => {
+		form.addEventListener("submit", handleCompletarTarea);
+  });
+
+  // Eliminar tarea
+  document.querySelectorAll('form[name="delete-form"]').forEach((form) => {
+    form.addEventListener("submit", handleEliminarTarea);
+  });
+
+  // Clear completed
+  document.querySelectorAll('form[name="clear-completed-form"]').forEach((form) => {
+    form.addEventListener("submit", handleClearCompleted)
+  });
+
+  // Filtros
+  document.querySelectorAll('button[name="filter"]').forEach((button) => {
+    button.addEventListener("click", handleFilters);
+  });
+
+	
+</script>
