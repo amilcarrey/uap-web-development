@@ -17,15 +17,17 @@ export default function Message({ message }: MessageProps) {
   const isUser = message.role === "user";
   
   return (
-    <div className={`flex items-end gap-3 mb-5 ${isUser ? "justify-end" : "justify-start"}`}>
+    <div className={`flex items-end gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && <Avatar type="assistant" size="md" />}
       
-      <div className={`px-5 py-3 rounded-3xl max-w-[75%] ${
+      <div className={`px-8 py-5 rounded-2xl max-w-[75%] md:max-w-[65%] shadow-md ${
         isUser 
-          ? "bg-blue-100 text-black rounded-br-md" 
-          : "bg-gray-100 text-black rounded-bl-md"
+          ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-sm" 
+          : "bg-white/95 backdrop-blur-md text-gray-800 rounded-bl-sm"
       }`}>
-        <div className="whitespace-pre-wrap text-sm leading-relaxed">
+        <div className={`whitespace-pre-wrap text-lg leading-loose ${
+          isUser ? "text-white" : "text-gray-800"
+        }`}>
           {message.text}
         </div>
       </div>
