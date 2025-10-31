@@ -1,0 +1,119 @@
+body
+{
+    background-color: aliceblue;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+}
+
+header
+{
+    background-color: rgb(177, 228, 228);
+}
+
+h1
+{
+    display: flex;
+    align-items: center;
+}
+
+#title
+{
+    display: flex;
+    justify-content: center;
+    height: 10vh;
+    align-items: center;
+
+}
+
+.windows 
+{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.windows img
+{
+    display: flex;
+    align-self: center;
+    justify-self: end;
+}
+
+.window
+{
+    width: 80vw;
+    display: flex;
+    justify-content: space-around;
+    background-color: aliceblue;
+    border: aquamarine;
+    border-bottom: 2px solid rgb(177, 228, 228); ;
+    margin: 10px;
+    
+}
+
+.tasklist
+{
+    display: flex;
+    background-color: antiquewhite;
+    border-radius: 20px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    margin: auto;
+    width: 60vw;
+}
+
+.tasklist li
+{
+    display: flex;
+    align-items: center;
+    margin: auto;
+    width: 50vw;
+    gap: 10px;
+    border-width: 10px;
+    border-bottom: 1px solid rgb(177, 228, 228);
+}
+
+.task
+{
+    display: flex;
+    align-items: center;
+}
+
+form
+{
+    padding: 10px;
+}
+
+#entrada
+{
+    display: flex;
+    width: 60%;
+    justify-content: center;
+    background-color: antiquewhite;
+    border-radius: 20px;
+    margin: auto;
+    gap: 10px;    
+    margin-bottom: 20px;
+
+}
+
+#tasklist-fondo
+{
+    display: flex;
+    background-color: antiquewhite;
+    padding: 10px;
+    justify-content: end;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    width: 60%;
+    margin: auto;
+    text-decoration: none;
+}
+
+.classlist input:checked 
+{
+    content: "yalota";
+    color: aliceblue;
+    font-style: oblique;
+}
+
+

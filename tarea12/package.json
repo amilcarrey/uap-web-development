@@ -1,0 +1,46 @@
+{
+  "name": "blockchain",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@tailwindcss/postcss": "^4.1.14",
+    "@tailwindcss/vite": "^4.1.14",
+    "@tanstack/react-query": "5.45.1",
+    "dotenv": "^17.2.3",
+    "ethers": "^6.15.0",
+    "jose": "^6.1.0",
+    "jotai": "^2.15.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "14.2.4",
+    "postcss": "^8.5.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "siwe": "^3.0.0",
+    "sonner": "^2.0.7",
+    "tailwindcss": "^4.1.14",
+    "viem": "latest",
+    "vite": "^7.1.7",
+    "wagmi": "latest"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.12.10",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@wagmi/cli": "latest",
+    "bufferutil": "^4.0.8",
+    "encoding": "^0.1.13",
+    "lokijs": "^1.5.12",
+    "pino-pretty": "^10.3.1",
+    "supports-color": "^9.4.0",
+    "typescript": "^5.8.3",
+    "utf-8-validate": "^5.0.2"
+  }
+}
