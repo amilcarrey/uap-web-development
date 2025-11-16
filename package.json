@@ -1,5 +1,9 @@
 {
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.58",
+    "@ai-sdk/react": "^2.0.82",
+    "@tailwindcss/postcss": "^4.1.16",
+    "ai": "^5.0.82",
     "sqlstring": "^2.3.3",
     "validator": "^13.15.15"
   },
