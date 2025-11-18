@@ -15,10 +15,6 @@
 
 # next.js
 /.next/
-*.db
-*.sqlite
-*.log
-
 /out/
 
 # production

@@ -1,5 +1,15 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// Use the standard JS client generator (default output into `node_modules/@prisma/client`).
 generator client {
   provider = "prisma-client-js"
+  // Place generated runtime files under @prisma/client so the package's
+  // internal `require('.prisma/client/...')` resolves correctly in Node.
+  output = "../node_modules/@prisma/client/.prisma/client"
 }
 
 datasource db {
@@ -7,14 +17,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Priority {
+  low
+  medium
+  high
+}
+
+enum Category {
+  work
+  personal
+  shopping
+  health
+  other
+}
+
 model Task {
-  id          Int      @id @default(autoincrement())
-  title       String
-  completed   Boolean  @default(false)
-  priority    String?  @default("medium")
-  category    String?  @default("other")
-  dueDate     DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deleted     Boolean  @default(false)
+  id        String    @id @default(uuid())
+  title     String
+  priority  Priority  @default(medium)
+  category  Category  @default(other)
+  dueDate   DateTime?
+  completed Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    String?
+
+  @@index([priority])
+  @@index([category])
+  @@index([dueDate])
 }
