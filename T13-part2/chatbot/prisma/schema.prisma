@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model ReadingList {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  priority  String?
+  notes     String?
+  addedAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([bookId])
+  @@unique([userId, bookId])
+}
+
+model ReadBook {
+  id           String   @id @default(cuid())
+  userId       String
+  bookId       String
+  rating       Int?
+  review       String?
+  dateFinished DateTime @default(now())
+
+  @@index([userId])
+  @@index([bookId])
+  @@index([dateFinished])
+}
+
+// Caché para reducir llamadas a Google Books API
+model BookCache {
+  id            String   @id @default(cuid())
+  bookId        String   @unique
+  title         String
+  authors       String   // JSON string con array de autores
+  description   String?
+  pageCount     Int      @default(0)
+  categories    String?  // JSON string con array de categorías
+  publishedDate String?
+  rating        Float?
+  ratingsCount  Int      @default(0)
+  thumbnail     String?
+  cachedAt      DateTime @default(now())
+  
+  @@index([bookId])
+}
