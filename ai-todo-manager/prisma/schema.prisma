@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  completed Boolean   @default(false)
+  priority  Priority  @default(medium)
+  category  Category  @default(other)
+  dueDate   DateTime?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId, deletedAt])
+  @@index([userId, completed, priority])
+  @@index([userId, dueDate])
+  @@index([userId, category])
+  @@index([title])
+}
+
+enum Priority {
+  low
+  medium
+  high
+}
+
+enum Category {
+  work
+  personal
+  shopping
+  health
+  other
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+
+  @@index([userId, createdAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String       @db.Text
+  toolCalls      Json?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
