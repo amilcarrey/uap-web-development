@@ -7,7 +7,7 @@ Utilizando un script en JS, vamos a hacer que funcione nuestra aplicación.
 - Realizar lo mismo cuando se apriete la tecla Enter mientras se escribe en el input. (Puntos extra si lo hacen con 1 solo evento los 2).
 - Capacidad de completar y descompletar una tarea al clickear en su correspondiente checkbox.
 - Capacidad de eliminar una tarea de la lista.
-- Eliminar todas las tareas ya completadas al clickear el botón de Clear Completed.
+- Eliminar todas las tareas ya completadas al clickear el botón de Clear Completed. 
 - Agregar botones de filtro que permitan ver todas las tareas, las incompletas y las completas. Prestar atención que si se aplica un filtro, no se pierdan datos y se pueda volver a un estado anterior.
 
 ### Tarea en clase

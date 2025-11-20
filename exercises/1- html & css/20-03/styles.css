@@ -1,0 +1,116 @@
+body {
+    width: auto;
+    background-color: white;
+    padding: 0 20px 20px 20px; 
+    margin: 0;                 
+    border-radius: 10px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.encabezado {
+    display: flex;
+    text-align: center;
+    align-content: flex-start;
+    justify-content: center;
+    height: 60px;
+    width: auto;
+    background-color: antiquewhite;
+    font-size: 50px;
+    color: #666;
+    border-radius: 20px;
+    margin: 0;                
+    padding: 0;                
+}
+
+.container {
+    display: flex;
+    align-content: flex-start;
+    justify-content: space-evenly;
+    font-weight: bold;
+    padding: 0;               
+    background-color: #f5ede4;
+    border-radius: 20px;
+    margin: 0;   
+    box-shadow: #000000;              
+}
+
+#subencabezado{
+    cursor: pointer;
+}
+
+.buscador {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5ede4;
+    padding: 10px;
+    border-radius: 20px;
+    width: 650px;
+    margin: 0 auto;          
+}
+
+.buscador input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    color: #666;
+}
+
+.buscador button {
+    background-color: #60b0cf;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: #000000;
+}
+
+.to-do {
+    width: 650px;
+    margin: 0 auto;         
+    padding: 10px;
+    background-color: #f8f5ef;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column; 
+}
+
+.tarea {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.basura {
+    margin-left: auto;
+    color: #000000;
+    cursor: pointer;
+    border: transparent;
+}
+
+.clear-completed {
+    text-align: right;
+    color: orange;
+    font-size: 14px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.filtros{
+    display: flex;
+    justify-content: space-around;
+}
+
+.filtros button{
+    background-color: antiquewhite;
+    border: 2px dotted antiquewhite;
+    border-radius: 8%;
+    padding: 5px 15px;
+    cursor: pointer;
+    font-size: 14px;
+}
