@@ -16,9 +16,9 @@ Principal: **Google Books API**
 
 **Ejemplos de Búsqueda:**
 
-- Por título: `?q=harry+potter`
+- Por título: `?q=la+oración`
 - Por ISBN: `?q=isbn:9780439708180`
-- Por autor: `?q=inauthor:rowling`
+- Por autor: `?q=inauthor:white`
 
 **Características:**
 
