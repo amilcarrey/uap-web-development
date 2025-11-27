@@ -1,0 +1,97 @@
+#Tarea 10: Deploy y CI/CD
+
+## URL de vercel
+https://vercel-nine-gilt-52.vercel.app/
+
+## Archivos y rutas creados para CI/CD y Docker
+
+- .github/workflows/build.yml
+```
+name: Build on Pull Request
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm install
+      - run: npm run build
+```
+
+- .github/workflows/test.yml
+```
+name: Test on Pull Request
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm install
+      - run: npm test
+```
+
+- .github/workflows/docker.yml
+```
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: npm run build
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.repository }}:latest .
+      - name: Login to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ github.repository }}:latest
+```
+
+- Dockerfile
+```
+# Stage 1: Build
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Stage 2: Production
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app ./
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+
