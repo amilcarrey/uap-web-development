@@ -1,33 +1,37 @@
-Descripción del Proyecto:
-Construir una plataforma de descubrimiento y reseñas de libros donde los usuarios pueden buscar libros, ver detalles y compartir reseñas con votación comunitaria.
-Características Principales:
 
-Buscar Libros: Búsqueda por título, autor o ISBN usando la API de Google Books
-Detalles del Libro: Mostrar imagen de portada, descripción, info del autor, detalles de publicación
-Escribir Reseñas: Los usuarios pueden agregar calificaciones (1-5 estrellas) y reseñas escritas
-Votación Comunitaria: Votar a favor/en contra de las reseñas para destacar el mejor contenido
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-APIs Externas a Usar
-Principal: **Google Books API**
+## Getting Started
 
-- **URL:** https://www.googleapis.com/books/v1/volumes
-- **Nivel gratuito:** 1,000 requests/día (más que suficiente para proyectos de clase)
-- **Autenticación:** No se requiere clave API para uso básico
+First, run the development server:
 
-**Ejemplos de Búsqueda:**
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-- Por título: `?q=harry+potter`
-- Por ISBN: `?q=isbn:9780439708180`
-- Por autor: `?q=inauthor:rowling`
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-**Características:**
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-- Datos completos: Portadas, descripciones, cantidad de páginas, categorías, info de publicación
-- Imágenes de alta calidad: Múltiples tamaños de portada disponibles
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-**Unit Testing**
+## Learn More
 
-- Agregar pruebas unitarias que cubran completamente la lógica de negocios de su aplicación.
-- Utilizar vitest en conjunto con testing-library para esto.
-- Asegurense de probar todos los edge cases.
-- Distinguir claramente qué debe ser mockeado y qué debe probarse directamente.
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
