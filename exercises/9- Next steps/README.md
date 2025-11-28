@@ -31,3 +31,11 @@ Principal: **Google Books API**
 - Utilizar vitest en conjunto con testing-library para esto.
 - Asegurense de probar todos los edge cases.
 - Distinguir claramente qué debe ser mockeado y qué debe probarse directamente.
+
+**Unit Testing**
+
+- Agregar pruebas unitarias que cubran completamente la lógica de negocios de su aplicación.
+- Utilizar vitest en conjunto con testing-library para esto.
+- Asegurense de probar todos los edge cases.
+- Distinguir claramente qué debe ser mockeado y qué debe probarse directamente.
+.
