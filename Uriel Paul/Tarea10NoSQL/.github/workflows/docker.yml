@@ -1,0 +1,54 @@
+name: Docker
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm test
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version
+        id: vars
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Compute lowercase repo (for GHCR)
+        id: meta
+        shell: bash
+        run: |
+          echo "repo_lc=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          build-args: |
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.repo_lc }}:latest
+            ghcr.io/${{ steps.meta.outputs.repo_lc }}:${{ steps.vars.outputs.version }}
+            ghcr.io/${{ steps.meta.outputs.repo_lc }}:${{ github.sha }}
