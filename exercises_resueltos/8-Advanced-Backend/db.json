@@ -1,0 +1,44 @@
+{
+  "tasks": [
+    {
+      "id": "1",
+      "text": "Tarea 1",
+      "completed": true
+    },
+    {
+      "id": "06f7",
+      "text": "Tarea 2",
+      "completed": false
+    },
+    {
+      "id": "35fe",
+      "text": "Tarea 3",
+      "completed": true
+    },
+    {
+      "id": "0d71",
+      "text": "Tarea 4",
+      "completed": false
+    },
+    {
+      "id": "5304",
+      "text": "Tarea 5",
+      "completed": true
+    },
+    {
+      "id": "4e15",
+      "text": "Tarea 6",
+      "completed": false
+    },
+    {
+      "id": "78e8",
+      "text": "Tarea 7",
+      "completed": true
+    },
+    {
+      "id": "b8dc",
+      "text": "Tarea 8",
+      "completed": false
+    }
+  ]
+}
