@@ -1,0 +1,47 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend for the Tarea 8 project",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "db:migrate": "sequelize-cli db:migrate --config src/config/config.js --migrations-path src/db/migrations --models-path src/models",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo --config src/config/config.js --migrations-path src/db/migrations --models-path src/models",
+    "db:seed:all": "sequelize-cli db:seed:all --config src/config/config.js --seeders-path src/db/seeders",
+    "db:seed:undo:all": "sequelize-cli db:seed:undo:all --config src/config/config.js --seeders-path src/db/seeders",
+    "db:create:migration": "sequelize-cli migration:generate --name",
+    "db:create:seed": "sequelize-cli seed:generate --name",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "sequelize",
+    "postgres",
+    "jwt"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
+    "express-async-handler": "^1.2.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.16.3",
+    "react-router-dom": "^7.6.3",
+    "sequelize": "^6.37.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.13.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "sequelize-cli": "^6.6.3"
+  }
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Tareas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1><span class="highlight">TO</span>DO</h1>
+    <nav>
+      <button class="tab active">Personal</button>
+      <button class="tab">Professional</button>
+      <button class="add-task">+</button>
+    </nav>
+  </header>
+
+  <main>
+    <form id="formulario-tarea">
+      <input type="text" id="entrada-tarea" name="tarea" placeholder="What do you need to do?" required>
+      <button type="submit">ADD</button>
+    </form>
+
+    <ul id="lista-tareas"></ul>
+
+    <button class="clear-completed">Clear Completed</button>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
