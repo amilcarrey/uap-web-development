@@ -1,0 +1,44 @@
+name: Build Verification
+
+on:
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Build Full Stack Application
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install frontend dependencies
+      run: npm run install-frontend
+      
+    - name: Build frontend application
+      run: npm run build-frontend
+      
+    - name: Type check frontend
+      working-directory: ./frontend
+      run: npx tsc --noEmit
+      
+    - name: Install backend dependencies
+      run: npm run install-backend
+      
+    - name: Build backend
+      run: npm run build-backend
+      
+    - name: Verify build output
+      run: |
+        echo "✅ Frontend built successfully"
+        ls -la frontend/.next
+        echo "✅ Backend built successfully" 
+        ls -la backend/dist
