@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tareas</title>
+    <style>
+        html, body { height: 100%; margin: 0; background: #162944; color: white; font-family: "Lucida Console", Monaco, monospace; text-align: center; }
+        h1 { margin-top: 20px; }
+        form { margin-bottom: 20px; }
+        input { padding: 10px; margin: 5px; border: 2px solid #D80286; background: #fff; color: #162944; width: 200px; }
+        .button_slide { color: #1a1717; border: 2px solid rgb(216, 2, 134); padding: 10px 20px; cursor: pointer; transition: ease-out 0.4s; }
+        .slide_right:hover { box-shadow: inset 400px 0 0 0 #D80286; }
+        ul { list-style: none; padding: 0; }
+        li { background: white; padding: 10px; margin: 5px auto; width: 320px; display: flex; justify-content: space-between; border-radius: 5px; color: #162944; }
+        .tarea { flex-grow: 1; text-align: left; margin-left: 10px; }
+        .completado { text-decoration: line-through; color: gray; }
+    </style>
+</head>
+<body>
+    <h1>Gestor de Tareas</h1>
+
+    <form action="/agregar" method="POST">
+        <label for="tarea">Nueva tarea:</label>
+        <input type="text" id="tarea" name="tarea">
+        <button type="submit" class="button_slide slide_right">Agregar</button>
+    </form>
+
+    <% if (tareas.length === 0) { %>
+        <p>No hay tareas hoy. ¡Agregá una!</p>
+    <% } %>
+
+    <ul>
+        <% tareas.forEach((tarea, index) => { %>
+            <li>
+                <span class="tarea <%= tarea.completado ? 'completado' : '' %>"><%= tarea.texto %></span>
+                <form action="/completar/<%= index %>" method="POST" style="display:inline;">
+                    <button type="submit" class="button_slide slide_right">✔</button>
+                </form>
+                <form action="/eliminar/<%= index %>" method="POST" style="display:inline;">
+                    <button type="submit" class="button_slide slide_right">🗑</button>
+                </form>
+            </li>
+        <% }); %>
+    </ul>
+
+    <form action="/eliminar-completadas" method="POST">
+        <button type="submit" class="button_slide slide_right">Eliminar completadas</button>
+    </form>
+</body>
+</html>

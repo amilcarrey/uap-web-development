@@ -1,0 +1,46 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int           @id @default(autoincrement())
+  username  String        @unique
+  reviews   Review[]
+  votes     ReviewVote[]
+}
+
+model Book {
+  id        String        @id
+  title     String?
+  raw       Json?
+  createdAt DateTime      @default(now())
+  reviews   Review[]
+}
+
+model Review {
+  id         Int          @id @default(autoincrement())
+  userId     Int
+  user       User         @relation(fields: [userId], references: [id])
+  bookId     String
+  book       Book         @relation(fields: [bookId], references: [id])
+  rating     Int
+  content    String?
+  createdAt  DateTime     @default(now())
+  votes      ReviewVote[]
+}
+
+model ReviewVote {
+  id        Int     @id @default(autoincrement())
+  review    Review  @relation(fields: [reviewId], references: [id])
+  reviewId  Int
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+  vote      Int     // 1 or -1
+
+  @@unique([reviewId, userId])
+}

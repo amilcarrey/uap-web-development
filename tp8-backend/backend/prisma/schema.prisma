@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  password    String
+  nombre      String
+  tableros    Tablero[]     @relation("PropietarioTablero")
+  permisos    Permiso[]
+  configuracion Configuracion?
+}
+
+model Tablero {
+  id        Int       @id @default(autoincrement())
+  nombre    String
+  propietarioId Int
+  propietario   Usuario     @relation("PropietarioTablero", fields: [propietarioId], references: [id])
+  tareas    Tarea[]
+  permisos  Permiso[]
+}
+
+model Tarea {
+  id        Int    @id @default(autoincrement())
+  contenido String
+  completada Boolean @default(false)
+  tablero   Tablero @relation(fields: [tableroId], references: [id])
+  tableroId Int
+}
+
+model Permiso {
+  id        Int     @id @default(autoincrement())
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId Int
+  tablero   Tablero @relation(fields: [tableroId], references: [id])
+  tableroId Int
+  rol       Rol
+}
+
+model Configuracion {
+  id         Int     @id @default(autoincrement())
+  usuarioId  Int     @unique
+  usuario    Usuario @relation(fields: [usuarioId], references: [id])
+  refetchMs  Int     @default(10000)
+  mayusculas Boolean @default(false)
+}
+
+enum Rol {
+  owner
+  editor
+  viewer
+}
