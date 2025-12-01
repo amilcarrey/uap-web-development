@@ -1,0 +1,44 @@
+  <form id="add-todo" action="/api/backend" method="POST" class="flex items-center bg-[rgba(241,236,230,255)] my-6 rounded-full w-1/2 p-0">
+    <input type="text" name="text" id="input-todo" placeholder="What do you need to do?" required class="flex-grow bg-transparent border-0 font-montserrat text-lg p-3 ml-2 focus:outline-none" />
+    <button type="submit" id="add-todo-btn" name="action" value="add" class="flex-shrink-0 bg-[rgb(116,178,202)] border-0 text-white text-2xl rounded-r-full py-3 px-5 cursor-pointer">ADD</button>
+  </form>
+
+  <script>
+
+    import  { renderTodos } from "../scripts/renderTodos"; // Import the renderTodos function
+
+    const form = document.querySelector("#add-todo");
+
+    form?.addEventListener("submit",  async (event) => {
+      event.preventDefault(); // Prevent the default form submission
+
+      const input = document.querySelector("input"); // Select the input element
+      if (!input) return; // If the input is not found, do nothing
+      const text = input.value.trim(); // Get the value of the input and trim it
+      if (text === "") return; // If the input is empty, do nothing
+
+      try {
+        const response = await fetch("/api/backend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text, action: "add" }), // Send the text and action as JSON
+        });
+
+        if (!response.ok) {
+          console.error("Error adding todo:", response.statusText); // Log an error if the response is not ok
+          return;
+        }
+
+        const json = await response.json(); // Parse the JSON response
+        console.log("JSON recibido:", JSON.stringify(json));
+        //console.log("Type of response:", typeof json); // Log the type of the response
+  
+        input.value = ""; // Clear the input fielD
+        renderTodos(json);
+      } catch (error) {
+        console.error("Error:", error); // Log any errors that occur during the fetch
+      }
+    });
+  </script>

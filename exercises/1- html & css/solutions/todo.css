@@ -1,0 +1,164 @@
+body {
+    padding: 0%;
+    margin: 0;
+}
+
+h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: 3em;
+    background-color: rgba(241,236,230,255);
+    margin: 0;
+    text-align: center;
+    padding: 5px;
+}
+
+.select-category {
+    display: flex;
+    align-items: center;
+    background-color: rgba(243,243,243,255);
+}
+
+.category {
+    position: relative;
+    flex-grow: 1;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    font-size: 1.5em;
+    letter-spacing: 2px;
+    padding: 10px;
+    margin: 0;
+    height: 100%;
+    opacity: 0.35;
+    cursor: pointer;
+    transition: 0.5s;
+}
+.category.selected {
+    opacity: 1;
+    border-bottom: 4px solid orange;
+}
+
+#add-category {
+    flex-shrink: 0;
+    padding: 8px ;
+    background-color: rgba(173,131,131,255);
+    cursor: pointer;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size:2.5em;
+    border: 0;
+    padding: 0 10px;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white
+}
+
+.add-todo {
+    display: flex;
+    align-items: center;
+    background-color: rgba(241,236,230,255);
+    margin: 20px;
+    border-radius: 25px;
+    width: 50%;
+    padding: 0;
+}
+
+#input-todo {
+    flex: 1;
+    background-color: transparent;
+    border: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3em;
+    padding: 10px;
+    margin-left: 10px;
+
+}
+#add-todo-btn {
+    flex-shrink: 0; 
+    background-color: rgb(116,178,202);
+    border: 0;
+    color: white;
+    font-size: 1.5em;
+    box-sizing: border-box; 
+    border-radius: 0 25px 25px 0;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.todo-container {
+    width: 50%;
+    margin: 20px;
+    margin-top: 10px;
+    padding: 10px; 
+    background-color: rgba(241,236,230,255);
+    border-radius: 25px;
+}
+
+.todo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    
+}
+
+.check-btn {
+    flex-shrink: 0;
+    background-color: transparent;
+    color: transparent;
+    font-size: 1em;   
+    border: 3px solid gray;
+    border-radius: 50%;
+    padding: 5px 8px 5px 8px;
+    margin-right: 20px;
+    margin-top: 20px;
+    transition: 0.5s;
+}
+.check-btn.active {
+    border: orange 3px solid;
+    color: orange;
+    font-weight: bolder;
+}
+
+.todo-text {
+    flex: 1;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3em;
+    padding-bottom: 10px;
+    margin-bottom: 0;
+    border-bottom: 1px solid rgb(116,178,202);
+    transition: 0.5s;
+}
+.todo-text.completed {
+    text-decoration: line-through;
+    opacity: 0.5;
+    color: rgb(158, 151, 151);
+}
+
+.delete-btn {
+    flex-shrink: 0;
+    background-color: transparent;
+    border: 0;
+    color: orange;
+    font-size: 1em;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+#clear {
+    color: orange;
+    margin: 100px 30px 10px 30px;
+    text-align: right;
+    cursor: pointer;
+}

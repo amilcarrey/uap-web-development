@@ -1,0 +1,64 @@
+---
+const { filter } = Astro.props;
+---
+<form id="filter-form" action="/api/backend" method="GET" class="flex justify-around items-center my-5">
+    <button type="submit" name="filter" value="all" class={`w-3/10 bg-[rgb(116,178,202)] text-white font-montserrat text-2xl py-2 px-5 border-0 rounded-full border-b-4 border-orange-300 opacity-50 hover:opacity-100 transition-all duration-500 ${filter === "all" ? 'opacity-100 shadow-md' : ''} shadow-black`}>Show all</button>
+    <button type="submit" name="filter" value="completed" class={`w-3/10 bg-[rgb(116,178,202)] text-white font-montserrat text-2xl py-2 px-5 border-0 rounded-full border-b-4 border-orange-300 opacity-50 hover:opacity-100 transition-all duration-500 ${filter === "completed" ? 'opacity-100 shadow-md' : ''} shadow-black`}>Completed</button>
+    <button type="submit" name="filter" value="uncompleted" class={`w-3/10 bg-[rgb(116,178,202)] text-white font-montserrat text-2xl py-2 px-5 border-0 rounded-full border-b-4 border-orange-300 opacity-50 hover:opacity-100 transition-all duration-500 ${filter === "uncompleted" ? 'opacity-100 shadow-md' : ''} shadow-black`}>Uncompleted</button>
+  </form>
+
+<script>
+import { renderTodos } from "../scripts/renderTodos"; // Import the renderTodos function
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("filter-form");
+
+        if (!form) return;
+        
+        // Usar onsubmit directo en el formulario
+        form?.addEventListener("submit", async (event) => {
+            // Prevenir la acción por defecto
+            event.preventDefault();
+            
+            // Obtener el botón que fue clickeado
+            const clickedButton = event.submitter as HTMLButtonElement;
+            if (!clickedButton) return;
+            
+            const value = clickedButton.value;
+            console.log(`Filtrando por: ${value}`);
+            
+            try {
+                const response = await fetch(`/api/backend?filter=${value}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+                
+                if (!response.ok) {
+                    console.error("Error filtering todos:", response.statusText);
+                    return;
+                }
+                
+                const json = await response.json();
+                console.log("JSON recibido:", JSON.stringify(json));
+                console.log("Tipo de respuesta:", typeof json);
+                
+                // Actualizar la UI con los datos filtrados
+                renderTodos(json);
+                
+                // Actualizar las clases de los botones
+                const buttons = form.querySelectorAll("button");
+                buttons.forEach(btn => {
+                    btn.classList.toggle("opacity-100", btn === clickedButton);
+                    btn.classList.toggle("shadow-md", btn === clickedButton);
+                });
+                
+            } catch (error) {
+                console.error("Error:", error);
+            }
+            
+            return false; // Retornar false adicionalmente para garantizar que no haya redirección
+        });
+    });
+</script>
