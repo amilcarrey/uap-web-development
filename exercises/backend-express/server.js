@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());              // permite peticiones desde cualquier origen (localhost:5173, por ejemplo)
 app.use(express.json());      // parsea JSON en el body
 
-// Simulamos una “base de datos” en memoria:
+// Simulamos una “base de datos” en memoria: cde tareas
 let tasks = [];
 let nextId = 1;
 
