@@ -1,0 +1,208 @@
+body {
+  background-color: #f0f0f0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #f1f19d;
+  color: #fff;
+  padding: 5px 0;
+  text-align: center;
+}
+
+nav {
+  background-color: #ffe863;
+  color: #fff;
+  padding: 2px 0;
+  text-align: center;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu li {
+  margin: 0 10px;
+  display: inline;
+  font-size: 1.2em;
+}
+
+.menu a {
+  color: #f0f0f0;
+  text-decoration: none;
+}
+
+.mas {
+  color: #bebebe;
+  font-size: 1.2em;
+}
+
+.menu a:hover {
+  color: #fff;
+}
+
+.TO {
+  font-size: 1.5em;
+  color: gray;
+}
+
+.DO {
+  color: chocolate;
+}
+
+.bienvenida {
+  font-size: 1em;
+  color: #333;
+  text-align: center;
+}
+
+.agrega-tareas {
+  text-align: center;
+  color: #333;
+  margin-top: 30px;
+}
+
+.agrega-tareas input {
+  padding: 10px;
+  width: 50%;
+  border: 0.5px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+
+.agregar {
+  padding: 10px 5px;
+  background-color: chocolate;
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.agregar:hover {
+  background-color: rgb(248, 129, 43);
+}
+
+.tareas-pendientes {
+  text-align: center;
+  background-color: #e4e2e2;
+  padding: 10px;
+  border-radius: 5px;
+  width: 60vw;
+  height: 60vh;
+  margin: auto;
+}
+
+.tareas-pendientes h2 {
+  color: #333;
+}
+
+.lista-tareas {
+  list-style: none;
+  padding: 0;
+  font-size: 1.2em;
+  font-weight: 500;
+}
+
+.eliminar {
+  background-color: #ac1212;
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.eliminar:hover {
+  background-color: #ff0000;
+}
+
+footer {
+  margin-top: 10px;
+  background-color: #575656;
+  color: #fff;
+  text-align: center;
+  padding: 10px 0;
+  bottom: 0;
+  width: 100%;
+}
+
+.filtro {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#verIncompletas {
+  background-color: #575656;
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 1em;
+}
+
+#verCompletas {
+  background-color: #575656;
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 1em;
+}
+
+#verTodas {
+  background-color: #575656;
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 1em;
+}
+
+#eliminarCompletas {
+  margin-top: 5px;
+  background-color: #920e0e;
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 1em;
+}
+
+#eliminarCompletas:hover {
+  background-color: #ff0000;
+}
+
+@media screen and (max-width: 600px) {
+  .agrega-tareas input {
+    width: 80%;
+  }
+
+  .tareas-pendientes {
+    width: 90vw;
+    height: 70vh;
+  }
+
+  .menu li {
+    font-size: 1em;
+  }
+
+  .bienvenida {
+    font-size: 0.8em;
+  }
+  .agregar {
+    font-size: 0.9em;
+  }
+}
