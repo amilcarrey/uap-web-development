@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Color Picker</title>
+    <link rel="stylesheet" href="ColorPicker.css">
+
+</head>
+<body>
+    <div id ="container">
+        <h1>Interactive Color Picker</h1>
+        <div id="Screen"></div>
+        <p><strong>HEX:</strong> <span id="hexValue">#FF0000</span></p>
+        <div class="sliders">
+            <p>R</p>
+            <input type="range" id="redSlider" min="0" max="255" value="0">
+            <p id="R-value">0</p>
+        </div>
+        <div class="sliders">
+            <p>G</p>
+            <input type="range" id="greenSlider" min="0" max="255" value="0">
+            <p id="G-value">0</p>
+        </div>
+        <div class="sliders">
+            <p>B</p>
+            <input type="range" id="blueSlider" min="0" max="255" value="0">
+            <p id="B-value">0</p>
+        </div>
+        <button id="resetButton">Reset</button>
+    </div>
+    <script src="ColorPicker.js"></script>
+</body>
+</html>
