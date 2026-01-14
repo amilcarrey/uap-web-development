@@ -1,0 +1,31 @@
+name: Build Docker on Merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/mi-app-nextjs:latest .
+          docker tag ghcr.io/${{ github.repository_owner }}/mi-app-nextjs:latest ghcr.io/${{ github.repository_owner }}/mi-app-nextjs:${{ github.sha }}
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/mi-app-nextjs:latest
+          docker push ghcr.io/${{ github.repository_owner }}/mi-app-nextjs:${{ github.sha }}
