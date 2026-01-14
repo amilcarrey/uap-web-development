@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDoPractia</title>
+    <link rel="stylesheet" href="ToDo.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="title">
+        <h1>
+            TO
+        </h1>
+        <H1>
+            DO
+        </H1>
+    </div>
+    <div class="Area">
+        <button class="Category" id = "AreaText">PERSONAL</button>
+        <button class="Category" id = "AreaText">PROFESIONAL</button>
+        <button type="button" id="AddAreaButton">+</button>
+    </div>
+    <div class="BarTask">
+            <input type="text" id="addtask" placeholder="Add a task...">
+            <button type="button" id="addTaskButton">ADD</button>
+    </div>
+    <div class="Main">
+        <button class="Filter" id="Completed">Completed</button>
+        <button class="Filter" id="Incompleted">Incompleted</button>
+        <button class="Filter" id="All">All</button>
+        <div class="Tasks">
+            <div class="Task" id="personalTask">
+                    <input type="checkbox" id="checkTask">
+                    <p>Hacer la tarea</p>
+                    <button type="button" id="deleteTask"><i class="fas fa-trash"></i> DELETE</button>
+            </div>
+            <div class="Task" id="personalTask">
+                    <input type="checkbox" id="checkTask">
+                    <p>Limpiar</p>
+                    <button type="button" id="deleteTask"><i class="fas fa-trash"></i> DELETE</button>
+            </div>
+            <div class="Task" id="personalTask">
+                    <input type="checkbox" id="checkTask">
+                    <p>Ir al gimnasio</p>
+                    <button type="button" id="deleteTask"><i class="fas fa-trash"></i> DELETE</button>
+            </div>
+            <div class="Task" id="personalTask">
+                    <input type="checkbox" id="checkTask">
+                    <p>Bañarse</p>
+                    <button type="button" id="deleteTask"><i class="fas fa-trash"></i> DELETE</button>
+            </div>
+            <div class="Task" id="personalTask">
+                    <input type="checkbox" id="checkTask">
+                    <p>Dormir</p>
+                    <button type="button" id="deleteTask"><i class="fas fa-trash"></i> DELETE</button>
+            </div>   
+        </div>
+        <button id="clearCompleteButton">Clear</button>
+    </div>
+    <script src="ToDo.js"></script>
+</body>
+</html>
