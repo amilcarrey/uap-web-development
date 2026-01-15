@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "fotos-ubicacion",
+    "slug": "fotos-ubicacion",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+
+    "plugins": [
+      "expo-camera",
+      "expo-location",
+      "expo-media-library"
+    ],
+
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tuusuario.fotosubicacion",
+      "infoPlist": {
+        "NSCameraUsageDescription": "La app necesita acceder a la cámara para tomar fotos.",
+        "NSLocationWhenInUseUsageDescription": "La app usa tu ubicación para asociarla a las fotos.",
+        "NSPhotoLibraryAddUsageDescription": "La app necesita guardar fotos en tu galería."
+      }
+    },
+
+    "android": {
+      "package": "com.tuusuario.fotosubicacion",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "READ_MEDIA_IMAGES"
+      ]
+    },
+
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
