@@ -1,0 +1,34 @@
+{
+  "name": "react-web3-faucet",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "server:dev": "node server/index.js",
+    "server:start": "node server/index.js"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.51.10",
+    "@web3modal/wagmi": "^5.1.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "siwe": "^2.3.2",
+    "viem": "^2.13.11",
+    "wagmi": "^2.12.2"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "^7.28.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.7"
+  }
+}
