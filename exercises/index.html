@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestor de tareas</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="text/javascript" src="script.js"></script>
+  </head>
+  <body>
+
+    <header>
+      <h1><span class="TO">TO</span><span class="DO">DO</span></h1>
+    </header>
+
+    <nav>
+      <ul class="menu">
+        <li><a href="#">Personal</a></li>
+        <li><a href="#trabajo">Trabajo</a></li>
+        <li><button class="mas">+</button></li>
+      </ul>
+
+    </nav>
+
+    <div class="bienvenida">
+      <h2>Bienvenido a tu gestor de tareas</h2>
+      <p>
+        Aquí podrás organizar tus tareas pendientes y llevar un control de las
+        tareas que ya has completado.
+      </p>
+    </div>
+
+    <div class="agrega-tareas">
+      <h2>Agrega una tarea</h2>
+        <input class="escribir-tarea" type="text" name="tarea" placeholder="Escribe una tarea" />
+        <button type="submit" class="agregar" onclick=" agregarTarea()">Agregar tarea</button>
+      </form>
+    </div>
+
+    <div class="tareas-pendientes">
+      <h2>Tareas pendientes</h2>
+      <ul class="lista-tareas">
+        <li class="tarea">
+          <input type="checkbox" class="checkbox" " />
+          <span  >Personal work No.1</span>
+          <button class="eliminar">Eliminar</button>
+        </li>
+        <li class="tarea">
+          <input type="checkbox" class="checkbox" />
+          <span >Personal work No.2</span>
+          <button class="eliminar">Eliminar</button>
+        </li>
+      </ul>
+      <button  id="eliminarCompletas" onclick="borrarCompletas()">Borrar completas</button>
+    </div>
+
+    <div class="filtro">
+      <h2>Filtrar tareas</h2>
+      <button id="verIncompletas" onclick="mostrarIncompletas()"> Ver incompletas</button>
+      <button id="verCompletas" onclick="mostrarCompletas()"> Ver completas</button>
+      <button id="verTodas" onclick="mostrarTodas()"> Ver todas</button>
+  </body>
+</html>
