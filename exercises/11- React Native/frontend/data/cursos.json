@@ -1,0 +1,39 @@
+[
+  {
+    "id": "curso-1",
+    "title": "Amor y Perdón",
+    "image": "/assets/images/react-logo.png",
+    "questions": [
+      {
+        "id": "q1",
+        "verse": "Juan 3:16",
+        "text": "¿Cuál es el mensaje principal?",
+        "choices": [
+          { "id": "a", "text": "Amor de Dios", "correct": true, "reflection": "Dios nos ama incondicionalmente." },
+          { "id": "b", "text": "Juicio", "correct": false, "reflection": "El juicio no es el foco del versículo." },
+          { "id": "c", "text": "Prosperidad", "correct": false, "reflection": "La prosperidad no es el mensaje central aquí." }
+        ]
+      },
+      {
+        "id": "q2",
+        "verse": "2 Cronicas 7:14",
+        "text": "¿Cuál es el mensaje principal?",
+        "choices": [
+          { "id": "a", "text": "Amor de Dios", "correct": true, "reflection": "Dios nos ama incondicionalmente." },
+          { "id": "b", "text": "Juicio", "correct": false, "reflection": "El juicio no es el foco del versículo." },
+          { "id": "c", "text": "Prosperidad", "correct": false, "reflection": "La prosperidad no es el mensaje central aquí." }
+        ]
+      },
+      {
+        "id": "q3",
+        "verse": "Hebreos 4:15,16",
+        "text": "¿Cuál es el mensaje principal?",
+        "choices": [
+          { "id": "a", "text": "Amor de Dios", "correct": true, "reflection": "Dios nos ama incondicionalmente." },
+          { "id": "b", "text": "Juicio", "correct": false, "reflection": "El juicio no es el foco del versículo." },
+          { "id": "c", "text": "Prosperidad", "correct": false, "reflection": "La prosperidad no es el mensaje central aquí." }
+        ]
+      }
+    ]
+  }
+]
